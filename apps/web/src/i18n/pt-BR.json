@@ -37,6 +37,7 @@
     "createClass": "Criar Aula",
     "className": "Nome da Aula",
     "classType": "Tipo",
+    "daysOfWeek": "Dias da Semana",
     "startTime": "Horário Início",
     "endTime": "Horário Fim",
     "checkin": "Check-in",

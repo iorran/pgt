@@ -37,6 +37,7 @@
     "createClass": "Create Class",
     "className": "Class Name",
     "classType": "Type",
+    "daysOfWeek": "Days of the Week",
     "startTime": "Start Time",
     "endTime": "End Time",
     "checkin": "Check-in",

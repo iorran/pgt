@@ -54,7 +54,7 @@ export default function ClassesPage() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', type: '', recurrence: 'weekly', dayOfWeek: '1', startTime: '', endTime: '' });
+  const [form, setForm] = useState({ name: '', type: '', recurrence: 'weekly', daysOfWeek: [] as number[], startTime: '', endTime: '' });
   const [checkinMsg, setCheckinMsg] = useState('');
 
   useEffect(() => {
@@ -66,13 +66,34 @@ export default function ClassesPage() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    const created = await api<ClassItem>('/classes', {
-      method: 'POST',
-      body: JSON.stringify({ ...form, dayOfWeek: Number(form.dayOfWeek), academyId: user.academyId }),
-    });
-    setClasses(prev => [...prev, created]);
-    setForm({ name: '', type: '', recurrence: 'weekly', dayOfWeek: '1', startTime: '', endTime: '' });
+    const newClasses: ClassItem[] = [];
+    for (const day of form.daysOfWeek) {
+      const created = await api<ClassItem>('/classes', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: form.name,
+          type: form.type,
+          recurrence: form.recurrence,
+          dayOfWeek: day,
+          startTime: form.startTime,
+          endTime: form.endTime,
+          academyId: user.academyId,
+        }),
+      });
+      newClasses.push(created);
+    }
+    setClasses(prev => [...prev, ...newClasses]);
+    setForm({ name: '', type: '', recurrence: 'weekly', daysOfWeek: [], startTime: '', endTime: '' });
     setDialogOpen(false);
+  }
+
+  function toggleDay(day: number) {
+    setForm(f => ({
+      ...f,
+      daysOfWeek: f.daysOfWeek.includes(day)
+        ? f.daysOfWeek.filter(d => d !== day)
+        : [...f.daysOfWeek, day],
+    }));
   }
 
   async function handleCheckin(classId: string) {
@@ -134,16 +155,23 @@ export default function ClassesPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t('classes.dayOfWeek')}</Label>
-                  <select
-                    value={form.dayOfWeek}
-                    onChange={e => setForm(f => ({ ...f, dayOfWeek: e.target.value }))}
-                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-                  >
+                  <Label>{t('classes.daysOfWeek')}</Label>
+                  <div className="flex flex-wrap gap-2">
                     {DAY_KEYS.map((k, i) => (
-                      <option key={i} value={i}>{t(k)}</option>
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => toggleDay(i)}
+                        className={`px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
+                          form.daysOfWeek.includes(i)
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card border-border text-muted-foreground hover:border-primary hover:text-foreground'
+                        }`}
+                      >
+                        {t(k)}
+                      </button>
                     ))}
-                  </select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -165,7 +193,7 @@ export default function ClassesPage() {
                     />
                   </div>
                 </div>
-                <Button type="submit">{t('common.save')}</Button>
+                <Button type="submit" disabled={form.daysOfWeek.length === 0}>{t('common.save')}</Button>
               </form>
             </DialogContent>
           </Dialog>
