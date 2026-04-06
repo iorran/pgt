@@ -1,1 +1,13 @@
-// Schema files will be added in Task 4
+export * from './academy.js';
+export * from './user.js';
+export * from './auth.js';
+export * from './class.js';
+export * from './checkin.js';
+export * from './membership.js';
+export * from './payment.js';
+export * from './product.js';
+export * from './order.js';
+export * from './season.js';
+export * from './competition-result.js';
+export * from './tournament.js';
+export * from './gamification.js';
