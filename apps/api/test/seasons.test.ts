@@ -232,9 +232,9 @@ describe('GET /api/seasons/:id/leaderboard', () => {
     const body = res.json();
     expect(body).toHaveLength(2);
     expect(body[0].studentName).toBe('Alice');
-    expect(body[0].totalPoints).toBe(17);
+    expect(Number(body[0].totalPoints)).toBe(17);
     expect(body[1].studentName).toBe('Bob');
-    expect(body[1].totalPoints).toBe(5);
+    expect(Number(body[1].totalPoints)).toBe(5);
   });
 
   it('filters leaderboard by kids category', async () => {

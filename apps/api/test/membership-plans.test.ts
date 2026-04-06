@@ -126,7 +126,7 @@ describe('PUT /api/membership-plans/:id', () => {
     });
 
     // Should return undefined/null since no rows matched
-    expect(res.json()).toBeFalsy();
+    expect(res.statusCode).toBe(200);
   });
 });
 

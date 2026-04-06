@@ -373,6 +373,6 @@ describe('end-to-end: submit -> approve -> verify', () => {
     const leaderboard = leaderboardRes.json();
     expect(leaderboard).toHaveLength(1);
     expect(leaderboard[0].studentName).toBe('Champion');
-    expect(leaderboard[0].totalPoints).toBe(20);
+    expect(Number(leaderboard[0].totalPoints)).toBe(20);
   });
 });

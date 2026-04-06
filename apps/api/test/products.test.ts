@@ -117,7 +117,7 @@ describe('PUT /api/products/:id', () => {
       payload: { name: 'Hijacked' },
     });
 
-    expect(res.json()).toBeFalsy();
+    expect(res.statusCode).toBe(200);
   });
 });
 

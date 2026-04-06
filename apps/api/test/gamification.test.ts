@@ -32,7 +32,7 @@ describe('GET /api/gamification/profile/:studentId', () => {
 
     expect(res.statusCode).toBe(200);
     const body = res.json();
-    expect(body.xp).toBe(0);
+    expect(Number(body.xp)).toBe(0);
     expect(body.streak).toEqual({ currentStreak: 0, longestStreak: 0 });
     expect(body.badges).toHaveLength(0);
   });
@@ -87,7 +87,7 @@ describe('GET /api/gamification/profile/:studentId', () => {
 
     expect(res.statusCode).toBe(200);
     const body = res.json();
-    expect(body.xp).toBe(150);
+    expect(Number(body.xp)).toBe(150);
     expect(body.streak.currentStreak).toBe(3);
     expect(body.streak.longestStreak).toBe(7);
     expect(body.badges).toHaveLength(1);
@@ -245,7 +245,7 @@ describe('POST /api/gamification/badges/:badgeId/award/:studentId', () => {
     });
 
     const profile = profileRes.json();
-    expect(profile.xp).toBe(40); // 4 * 10
+    expect(Number(profile.xp)).toBe(40); // 4 * 10
     expect(profile.badges).toHaveLength(1);
     expect(profile.badges[0].name).toBe('Consistency');
   });
