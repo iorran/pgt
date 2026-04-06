@@ -2,6 +2,8 @@ FROM node:22-alpine AS base
 
 FROM base AS deps
 WORKDIR /app
+# Force default npm registry (override any local .npmrc)
+RUN echo "registry=https://registry.npmjs.org/" > .npmrc
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
 COPY packages/shared/package.json packages/shared/

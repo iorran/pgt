@@ -2,6 +2,7 @@ app = "pgt-api"
 primary_region = "gru"
 
 [build]
+  dockerfile = "Dockerfile"
 
 [http_service]
   internal_port = 3000
