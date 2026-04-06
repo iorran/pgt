@@ -7,6 +7,8 @@ import { checkinRoutes } from './routes/checkins.js';
 import { membershipPlanRoutes } from './routes/membership-plans.js';
 import { studentRoutes } from './routes/students.js';
 import { paymentRoutes } from './routes/payments.js';
+import { productRoutes } from './routes/products.js';
+import { orderRoutes } from './routes/orders.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -27,6 +29,8 @@ export async function buildApp() {
   await app.register(membershipPlanRoutes);
   await app.register(studentRoutes);
   await app.register(paymentRoutes);
+  await app.register(productRoutes);
+  await app.register(orderRoutes);
 
   app.get('/health', async () => ({ status: 'ok' }));
 
