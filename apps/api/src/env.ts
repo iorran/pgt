@@ -11,4 +11,6 @@ export const env = {
   TRUSTED_ORIGINS: (process.env.TRUSTED_ORIGINS || 'http://localhost:5173').split(','),
   PORT: Number(process.env.PORT || 3000),
   NODE_ENV: process.env.NODE_ENV || 'development',
+  RESEND_API_KEY: process.env.RESEND_API_KEY || '',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'PGT <onboarding@resend.dev>',
 };
