@@ -31,7 +31,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm install
       - name: Run API tests
         working-directory: apps/api
         env:
@@ -70,7 +70,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm install
       - name: Run migrations
         working-directory: apps/api
         env:
@@ -98,7 +98,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - run: npm install
       - name: Build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
