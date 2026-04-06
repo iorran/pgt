@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "@pgt/shared": "*",
-    "react": "^19",
-    "react-dom": "^19",
-    "react-router-dom": "^7",
+    "@tailwindcss/vite": "^4.2.2",
     "better-auth": "^1",
     "i18next": "^24",
-    "react-i18next": "^15"
+    "react": "^19",
+    "react-dom": "^19",
+    "react-i18next": "^15",
+    "react-router-dom": "^7",
+    "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
     "@types/react": "^19",

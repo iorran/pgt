@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+/* === Arena Design System === */
+
+@theme {
+  /* Colors */
+  --color-arena-bg: #0a0a0a;
+  --color-arena-surface: #141414;
+  --color-arena-card: #1a1a1a;
+  --color-arena-border: #2a2a2a;
+  --color-arena-text: #f5f5f5;
+  --color-arena-text-muted: #888888;
+  --color-arena-accent: #E5FF00;
+  --color-arena-red: #FF3B30;
+  --color-arena-cyan: #00D4FF;
+  --color-arena-purple: #8B5CF6;
+  --color-arena-gold: #FFD700;
+  --color-arena-silver: #C0C0C0;
+  --color-arena-bronze: #CD7F32;
+
+  /* Belt Colors */
+  --color-belt-white: #E8E8E8;
+  --color-belt-blue: #2563EB;
+  --color-belt-purple: #7C3AED;
+  --color-belt-brown: #92400E;
+  --color-belt-black: #1a1a1a;
+
+  /* Fonts */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-heading: 'Oswald', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-body: 'Barlow', sans-serif;
+}
+
+/* Global resets */
+body {
+  background-color: var(--color-arena-bg);
+  color: var(--color-arena-text);
+  font-family: var(--font-body);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Diagonal stripe pattern utility */
+.arena-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(229, 255, 0, 0.03) 10px,
+    rgba(229, 255, 0, 0.03) 20px
+  );
+}
+
+/* Glow effect for accent elements */
+.arena-glow {
+  box-shadow: 0 0 20px rgba(229, 255, 0, 0.15);
+}
+
+.arena-glow-red {
+  box-shadow: 0 0 20px rgba(255, 59, 48, 0.15);
+}
+
+/* Diagonal cut on left border */
+.arena-cut {
+  position: relative;
+  overflow: hidden;
+}
+.arena-cut::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+/* Scoreboard number style */
+.arena-stat {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Input styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="search"],
+select,
+textarea {
+  background-color: var(--color-arena-surface);
+  border: 1px solid var(--color-arena-border);
+  color: var(--color-arena-text);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--color-arena-accent);
+  box-shadow: 0 0 0 2px rgba(229, 255, 0, 0.1);
+}
+
+/* Button base */
+.btn {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border-radius: 2px;
+  font-weight: 600;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-accent {
+  background-color: var(--color-arena-accent);
+  color: #0a0a0a;
+}
+.btn-accent:hover {
+  box-shadow: 0 0 20px rgba(229, 255, 0, 0.3);
+}
+
+.btn-red {
+  background-color: var(--color-arena-red);
+  color: white;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-arena-border);
+  color: var(--color-arena-text);
+}
+.btn-outline:hover {
+  border-color: var(--color-arena-accent);
+  color: var(--color-arena-accent);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+}
+
+/* Card */
+.card {
+  background-color: var(--color-arena-card);
+  border: 1px solid var(--color-arena-border);
+  border-radius: 2px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+.card:hover {
+  border-color: #3a3a3a;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--color-arena-text-muted);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-arena-border);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-arena-border);
+  font-size: 0.9rem;
+}
+tr:hover td {
+  background-color: rgba(229, 255, 0, 0.02);
+}
+
+/* Belt badge */
+.belt-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-arena-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-arena-border);
+  border-radius: 3px;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(229, 255, 0, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(229, 255, 0, 0.4); }
+}
+.animate-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
