@@ -1,0 +1,33 @@
+{
+  "name": "@pgt/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@pgt/shared": "*",
+    "fastify": "^5",
+    "@fastify/cors": "^10",
+    "@fastify/cookie": "^11",
+    "drizzle-orm": "^0.39",
+    "postgres": "^3",
+    "better-auth": "^1",
+    "zod": "^3",
+    "dotenv": "^16"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30",
+    "tsx": "^4",
+    "typescript": "^5",
+    "vitest": "^3",
+    "@types/node": "^22"
+  }
+}
