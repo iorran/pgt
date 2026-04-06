@@ -1,0 +1,28 @@
+{
+  "name": "@pgt/web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@pgt/shared": "*",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-router-dom": "^7",
+    "better-auth": "^1",
+    "i18next": "^24",
+    "react-i18next": "^15"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4",
+    "typescript": "^5",
+    "vite": "^6"
+  }
+}

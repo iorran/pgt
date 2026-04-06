@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "PGT",
+    "tagline": "BJJ Academy Management"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "classes": "Classes",
+    "students": "Students",
+    "billing": "Billing",
+    "marketplace": "Marketplace",
+    "gamification": "Ranking",
+    "tournaments": "Tournaments"
+  },
+  "auth": {
+    "login": "Log In",
+    "signup": "Sign Up",
+    "logout": "Log Out",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "loading": "Loading...",
+    "noResults": "No results",
+    "confirm": "Confirm",
+    "back": "Back"
+  }
+}
