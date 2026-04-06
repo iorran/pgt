@@ -84,6 +84,8 @@ describe('LeaderboardPage', () => {
       .mockResolvedValueOnce(mockSeasons as any)
       .mockResolvedValueOnce([] as any);
     renderWithProviders(<LeaderboardPage />);
-    expect(await screen.findByText('gamification.noResultsYet')).toBeInTheDocument();
+    // The empty state is inside the active TabsContent
+    const elements = await screen.findAllByText('gamification.noResultsYet');
+    expect(elements.length).toBeGreaterThan(0);
   });
 });

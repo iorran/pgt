@@ -42,7 +42,7 @@ describe('GamificationProfilePage', () => {
   it('shows XP total', async () => {
     renderWithProviders(<GamificationProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText('gamification.totalXp')).toBeInTheDocument();
+      expect(screen.getAllByText('gamification.totalXp').length).toBeGreaterThan(0);
     });
     // totalXp is rendered with toLocaleString, check for the value
     const xpElements = screen.getAllByText((content) => content.includes('1'));

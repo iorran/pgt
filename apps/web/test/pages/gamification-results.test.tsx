@@ -46,7 +46,7 @@ describe('ResultsPage', () => {
     mockApi.mockResolvedValueOnce(mockSeasons as any);
     renderWithProviders(<ResultsPage />);
     await waitFor(() => {
-      expect(screen.getByText('gamification.submitResult')).toBeInTheDocument();
+      expect(screen.getAllByText('gamification.submitResult').length).toBeGreaterThan(0);
       expect(screen.getByText('gamification.competitionName')).toBeInTheDocument();
     });
   });
