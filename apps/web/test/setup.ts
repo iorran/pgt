@@ -26,5 +26,7 @@ vi.mock('better-auth/react', () => ({
     signIn: { email: vi.fn() },
     signUp: { email: vi.fn() },
     signOut: vi.fn(),
+    forgetPassword: vi.fn(),
+    resetPassword: vi.fn(),
   }),
 }));

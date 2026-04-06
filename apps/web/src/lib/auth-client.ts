@@ -8,3 +8,5 @@ export const authClient = createAuthClient({
 });
 
 export const { useSession, signIn, signUp, signOut } = authClient;
+export const forgetPassword = authClient.forgetPassword;
+export const resetPassword = authClient.resetPassword;
