@@ -35,6 +35,6 @@ export const streak = pgTable('streak', {
   studentId: uuid('student_id').notNull().references(() => user.id).unique(),
   currentStreak: integer('current_streak').default(0).notNull(),
   longestStreak: integer('longest_streak').default(0).notNull(),
-  lastCheckinWeek: date('last_checkin_week'),
+  lastCheckinWeek: varchar('last_checkin_week', { length: 10 }),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

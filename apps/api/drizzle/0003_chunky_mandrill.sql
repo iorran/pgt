@@ -1,0 +1,1 @@
+ALTER TABLE "streak" ALTER COLUMN "last_checkin_week" SET DATA TYPE varchar(10);
