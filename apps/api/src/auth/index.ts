@@ -22,11 +22,12 @@ export const auth = betterAuth({
   },
   user: {
     additionalFields: {
-      academyId: { type: 'string', required: true, input: true },
+      academyId: { type: 'string', required: false, input: true },
       phone: { type: 'string', required: false, input: true },
       dateOfBirth: { type: 'string', required: false, input: true },
       belt: { type: 'string', required: false, input: true, defaultValue: 'white' },
       role: { type: 'string', required: false, input: true, defaultValue: 'student' },
+      status: { type: 'string', required: false, input: false, defaultValue: 'active' },
     },
   },
 });
