@@ -1,8 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
 
 interface Student {
   id: string;
@@ -21,6 +41,18 @@ interface Payment {
   status?: string;
 }
 
+const BELT_CLASSES: Record<string, string> = {
+  white: 'bg-gray-200 text-gray-800',
+  blue: 'bg-belt-blue text-white',
+  purple: 'bg-belt-purple text-white',
+  brown: 'bg-belt-brown text-white',
+  black: 'bg-belt-black text-white',
+};
+
+function getBeltClasses(belt: string) {
+  return BELT_CLASSES[belt?.toLowerCase()] || 'bg-gray-200 text-gray-800';
+}
+
 export default function StudentDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -30,7 +62,7 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showMembership, setShowMembership] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [memberForm, setMemberForm] = useState({ planId: '', startDate: '', dueDay: '' });
 
   useEffect(() => {
@@ -49,65 +81,147 @@ export default function StudentDetailPage() {
       method: 'POST',
       body: JSON.stringify({ ...memberForm, dueDay: Number(memberForm.dueDay) }),
     });
-    setShowMembership(false);
-    // refresh
+    setDialogOpen(false);
     const s = await api<Student>(`/students/${id}`);
     setStudent(s);
   }
 
-  if (loading) return <div>{t('common.loading')}</div>;
-  if (!student) return <div>{t('common.noResults')}</div>;
+  function formatCurrency(value: number) {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (!student) return <div className="p-5 text-muted-foreground">{t('common.noResults')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <button onClick={() => navigate('/students')} style={{ marginBottom: 16, padding: '6px 12px' }}>{t('common.back')}</button>
-      <h1>{student.name}</h1>
-      <div style={{ marginBottom: 20 }}>
-        <p><strong>{t('students.email')}:</strong> {student.email}</p>
-        <p><strong>{t('students.belt')}:</strong> {student.belt}</p>
-        {student.phone && <p><strong>{t('students.phone')}:</strong> {student.phone}</p>}
-        <p><strong>{t('students.plan')}:</strong> {student.plan || '-'}</p>
+    <div className="p-5 space-y-6">
+      <Button variant="outline" onClick={() => navigate('/students')}>
+        {t('common.back')}
+      </Button>
+
+      {/* Header */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <h1 className="font-heading text-2xl uppercase tracking-wider">{student.name}</h1>
+          <Badge className={getBeltClasses(student.belt)}>{student.belt}</Badge>
+        </div>
+        <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+          <span>{student.email}</span>
+          {student.phone && <span>{student.phone}</span>}
+        </div>
       </div>
 
-      {user?.role === 'instructor' && (
-        <div style={{ marginBottom: 20 }}>
-          <button onClick={() => setShowMembership(!showMembership)} style={{ padding: '8px 16px' }}>
-            {showMembership ? t('common.cancel') : t('students.assignMembership')}
-          </button>
-          {showMembership && (
-            <form onSubmit={handleAssignMembership} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 400 }}>
-              <input placeholder={t('students.planId')} value={memberForm.planId} onChange={e => setMemberForm(f => ({ ...f, planId: e.target.value }))} required style={{ padding: 8 }} />
-              <input type="date" placeholder={t('students.startDate')} value={memberForm.startDate} onChange={e => setMemberForm(f => ({ ...f, startDate: e.target.value }))} required style={{ padding: 8 }} />
-              <input type="number" placeholder={t('students.dueDay')} value={memberForm.dueDay} onChange={e => setMemberForm(f => ({ ...f, dueDay: e.target.value }))} required min={1} max={31} style={{ padding: 8 }} />
-              <button type="submit" style={{ padding: 10 }}>{t('common.save')}</button>
-            </form>
-          )}
-        </div>
-      )}
+      {/* Stats row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="pt-4 text-center">
+            <p className="arena-stat text-3xl text-primary">--</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
+              {t('students.totalClasses')}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 text-center">
+            <p className="arena-stat text-3xl text-primary">--</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
+              {t('students.currentStreak')}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4 text-center">
+            <p className="arena-stat text-3xl text-primary">--</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">XP</p>
+          </CardContent>
+        </Card>
+      </div>
 
-      <h2>{t('students.paymentHistory')}</h2>
-      {payments.length === 0 ? (
-        <p>{t('common.noResults')}</p>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.date')}</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.amount')}</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.referenceMonth')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map(p => (
-              <tr key={p.id}>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{new Date(p.paymentDate).toLocaleDateString()}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{p.amount}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{p.referenceMonth}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {/* Membership info */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="font-heading uppercase tracking-wider text-base">
+            {t('students.plan')}
+          </CardTitle>
+          {user?.role === 'instructor' && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger render={<Button variant="outline" size="sm" />}>
+                {t('students.assignMembership')}
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="font-heading uppercase tracking-wider">
+                    {t('students.assignMembership')}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAssignMembership} className="flex flex-col gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('students.planId')}</Label>
+                    <Input
+                      value={memberForm.planId}
+                      onChange={e => setMemberForm(f => ({ ...f, planId: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('students.startDate')}</Label>
+                    <Input
+                      type="date"
+                      value={memberForm.startDate}
+                      onChange={e => setMemberForm(f => ({ ...f, startDate: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('students.dueDay')}</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={31}
+                      value={memberForm.dueDay}
+                      onChange={e => setMemberForm(f => ({ ...f, dueDay: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <Button type="submit">{t('common.save')}</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+        </CardHeader>
+        <CardContent>
+          <p>{student.plan || '-'}</p>
+        </CardContent>
+      </Card>
+
+      {/* Payment history */}
+      <div>
+        <h2 className="font-heading uppercase tracking-wider text-base mb-4">{t('students.paymentHistory')}</h2>
+        {payments.length === 0 ? (
+          <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
+        ) : (
+          <div className="rounded-sm border border-border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('billing.date')}</TableHead>
+                  <TableHead>{t('billing.amount')}</TableHead>
+                  <TableHead>{t('billing.referenceMonth')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {payments.map(p => (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-mono">{new Date(p.paymentDate).toLocaleDateString()}</TableCell>
+                    <TableCell className="arena-stat">{formatCurrency(p.amount)}</TableCell>
+                    <TableCell>{p.referenceMonth}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

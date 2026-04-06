@@ -1,7 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface ClassItem {
   id: string;
@@ -23,13 +35,25 @@ const DAY_KEYS = [
   'classes.days.sat',
 ];
 
+const TYPE_BORDER_COLOR: Record<string, string> = {
+  gi: 'border-l-blue-500',
+  'no-gi': 'border-l-primary',
+  'open-mat': 'border-l-cyan-400',
+  kids: 'border-l-purple-500',
+};
+
+function getTypeBorder(type: string) {
+  const key = type.toLowerCase().trim();
+  return TYPE_BORDER_COLOR[key] || 'border-l-primary';
+}
+
 export default function ClassesPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ name: '', type: '', dayOfWeek: '1', startTime: '', endTime: '' });
   const [checkinMsg, setCheckinMsg] = useState('');
 
@@ -40,11 +64,6 @@ export default function ClassesPage() {
       .finally(() => setLoading(false));
   }, [user?.academyId]);
 
-  const grouped = classes.reduce<Record<number, ClassItem[]>>((acc, c) => {
-    (acc[c.dayOfWeek] = acc[c.dayOfWeek] || []).push(c);
-    return acc;
-  }, {});
-
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     const created = await api<ClassItem>('/classes', {
@@ -53,7 +72,7 @@ export default function ClassesPage() {
     });
     setClasses(prev => [...prev, created]);
     setForm({ name: '', type: '', dayOfWeek: '1', startTime: '', endTime: '' });
-    setShowForm(false);
+    setDialogOpen(false);
   }
 
   async function handleCheckin(classId: string) {
@@ -69,60 +88,119 @@ export default function ClassesPage() {
     }
   }
 
-  if (loading) return <div>{t('common.loading')}</div>;
+  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{t('classes.title')}</h1>
-
-      {checkinMsg && <p style={{ color: 'green', fontWeight: 'bold' }}>{checkinMsg}</p>}
-
-      {user?.role === 'instructor' && (
-        <div style={{ marginBottom: 20 }}>
-          <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px' }}>
-            {showForm ? t('common.cancel') : t('classes.createClass')}
-          </button>
-          {showForm && (
-            <form onSubmit={handleCreate} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 400 }}>
-              <input placeholder={t('classes.className')} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required style={{ padding: 8 }} />
-              <input placeholder={t('classes.classType')} value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))} required style={{ padding: 8 }} />
-              <select value={form.dayOfWeek} onChange={e => setForm(f => ({ ...f, dayOfWeek: e.target.value }))} style={{ padding: 8 }}>
-                {DAY_KEYS.map((k, i) => <option key={i} value={i}>{t(k)}</option>)}
-              </select>
-              <input type="time" placeholder={t('classes.startTime')} value={form.startTime} onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))} required style={{ padding: 8 }} />
-              <input type="time" placeholder={t('classes.endTime')} value={form.endTime} onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))} required style={{ padding: 8 }} />
-              <button type="submit" style={{ padding: 10 }}>{t('common.save')}</button>
-            </form>
-          )}
+    <div className="p-5 space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <h1 className="font-heading uppercase tracking-wider text-lg">{t('classes.title')}</h1>
+          <span className="arena-stat text-primary text-2xl">{classes.length}</span>
         </div>
+
+        {user?.role === 'instructor' && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger render={<Button />}>
+              {t('classes.createClass')}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="font-heading uppercase tracking-wider">
+                  {t('classes.createClass')}
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="flex flex-col gap-4">
+                <div className="space-y-2">
+                  <Label>{t('classes.className')}</Label>
+                  <Input
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('classes.classType')}</Label>
+                  <Input
+                    value={form.type}
+                    onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('classes.dayOfWeek')}</Label>
+                  <select
+                    value={form.dayOfWeek}
+                    onChange={e => setForm(f => ({ ...f, dayOfWeek: e.target.value }))}
+                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  >
+                    {DAY_KEYS.map((k, i) => (
+                      <option key={i} value={i}>{t(k)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('classes.startTime')}</Label>
+                    <Input
+                      type="time"
+                      value={form.startTime}
+                      onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('classes.endTime')}</Label>
+                    <Input
+                      type="time"
+                      value={form.endTime}
+                      onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+                <Button type="submit">{t('common.save')}</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+
+      {checkinMsg && (
+        <p className="text-primary font-bold">{checkinMsg}</p>
       )}
 
-      {[0, 1, 2, 3, 4, 5, 6].map(day => {
-        const dayClasses = grouped[day];
-        if (!dayClasses || dayClasses.length === 0) return null;
-        return (
-          <div key={day} style={{ marginBottom: 20 }}>
-            <h2>{t(DAY_KEYS[day])}</h2>
-            {dayClasses.map(c => (
-              <div key={c.id} style={{ padding: 12, border: '1px solid #ddd', borderRadius: 6, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <strong>{c.name}</strong> <span style={{ color: '#666' }}>({c.type})</span>
-                  <br />
-                  <span>{c.startTime} - {c.endTime}</span>
-                  {c.instructor && <span style={{ marginLeft: 12, color: '#888' }}>{c.instructor}</span>}
-                </div>
-                {user?.role === 'student' && (
-                  <button onClick={() => handleCheckin(c.id)} style={{ padding: '6px 14px' }}>
-                    {t('classes.checkin')}
-                  </button>
-                )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {classes.map(c => (
+          <Card key={c.id} className={`border-l-4 ${getTypeBorder(c.type)}`}>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-heading text-lg">{c.name}</CardTitle>
+                <Badge variant="outline">{c.type}</Badge>
               </div>
-            ))}
-          </div>
-        );
-      })}
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-sm">
+                  {c.startTime} - {c.endTime}
+                </span>
+                <span className="text-sm text-muted-foreground">{t(DAY_KEYS[c.dayOfWeek])}</span>
+              </div>
+              {c.instructor && (
+                <p className="text-sm text-muted-foreground">{c.instructor}</p>
+              )}
+              {user?.role === 'student' && (
+                <Button variant="outline" className="w-full mt-2" onClick={() => handleCheckin(c.id)}>
+                  {t('classes.checkin')}
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-      {classes.length === 0 && <p>{t('common.noResults')}</p>}
+      {classes.length === 0 && (
+        <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
+      )}
     </div>
   );
 }

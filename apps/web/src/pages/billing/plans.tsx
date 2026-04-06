@@ -1,7 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Plan {
   id: string;
@@ -17,7 +28,7 @@ export default function PlansPage() {
   const user = session?.user as any;
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
 
@@ -31,7 +42,13 @@ export default function PlansPage() {
   function startEdit(plan: Plan) {
     setEditId(plan.id);
     setForm({ name: plan.name, price: String(plan.price), frequency: plan.frequency, classesPerWeek: String(plan.classesPerWeek) });
-    setShowForm(true);
+    setDialogOpen(true);
+  }
+
+  function openCreate() {
+    setEditId(null);
+    setForm({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
+    setDialogOpen(true);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -46,67 +63,102 @@ export default function PlansPage() {
     }
     setForm({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
     setEditId(null);
-    setShowForm(false);
+    setDialogOpen(false);
   }
 
-  if (loading) return <div>{t('common.loading')}</div>;
+  function formatPrice(value: number) {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{t('billing.plansTitle')}</h1>
+    <div className="p-5 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading uppercase tracking-wider text-lg">{t('billing.plansTitle')}</h1>
 
-      {user?.role === 'instructor' && (
-        <div style={{ marginBottom: 20 }}>
-          <button onClick={() => { setShowForm(!showForm); setEditId(null); setForm({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' }); }} style={{ padding: '8px 16px' }}>
-            {showForm ? t('common.cancel') : t('billing.createPlan')}
-          </button>
-          {showForm && (
-            <form onSubmit={handleSubmit} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 400 }}>
-              <input placeholder={t('billing.planName')} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required style={{ padding: 8 }} />
-              <input type="number" step="0.01" placeholder={t('billing.price')} value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} required style={{ padding: 8 }} />
-              <select value={form.frequency} onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))} style={{ padding: 8 }}>
-                <option value="monthly">{t('billing.monthly')}</option>
-                <option value="quarterly">{t('billing.quarterly')}</option>
-                <option value="yearly">{t('billing.yearly')}</option>
-              </select>
-              <input type="number" placeholder={t('billing.classesPerWeek')} value={form.classesPerWeek} onChange={e => setForm(f => ({ ...f, classesPerWeek: e.target.value }))} required style={{ padding: 8 }} />
-              <button type="submit" style={{ padding: 10 }}>{editId ? t('common.save') : t('common.create')}</button>
-            </form>
-          )}
-        </div>
-      )}
+        {user?.role === 'instructor' && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger render={<Button />} onClick={openCreate}>
+              {t('billing.createPlan')}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="font-heading uppercase tracking-wider">
+                  {editId ? t('common.edit') : t('billing.createPlan')}
+                </DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="space-y-2">
+                  <Label>{t('billing.planName')}</Label>
+                  <Input
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('billing.price')}</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={form.price}
+                    onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('billing.frequency')}</Label>
+                  <select
+                    value={form.frequency}
+                    onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))}
+                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  >
+                    <option value="monthly">{t('billing.monthly')}</option>
+                    <option value="quarterly">{t('billing.quarterly')}</option>
+                    <option value="yearly">{t('billing.yearly')}</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('billing.classesPerWeek')}</Label>
+                  <Input
+                    type="number"
+                    value={form.classesPerWeek}
+                    onChange={e => setForm(f => ({ ...f, classesPerWeek: e.target.value }))}
+                    required
+                  />
+                </div>
+                <Button type="submit">{editId ? t('common.save') : t('common.create')}</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
 
       {plans.length === 0 ? (
-        <p>{t('common.noResults')}</p>
+        <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.planName')}</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.price')}</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.frequency')}</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.classesPerWeek')}</th>
-              {user?.role === 'instructor' && (
-                <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('common.edit')}</th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {plans.map(p => (
-              <tr key={p.id}>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{p.name}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{p.price}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{p.frequency}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{p.classesPerWeek}</td>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {plans.map(p => (
+            <Card key={p.id}>
+              <CardHeader className="pb-2">
+                <CardTitle className="font-heading text-lg uppercase">{p.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="arena-stat text-3xl text-primary">{formatPrice(p.price)}</p>
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>{p.frequency}</span>
+                  <span>{p.classesPerWeek}x / {t('billing.week')}</span>
+                </div>
                 {user?.role === 'instructor' && (
-                  <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>
-                    <button onClick={() => startEdit(p)} style={{ padding: '4px 10px' }}>{t('common.edit')}</button>
-                  </td>
+                  <Button variant="outline" className="w-full mt-2" onClick={() => startEdit(p)}>
+                    {t('common.edit')}
+                  </Button>
                 )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
