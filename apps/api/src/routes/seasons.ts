@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { season } from '../db/schema/index.js';
-import { eq, and } from 'drizzle-orm';
+import { season, competitionResult, user } from '../db/schema/index.js';
+import { eq, and, sql } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 
@@ -42,5 +42,40 @@ export async function seasonRoutes(app: FastifyInstance) {
       .where(and(eq(season.id, id), eq(season.academyId, request.academyId)))
       .returning();
     return updated;
+  });
+
+  // Leaderboard for a season
+  app.get('/api/seasons/:id/leaderboard', async (request) => {
+    const { id } = request.params as { id: string };
+    const { category, belt } = request.query as { category?: string; belt?: string };
+
+    const results = await db.select({
+      studentId: user.id,
+      studentName: user.name,
+      belt: user.belt,
+      dateOfBirth: user.dateOfBirth,
+      totalPoints: sql<number>`COALESCE(SUM(${competitionResult.pointsAwarded}), 0)`.as('total_points'),
+    })
+    .from(competitionResult)
+    .innerJoin(user, eq(user.id, competitionResult.studentId))
+    .where(and(
+      eq(competitionResult.seasonId, id),
+      eq(competitionResult.status, 'approved'),
+    ))
+    .groupBy(user.id, user.name, user.belt, user.dateOfBirth)
+    .orderBy(sql`total_points DESC`);
+
+    const KID_AGE_LIMIT = 16;
+    const today = new Date();
+
+    return results.filter(r => {
+      if (!r.dateOfBirth) return category !== 'kids';
+      const age = Math.floor((today.getTime() - new Date(r.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      const isKid = age < KID_AGE_LIMIT;
+      if (category === 'kids') return isKid;
+      if (category === 'adults' && belt) return !isKid && r.belt === belt;
+      if (category === 'adults') return !isKid;
+      return true;
+    });
   });
 }
