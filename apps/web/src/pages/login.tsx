@@ -61,6 +61,15 @@ export default function LoginPage() {
               />
             </div>
 
+            <div className="text-right">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-muted-foreground hover:text-primary transition-colors no-underline"
+              >
+                {t('auth.forgotPassword')}
+              </Link>
+            </div>
+
             {error && (
               <p className="text-sm text-destructive">{error}</p>
             )}

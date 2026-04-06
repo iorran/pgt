@@ -23,6 +23,8 @@ import SeasonsPage from './pages/gamification/seasons';
 import ResultsPage from './pages/gamification/results';
 import GamificationProfilePage from './pages/gamification/profile';
 import TournamentsPage from './pages/tournaments/index';
+import ForgotPasswordPage from './pages/forgot-password';
+import ResetPasswordPage from './pages/reset-password';
 import { Card, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -70,6 +72,8 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/criar-academia" element={<CriarAcademiaPage />} />
         <Route path="/entrar/:code" element={<EntrarPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     );

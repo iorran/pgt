@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
-import LoginPage from '@/pages/login';
+import LoginPage from '../../src/pages/login';
 
 vi.mock('@/lib/auth-client', () => ({
   useSession: vi.fn(() => ({ data: null, isPending: false })),
@@ -41,6 +41,13 @@ describe('LoginPage', () => {
     renderWithProviders(<LoginPage />);
     expect(screen.getByText('PGT')).toBeInTheDocument();
     expect(screen.getByText('app.tagline')).toBeInTheDocument();
+  });
+
+  it('renders the forgot password link', () => {
+    renderWithProviders(<LoginPage />);
+    const link = screen.getByText('auth.forgotPassword');
+    expect(link).toBeInTheDocument();
+    expect(link.closest('a')).toHaveAttribute('href', '/forgot-password');
   });
 
   it('shows error message when login fails', async () => {
