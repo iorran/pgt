@@ -23,6 +23,13 @@ export const auth = betterAuth({
     database: {
       generateId: false,
     },
+    crossSubDomainCookies: {
+      enabled: env.NODE_ENV === 'production',
+    },
+    defaultCookieAttributes: {
+      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: env.NODE_ENV === 'production',
+    },
   },
   emailAndPassword: {
     enabled: true,
