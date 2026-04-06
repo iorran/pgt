@@ -1,5 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { randomUUID } from 'node:crypto';
 import { db } from '../db/client.js';
 import { env } from '../env.js';
 import * as schema from '../db/schema/index.js';
@@ -17,6 +18,12 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
   trustedOrigins: ['http://localhost:5173'],
+  advanced: {
+    generateId: () => randomUUID(),
+    database: {
+      generateId: false,
+    },
+  },
   emailAndPassword: {
     enabled: true,
   },

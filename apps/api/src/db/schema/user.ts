@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, date, timestamp, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, date, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core';
 import { academy } from './academy';
 
 export const beltEnum = pgEnum('belt', ['white', 'blue', 'purple', 'brown', 'black']);
@@ -9,7 +9,7 @@ export const user = pgTable('user', {
   id: uuid('id').primaryKey().defaultRandom(),
   academyId: uuid('academy_id').references(() => academy.id),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  emailVerified: timestamp('email_verified'),
+  emailVerified: boolean('email_verified').default(false).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   phone: varchar('phone', { length: 50 }),
   dateOfBirth: date('date_of_birth'),
