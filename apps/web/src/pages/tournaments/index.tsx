@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,30 +45,57 @@ export default function TournamentsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [tournaments, setTournaments] = useState<Tournament[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createForm, setCreateForm] = useState({ name: '', date: '', location: '', federation: '' });
   const [signupTournamentId, setSignupTournamentId] = useState<string | null>(null);
   const [weightClass, setWeightClass] = useState('');
-  const [roster, setRoster] = useState<RosterEntry[]>([]);
   const [rosterTournamentId, setRosterTournamentId] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<Tournament[]>(`/tournaments?academyId=${user.academyId}`)
-      .then(setTournaments)
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: tournaments = [], isLoading } = useApiQuery<Tournament[]>(
+    ['tournaments', user?.academyId],
+    `/tournaments?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const { data: roster = [] } = useApiQuery<RosterEntry[]>(
+    ['tournament-roster', rosterTournamentId!],
+    `/tournaments/${rosterTournamentId}/roster`,
+    !!rosterTournamentId,
+  );
+
+  const createMutation = useMutation({
+    mutationFn: (body: any) =>
+      api<Tournament>('/tournaments', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tournaments'] });
+    },
+  });
+
+  const signupMutation = useMutation({
+    mutationFn: ({ tournamentId, body }: { tournamentId: string; body: any }) =>
+      api(`/tournaments/${tournamentId}/signup`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      setMsg(t('tournaments.signupSuccess'));
+      setSignupTournamentId(null);
+      setWeightClass('');
+      setTimeout(() => setMsg(''), 3000);
+    },
+    onError: () => {
+      setMsg(t('tournaments.signupError'));
+    },
+  });
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    const created = await api<Tournament>('/tournaments', {
-      method: 'POST',
-      body: JSON.stringify({ ...createForm, academyId: user.academyId }),
-    });
-    setTournaments(prev => [...prev, created]);
+    await createMutation.mutateAsync({ ...createForm, academyId: user.academyId });
     setCreateForm({ name: '', date: '', location: '', federation: '' });
     setCreateDialogOpen(false);
   }
@@ -74,32 +103,21 @@ export default function TournamentsPage() {
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     if (!signupTournamentId) return;
-    try {
-      await api(`/tournaments/${signupTournamentId}/signup`, {
-        method: 'POST',
-        body: JSON.stringify({ studentId: user.id, weightClass }),
-      });
-      setMsg(t('tournaments.signupSuccess'));
-      setSignupTournamentId(null);
-      setWeightClass('');
-      setTimeout(() => setMsg(''), 3000);
-    } catch {
-      setMsg(t('tournaments.signupError'));
-    }
+    await signupMutation.mutateAsync({
+      tournamentId: signupTournamentId,
+      body: { studentId: user.id, weightClass },
+    });
   }
 
-  async function viewRoster(tournamentId: string) {
+  function viewRoster(tournamentId: string) {
     if (rosterTournamentId === tournamentId) {
       setRosterTournamentId(null);
-      setRoster([]);
       return;
     }
-    const data = await api<RosterEntry[]>(`/tournaments/${tournamentId}/roster`);
-    setRoster(data);
     setRosterTournamentId(tournamentId);
   }
 
-  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-6 space-y-6">

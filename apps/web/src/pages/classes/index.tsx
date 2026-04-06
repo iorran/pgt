@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -51,38 +53,60 @@ export default function ClassesPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [classes, setClasses] = useState<ClassItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ name: '', type: '', recurrence: 'weekly', daysOfWeek: [] as number[], startTime: '', endTime: '' });
   const [checkinMsg, setCheckinMsg] = useState('');
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<ClassItem[]>(`/classes?academyId=${user.academyId}`)
-      .then(setClasses)
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: classes = [], isLoading } = useApiQuery<ClassItem[]>(
+    ['classes', user?.academyId],
+    `/classes?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const createMutation = useMutation({
+    mutationFn: async (formData: typeof form) => {
+      const newClasses: ClassItem[] = [];
+      for (const day of formData.daysOfWeek) {
+        const created = await api<ClassItem>('/classes', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: formData.name,
+            type: formData.type,
+            recurrence: formData.recurrence,
+            dayOfWeek: day,
+            startTime: formData.startTime,
+            endTime: formData.endTime,
+            academyId: user.academyId,
+          }),
+        });
+        newClasses.push(created);
+      }
+      return newClasses;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
+    },
+  });
+
+  const checkinMutation = useMutation({
+    mutationFn: (classId: string) =>
+      api('/checkins', {
+        method: 'POST',
+        body: JSON.stringify({ classId, studentId: user.id }),
+      }),
+    onSuccess: () => {
+      setCheckinMsg(t('classes.checkinSuccess'));
+      setTimeout(() => setCheckinMsg(''), 3000);
+    },
+    onError: () => {
+      setCheckinMsg(t('classes.checkinError'));
+    },
+  });
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    const newClasses: ClassItem[] = [];
-    for (const day of form.daysOfWeek) {
-      const created = await api<ClassItem>('/classes', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: form.name,
-          type: form.type,
-          recurrence: form.recurrence,
-          dayOfWeek: day,
-          startTime: form.startTime,
-          endTime: form.endTime,
-          academyId: user.academyId,
-        }),
-      });
-      newClasses.push(created);
-    }
-    setClasses(prev => [...prev, ...newClasses]);
+    await createMutation.mutateAsync(form);
     setForm({ name: '', type: '', recurrence: 'weekly', daysOfWeek: [], startTime: '', endTime: '' });
     setDialogOpen(false);
   }
@@ -96,20 +120,7 @@ export default function ClassesPage() {
     }));
   }
 
-  async function handleCheckin(classId: string) {
-    try {
-      await api('/checkins', {
-        method: 'POST',
-        body: JSON.stringify({ classId, studentId: user.id }),
-      });
-      setCheckinMsg(t('classes.checkinSuccess'));
-      setTimeout(() => setCheckinMsg(''), 3000);
-    } catch {
-      setCheckinMsg(t('classes.checkinError'));
-    }
-  }
-
-  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-5 space-y-6">
@@ -224,7 +235,7 @@ export default function ClassesPage() {
                 <p className="text-sm text-muted-foreground">{c.instructor}</p>
               )}
               {user?.role === 'student' && (
-                <Button variant="outline" className="w-full mt-2" onClick={() => handleCheckin(c.id)}>
+                <Button variant="outline" className="w-full mt-2" onClick={() => checkinMutation.mutate(c.id)}>
                   {t('classes.checkin')}
                 </Button>
               )}

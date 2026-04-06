@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useApiQuery } from '@/hooks/use-api';
 import {
   Table,
   TableHeader,
@@ -23,17 +22,14 @@ export default function CheckinHistoryPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [checkins, setCheckins] = useState<CheckinRecord[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user?.id) return;
-    api<CheckinRecord[]>(`/checkins/student/${user.id}`)
-      .then(setCheckins)
-      .finally(() => setLoading(false));
-  }, [user?.id]);
+  const { data: checkins = [], isLoading } = useApiQuery<CheckinRecord[]>(
+    ['checkins', user?.id],
+    `/checkins/student/${user?.id}`,
+    !!user?.id,
+  );
 
-  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-5 space-y-6">

@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award } from 'lucide-react';
 
@@ -16,17 +15,14 @@ export default function GamificationProfilePage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [profile, setProfile] = useState<GamificationProfile | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user?.id) return;
-    api<GamificationProfile>(`/gamification/profile/${user.id}`)
-      .then(setProfile)
-      .finally(() => setLoading(false));
-  }, [user?.id]);
+  const { data: profile, isLoading } = useApiQuery<GamificationProfile>(
+    ['gamification-profile', user?.id],
+    `/gamification/profile/${user?.id}`,
+    !!user?.id,
+  );
 
-  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
   if (!profile) return <div className="p-6 text-muted-foreground">{t('common.noResults')}</div>;
 
   return (

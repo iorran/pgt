@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,18 +28,28 @@ export default function PlansPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<Plan[]>(`/membership-plans?academyId=${user.academyId}`)
-      .then(setPlans)
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: plans = [], isLoading } = useApiQuery<Plan[]>(
+    ['plans', user?.academyId],
+    `/membership-plans?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const saveMutation = useMutation({
+    mutationFn: (params: { editId: string | null; body: any }) => {
+      if (params.editId) {
+        return api<Plan>(`/membership-plans/${params.editId}`, { method: 'PUT', body: JSON.stringify(params.body) });
+      }
+      return api<Plan>('/membership-plans', { method: 'POST', body: JSON.stringify(params.body) });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['plans'] });
+    },
+  });
 
   function startEdit(plan: Plan) {
     setEditId(plan.id);
@@ -54,13 +66,7 @@ export default function PlansPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const body = { ...form, price: Number(form.price), classesPerWeek: Number(form.classesPerWeek), academyId: user.academyId };
-    if (editId) {
-      const updated = await api<Plan>(`/membership-plans/${editId}`, { method: 'PUT', body: JSON.stringify(body) });
-      setPlans(prev => prev.map(p => p.id === editId ? updated : p));
-    } else {
-      const created = await api<Plan>('/membership-plans', { method: 'POST', body: JSON.stringify(body) });
-      setPlans(prev => [...prev, created]);
-    }
+    await saveMutation.mutateAsync({ editId, body });
     setForm({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
     setEditId(null);
     setDialogOpen(false);
@@ -70,7 +76,7 @@ export default function PlansPage() {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-5 space-y-6">

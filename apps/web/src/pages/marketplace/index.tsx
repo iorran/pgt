@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,44 +30,51 @@ export default function MarketplacePage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ name: '', description: '', price: '', stock: '' });
   const [msg, setMsg] = useState('');
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<Product[]>(`/products?academyId=${user.academyId}`)
-      .then(setProducts)
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: products = [], isLoading } = useApiQuery<Product[]>(
+    ['products', user?.academyId],
+    `/products?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const createMutation = useMutation({
+    mutationFn: (body: any) =>
+      api<Product>('/products', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+
+  const orderMutation = useMutation({
+    mutationFn: (productId: string) =>
+      api('/orders', {
+        method: 'POST',
+        body: JSON.stringify({ productId, studentId: user.id, quantity: 1 }),
+      }),
+    onSuccess: () => {
+      setMsg(t('marketplace.requestSuccess'));
+      setTimeout(() => setMsg(''), 3000);
+    },
+    onError: () => {
+      setMsg(t('marketplace.requestError'));
+    },
+  });
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    const created = await api<Product>('/products', {
-      method: 'POST',
-      body: JSON.stringify({ ...form, price: Number(form.price), stock: Number(form.stock), academyId: user.academyId }),
-    });
-    setProducts(prev => [...prev, created]);
+    await createMutation.mutateAsync({ ...form, price: Number(form.price), stock: Number(form.stock), academyId: user.academyId });
     setForm({ name: '', description: '', price: '', stock: '' });
     setDialogOpen(false);
   }
 
-  async function handleRequest(productId: string) {
-    try {
-      await api('/orders', {
-        method: 'POST',
-        body: JSON.stringify({ productId, studentId: user.id, quantity: 1 }),
-      });
-      setMsg(t('marketplace.requestSuccess'));
-      setTimeout(() => setMsg(''), 3000);
-    } catch {
-      setMsg(t('marketplace.requestError'));
-    }
-  }
-
-  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-6 space-y-6">
@@ -153,7 +162,7 @@ export default function MarketplacePage() {
                   <Button
                     variant="outline"
                     className="w-full hover:arena-glow"
-                    onClick={() => handleRequest(p.id)}
+                    onClick={() => orderMutation.mutate(p.id)}
                   >
                     {t('marketplace.request')}
                   </Button>

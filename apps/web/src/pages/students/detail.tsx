@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -59,38 +61,46 @@ export default function StudentDetailPage() {
   const navigate = useNavigate();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [student, setStudent] = useState<Student | null>(null);
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [memberForm, setMemberForm] = useState({ planId: '', startDate: '', dueDay: '' });
 
-  useEffect(() => {
-    if (!id) return;
-    Promise.all([
-      api<Student>(`/students/${id}`),
-      api<Payment[]>(`/payments/student/${id}`),
-    ])
-      .then(([s, p]) => { setStudent(s); setPayments(p); })
-      .finally(() => setLoading(false));
-  }, [id]);
+  const { data: student, isLoading: studentLoading } = useApiQuery<Student>(
+    ['student', id!],
+    `/students/${id}`,
+    !!id,
+  );
+
+  const { data: payments = [], isLoading: paymentsLoading } = useApiQuery<Payment[]>(
+    ['payments', 'student', id!],
+    `/payments/student/${id}`,
+    !!id,
+  );
+
+  const isLoading = studentLoading || paymentsLoading;
+
+  const assignMembershipMutation = useMutation({
+    mutationFn: (formData: typeof memberForm) =>
+      api(`/students/${id}/membership`, {
+        method: 'POST',
+        body: JSON.stringify({ ...formData, dueDay: Number(formData.dueDay) }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student', id] });
+      setDialogOpen(false);
+    },
+  });
 
   async function handleAssignMembership(e: React.FormEvent) {
     e.preventDefault();
-    await api(`/students/${id}/membership`, {
-      method: 'POST',
-      body: JSON.stringify({ ...memberForm, dueDay: Number(memberForm.dueDay) }),
-    });
-    setDialogOpen(false);
-    const s = await api<Student>(`/students/${id}`);
-    setStudent(s);
+    await assignMembershipMutation.mutateAsync(memberForm);
   }
 
   function formatCurrency(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
   if (!student) return <div className="p-5 text-muted-foreground">{t('common.noResults')}</div>;
 
   return (

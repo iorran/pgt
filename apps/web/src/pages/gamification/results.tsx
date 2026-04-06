@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,54 +42,58 @@ export default function ResultsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [results, setResults] = useState<CompetitionResult[]>([]);
-  const [seasons, setSeasons] = useState<Season[]>([]);
+  const queryClient = useQueryClient();
   const [seasonId, setSeasonId] = useState('');
-  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ competitionName: '', date: '', position: '1' });
   const [msg, setMsg] = useState('');
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<Season[]>(`/seasons?academyId=${user.academyId}`)
-      .then(data => {
-        setSeasons(data);
-        if (data.length > 0) setSeasonId(data[0].id);
-      })
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
+    ['seasons', user?.academyId],
+    `/seasons?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
 
-  useEffect(() => {
-    if (!seasonId) return;
-    if (user?.role === 'instructor') {
-      api<CompetitionResult[]>(`/competition-results?seasonId=${seasonId}&status=pending`).then(setResults);
-    }
-  }, [seasonId, user?.role]);
+  const effectiveSeasonId = seasonId || (seasons.length > 0 ? seasons[0].id : '');
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      await api('/competition-results', {
+  const { data: results = [] } = useApiQuery<CompetitionResult[]>(
+    ['competition-results', effectiveSeasonId, 'pending'],
+    `/competition-results?seasonId=${effectiveSeasonId}&status=pending`,
+    !!effectiveSeasonId && user?.role === 'instructor',
+  );
+
+  const submitMutation = useMutation({
+    mutationFn: (body: any) =>
+      api('/competition-results', {
         method: 'POST',
-        body: JSON.stringify({ ...form, position: Number(form.position), studentId: user.id, seasonId }),
-      });
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
       setMsg(t('gamification.resultSubmitted'));
       setForm({ competitionName: '', date: '', position: '1' });
       setTimeout(() => setMsg(''), 3000);
-    } catch {
+    },
+    onError: () => {
       setMsg(t('gamification.resultError'));
-    }
+    },
+  });
+
+  const approvalMutation = useMutation({
+    mutationFn: ({ resultId, status }: { resultId: string; status: 'approved' | 'rejected' }) =>
+      api(`/competition-results/${resultId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['competition-results'] });
+    },
+  });
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await submitMutation.mutateAsync({ ...form, position: Number(form.position), studentId: user.id, seasonId: effectiveSeasonId });
   }
 
-  async function handleApproval(resultId: string, status: 'approved' | 'rejected') {
-    await api(`/competition-results/${resultId}`, {
-      method: 'PUT',
-      body: JSON.stringify({ status }),
-    });
-    setResults(prev => prev.filter(r => r.id !== resultId));
-  }
-
-  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-6 space-y-6">
@@ -112,7 +118,7 @@ export default function ResultsPage() {
                     <div className="space-y-2">
                       <Label>{t('gamification.seasonsTitle')}</Label>
                       <select
-                        value={seasonId}
+                        value={effectiveSeasonId}
                         onChange={e => setSeasonId(e.target.value)}
                         className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
                       >
@@ -172,7 +178,7 @@ export default function ResultsPage() {
           <TabsContent value="pending" className="mt-4 space-y-4">
             <div>
               <select
-                value={seasonId}
+                value={effectiveSeasonId}
                 onChange={e => setSeasonId(e.target.value)}
                 className="rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
               >
@@ -200,10 +206,10 @@ export default function ResultsPage() {
                           <span className="arena-stat text-primary font-mono">+{r.pointsAwarded}pts</span>
                         )}
                         <div className="flex gap-2 shrink-0">
-                          <Button size="sm" onClick={() => handleApproval(r.id, 'approved')}>
+                          <Button size="sm" onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'approved' })}>
                             {t('gamification.approve')}
                           </Button>
-                          <Button size="sm" variant="destructive" onClick={() => handleApproval(r.id, 'rejected')}>
+                          <Button size="sm" variant="destructive" onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'rejected' })}>
                             {t('gamification.reject')}
                           </Button>
                         </div>

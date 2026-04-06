@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,28 +34,35 @@ export default function PaymentsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [form, setForm] = useState({ studentId: '', amount: '', paymentDate: '', referenceMonth: '' });
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    Promise.all([
-      api<Payment[]>(`/payments?academyId=${user.academyId}`),
-      api<Student[]>(`/students?academyId=${user.academyId}`),
-    ])
-      .then(([p, s]) => { setPayments(p); setStudents(s); })
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: payments = [], isLoading: paymentsLoading } = useApiQuery<Payment[]>(
+    ['payments', user?.academyId],
+    `/payments?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const { data: students = [] } = useApiQuery<Student[]>(
+    ['students', user?.academyId],
+    `/students?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const createMutation = useMutation({
+    mutationFn: (body: any) =>
+      api<Payment>('/payments', {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments'] });
+    },
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const created = await api<Payment>('/payments', {
-      method: 'POST',
-      body: JSON.stringify({ ...form, amount: Number(form.amount), academyId: user.academyId }),
-    });
-    setPayments(prev => [created, ...prev]);
+    await createMutation.mutateAsync({ ...form, amount: Number(form.amount), academyId: user.academyId });
     setForm({ studentId: '', amount: '', paymentDate: '', referenceMonth: '' });
   }
 
@@ -61,7 +70,7 @@ export default function PaymentsPage() {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (paymentsLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-5 space-y-6">

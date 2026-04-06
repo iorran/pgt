@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -35,17 +37,23 @@ export default function SeasonsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [seasons, setSeasons] = useState<Season[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ name: '', startDate: '', endDate: '', prize: '', firstPoints: '10', secondPoints: '7', thirdPoints: '5' });
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<Season[]>(`/seasons?academyId=${user.academyId}`)
-      .then(setSeasons)
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
+    ['seasons', user?.academyId],
+    `/seasons?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const createMutation = useMutation({
+    mutationFn: (body: any) =>
+      api<Season>('/seasons', { method: 'POST', body: JSON.stringify(body) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seasons'] });
+    },
+  });
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -57,13 +65,12 @@ export default function SeasonsPage() {
       pointsConfig: { first: Number(form.firstPoints), second: Number(form.secondPoints), third: Number(form.thirdPoints) },
       academyId: user.academyId,
     };
-    const created = await api<Season>('/seasons', { method: 'POST', body: JSON.stringify(body) });
-    setSeasons(prev => [...prev, created]);
+    await createMutation.mutateAsync(body);
     setForm({ name: '', startDate: '', endDate: '', prize: '', firstPoints: '10', secondPoints: '7', thirdPoints: '5' });
     setDialogOpen(false);
   }
 
-  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-6 space-y-6">

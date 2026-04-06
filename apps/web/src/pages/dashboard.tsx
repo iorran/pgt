@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
-import { api } from '@/lib/api';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -17,15 +17,13 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const isInstructor = user?.role === 'instructor';
-  const [academy, setAcademy] = useState<AcademyInfo | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<AcademyInfo>('/academies/mine')
-      .then(setAcademy)
-      .catch(() => {});
-  }, [user?.academyId]);
+  const { data: academy } = useApiQuery<AcademyInfo>(
+    ['academy-mine'],
+    '/academies/mine',
+    !!user?.academyId,
+  );
 
   function handleCopy() {
     if (!academy) return;

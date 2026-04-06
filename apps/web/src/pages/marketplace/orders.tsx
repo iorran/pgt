@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -33,28 +34,34 @@ export default function OrdersPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!user) return;
-    const url = user.role === 'instructor'
-      ? `/orders?academyId=${user.academyId}`
-      : `/orders/student/${user.id}`;
-    api<Order[]>(url)
-      .then(setOrders)
-      .finally(() => setLoading(false));
-  }, [user?.id, user?.role, user?.academyId]);
+  const orderUrl = user?.role === 'instructor'
+    ? `/orders?academyId=${user?.academyId}`
+    : `/orders/student/${user?.id}`;
 
-  async function updateStatus(orderId: string, status: string) {
-    await api(`/orders/${orderId}/status`, {
-      method: 'PUT',
-      body: JSON.stringify({ status }),
-    });
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
-  }
+  const orderKey = user?.role === 'instructor'
+    ? ['orders', user?.academyId]
+    : ['orders', 'student', user?.id];
 
-  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  const { data: orders = [], isLoading } = useApiQuery<Order[]>(
+    orderKey,
+    orderUrl,
+    !!user,
+  );
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
+      api(`/orders/${orderId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+
+  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-6 space-y-6">
@@ -100,16 +107,16 @@ export default function OrdersPage() {
                       <div className="flex gap-2">
                         {o.status === 'pending' && (
                           <>
-                            <Button size="sm" onClick={() => updateStatus(o.id, 'confirmed')}>
+                            <Button size="sm" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'confirmed' })}>
                               {t('common.confirm')}
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={() => updateStatus(o.id, 'cancelled')}>
+                            <Button size="sm" variant="destructive" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'cancelled' })}>
                               {t('common.cancel')}
                             </Button>
                           </>
                         )}
                         {o.status === 'confirmed' && (
-                          <Button size="sm" onClick={() => updateStatus(o.id, 'delivered')}>
+                          <Button size="sm" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'delivered' })}>
                             {t('marketplace.deliver')}
                           </Button>
                         )}

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useApiQuery } from '@/hooks/use-api';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
@@ -41,33 +41,32 @@ export default function LeaderboardPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [seasons, setSeasons] = useState<Season[]>([]);
   const [seasonId, setSeasonId] = useState('');
   const [category, setCategory] = useState<'adults' | 'kids'>('adults');
   const [belt, setBelt] = useState('');
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  const activeSeason = seasons.find(s => s.id === seasonId);
+  const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
+    ['seasons', user?.academyId],
+    `/seasons?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<Season[]>(`/seasons?academyId=${user.academyId}`)
-      .then(data => {
-        setSeasons(data);
-        if (data.length > 0) setSeasonId(data[0].id);
-      })
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  // Auto-select first season when seasons load
+  const effectiveSeasonId = seasonId || (seasons.length > 0 ? seasons[0].id : '');
 
-  useEffect(() => {
-    if (!seasonId) return;
-    let url = `/seasons/${seasonId}/leaderboard?category=${category}`;
-    if (category === 'adults' && belt) url += `&belt=${belt}`;
-    api<LeaderboardEntry[]>(url).then(setEntries);
-  }, [seasonId, category, belt]);
+  const leaderboardUrl = effectiveSeasonId
+    ? `/seasons/${effectiveSeasonId}/leaderboard?category=${category}${category === 'adults' && belt ? `&belt=${belt}` : ''}`
+    : '';
 
-  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  const { data: entries = [] } = useApiQuery<LeaderboardEntry[]>(
+    ['leaderboard', effectiveSeasonId, category, belt],
+    leaderboardUrl,
+    !!effectiveSeasonId,
+  );
+
+  const activeSeason = seasons.find(s => s.id === effectiveSeasonId);
+
+  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-6 space-y-8">
@@ -95,7 +94,7 @@ export default function LeaderboardPage() {
           {/* Season selector */}
           <div className="flex justify-center">
             <select
-              value={seasonId}
+              value={effectiveSeasonId}
               onChange={e => setSeasonId(e.target.value)}
               className="rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
             >

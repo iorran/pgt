@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,30 +18,31 @@ export default function PendingStudentsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [students, setStudents] = useState<PendingStudent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<PendingStudent[]>(`/academies/${user.academyId}/pending`)
-      .then(data => {
-        setStudents(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: students = [], isLoading } = useApiQuery<PendingStudent[]>(
+    ['pending-students', user?.academyId],
+    `/academies/${user?.academyId}/pending`,
+    !!user?.academyId,
+  );
 
-  async function handleApprove(studentId: string) {
-    await api(`/academies/${user.academyId}/approve/${studentId}`, { method: 'POST' });
-    setStudents(prev => prev.filter(s => s.id !== studentId));
-  }
+  const approveMutation = useMutation({
+    mutationFn: (studentId: string) =>
+      api(`/academies/${user.academyId}/approve/${studentId}`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-students'] });
+    },
+  });
 
-  async function handleReject(studentId: string) {
-    await api(`/academies/${user.academyId}/reject/${studentId}`, { method: 'POST' });
-    setStudents(prev => prev.filter(s => s.id !== studentId));
-  }
+  const rejectMutation = useMutation({
+    mutationFn: (studentId: string) =>
+      api(`/academies/${user.academyId}/reject/${studentId}`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-students'] });
+    },
+  });
 
-  if (loading) {
+  if (isLoading) {
     return <p className="text-muted-foreground p-6">{t('common.loading')}</p>;
   }
 
@@ -65,13 +67,13 @@ export default function PendingStudentsPage() {
                   </Badge>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleApprove(student.id)}>
+                  <Button size="sm" onClick={() => approveMutation.mutate(student.id)}>
                     {t('onboarding.approve')}
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleReject(student.id)}
+                    onClick={() => rejectMutation.mutate(student.id)}
                   >
                     {t('onboarding.reject')}
                   </Button>

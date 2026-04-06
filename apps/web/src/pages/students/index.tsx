@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useApiQuery } from '@/hooks/use-api';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -38,22 +38,19 @@ export default function StudentsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<Student[]>(`/students?academyId=${user.academyId}`)
-      .then(setStudents)
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: students = [], isLoading } = useApiQuery<Student[]>(
+    ['students', user?.academyId],
+    `/students?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
 
   const filtered = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-5 space-y-6">

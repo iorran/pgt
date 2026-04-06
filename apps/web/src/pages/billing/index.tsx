@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
 import { useSession } from '@/lib/auth-client';
-import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
@@ -18,21 +17,18 @@ export default function BillingOverduePage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const [records, setRecords] = useState<OverdueRecord[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user?.academyId) return;
-    api<OverdueRecord[]>(`/payments/overdue?academyId=${user.academyId}`)
-      .then(setRecords)
-      .finally(() => setLoading(false));
-  }, [user?.academyId]);
+  const { data: records = [], isLoading } = useApiQuery<OverdueRecord[]>(
+    ['overdue', user?.academyId],
+    `/payments/overdue?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
 
   function getBorderColor(days: number) {
     return days >= 8 ? 'border-l-destructive' : 'border-l-yellow-500';
   }
 
-  if (loading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
     <div className="p-5 space-y-6">
