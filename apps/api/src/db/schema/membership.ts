@@ -1,6 +1,6 @@
 import { pgTable, uuid, varchar, decimal, integer, boolean, date, pgEnum } from 'drizzle-orm/pg-core';
-import { academy } from './academy.js';
-import { user } from './user.js';
+import { academy } from './academy';
+import { user } from './user';
 
 export const planFrequencyEnum = pgEnum('plan_frequency', ['monthly', 'quarterly', 'yearly']);
 

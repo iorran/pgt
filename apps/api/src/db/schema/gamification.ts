@@ -1,6 +1,6 @@
 import { pgTable, uuid, varchar, text, integer, timestamp, date, pgEnum } from 'drizzle-orm/pg-core';
-import { academy } from './academy.js';
-import { user } from './user.js';
+import { academy } from './academy';
+import { user } from './user';
 
 export const xpSourceTypeEnum = pgEnum('xp_source_type', ['checkin', 'competition', 'badge']);
 

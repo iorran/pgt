@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, date, timestamp, pgEnum } from 'drizzle-orm/pg-core';
-import { academy } from './academy.js';
+import { academy } from './academy';
 
 export const beltEnum = pgEnum('belt', ['white', 'blue', 'purple', 'brown', 'black']);
 export const userRoleEnum = pgEnum('user_role', ['instructor', 'student']);

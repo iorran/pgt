@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, decimal, integer, boolean, text } from 'drizzle-orm/pg-core';
-import { academy } from './academy.js';
+import { academy } from './academy';
 
 export const product = pgTable('product', {
   id: uuid('id').primaryKey().defaultRandom(),

@@ -1,6 +1,6 @@
 import { pgTable, uuid, decimal, date, varchar, timestamp, index } from 'drizzle-orm/pg-core';
-import { user } from './user.js';
-import { academy } from './academy.js';
+import { user } from './user';
+import { academy } from './academy';
 
 export const payment = pgTable('payment', {
   id: uuid('id').primaryKey().defaultRandom(),

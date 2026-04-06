@@ -1,6 +1,6 @@
 import { pgTable, uuid, varchar, time, date, boolean, integer, pgEnum } from 'drizzle-orm/pg-core';
-import { academy } from './academy.js';
-import { user } from './user.js';
+import { academy } from './academy';
+import { user } from './user';
 
 export const classTypeEnum = pgEnum('class_type', ['gi', 'no-gi', 'open-mat', 'kids']);
 export const recurrenceEnum = pgEnum('recurrence', ['once', 'weekly']);

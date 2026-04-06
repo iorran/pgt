@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, timestamp, text, boolean, integer } from 'drizzle-orm/pg-core';
-import { user } from './user.js';
+import { user } from './user';
 
 export const session = pgTable('session', {
   id: uuid('id').primaryKey().defaultRandom(),

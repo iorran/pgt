@@ -1,6 +1,6 @@
 import { pgTable, uuid, varchar, date, integer, timestamp, pgEnum, index } from 'drizzle-orm/pg-core';
-import { season } from './season.js';
-import { user } from './user.js';
+import { season } from './season';
+import { user } from './user';
 
 export const resultStatusEnum = pgEnum('result_status', ['pending', 'approved', 'rejected']);
 

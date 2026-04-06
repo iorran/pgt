@@ -1,6 +1,6 @@
 import { pgTable, uuid, timestamp, index } from 'drizzle-orm/pg-core';
-import { bjjClass } from './class.js';
-import { user } from './user.js';
+import { bjjClass } from './class';
+import { user } from './user';
 
 export const checkin = pgTable('checkin', {
   id: uuid('id').primaryKey().defaultRandom(),
