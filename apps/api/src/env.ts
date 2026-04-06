@@ -1,4 +1,8 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
+import { resolve } from 'node:path';
+
+config({ path: resolve(process.cwd(), '.env') });
+config({ path: resolve(process.cwd(), '../../.env') });
 
 export const env = {
   DATABASE_URL: process.env.DATABASE_URL!,
