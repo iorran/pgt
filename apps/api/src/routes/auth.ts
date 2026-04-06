@@ -1,26 +1,54 @@
 import { FastifyInstance } from 'fastify';
 import { auth } from '../auth/index.js';
-import { toNodeHandler } from 'better-auth/node';
 
 const ALLOWED_ORIGIN = 'http://localhost:5173';
 
+function setCors(reply: any) {
+  reply.header('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  reply.header('Access-Control-Allow-Credentials', 'true');
+  reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
 export async function authRoutes(app: FastifyInstance) {
-  const handler = toNodeHandler(auth);
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (_req, body, done) => {
+    done(null, body);
+  });
 
   app.all('/api/auth/*', async (request, reply) => {
-    // Set CORS headers manually since toNodeHandler bypasses Fastify
-    reply.raw.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
-    reply.raw.setHeader('Access-Control-Allow-Credentials', 'true');
-    reply.raw.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    reply.raw.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    setCors(reply);
 
     if (request.method === 'OPTIONS') {
-      reply.raw.statusCode = 204;
-      reply.raw.end();
-      return reply.hijack();
+      return reply.status(204).send();
     }
 
-    await handler(request.raw, reply.raw);
-    return reply.hijack();
+    // Convert Fastify request to Web API Request
+    const url = `${request.protocol}://${request.hostname}${request.url}`;
+    const headers = new Headers();
+    for (const [key, value] of Object.entries(request.headers)) {
+      if (value) headers.set(key, Array.isArray(value) ? value.join(', ') : value);
+    }
+
+    const webRequest = new Request(url, {
+      method: request.method,
+      headers,
+      body: request.method !== 'GET' && request.method !== 'HEAD'
+        ? (request.body as string)
+        : undefined,
+    });
+
+    const response = await auth.handler(webRequest);
+
+    // Forward status and BetterAuth headers (e.g. set-cookie)
+    reply.status(response.status);
+    response.headers.forEach((value, key) => {
+      reply.header(key, value);
+    });
+
+    // Re-apply CORS (in case BetterAuth overwrote them)
+    setCors(reply);
+
+    const body = await response.text();
+    return reply.send(body);
   });
 }
