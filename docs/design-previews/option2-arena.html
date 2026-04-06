@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PGT - Option 2: Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-dark: #0a0a0a;
+    --bg-mid: #111;
+    --bg-card: #161616;
+    --bg-card-hover: #1c1c1c;
+    --accent: #E5FF00;
+    --accent-dim: #b8cc00;
+    --red: #FF3B30;
+    --white: #ffffff;
+    --gray-100: #e5e5e5;
+    --gray-300: #a0a0a0;
+    --gray-500: #666;
+    --gray-700: #333;
+    --gray-800: #222;
+    --gold: #FFD700;
+    --silver: #C0C0C0;
+    --bronze: #CD7F32;
+  }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--bg-dark);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* === OPTION BANNER === */
+  .option-banner {
+    background: var(--accent);
+    color: #000;
+    text-align: center;
+    padding: 10px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 100;
+  }
+  .option-banner::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--accent),
+      var(--accent) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
+
+  /* === SPLIT VIEW === */
+  .split-view {
+    display: flex;
+    height: calc(100vh - 50px);
+    min-height: 700px;
+  }
+
+  /* === LEFT: LOGIN === */
+  .login-side {
+    flex: 0 0 42%;
+    background: var(--bg-dark);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .login-side::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 30px,
+      rgba(229, 255, 0, 0.03) 30px,
+      rgba(229, 255, 0, 0.03) 32px
+    );
+    pointer-events: none;
+  }
+
+  .login-side::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 80%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent 48%, rgba(229, 255, 0, 0.06) 48%, rgba(229, 255, 0, 0.06) 52%, transparent 52%);
+    pointer-events: none;
+  }
+
+  .login-container {
+    position: relative;
+    z-index: 2;
+    width: 340px;
+    text-align: center;
+  }
+
+  .login-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 120px;
+    line-height: 0.85;
+    letter-spacing: 12px;
+    color: var(--white);
+    text-shadow: 0 0 40px rgba(229, 255, 0, 0.15);
+    margin-bottom: 4px;
+  }
+
+  .login-tagline {
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--gray-300);
+    margin-bottom: 48px;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .login-form label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: -8px;
+  }
+
+  .login-form input {
+    background: var(--bg-mid);
+    border: 2px solid var(--gray-700);
+    border-radius: 0;
+    padding: 14px 16px;
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .login-form input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .login-form input::placeholder {
+    color: var(--gray-500);
+  }
+
+  .login-btn {
+    margin-top: 8px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 0;
+    padding: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(229, 255, 0, 0.3);
+  }
+
+  .login-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 40%, rgba(0,0,0,0.08) 40%);
+  }
+
+  .login-forgot {
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .login-forgot a {
+    font-size: 13px;
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .login-forgot a:hover {
+    color: var(--accent);
+  }
+
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 24px 0 8px;
+    color: var(--gray-500);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Oswald', sans-serif;
+  }
+
+  .login-divider::before,
+  .login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray-700);
+  }
+
+  .login-bottom-text {
+    text-align: center;
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-top: 4px;
+  }
+
+  .login-bottom-text a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  /* === RIGHT: DASHBOARD === */
+  .dashboard-side {
+    flex: 1;
+    display: flex;
+    background: var(--bg-mid);
+    border-left: 3px solid var(--gray-800);
+    overflow: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: var(--bg-dark);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 50%, transparent 50%);
+    opacity: 0.08;
+  }
+
+  .sidebar-brand {
+    padding: 24px 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 6px;
+    color: var(--white);
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-brand .accent-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--gray-300);
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .nav-item:hover {
+    color: var(--white);
+    background: rgba(255,255,255,0.03);
+  }
+
+  .nav-item.active {
+    color: var(--accent);
+    background: rgba(229, 255, 0, 0.05);
+  }
+
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+
+  .nav-icon {
+    width: 18px;
+    text-align: center;
+    font-size: 15px;
+    opacity: 0.7;
+  }
+
+  .nav-item.active .nav-icon {
+    opacity: 1;
+  }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    font-weight: 700;
+  }
+
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--gray-800);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    color: #000;
+  }
+
+  .sidebar-user-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sidebar-user-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--white);
+  }
+
+  .sidebar-user-role {
+    font-size: 11px;
+    color: var(--gray-500);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'Barlow', sans-serif;
+  }
+
+  /* Dashboard Main */
+  .dashboard-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--gray-800);
+    background: var(--bg-dark);
+  }
+
+  .dashboard-header h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--gray-500);
+  }
+
+  .header-notif {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-card);
+    border: 1px solid var(--gray-700);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s;
+  }
+
+  .header-notif:hover {
+    border-color: var(--accent);
+  }
+
+  .header-notif::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 7px;
+    height: 7px;
+    background: var(--red);
+  }
+
+  .dashboard-content {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Stat Cards */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--gray-800);
+    border-radius: 1px;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px) scale(1.01);
+    border-color: var(--gray-700);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--stat-color, var(--accent)) 50%, transparent 50%);
+    opacity: 0.12;
+  }
+
+  .stat-card:nth-child(1) { --stat-color: var(--accent); }
+  .stat-card:nth-child(1)::before { background: var(--accent); }
+  .stat-card:nth-child(2) { --stat-color: #00d4ff; }
+  .stat-card:nth-child(2)::before { background: #00d4ff; }
+  .stat-card:nth-child(3) { --stat-color: var(--red); }
+  .stat-card:nth-child(3)::before { background: var(--red); }
+  .stat-card:nth-child(4) { --stat-color: #a855f7; }
+  .stat-card:nth-child(4)::before { background: #a855f7; }
+
+  .stat-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 6px;
+  }
+
+  .stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .stat-card:nth-child(3) .stat-value {
+    color: var(--red);
+  }
+
+  .stat-sub {
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-top: 4px;
+  }
+
+  /* Two columns: Leaderboard + Classes */
+  .content-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--gray-800);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gray-800);
+    position: relative;
+  }
+
+  .panel-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .panel-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .panel-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(229, 255, 0, 0.08);
+    padding: 3px 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* Leaderboard */
+  .leaderboard {
+    padding: 4px 0;
+  }
+
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    transition: background 0.15s;
+    cursor: default;
+    position: relative;
+  }
+
+  .lb-row:hover {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .lb-row:not(:last-child) {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .lb-rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .lb-rank.gold {
+    color: #000;
+    background: var(--gold);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.3);
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  .lb-rank.silver {
+    color: #000;
+    background: var(--silver);
+  }
+
+  .lb-rank.bronze {
+    color: #000;
+    background: var(--bronze);
+  }
+
+  .lb-rank.plain {
+    color: var(--gray-500);
+    background: var(--gray-800);
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.25); }
+    50% { box-shadow: 0 0 24px rgba(255, 215, 0, 0.5), 0 0 48px rgba(255, 215, 0, 0.15); }
+  }
+
+  .lb-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .lb-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+
+  .lb-belt {
+    font-size: 11px;
+    color: var(--gray-500);
+    font-family: 'Barlow', sans-serif;
+  }
+
+  .lb-xp {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .lb-row:first-child .lb-name {
+    color: var(--gold);
+  }
+
+  /* Classes panel */
+  .classes-list {
+    padding: 4px 0;
+  }
+
+  .class-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 18px;
+    transition: background 0.15s;
+    cursor: default;
+  }
+
+  .class-row:hover {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .class-row:not(:last-child) {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+
+  .class-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    width: 54px;
+    flex-shrink: 0;
+    text-align: center;
+    padding: 6px 0;
+    background: rgba(229, 255, 0, 0.05);
+    border-left: 2px solid var(--accent);
+  }
+
+  .class-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .class-name {
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .class-meta {
+    font-size: 11px;
+    color: var(--gray-500);
+    font-family: 'Barlow', sans-serif;
+    margin-top: 1px;
+  }
+
+  .class-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--gray-300);
+    flex-shrink: 0;
+    background: var(--bg-dark);
+    padding: 4px 10px;
+  }
+
+  .class-row.now .class-time {
+    background: rgba(229, 255, 0, 0.12);
+    color: #000;
+    background-color: var(--accent);
+  }
+
+  .class-row.now .class-name {
+    color: var(--accent);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gray-700); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gray-500); }
+</style>
+</head>
+<body>
+
+<div class="option-banner">Option 2 : Arena</div>
+
+<div class="split-view">
+  <!-- LEFT: LOGIN -->
+  <div class="login-side">
+    <div class="login-container">
+      <div class="login-brand">PGT</div>
+      <div class="login-tagline">Gest&atilde;o de Academia BJJ</div>
+
+      <form class="login-form" onsubmit="return false">
+        <label>Email</label>
+        <input type="email" placeholder="seu@email.com">
+        <label>Senha</label>
+        <input type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;">
+        <button class="login-btn" type="submit">Entrar</button>
+      </form>
+
+      <div class="login-forgot"><a href="#">Esqueceu a senha?</a></div>
+
+      <div class="login-divider">ou</div>
+      <div class="login-bottom-text">
+        Novo por aqui? <a href="#">Criar conta</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: DASHBOARD -->
+  <div class="dashboard-side">
+    <aside class="sidebar">
+      <div class="sidebar-brand">PGT<span class="accent-dot"></span></div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-item active">
+          <span class="nav-icon">&#9632;</span> Painel
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9654;</span> Aulas
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9650;</span> Alunos
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9660;</span> Financeiro
+          <span class="nav-badge">5</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9670;</span> Loja
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9733;</span> Ranking
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">&#9878;</span> Campeonatos
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-avatar">PS</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Professor Silva</div>
+          <div class="sidebar-user-role">Admin</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="dashboard-main">
+      <div class="dashboard-header">
+        <h1>Painel</h1>
+        <div class="header-right">
+          <span class="header-date">06 ABR 2026</span>
+          <div class="header-notif">&#9993;</div>
+        </div>
+      </div>
+
+      <div class="dashboard-content">
+        <!-- Stats -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Alunos</div>
+            <div class="stat-value">32</div>
+            <div class="stat-sub">+3 este m&ecirc;s</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Aulas / Semana</div>
+            <div class="stat-value">12</div>
+            <div class="stat-sub">4 professores</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Inadimplentes</div>
+            <div class="stat-value">5</div>
+            <div class="stat-sub">R$ 1.250 pendente</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">XP Total</div>
+            <div class="stat-value">1,250</div>
+            <div class="stat-sub">ranking ativo</div>
+          </div>
+        </div>
+
+        <!-- Columns -->
+        <div class="content-columns">
+          <!-- Leaderboard -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Ranking</span>
+              <span class="panel-tag">Live</span>
+            </div>
+            <div class="leaderboard">
+              <div class="lb-row">
+                <div class="lb-rank gold">1</div>
+                <div class="lb-info">
+                  <div class="lb-name">Carlos Eduardo</div>
+                  <div class="lb-belt">Faixa Roxa &middot; 4 graus</div>
+                </div>
+                <div class="lb-xp">1,250</div>
+              </div>
+              <div class="lb-row">
+                <div class="lb-rank silver">2</div>
+                <div class="lb-info">
+                  <div class="lb-name">Ana Beatriz</div>
+                  <div class="lb-belt">Faixa Marrom &middot; 1 grau</div>
+                </div>
+                <div class="lb-xp">1,180</div>
+              </div>
+              <div class="lb-row">
+                <div class="lb-rank bronze">3</div>
+                <div class="lb-info">
+                  <div class="lb-name">Rafael Lima</div>
+                  <div class="lb-belt">Faixa Azul &middot; 3 graus</div>
+                </div>
+                <div class="lb-xp">1,045</div>
+              </div>
+              <div class="lb-row">
+                <div class="lb-rank plain">4</div>
+                <div class="lb-info">
+                  <div class="lb-name">Juliana Costa</div>
+                  <div class="lb-belt">Faixa Roxa &middot; 2 graus</div>
+                </div>
+                <div class="lb-xp">980</div>
+              </div>
+              <div class="lb-row">
+                <div class="lb-rank plain">5</div>
+                <div class="lb-info">
+                  <div class="lb-name">Pedro Henrique</div>
+                  <div class="lb-belt">Faixa Azul &middot; 4 graus</div>
+                </div>
+                <div class="lb-xp">912</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Classes -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Aulas Hoje</span>
+              <span class="panel-tag">Segunda</span>
+            </div>
+            <div class="classes-list">
+              <div class="class-row">
+                <div class="class-time">06:30</div>
+                <div class="class-info">
+                  <div class="class-name">Fundamentos</div>
+                  <div class="class-meta">Prof. Silva &middot; Sala 1</div>
+                </div>
+                <div class="class-count">8/16</div>
+              </div>
+              <div class="class-row now">
+                <div class="class-time">09:00</div>
+                <div class="class-info">
+                  <div class="class-name">All Levels</div>
+                  <div class="class-meta">Prof. Machado &middot; Sala 1</div>
+                </div>
+                <div class="class-count">12/20</div>
+              </div>
+              <div class="class-row">
+                <div class="class-time">12:00</div>
+                <div class="class-info">
+                  <div class="class-name">No-Gi</div>
+                  <div class="class-meta">Prof. Silva &middot; Sala 2</div>
+                </div>
+                <div class="class-count">6/16</div>
+              </div>
+              <div class="class-row">
+                <div class="class-time">18:30</div>
+                <div class="class-info">
+                  <div class="class-name">Competi&ccedil;&atilde;o</div>
+                  <div class="class-meta">Prof. Ribeiro &middot; Sala 1</div>
+                </div>
+                <div class="class-count">14/20</div>
+              </div>
+              <div class="class-row">
+                <div class="class-time">20:00</div>
+                <div class="class-info">
+                  <div class="class-name">Avan&ccedil;ado</div>
+                  <div class="class-meta">Prof. Silva &middot; Sala 1</div>
+                </div>
+                <div class="class-count">10/16</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
