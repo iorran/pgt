@@ -4,6 +4,37 @@ Parent:: [[BJJ Academy App]]
 
 ## Must-Have Features
 
+### 0. Onboarding — Academy Creation & Student Joining
+
+#### Instructor Onboarding (Academy Owner)
+
+| Step | Description |
+|---|---|
+| 1. Sign Up | Instructor creates an account (name, email, password) |
+| 2. Create Academy | Fills in academy name and city |
+| 3. Get Join Code | System generates a unique join code (e.g., `GRACIE-SP-7X2`) and a join link (`app.com/entrar/GRACIE-SP-7X2`) |
+| 4. Ready | Instructor is automatically assigned as the academy's instructor |
+
+#### Student Onboarding
+
+| Step | Description |
+|---|---|
+| 1. Receive Link | Instructor shares the join link on WhatsApp (or gives the code verbally) |
+| 2. Sign Up | Student clicks link, sees the academy name, registers (name, email, password, belt) |
+| 3. Await Approval | Student sees "Aguardando aprovacao" status |
+| 4. Approved | Instructor approves the student from a pending list, student gets full access |
+
+#### Invite Mechanism
+
+| Feature | Description |
+|---|---|
+| Join Link | Unique URL per academy: `app.com/entrar/{code}` — clicking it pre-fills the academy |
+| Join Code | Short code (e.g., `GRACIE-SP-7X2`) students can type manually as a fallback |
+| WhatsApp Share | "Compartilhar no WhatsApp" button that generates a pre-formatted message with the link |
+| Pending Approval | Instructor sees a list of students waiting for approval, can approve or reject |
+
+> Note: Students belong to one academy (for MVP). To switch, the instructor removes them and they join another code.
+
 ### 1. Core — Class Schedule & Check-in
 
 | Feature | Description |
@@ -80,6 +111,7 @@ Instructor can optionally post upcoming external tournaments for visibility. Thi
 ## Student-Facing (Minimal)
 
 Students can:
+- Join an academy via invite link or code (requires instructor approval)
 - View class schedule and check in
 - Receive payment due/overdue alerts
 - Browse marketplace and request items
@@ -93,6 +125,8 @@ Students **cannot**:
 - View other students' payment info
 - Manage products or tournaments
 - Configure seasons, points, or prizes
+- Approve/reject other students
+- Create academies
 
 ## Out of Scope (Nice-to-Have for Later)
 

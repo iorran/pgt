@@ -33,19 +33,23 @@ erDiagram
         uuid id PK
         string name
         string slug UK
+        string join_code UK "e.g. GRACIE-SP-7X2"
+        string city
         string logo_url
+        uuid owner_id FK
         timestamp created_at
     }
 
     User {
         uuid id PK
-        uuid academy_id FK
+        uuid academy_id FK "nullable until approved"
         string email UK
         string name
         string phone
         date date_of_birth
         enum belt "white|blue|purple|brown|black"
         enum role "instructor|student"
+        enum status "pending|active|rejected"
         timestamp created_at
     }
 
@@ -203,6 +207,14 @@ erDiagram
 ```
 
 ## Key Design Decisions
+
+### Onboarding
+- **Instructor signup**: Creates an account, then creates an academy. System generates a `join_code` (e.g., `GRACIE-SP-7X2`). Instructor becomes the `owner_id`.
+- **Student signup**: Clicks a join link (`/entrar/{join_code}`) or types the code manually. Registers with name, email, password, belt. Status starts as `pending`.
+- **Approval**: Instructor sees pending students and approves/rejects. Approved students get `status: active`. Rejected students get `status: rejected`.
+- **WhatsApp share**: Instructor can share the join link via WhatsApp with a pre-formatted message.
+- `User.status` controls access: only `active` users can use the app. `pending` users see a waiting screen.
+- `Academy.join_code` is a short, unique, human-readable code generated at academy creation.
 
 ### Multi-tenancy
 - **Academy** is the tenant. Every entity belongs to an academy.
