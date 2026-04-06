@@ -102,6 +102,7 @@ jobs:
       - name: Build
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_APP_URL: ${{ vars.VITE_APP_URL }}
         run: npm run build --workspace=@pgt/web
       - name: Deploy to Vercel
         working-directory: apps/web
