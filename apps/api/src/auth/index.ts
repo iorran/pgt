@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { db } from '../db/client.js';
 import { env } from '../env.js';
 import * as schema from '../db/schema/index.js';
+import { emailService } from '../email/index.js';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -33,6 +34,9 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      await emailService.sendPasswordReset(user.email, url);
+    },
   },
   databaseHooks: {
     user: {
