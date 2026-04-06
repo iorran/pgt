@@ -1,7 +1,10 @@
 {
   "name": "pgt",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
@@ -12,6 +15,8 @@
     "db:seed": "turbo db:seed --filter=@pgt/api"
   },
   "devDependencies": {
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9",
     "turbo": "^2"
   }
 }
