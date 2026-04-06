@@ -77,11 +77,12 @@ function App() {
 
   const user = session.user as any;
 
-  // No academy yet (instructor mid-setup)
+  // No academy yet — allow both flows (create academy OR join via code)
   if (!user.academyId) {
     return (
       <Routes>
         <Route path="/criar-academia" element={<CriarAcademiaPage />} />
+        <Route path="/entrar/:code" element={<EntrarPage />} />
         <Route path="*" element={<Navigate to="/criar-academia" />} />
       </Routes>
     );

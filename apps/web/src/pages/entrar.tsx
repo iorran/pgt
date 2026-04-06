@@ -46,15 +46,20 @@ export default function EntrarPage() {
     setError('');
 
     try {
-      const { error } = await signUp.email({ name, email, password, belt, role: 'student' } as any);
+      // Pass academyId during signup so session has it immediately
+      const { error } = await signUp.email({
+        name, email, password, belt, role: 'student', academyId: academy.id,
+      } as any);
       if (error) {
         setError(error.message ?? 'Signup failed');
         return;
       }
 
+      // Set status to pending (academyId is already on the user from signup)
       await api(`/academies/${academy.id}/join`, { method: 'POST' });
 
-      navigate('/aguardando');
+      // Force full reload so session reflects the updated status
+      window.location.href = '/aguardando';
     } catch (err: any) {
       setError(err.message ?? 'Signup failed');
     }
