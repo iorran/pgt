@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
 
 interface Order {
   id: string;
@@ -12,11 +22,11 @@ interface Order {
   createdAt: string;
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  pending: '#ca8a04',
-  confirmed: '#2563eb',
-  delivered: '#16a34a',
-  cancelled: '#dc2626',
+const statusClasses: Record<string, string> = {
+  pending: '',
+  confirmed: 'bg-arena-cyan/20 text-arena-cyan border-arena-cyan/30',
+  delivered: 'bg-primary/20 text-primary border-primary/30',
+  cancelled: 'bg-destructive/20 text-destructive border-destructive/30',
 };
 
 export default function OrdersPage() {
@@ -44,58 +54,73 @@ export default function OrdersPage() {
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
   }
 
-  if (loading) return <div>{t('common.loading')}</div>;
+  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{t('marketplace.ordersTitle')}</h1>
+    <div className="p-6 space-y-6">
+      <h1 className="font-heading text-3xl uppercase tracking-tight">{t('marketplace.ordersPageTitle')}</h1>
+
       {orders.length === 0 ? (
-        <p>{t('common.noResults')}</p>
+        <p className="text-muted-foreground">{t('common.noResults')}</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('marketplace.productName')}</th>
-              {user?.role === 'instructor' && (
-                <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('students.name')}</th>
-              )}
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('marketplace.quantity')}</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('marketplace.status')}</th>
-              <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('billing.date')}</th>
-              {user?.role === 'instructor' && (
-                <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('marketplace.actions')}</th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map(o => (
-              <tr key={o.id}>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{o.productName || '-'}</td>
+        <div className="rounded-sm border border-border overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-border">
+                <TableHead>{t('marketplace.productName')}</TableHead>
                 {user?.role === 'instructor' && (
-                  <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{o.studentName || '-'}</td>
+                  <TableHead>{t('students.name')}</TableHead>
                 )}
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{o.quantity}</td>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>
-                  <span style={{ color: STATUS_COLORS[o.status] || '#333', fontWeight: 'bold' }}>{t(`marketplace.orderStatus.${o.status}`)}</span>
-                </td>
-                <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{new Date(o.createdAt).toLocaleDateString()}</td>
+                <TableHead>{t('marketplace.quantity')}</TableHead>
+                <TableHead>{t('marketplace.status')}</TableHead>
+                <TableHead>{t('billing.date')}</TableHead>
                 {user?.role === 'instructor' && (
-                  <td style={{ padding: 8, borderBottom: '1px solid #eee', display: 'flex', gap: 4 }}>
-                    {o.status === 'pending' && (
-                      <>
-                        <button onClick={() => updateStatus(o.id, 'confirmed')} style={{ padding: '4px 8px' }}>{t('common.confirm')}</button>
-                        <button onClick={() => updateStatus(o.id, 'cancelled')} style={{ padding: '4px 8px', color: 'red' }}>{t('common.cancel')}</button>
-                      </>
-                    )}
-                    {o.status === 'confirmed' && (
-                      <button onClick={() => updateStatus(o.id, 'delivered')} style={{ padding: '4px 8px' }}>{t('marketplace.deliver')}</button>
-                    )}
-                  </td>
+                  <TableHead>{t('marketplace.actions')}</TableHead>
                 )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {orders.map(o => (
+                <TableRow key={o.id} className="border-border">
+                  <TableCell>{o.productName || '-'}</TableCell>
+                  {user?.role === 'instructor' && (
+                    <TableCell>{o.studentName || '-'}</TableCell>
+                  )}
+                  <TableCell className="font-mono">{o.quantity}</TableCell>
+                  <TableCell>
+                    <Badge className={statusClasses[o.status] || ''}>
+                      {t(`marketplace.orderStatus.${o.status}`)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-mono text-muted-foreground">
+                    {new Date(o.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  {user?.role === 'instructor' && (
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {o.status === 'pending' && (
+                          <>
+                            <Button size="sm" onClick={() => updateStatus(o.id, 'confirmed')}>
+                              {t('common.confirm')}
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => updateStatus(o.id, 'cancelled')}>
+                              {t('common.cancel')}
+                            </Button>
+                          </>
+                        )}
+                        {o.status === 'confirmed' && (
+                          <Button size="sm" onClick={() => updateStatus(o.id, 'delivered')}>
+                            {t('marketplace.deliver')}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   );

@@ -90,6 +90,7 @@
   },
   "marketplace": {
     "title": "Loja",
+    "pageTitle": "LOJA",
     "addProduct": "Adicionar Produto",
     "productName": "Nome do Produto",
     "description": "Descrição",
@@ -100,6 +101,7 @@
     "requestSuccess": "Pedido realizado com sucesso!",
     "requestError": "Erro ao realizar pedido",
     "ordersTitle": "Pedidos",
+    "ordersPageTitle": "PEDIDOS",
     "quantity": "Quantidade",
     "status": "Status",
     "actions": "Ações",
@@ -113,6 +115,8 @@
   },
   "gamification": {
     "seasonsTitle": "Temporadas",
+    "seasonsPageTitle": "TEMPORADAS",
+    "active": "ATIVA",
     "createSeason": "Criar Temporada",
     "seasonName": "Nome da Temporada",
     "startDate": "Data Início",
@@ -123,6 +127,8 @@
     "second": "2º Lugar",
     "third": "3º Lugar",
     "leaderboardTitle": "Classificação",
+    "leaderboardPageTitle": "RANKING",
+    "noResultsYet": "Nenhum resultado ainda",
     "noSeasons": "Nenhuma temporada cadastrada",
     "adults": "Adultos",
     "kids": "Kids",
@@ -141,12 +147,14 @@
     "profileTitle": "Perfil de Gamificação",
     "totalXp": "XP Total",
     "currentStreak": "Sequência Atual",
+    "currentStreakFire": "Sequência Atual \ud83d\udd25",
     "longestStreak": "Maior Sequência",
     "badges": "Conquistas",
     "noBadges": "Nenhuma conquista ainda"
   },
   "tournaments": {
     "title": "Campeonatos",
+    "pageTitle": "CAMPEONATOS",
     "createTournament": "Criar Campeonato",
     "tournamentName": "Nome do Campeonato",
     "location": "Local",

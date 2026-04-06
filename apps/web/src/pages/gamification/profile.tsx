@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent } from '@/components/ui/card';
+import { Award } from 'lucide-react';
 
 interface GamificationProfile {
   totalXp: number;
@@ -24,42 +26,75 @@ export default function GamificationProfilePage() {
       .finally(() => setLoading(false));
   }, [user?.id]);
 
-  if (loading) return <div>{t('common.loading')}</div>;
-  if (!profile) return <div>{t('common.noResults')}</div>;
+  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (!profile) return <div className="p-6 text-muted-foreground">{t('common.noResults')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{t('gamification.profileTitle')}</h1>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
-        <div style={{ padding: 16, border: '1px solid #ddd', borderRadius: 8, textAlign: 'center' }}>
-          <div style={{ fontSize: 32, fontWeight: 'bold' }}>{profile.totalXp}</div>
-          <div style={{ color: '#666' }}>{t('gamification.totalXp')}</div>
+    <div className="p-6 space-y-8">
+      {/* XP Header */}
+      <div className="text-center space-y-1">
+        <div className="font-display text-6xl text-primary arena-glow">
+          {profile.totalXp.toLocaleString()}
         </div>
-        <div style={{ padding: 16, border: '1px solid #ddd', borderRadius: 8, textAlign: 'center' }}>
-          <div style={{ fontSize: 32, fontWeight: 'bold' }}>{profile.currentStreak}</div>
-          <div style={{ color: '#666' }}>{t('gamification.currentStreak')}</div>
-        </div>
-        <div style={{ padding: 16, border: '1px solid #ddd', borderRadius: 8, textAlign: 'center' }}>
-          <div style={{ fontSize: 32, fontWeight: 'bold' }}>{profile.longestStreak}</div>
-          <div style={{ color: '#666' }}>{t('gamification.longestStreak')}</div>
-        </div>
+        <p className="font-heading text-lg text-muted-foreground uppercase">{t('gamification.totalXp')}</p>
       </div>
 
-      <h2>{t('gamification.badges')}</h2>
-      {profile.badges.length === 0 ? (
-        <p>{t('gamification.noBadges')}</p>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
-          {profile.badges.map(b => (
-            <div key={b.id} style={{ padding: 14, border: '1px solid #ddd', borderRadius: 8 }}>
-              <strong>{b.name}</strong>
-              {b.description && <p style={{ margin: '4px 0', color: '#666', fontSize: 14 }}>{b.description}</p>}
-              <p style={{ margin: 0, color: '#999', fontSize: 12 }}>{new Date(b.earnedAt).toLocaleDateString()}</p>
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className="rounded-sm text-center">
+          <CardContent className="p-6 space-y-1">
+            <div className="arena-stat text-3xl font-mono text-primary">
+              {profile.currentStreak}
             </div>
-          ))}
-        </div>
-      )}
+            <p className="text-sm text-muted-foreground">{t('gamification.currentStreakFire')}</p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-sm text-center">
+          <CardContent className="p-6 space-y-1">
+            <div className="arena-stat text-3xl font-mono text-primary">
+              {profile.longestStreak}
+            </div>
+            <p className="text-sm text-muted-foreground">{t('gamification.longestStreak')}</p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-sm text-center">
+          <CardContent className="p-6 space-y-1">
+            <div className="arena-stat text-3xl font-mono text-primary">
+              {profile.totalXp.toLocaleString()}
+            </div>
+            <p className="text-sm text-muted-foreground">{t('gamification.totalXp')}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Badges */}
+      <div className="space-y-4">
+        <h2 className="font-heading text-2xl uppercase">{t('gamification.badges')}</h2>
+        {profile.badges.length === 0 ? (
+          <p className="text-muted-foreground">{t('gamification.noBadges')}</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {profile.badges.map(b => (
+              <Card key={b.id} className="rounded-sm">
+                <CardContent className="p-4 flex items-start gap-3">
+                  <div className="size-10 rounded-sm bg-primary/10 flex items-center justify-center shrink-0">
+                    <Award className="size-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-heading text-base">{b.name}</p>
+                    {b.description && (
+                      <p className="text-sm text-muted-foreground">{b.description}</p>
+                    )}
+                    <p className="text-xs font-mono text-muted-foreground mt-1">
+                      {new Date(b.earnedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

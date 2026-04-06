@@ -1,7 +1,28 @@
 import { useEffect, useState } from 'react';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
+import { MapPin, Calendar } from 'lucide-react';
 
 interface Tournament {
   id: string;
@@ -24,7 +45,7 @@ export default function TournamentsPage() {
   const user = session?.user as any;
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createForm, setCreateForm] = useState({ name: '', date: '', location: '', federation: '' });
   const [signupTournamentId, setSignupTournamentId] = useState<string | null>(null);
   const [weightClass, setWeightClass] = useState('');
@@ -47,7 +68,7 @@ export default function TournamentsPage() {
     });
     setTournaments(prev => [...prev, created]);
     setCreateForm({ name: '', date: '', location: '', federation: '' });
-    setShowCreate(false);
+    setCreateDialogOpen(false);
   }
 
   async function handleSignup(e: React.FormEvent) {
@@ -78,93 +99,157 @@ export default function TournamentsPage() {
     setRosterTournamentId(tournamentId);
   }
 
-  if (loading) return <div>{t('common.loading')}</div>;
+  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{t('tournaments.title')}</h1>
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading text-3xl uppercase tracking-tight">{t('tournaments.pageTitle')}</h1>
 
-      {msg && <p style={{ color: 'green', fontWeight: 'bold' }}>{msg}</p>}
+        {user?.role === 'instructor' && (
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger render={<Button />}>
+              {t('tournaments.createTournament')}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="font-heading text-xl uppercase">{t('tournaments.createTournament')}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>{t('tournaments.tournamentName')}</Label>
+                  <Input
+                    value={createForm.name}
+                    onChange={e => setCreateForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('classes.date')}</Label>
+                  <Input
+                    type="date"
+                    value={createForm.date}
+                    onChange={e => setCreateForm(f => ({ ...f, date: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('tournaments.location')}</Label>
+                  <Input
+                    value={createForm.location}
+                    onChange={e => setCreateForm(f => ({ ...f, location: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('tournaments.federation')}</Label>
+                  <Input
+                    value={createForm.federation}
+                    onChange={e => setCreateForm(f => ({ ...f, federation: e.target.value }))}
+                  />
+                </div>
+                <Button type="submit" className="w-full">{t('common.create')}</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
 
-      {user?.role === 'instructor' && (
-        <div style={{ marginBottom: 20 }}>
-          <button onClick={() => setShowCreate(!showCreate)} style={{ padding: '8px 16px' }}>
-            {showCreate ? t('common.cancel') : t('tournaments.createTournament')}
-          </button>
-          {showCreate && (
-            <form onSubmit={handleCreate} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 400 }}>
-              <input placeholder={t('tournaments.tournamentName')} value={createForm.name} onChange={e => setCreateForm(f => ({ ...f, name: e.target.value }))} required style={{ padding: 8 }} />
-              <input type="date" value={createForm.date} onChange={e => setCreateForm(f => ({ ...f, date: e.target.value }))} required style={{ padding: 8 }} />
-              <input placeholder={t('tournaments.location')} value={createForm.location} onChange={e => setCreateForm(f => ({ ...f, location: e.target.value }))} required style={{ padding: 8 }} />
-              <input placeholder={t('tournaments.federation')} value={createForm.federation} onChange={e => setCreateForm(f => ({ ...f, federation: e.target.value }))} style={{ padding: 8 }} />
-              <button type="submit" style={{ padding: 10 }}>{t('common.create')}</button>
-            </form>
-          )}
-        </div>
-      )}
+      {msg && <p className="text-sm font-bold text-primary">{msg}</p>}
 
       {tournaments.length === 0 ? (
-        <p>{t('common.noResults')}</p>
+        <p className="text-muted-foreground">{t('common.noResults')}</p>
       ) : (
-        <div>
+        <div className="space-y-4">
           {tournaments.map(tr => (
-            <div key={tr.id} style={{ padding: 14, border: '1px solid #ddd', borderRadius: 6, marginBottom: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <strong>{tr.name}</strong>
-                  <br />
-                  <span style={{ color: '#666' }}>{new Date(tr.date).toLocaleDateString()} - {tr.location}</span>
-                  {tr.federation && <span style={{ marginLeft: 8, color: '#888' }}>{tr.federation}</span>}
+            <Card key={tr.id} className="rounded-sm">
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between gap-4">
+                  <CardTitle className="font-heading text-xl">{tr.name}</CardTitle>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {tr.federation && (
+                      <Badge variant="outline">{tr.federation}</Badge>
+                    )}
+                    {user?.role === 'student' && (
+                      <Dialog open={signupTournamentId === tr.id} onOpenChange={(open) => {
+                        setSignupTournamentId(open ? tr.id : null);
+                        if (!open) setWeightClass('');
+                      }}>
+                        <DialogTrigger render={<Button size="sm" variant="outline" />}>
+                          {t('tournaments.signUp')}
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle className="font-heading text-lg uppercase">{t('tournaments.signUp')}</DialogTitle>
+                          </DialogHeader>
+                          <form onSubmit={handleSignup} className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>{t('tournaments.weightClass')}</Label>
+                              <Input
+                                value={weightClass}
+                                onChange={e => setWeightClass(e.target.value)}
+                                required
+                              />
+                            </div>
+                            <Button type="submit" className="w-full">{t('common.confirm')}</Button>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                    {user?.role === 'instructor' && (
+                      <Button size="sm" variant="outline" onClick={() => viewRoster(tr.id)}>
+                        {t('tournaments.viewRoster')}
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {user?.role === 'student' && (
-                    <button onClick={() => setSignupTournamentId(signupTournamentId === tr.id ? null : tr.id)} style={{ padding: '6px 14px' }}>
-                      {t('tournaments.signUp')}
-                    </button>
-                  )}
-                  {user?.role === 'instructor' && (
-                    <button onClick={() => viewRoster(tr.id)} style={{ padding: '6px 14px' }}>
-                      {t('tournaments.viewRoster')}
-                    </button>
-                  )}
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="size-3.5" />
+                    <span className="font-mono">{new Date(tr.date).toLocaleDateString()}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="size-3.5" />
+                    {tr.location}
+                  </span>
                 </div>
-              </div>
 
-              {signupTournamentId === tr.id && (
-                <form onSubmit={handleSignup} style={{ marginTop: 10, display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <input placeholder={t('tournaments.weightClass')} value={weightClass} onChange={e => setWeightClass(e.target.value)} required style={{ padding: 8 }} />
-                  <button type="submit" style={{ padding: '8px 16px' }}>{t('common.confirm')}</button>
-                </form>
-              )}
-
-              {rosterTournamentId === tr.id && (
-                <div style={{ marginTop: 10 }}>
-                  <h3>{t('tournaments.roster')}</h3>
-                  {roster.length === 0 ? (
-                    <p>{t('common.noResults')}</p>
-                  ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead>
-                        <tr>
-                          <th style={{ textAlign: 'left', padding: 6, borderBottom: '1px solid #ddd' }}>{t('students.name')}</th>
-                          <th style={{ textAlign: 'left', padding: 6, borderBottom: '1px solid #ddd' }}>{t('students.belt')}</th>
-                          <th style={{ textAlign: 'left', padding: 6, borderBottom: '1px solid #ddd' }}>{t('tournaments.weightClass')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {roster.map(r => (
-                          <tr key={r.id}>
-                            <td style={{ padding: 6, borderBottom: '1px solid #eee' }}>{r.studentName}</td>
-                            <td style={{ padding: 6, borderBottom: '1px solid #eee' }}>{r.belt}</td>
-                            <td style={{ padding: 6, borderBottom: '1px solid #eee' }}>{r.weightClass}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
-            </div>
+                {/* Roster (inline, expandable) */}
+                {rosterTournamentId === tr.id && (
+                  <div className="pt-2 border-t border-border">
+                    <h3 className="font-heading text-sm uppercase mb-2">{t('tournaments.roster')}</h3>
+                    {roster.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">{t('common.noResults')}</p>
+                    ) : (
+                      <div className="rounded-sm border border-border overflow-hidden">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="border-border">
+                              <TableHead>{t('students.name')}</TableHead>
+                              <TableHead>{t('students.belt')}</TableHead>
+                              <TableHead>{t('tournaments.weightClass')}</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {roster.map(r => (
+                              <TableRow key={r.id} className="border-border">
+                                <TableCell>{r.studentName}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className="text-xs uppercase">{r.belt}</Badge>
+                                </TableCell>
+                                <TableCell className="font-mono">{r.weightClass}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

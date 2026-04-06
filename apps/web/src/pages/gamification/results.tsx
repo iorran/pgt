@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 interface CompetitionResult {
   id: string;
@@ -10,12 +16,25 @@ interface CompetitionResult {
   position: number;
   status: string;
   studentName?: string;
+  pointsAwarded?: number;
 }
 
 interface Season {
   id: string;
   name: string;
 }
+
+const POSITION_STYLES: Record<number, string> = {
+  1: 'bg-arena-gold/20 text-arena-gold border-arena-gold/30',
+  2: 'bg-arena-silver/20 text-arena-silver border-arena-silver/30',
+  3: 'bg-arena-bronze/20 text-arena-bronze border-arena-bronze/30',
+};
+
+const POSITION_LABELS: Record<number, string> = {
+  1: '1st',
+  2: '2nd',
+  3: '3rd',
+};
 
 export default function ResultsPage() {
   const { t } = useTranslation();
@@ -68,74 +87,134 @@ export default function ResultsPage() {
     setResults(prev => prev.filter(r => r.id !== resultId));
   }
 
-  if (loading) return <div>{t('common.loading')}</div>;
+  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{t('gamification.resultsTitle')}</h1>
+    <div className="p-6 space-y-6">
+      <h1 className="font-heading text-3xl uppercase tracking-tight">{t('gamification.resultsTitle')}</h1>
 
       {user?.role === 'student' && (
-        <div style={{ marginBottom: 24 }}>
-          <h2>{t('gamification.submitResult')}</h2>
-          {msg && <p style={{ color: 'green', fontWeight: 'bold' }}>{msg}</p>}
-          {seasons.length === 0 ? (
-            <p>{t('gamification.noSeasons')}</p>
-          ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 400 }}>
-              <select value={seasonId} onChange={e => setSeasonId(e.target.value)} style={{ padding: 8 }}>
-                {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
-              <input placeholder={t('gamification.competitionName')} value={form.competitionName} onChange={e => setForm(f => ({ ...f, competitionName: e.target.value }))} required style={{ padding: 8 }} />
-              <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required style={{ padding: 8 }} />
-              <select value={form.position} onChange={e => setForm(f => ({ ...f, position: e.target.value }))} style={{ padding: 8 }}>
-                <option value="1">{t('gamification.first')}</option>
-                <option value="2">{t('gamification.second')}</option>
-                <option value="3">{t('gamification.third')}</option>
-              </select>
-              <button type="submit" style={{ padding: 10 }}>{t('common.save')}</button>
-            </form>
-          )}
-        </div>
+        <Tabs defaultValue="submit">
+          <TabsList>
+            <TabsTrigger value="submit">{t('gamification.submitResult')}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="submit" className="mt-4">
+            {msg && <p className="text-sm font-bold text-primary mb-4">{msg}</p>}
+            {seasons.length === 0 ? (
+              <p className="text-muted-foreground">{t('gamification.noSeasons')}</p>
+            ) : (
+              <Card className="rounded-sm max-w-md">
+                <CardHeader>
+                  <CardTitle className="font-heading text-lg">{t('gamification.submitResult')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>{t('gamification.seasonsTitle')}</Label>
+                      <select
+                        value={seasonId}
+                        onChange={e => setSeasonId(e.target.value)}
+                        className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                      >
+                        {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t('gamification.competitionName')}</Label>
+                      <Input
+                        value={form.competitionName}
+                        onChange={e => setForm(f => ({ ...f, competitionName: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t('classes.date')}</Label>
+                      <Input
+                        type="date"
+                        value={form.date}
+                        onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>{t('gamification.position')}</Label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3].map(pos => (
+                          <button
+                            key={pos}
+                            type="button"
+                            onClick={() => setForm(f => ({ ...f, position: String(pos) }))}
+                            className={`flex-1 py-2 rounded-sm border text-sm font-heading uppercase transition-colors ${
+                              form.position === String(pos)
+                                ? POSITION_STYLES[pos]
+                                : 'border-border text-muted-foreground hover:text-foreground'
+                            }`}
+                          >
+                            {t(`gamification.${pos === 1 ? 'first' : pos === 2 ? 'second' : 'third'}`)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <Button type="submit" className="w-full">{t('common.save')}</Button>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
       )}
 
       {user?.role === 'instructor' && (
-        <div>
-          <h2>{t('gamification.pendingResults')}</h2>
-          <div style={{ marginBottom: 12 }}>
-            <select value={seasonId} onChange={e => setSeasonId(e.target.value)} style={{ padding: 8 }}>
-              {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
-          {results.length === 0 ? (
-            <p>{t('common.noResults')}</p>
-          ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('students.name')}</th>
-                  <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('gamification.competitionName')}</th>
-                  <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('classes.date')}</th>
-                  <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('gamification.position')}</th>
-                  <th style={{ textAlign: 'left', padding: 8, borderBottom: '2px solid #ddd' }}>{t('marketplace.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
+        <Tabs defaultValue="pending">
+          <TabsList>
+            <TabsTrigger value="pending">{t('gamification.pendingResults')}</TabsTrigger>
+          </TabsList>
+          <TabsContent value="pending" className="mt-4 space-y-4">
+            <div>
+              <select
+                value={seasonId}
+                onChange={e => setSeasonId(e.target.value)}
+                className="rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
+              >
+                {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </div>
+
+            {results.length === 0 ? (
+              <p className="text-muted-foreground">{t('common.noResults')}</p>
+            ) : (
+              <div className="space-y-3">
                 {results.map(r => (
-                  <tr key={r.id}>
-                    <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{r.studentName || '-'}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{r.competitionName}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{new Date(r.date).toLocaleDateString()}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid #eee' }}>{r.position}</td>
-                    <td style={{ padding: 8, borderBottom: '1px solid #eee', display: 'flex', gap: 4 }}>
-                      <button onClick={() => handleApproval(r.id, 'approved')} style={{ padding: '4px 8px', color: 'green' }}>{t('gamification.approve')}</button>
-                      <button onClick={() => handleApproval(r.id, 'rejected')} style={{ padding: '4px 8px', color: 'red' }}>{t('gamification.reject')}</button>
-                    </td>
-                  </tr>
+                  <Card key={r.id} className="rounded-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-heading text-base">{r.studentName || '-'}</p>
+                          <p className="text-sm text-muted-foreground">{r.competitionName}</p>
+                          <p className="text-xs font-mono text-muted-foreground">{new Date(r.date).toLocaleDateString()}</p>
+                        </div>
+                        <Badge className={POSITION_STYLES[r.position] || ''}>
+                          {POSITION_LABELS[r.position] || `${r.position}th`}
+                        </Badge>
+                        {r.status === 'approved' && r.pointsAwarded && (
+                          <span className="arena-stat text-primary font-mono">+{r.pointsAwarded}pts</span>
+                        )}
+                        <div className="flex gap-2 shrink-0">
+                          <Button size="sm" onClick={() => handleApproval(r.id, 'approved')}>
+                            {t('gamification.approve')}
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleApproval(r.id, 'rejected')}>
+                            {t('gamification.reject')}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );

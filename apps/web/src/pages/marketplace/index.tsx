@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useSession } from '../../lib/auth-client';
-import { api } from '../../lib/api';
+import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
+import { Package } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Product {
   id: string;
@@ -17,7 +30,7 @@ export default function MarketplacePage() {
   const user = session?.user as any;
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ name: '', description: '', price: '', stock: '' });
   const [msg, setMsg] = useState('');
 
@@ -36,7 +49,7 @@ export default function MarketplacePage() {
     });
     setProducts(prev => [...prev, created]);
     setForm({ name: '', description: '', price: '', stock: '' });
-    setShowForm(false);
+    setDialogOpen(false);
   }
 
   async function handleRequest(productId: string) {
@@ -52,49 +65,101 @@ export default function MarketplacePage() {
     }
   }
 
-  if (loading) return <div>{t('common.loading')}</div>;
+  if (loading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>{t('marketplace.title')}</h1>
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading text-3xl uppercase tracking-tight">{t('marketplace.pageTitle')}</h1>
 
-      {msg && <p style={{ color: 'green', fontWeight: 'bold' }}>{msg}</p>}
+        {user?.role === 'instructor' && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger render={<Button />}>
+              {t('marketplace.addProduct')}
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="font-heading text-xl uppercase">{t('marketplace.addProduct')}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>{t('marketplace.productName')}</Label>
+                  <Input
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('marketplace.description')}</Label>
+                  <Input
+                    value={form.description}
+                    onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('marketplace.price')}</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={form.price}
+                    onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('marketplace.stock')}</Label>
+                  <Input
+                    type="number"
+                    value={form.stock}
+                    onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full">{t('common.save')}</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
 
-      {user?.role === 'instructor' && (
-        <div style={{ marginBottom: 20 }}>
-          <button onClick={() => setShowForm(!showForm)} style={{ padding: '8px 16px' }}>
-            {showForm ? t('common.cancel') : t('marketplace.addProduct')}
-          </button>
-          {showForm && (
-            <form onSubmit={handleCreate} style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 400 }}>
-              <input placeholder={t('marketplace.productName')} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required style={{ padding: 8 }} />
-              <input placeholder={t('marketplace.description')} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ padding: 8 }} />
-              <input type="number" step="0.01" placeholder={t('marketplace.price')} value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} required style={{ padding: 8 }} />
-              <input type="number" placeholder={t('marketplace.stock')} value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} required style={{ padding: 8 }} />
-              <button type="submit" style={{ padding: 10 }}>{t('common.save')}</button>
-            </form>
-          )}
-        </div>
+      {msg && (
+        <p className="text-sm font-bold text-primary">{msg}</p>
       )}
 
       {products.length === 0 ? (
-        <p>{t('common.noResults')}</p>
+        <p className="text-muted-foreground">{t('common.noResults')}</p>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.map(p => (
-            <div key={p.id} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16 }}>
-              <div style={{ width: '100%', height: 120, backgroundColor: '#f0f0f0', borderRadius: 6, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
-                {t('marketplace.photo')}
+            <Card key={p.id} className="rounded-sm overflow-hidden">
+              <div className="bg-muted h-40 flex items-center justify-center">
+                <Package className="size-10 text-muted-foreground" />
               </div>
-              <h3 style={{ margin: '0 0 4px' }}>{p.name}</h3>
-              <p style={{ margin: '0 0 4px', color: '#666' }}>{t('marketplace.price')}: {p.price}</p>
-              <p style={{ margin: '0 0 8px', color: '#888' }}>{t('marketplace.stock')}: {p.stock}</p>
-              {user?.role === 'student' && (
-                <button onClick={() => handleRequest(p.id)} style={{ padding: '6px 14px', width: '100%' }}>
-                  {t('marketplace.request')}
-                </button>
-              )}
-            </div>
+              <CardContent className="p-4 space-y-3">
+                <h3 className="font-heading text-lg">{p.name}</h3>
+                {p.description && (
+                  <p className="text-sm text-muted-foreground">{p.description}</p>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="arena-stat text-2xl text-primary font-mono">
+                    R$ {p.price.toFixed(2).replace('.', ',')}
+                  </span>
+                  <Badge variant="outline">
+                    {t('marketplace.stock')}: {p.stock}
+                  </Badge>
+                </div>
+                {user?.role === 'student' && (
+                  <Button
+                    variant="outline"
+                    className="w-full hover:arena-glow"
+                    onClick={() => handleRequest(p.id)}
+                  >
+                    {t('marketplace.request')}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

@@ -90,6 +90,7 @@
   },
   "marketplace": {
     "title": "Marketplace",
+    "pageTitle": "STORE",
     "addProduct": "Add Product",
     "productName": "Product Name",
     "description": "Description",
@@ -100,6 +101,7 @@
     "requestSuccess": "Order placed successfully!",
     "requestError": "Failed to place order",
     "ordersTitle": "Orders",
+    "ordersPageTitle": "ORDERS",
     "quantity": "Quantity",
     "status": "Status",
     "actions": "Actions",
@@ -113,6 +115,8 @@
   },
   "gamification": {
     "seasonsTitle": "Seasons",
+    "seasonsPageTitle": "SEASONS",
+    "active": "ACTIVE",
     "createSeason": "Create Season",
     "seasonName": "Season Name",
     "startDate": "Start Date",
@@ -123,6 +127,8 @@
     "second": "2nd Place",
     "third": "3rd Place",
     "leaderboardTitle": "Leaderboard",
+    "leaderboardPageTitle": "RANKING",
+    "noResultsYet": "No results yet",
     "noSeasons": "No seasons found",
     "adults": "Adults",
     "kids": "Kids",
@@ -141,12 +147,14 @@
     "profileTitle": "Gamification Profile",
     "totalXp": "Total XP",
     "currentStreak": "Current Streak",
+    "currentStreakFire": "Current Streak \ud83d\udd25",
     "longestStreak": "Longest Streak",
     "badges": "Badges",
     "noBadges": "No badges earned yet"
   },
   "tournaments": {
     "title": "Tournaments",
+    "pageTitle": "TOURNAMENTS",
     "createTournament": "Create Tournament",
     "tournamentName": "Tournament Name",
     "location": "Location",
