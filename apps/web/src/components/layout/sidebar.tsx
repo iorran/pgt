@@ -13,6 +13,7 @@ export function Sidebar() {
     { to: '/', label: t('nav.dashboard'), show: true },
     { to: '/classes', label: t('nav.classes'), show: true },
     { to: '/students', label: t('nav.students'), show: isInstructor },
+    { to: '/pending', label: t('onboarding.pendingStudents'), show: isInstructor },
     { to: '/billing', label: t('nav.billing'), show: isInstructor },
     { to: '/marketplace', label: t('nav.marketplace'), show: true },
     { to: '/gamification', label: t('nav.gamification'), show: true },

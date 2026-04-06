@@ -1,98 +1,82 @@
 import { useState } from 'react';
-import { signUp } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
 export default function SignupPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    const { error } = await signUp.email({ name, email, password });
-    if (error) setError(error.message ?? 'Signup failed');
-    else navigate('/');
-  }
+  const [code, setCode] = useState('');
 
   return (
-    <div className="min-h-screen flex items-center justify-center arena-stripes">
-      <Card className="w-full max-w-md bg-card border-border">
-        <CardContent className="pt-8 pb-8 px-8">
-          <div className="text-center mb-8">
-            <h1 className="font-display text-6xl text-primary leading-none arena-glow">
-              PGT
-            </h1>
-            <div className="h-1 w-16 bg-primary mx-auto mt-4 rounded-sm" />
-            <p className="font-heading text-muted-foreground uppercase tracking-wider text-sm mt-4">
-              {t('app.tagline')}
-            </p>
-          </div>
+    <div className="min-h-screen flex flex-col items-center justify-center arena-stripes px-4">
+      <div className="text-center mb-10">
+        <h1 className="font-display text-6xl text-primary leading-none arena-glow">
+          PGT
+        </h1>
+        <div className="h-1 w-16 bg-primary mx-auto mt-4 rounded-sm" />
+        <p className="font-heading text-muted-foreground uppercase tracking-wider text-sm mt-4">
+          {t('app.tagline')}
+        </p>
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t('auth.name')}</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder={t('auth.name')}
-                required
-              />
-            </div>
+      <p className="font-heading text-xl text-foreground uppercase tracking-wide mb-6">
+        {t('onboarding.chooseRole')}
+      </p>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('auth.email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder={t('auth.email')}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">{t('auth.password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={t('auth.password')}
-                required
-              />
-            </div>
-
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            <Button type="submit" className="w-full">
-              {t('auth.signup')}
+      <div className="flex flex-col md:flex-row gap-6 w-full max-w-2xl">
+        <Card className="flex-1 bg-card border-border">
+          <CardHeader>
+            <CardTitle className="font-heading text-xl uppercase">
+              {t('onboarding.createAcademy')}
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              {t('onboarding.createAcademyDesc')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full" onClick={() => navigate('/criar-academia')}>
+              {t('onboarding.createAcademy')}
             </Button>
-          </form>
+          </CardContent>
+        </Card>
 
-          <p className="mt-6 text-center text-sm">
-            <Link
-              to="/login"
-              className="text-muted-foreground hover:text-primary transition-colors no-underline"
+        <Card className="flex-1 bg-card border-border">
+          <CardHeader>
+            <CardTitle className="font-heading text-xl uppercase">
+              {t('onboarding.haveCode')}
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              {t('onboarding.haveCodeDesc')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input
+              placeholder={t('onboarding.enterCode')}
+              value={code}
+              onChange={e => setCode(e.target.value)}
+            />
+            <Button
+              className="w-full"
+              disabled={!code.trim()}
+              onClick={() => navigate(`/entrar/${code.trim()}`)}
             >
-              {t('auth.login')}
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+              {t('onboarding.continue')}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      <p className="mt-8 text-center text-sm">
+        <Link
+          to="/login"
+          className="text-muted-foreground hover:text-primary transition-colors no-underline"
+        >
+          {t('auth.login')}
+        </Link>
+      </p>
     </div>
   );
 }
