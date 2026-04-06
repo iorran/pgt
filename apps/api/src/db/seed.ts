@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { eq } from 'drizzle-orm';
 import { db } from './client.js';
 import { academy, user, bjjClass, membershipPlan, badgeDefinition, season } from './schema/index.js';
 
@@ -9,6 +10,8 @@ async function seed() {
   const [acad] = await db.insert(academy).values({
     name: 'Alliance São Paulo',
     slug: 'alliance-sp',
+    joinCode: 'ALLIANCE-SP-TEST',
+    city: 'São Paulo',
   }).returning();
 
   // Instructor
@@ -19,13 +22,17 @@ async function seed() {
     role: 'instructor',
     belt: 'black',
     dateOfBirth: '1985-03-15',
+    status: 'active',
   }).returning();
+
+  // Set academy owner to instructor
+  await db.update(academy).set({ ownerId: instructor.id }).where(eq(academy.id, acad.id));
 
   // Students
   const students = await db.insert(user).values([
-    { academyId: acad.id, email: 'joao@test.com', name: 'João Santos', role: 'student' as const, belt: 'blue' as const, dateOfBirth: '1995-06-20' },
-    { academyId: acad.id, email: 'maria@test.com', name: 'Maria Oliveira', role: 'student' as const, belt: 'purple' as const, dateOfBirth: '1992-11-10' },
-    { academyId: acad.id, email: 'pedro@test.com', name: 'Pedro Junior', role: 'student' as const, belt: 'white' as const, dateOfBirth: '2013-08-05' },
+    { academyId: acad.id, email: 'joao@test.com', name: 'João Santos', role: 'student' as const, belt: 'blue' as const, dateOfBirth: '1995-06-20', status: 'active' as const },
+    { academyId: acad.id, email: 'maria@test.com', name: 'Maria Oliveira', role: 'student' as const, belt: 'purple' as const, dateOfBirth: '1992-11-10', status: 'active' as const },
+    { academyId: acad.id, email: 'pedro@test.com', name: 'Pedro Junior', role: 'student' as const, belt: 'white' as const, dateOfBirth: '2013-08-05', status: 'active' as const },
   ]).returning();
 
   // Classes
