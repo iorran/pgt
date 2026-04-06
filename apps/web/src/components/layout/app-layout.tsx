@@ -4,11 +4,11 @@ import { Header } from './header';
 
 export function AppLayout() {
   return (
-    <div style={{ display: 'flex' }}>
+    <div className="flex min-h-screen">
       <Sidebar />
-      <div style={{ flex: 1 }}>
+      <div className="flex flex-1 flex-col">
         <Header />
-        <main style={{ padding: 24 }}>
+        <main className="flex-1 p-6 arena-stripes">
           <Outlet />
         </main>
       </div>
