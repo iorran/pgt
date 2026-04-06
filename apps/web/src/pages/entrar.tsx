@@ -46,7 +46,7 @@ export default function EntrarPage() {
     setError('');
 
     try {
-      // Pass academyId during signup so session has it immediately
+      // Signup with academyId — databaseHook sets status to 'pending' automatically
       const { error } = await signUp.email({
         name, email, password, belt, role: 'student', academyId: academy.id,
       } as any);
@@ -55,10 +55,7 @@ export default function EntrarPage() {
         return;
       }
 
-      // Set status to pending (academyId is already on the user from signup)
-      await api(`/academies/${academy.id}/join`, { method: 'POST' });
-
-      // Force full reload so session reflects the updated status
+      // Force full reload so session reflects the pending status
       window.location.href = '/aguardando';
     } catch (err: any) {
       setError(err.message ?? 'Signup failed');
