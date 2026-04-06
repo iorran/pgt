@@ -13,21 +13,22 @@
     "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
-    "@pgt/shared": "*",
-    "fastify": "^5",
-    "@fastify/cors": "^10",
     "@fastify/cookie": "^11",
-    "drizzle-orm": "^0.39",
-    "postgres": "^3",
+    "@fastify/cors": "^10",
+    "@neondatabase/serverless": "^1.0.2",
+    "@pgt/shared": "*",
     "better-auth": "^1",
-    "zod": "^3",
-    "dotenv": "^16"
+    "dotenv": "^16",
+    "drizzle-orm": "^0.39",
+    "fastify": "^5",
+    "postgres": "^3",
+    "zod": "^3"
   },
   "devDependencies": {
+    "@types/node": "^22",
     "drizzle-kit": "^0.30",
     "tsx": "^4",
     "typescript": "^5",
-    "vitest": "^3",
-    "@types/node": "^22"
+    "vitest": "^3"
   }
 }

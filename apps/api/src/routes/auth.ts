@@ -1,10 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { auth } from '../auth/index.js';
+import { env } from '../env.js';
 
-const ALLOWED_ORIGIN = 'http://localhost:5173';
-
-function setCors(reply: any) {
-  reply.header('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+function setCors(reply: any, origin: string) {
+  const allowedOrigin = env.TRUSTED_ORIGINS.includes(origin) ? origin : env.TRUSTED_ORIGINS[0];
+  reply.header('Access-Control-Allow-Origin', allowedOrigin);
   reply.header('Access-Control-Allow-Credentials', 'true');
   reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -16,7 +16,8 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   app.all('/api/auth/*', async (request, reply) => {
-    setCors(reply);
+    const origin = request.headers.origin || '';
+    setCors(reply, origin);
 
     if (request.method === 'OPTIONS') {
       return reply.status(204).send();
@@ -46,7 +47,7 @@ export async function authRoutes(app: FastifyInstance) {
     });
 
     // Re-apply CORS (in case BetterAuth overwrote them)
-    setCors(reply);
+    setCors(reply, origin);
 
     const body = await response.text();
     return reply.send(body);
