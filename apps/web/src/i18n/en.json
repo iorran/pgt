@@ -18,7 +18,20 @@
     "logout": "Log Out",
     "email": "Email",
     "password": "Password",
-    "name": "Name"
+    "name": "Name",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordTitle": "Recover Password",
+    "forgotPasswordSubmit": "Send Link",
+    "forgotPasswordSuccess": "If the email exists in our system, we'll send a recovery link.",
+    "resetPasswordTitle": "Reset Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "resetPasswordSubmit": "Reset",
+    "resetPasswordSuccess": "Password reset successfully!",
+    "resetPasswordError": "Invalid or expired link.",
+    "resetPasswordMismatch": "Passwords do not match.",
+    "requestNewReset": "Request new link",
+    "backToLogin": "Back to Login"
   },
   "common": {
     "save": "Save",

@@ -18,7 +18,20 @@
     "logout": "Sair",
     "email": "E-mail",
     "password": "Senha",
-    "name": "Nome"
+    "name": "Nome",
+    "forgotPassword": "Esqueceu a senha?",
+    "forgotPasswordTitle": "Recuperar Senha",
+    "forgotPasswordSubmit": "Enviar Link",
+    "forgotPasswordSuccess": "Se o email existir em nossa base, enviaremos um link de recuperação.",
+    "resetPasswordTitle": "Redefinir Senha",
+    "newPassword": "Nova Senha",
+    "confirmPassword": "Confirmar Senha",
+    "resetPasswordSubmit": "Redefinir",
+    "resetPasswordSuccess": "Senha redefinida com sucesso!",
+    "resetPasswordError": "Link inválido ou expirado.",
+    "resetPasswordMismatch": "As senhas não coincidem.",
+    "requestNewReset": "Solicitar novo link",
+    "backToLogin": "Voltar ao Login"
   },
   "common": {
     "save": "Salvar",
