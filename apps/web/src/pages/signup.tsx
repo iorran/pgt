@@ -19,7 +19,7 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
     const { error } = await signUp.email({ name, email, password });
-    if (error) setError(error.message);
+    if (error) setError(error.message ?? 'Signup failed');
     else navigate('/');
   }
 

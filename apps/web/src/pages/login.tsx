@@ -18,7 +18,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
     const { error } = await signIn.email({ email, password });
-    if (error) setError(error.message);
+    if (error) setError(error.message ?? 'Login failed');
     else navigate('/');
   }
 

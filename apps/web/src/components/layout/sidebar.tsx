@@ -7,7 +7,7 @@ export function Sidebar() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const location = useLocation();
-  const isInstructor = session?.user?.role === 'instructor';
+  const isInstructor = (session?.user as any)?.role === 'instructor';
 
   const navItems = [
     { to: '/', label: t('nav.dashboard'), show: true },
