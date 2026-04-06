@@ -13,6 +13,7 @@ import { seasonRoutes } from './routes/seasons.js';
 import { competitionResultRoutes } from './routes/competition-results.js';
 import { gamificationRoutes } from './routes/gamification.js';
 import { tournamentRoutes } from './routes/tournaments.js';
+import { academyRoutes } from './routes/academies.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -39,6 +40,7 @@ export async function buildApp() {
   await app.register(competitionResultRoutes);
   await app.register(gamificationRoutes);
   await app.register(tournamentRoutes);
+  await app.register(academyRoutes);
 
   app.get('/health', async () => ({ status: 'ok' }));
 
