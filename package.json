@@ -1,6 +1,7 @@
 {
   "name": "pgt",
   "private": true,
+  "packageManager": "npm@11.11.0",
   "workspaces": [
     "apps/*",
     "packages/*"
