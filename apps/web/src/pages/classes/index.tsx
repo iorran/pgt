@@ -54,7 +54,7 @@ export default function ClassesPage() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', type: '', dayOfWeek: '1', startTime: '', endTime: '' });
+  const [form, setForm] = useState({ name: '', type: '', recurrence: 'weekly', dayOfWeek: '1', startTime: '', endTime: '' });
   const [checkinMsg, setCheckinMsg] = useState('');
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function ClassesPage() {
       body: JSON.stringify({ ...form, dayOfWeek: Number(form.dayOfWeek), academyId: user.academyId }),
     });
     setClasses(prev => [...prev, created]);
-    setForm({ name: '', type: '', dayOfWeek: '1', startTime: '', endTime: '' });
+    setForm({ name: '', type: '', recurrence: 'weekly', dayOfWeek: '1', startTime: '', endTime: '' });
     setDialogOpen(false);
   }
 
@@ -120,11 +120,18 @@ export default function ClassesPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>{t('classes.classType')}</Label>
-                  <Input
+                  <select
                     value={form.type}
                     onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
                     required
-                  />
+                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  >
+                    <option value="">--</option>
+                    <option value="gi">Gi</option>
+                    <option value="no-gi">No-Gi</option>
+                    <option value="open-mat">Open Mat</option>
+                    <option value="kids">Kids</option>
+                  </select>
                 </div>
                 <div className="space-y-2">
                   <Label>{t('classes.dayOfWeek')}</Label>
