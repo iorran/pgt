@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import { authRoutes } from './routes/auth.js';
+import { classRoutes } from './routes/classes.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -17,6 +18,7 @@ export async function buildApp() {
   await app.register(cors, { origin: true, credentials: true });
   await app.register(cookie);
   await app.register(authRoutes);
+  await app.register(classRoutes);
 
   app.get('/health', async () => ({ status: 'ok' }));
 
