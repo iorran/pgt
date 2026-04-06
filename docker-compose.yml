@@ -15,5 +15,16 @@ services:
       timeout: 5s
       retries: 5
 
+  postgres-test:
+    image: postgres:16-alpine
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pgt_test
+    tmpfs:
+      - /var/lib/postgresql/data
+
 volumes:
   pgdata:
