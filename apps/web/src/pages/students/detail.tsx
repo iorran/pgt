@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
@@ -63,7 +64,6 @@ export default function StudentDetailPage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [memberForm, setMemberForm] = useState({ planId: '', startDate: '', dueDay: '' });
 
   const { data: student, isLoading: studentLoading } = useApiQuery<Student>(
     ['student', id!],
@@ -80,21 +80,28 @@ export default function StudentDetailPage() {
   const isLoading = studentLoading || paymentsLoading;
 
   const assignMembershipMutation = useMutation({
-    mutationFn: (formData: typeof memberForm) =>
+    mutationFn: (body: { planId: string; startDate: string; dueDay: string }) =>
       api(`/students/${id}/membership`, {
         method: 'POST',
-        body: JSON.stringify({ ...formData, dueDay: Number(formData.dueDay) }),
+        body: JSON.stringify({ ...body, dueDay: Number(body.dueDay) }),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student', id] });
+      form.reset();
       setDialogOpen(false);
     },
   });
 
-  async function handleAssignMembership(e: React.FormEvent) {
-    e.preventDefault();
-    await assignMembershipMutation.mutateAsync(memberForm);
-  }
+  const form = useForm({
+    defaultValues: {
+      planId: '',
+      startDate: '',
+      dueDay: '',
+    },
+    onSubmit: async ({ value }) => {
+      await assignMembershipMutation.mutateAsync(value);
+    },
+  });
 
   function formatCurrency(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -154,7 +161,15 @@ export default function StudentDetailPage() {
             {t('students.plan')}
           </CardTitle>
           {user?.role === 'instructor' && (
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog
+              open={dialogOpen}
+              onOpenChange={(open) => {
+                setDialogOpen(open);
+                if (!open) {
+                  form.reset();
+                }
+              }}
+            >
               <DialogTrigger render={<Button variant="outline" size="sm" />}>
                 {t('students.assignMembership')}
               </DialogTrigger>
@@ -164,35 +179,56 @@ export default function StudentDetailPage() {
                     {t('students.assignMembership')}
                   </DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleAssignMembership} className="flex flex-col gap-4">
-                  <div className="space-y-2">
-                    <Label>{t('students.planId')}</Label>
-                    <Input
-                      value={memberForm.planId}
-                      onChange={e => setMemberForm(f => ({ ...f, planId: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t('students.startDate')}</Label>
-                    <Input
-                      type="date"
-                      value={memberForm.startDate}
-                      onChange={e => setMemberForm(f => ({ ...f, startDate: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t('students.dueDay')}</Label>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={31}
-                      value={memberForm.dueDay}
-                      onChange={e => setMemberForm(f => ({ ...f, dueDay: e.target.value }))}
-                      required
-                    />
-                  </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    form.handleSubmit();
+                  }}
+                  className="flex flex-col gap-4"
+                >
+                  <form.Field name="planId">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label>{t('students.planId')}</Label>
+                        <Input
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          required
+                        />
+                      </div>
+                    )}
+                  </form.Field>
+                  <form.Field name="startDate">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label>{t('students.startDate')}</Label>
+                        <Input
+                          type="date"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          required
+                        />
+                      </div>
+                    )}
+                  </form.Field>
+                  <form.Field name="dueDay">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label>{t('students.dueDay')}</Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={31}
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          required
+                        />
+                      </div>
+                    )}
+                  </form.Field>
                   <Button type="submit">{t('common.save')}</Button>
                 </form>
               </DialogContent>
@@ -220,7 +256,7 @@ export default function StudentDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {payments.map(p => (
+                {payments.map((p) => (
                   <TableRow key={p.id}>
                     <TableCell className="font-mono">{new Date(p.paymentDate).toLocaleDateString()}</TableCell>
                     <TableCell className="arena-stat">{formatCurrency(p.amount)}</TableCell>

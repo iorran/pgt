@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +45,6 @@ export default function ResultsPage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [seasonId, setSeasonId] = useState('');
-  const [form, setForm] = useState({ competitionName: '', date: '', position: '1' });
   const [msg, setMsg] = useState('');
 
   const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
@@ -69,7 +69,7 @@ export default function ResultsPage() {
       }),
     onSuccess: () => {
       setMsg(t('gamification.resultSubmitted'));
-      setForm({ competitionName: '', date: '', position: '1' });
+      form.reset();
       setTimeout(() => setMsg(''), 3000);
     },
     onError: () => {
@@ -88,10 +88,21 @@ export default function ResultsPage() {
     },
   });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    await submitMutation.mutateAsync({ ...form, position: Number(form.position), studentId: user.id, seasonId: effectiveSeasonId });
-  }
+  const form = useForm({
+    defaultValues: {
+      competitionName: '',
+      date: '',
+      position: '1',
+    },
+    onSubmit: async ({ value }) => {
+      await submitMutation.mutateAsync({
+        ...value,
+        position: Number(value.position),
+        studentId: user.id,
+        seasonId: effectiveSeasonId,
+      });
+    },
+  });
 
   if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
@@ -114,53 +125,77 @@ export default function ResultsPage() {
                   <CardTitle className="font-heading text-lg">{t('gamification.submitResult')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      form.handleSubmit();
+                    }}
+                    className="space-y-4"
+                  >
                     <div className="space-y-2">
                       <Label>{t('gamification.seasonsTitle')}</Label>
                       <select
                         value={effectiveSeasonId}
-                        onChange={e => setSeasonId(e.target.value)}
+                        onChange={(e) => setSeasonId(e.target.value)}
                         className="w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
                       >
-                        {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        {seasons.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
-                    <div className="space-y-2">
-                      <Label>{t('gamification.competitionName')}</Label>
-                      <Input
-                        value={form.competitionName}
-                        onChange={e => setForm(f => ({ ...f, competitionName: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t('classes.date')}</Label>
-                      <Input
-                        type="date"
-                        value={form.date}
-                        onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t('gamification.position')}</Label>
-                      <div className="flex gap-2">
-                        {[1, 2, 3].map(pos => (
-                          <button
-                            key={pos}
-                            type="button"
-                            onClick={() => setForm(f => ({ ...f, position: String(pos) }))}
-                            className={`flex-1 py-2 rounded-sm border text-sm font-heading uppercase transition-colors ${
-                              form.position === String(pos)
-                                ? POSITION_STYLES[pos]
-                                : 'border-border text-muted-foreground hover:text-foreground'
-                            }`}
-                          >
-                            {t(`gamification.${pos === 1 ? 'first' : pos === 2 ? 'second' : 'third'}`)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    <form.Field name="competitionName">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label>{t('gamification.competitionName')}</Label>
+                          <Input
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            required
+                          />
+                        </div>
+                      )}
+                    </form.Field>
+                    <form.Field name="date">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label>{t('classes.date')}</Label>
+                          <Input
+                            type="date"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            required
+                          />
+                        </div>
+                      )}
+                    </form.Field>
+                    <form.Field name="position">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label>{t('gamification.position')}</Label>
+                          <div className="flex gap-2">
+                            {[1, 2, 3].map((pos) => (
+                              <button
+                                key={pos}
+                                type="button"
+                                onClick={() => field.handleChange(String(pos))}
+                                className={`flex-1 py-2 rounded-sm border text-sm font-heading uppercase transition-colors ${
+                                  field.state.value === String(pos)
+                                    ? POSITION_STYLES[pos]
+                                    : 'border-border text-muted-foreground hover:text-foreground'
+                                }`}
+                              >
+                                {t(`gamification.${pos === 1 ? 'first' : pos === 2 ? 'second' : 'third'}`)}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </form.Field>
                     <Button type="submit" className="w-full">{t('common.save')}</Button>
                   </form>
                 </CardContent>
@@ -179,10 +214,14 @@ export default function ResultsPage() {
             <div>
               <select
                 value={effectiveSeasonId}
-                onChange={e => setSeasonId(e.target.value)}
+                onChange={(e) => setSeasonId(e.target.value)}
                 className="rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
               >
-                {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {seasons.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -190,7 +229,7 @@ export default function ResultsPage() {
               <p className="text-muted-foreground">{t('common.noResults')}</p>
             ) : (
               <div className="space-y-3">
-                {results.map(r => (
+                {results.map((r) => (
                   <Card key={r.id} className="rounded-sm">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between gap-4">
