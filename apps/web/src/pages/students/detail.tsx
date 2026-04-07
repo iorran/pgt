@@ -78,6 +78,12 @@ export default function StudentDetailPage() {
     !!id,
   );
 
+  const { data: plans = [] } = useApiQuery<any[]>(
+    ['plans', user?.academyId],
+    `/membership-plans?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
   const isLoading = studentLoading || paymentsLoading;
 
   const assignMembershipMutation = useMutation({
@@ -191,12 +197,19 @@ export default function StudentDetailPage() {
                     {(field) => (
                       <div className="space-y-2">
                         <Label>{t('students.planId')}</Label>
-                        <Input
+                        <select
                           value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
+                          onChange={e => field.handleChange(e.target.value)}
                           required
-                        />
+                          className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                        >
+                          <option value="">--</option>
+                          {plans.map((p: any) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} — {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     )}
                   </form.Field>
