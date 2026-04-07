@@ -4,12 +4,28 @@ import { useSession } from '@/lib/auth-client';
 import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AcademyInfo {
   id: string;
   name: string;
   city: string;
   joinCode: string;
+}
+
+function StatCard({ value, label, isLoading }: { value: number; label: string; isLoading: boolean }) {
+  return (
+    <Card className="bg-card border-border">
+      <CardContent className="pt-6">
+        {isLoading ? (
+          <Skeleton className="h-9 w-16 mb-1" />
+        ) : (
+          <p className="font-mono text-3xl text-primary arena-stat">{value}</p>
+        )}
+        <p className="text-sm text-muted-foreground mt-1">{label}</p>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function DashboardPage() {
@@ -22,6 +38,24 @@ export default function DashboardPage() {
   const { data: academy } = useApiQuery<AcademyInfo>(
     ['academy-mine'],
     '/academies/mine',
+    !!user?.academyId,
+  );
+
+  const { data: students = [], isLoading: studentsLoading } = useApiQuery<any[]>(
+    ['students', user?.academyId],
+    `/students?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const { data: classes = [], isLoading: classesLoading } = useApiQuery<any[]>(
+    ['classes', user?.academyId],
+    `/classes?academyId=${user?.academyId}`,
+    !!user?.academyId,
+  );
+
+  const { data: tournaments = [], isLoading: tournamentsLoading } = useApiQuery<any[]>(
+    ['tournaments', user?.academyId],
+    `/tournaments?academyId=${user?.academyId}`,
     !!user?.academyId,
   );
 
@@ -78,30 +112,9 @@ export default function DashboardPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-card border-border">
-          <CardContent className="pt-6">
-            <p className="font-mono text-3xl text-primary arena-stat">--</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t('nav.students')}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-border">
-          <CardContent className="pt-6">
-            <p className="font-mono text-3xl text-primary arena-stat">--</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t('nav.classes')}
-            </p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card border-border">
-          <CardContent className="pt-6">
-            <p className="font-mono text-3xl text-primary arena-stat">--</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t('nav.tournaments')}
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard value={students.length} label={t('nav.students')} isLoading={studentsLoading} />
+        <StatCard value={classes.length} label={t('nav.classes')} isLoading={classesLoading} />
+        <StatCard value={tournaments.length} label={t('nav.tournaments')} isLoading={tournamentsLoading} />
       </div>
     </div>
   );
