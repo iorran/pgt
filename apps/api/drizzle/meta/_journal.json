@@ -36,6 +36,13 @@
       "when": 1775567519235,
       "tag": "0004_loving_skrulls",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775604431142,
+      "tag": "0005_narrow_karma",
+      "breakpoints": true
     }
   ]
 }

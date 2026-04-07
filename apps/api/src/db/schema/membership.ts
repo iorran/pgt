@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, decimal, integer, boolean, date, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, decimal, integer, boolean, date, pgEnum, timestamp } from 'drizzle-orm/pg-core';
 import { academy } from './academy';
 import { user } from './user';
 
@@ -21,4 +21,6 @@ export const studentMembership = pgTable('student_membership', {
   startDate: date('start_date').notNull(),
   dueDay: integer('due_day').notNull(),
   active: boolean('active').default(true).notNull(),
+  notificationsMuted: boolean('notifications_muted').default(false).notNull(),
+  lastOverdueEmailSentAt: timestamp('last_overdue_email_sent_at'),
 });

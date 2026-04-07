@@ -1,0 +1,2 @@
+ALTER TABLE "student_membership" ADD COLUMN "notifications_muted" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "student_membership" ADD COLUMN "last_overdue_email_sent_at" timestamp;
