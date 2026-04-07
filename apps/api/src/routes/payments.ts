@@ -1,9 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { payment, user, studentMembership, membershipPlan } from '../db/schema/index.js';
+import { payment, user, studentMembership, membershipPlan, academy } from '../db/schema/index.js';
 import { eq, and, sql } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
+import { emailService } from '../email/index.js';
 
 export async function paymentRoutes(app: FastifyInstance) {
   // Record a manual payment (instructor only)
@@ -31,6 +32,33 @@ export async function paymentRoutes(app: FastifyInstance) {
     return db.select().from(payment).where(eq(payment.academyId, academyId));
   });
 
+  // Payment status for the current logged-in student
+  app.get('/api/payments/my-status', { preHandler: [requireAuth] }, async (request) => {
+    const studentId = request.user.id;
+    const [membership] = await db
+      .select({ dueDay: studentMembership.dueDay })
+      .from(studentMembership)
+      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
+    if (!membership) return { status: 'ok' };
+
+    const now = new Date();
+    const currentDay = now.getDate();
+    const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const [paid] = await db.select({ id: payment.id }).from(payment)
+      .where(and(eq(payment.studentId, studentId), eq(payment.referenceMonth, referenceMonth)))
+      .limit(1);
+    if (paid) return { status: 'ok' };
+
+    if (currentDay > membership.dueDay) {
+      return { status: 'overdue', daysOverdue: currentDay - membership.dueDay };
+    }
+    if (currentDay >= membership.dueDay - 3) {
+      return { status: 'upcoming', daysUntilDue: membership.dueDay - currentDay };
+    }
+    return { status: 'ok' };
+  });
+
   // Payment history for a student
   app.get('/api/payments/student/:studentId', async (request) => {
     const { studentId } = request.params as { studentId: string };
@@ -52,6 +80,8 @@ export async function paymentRoutes(app: FastifyInstance) {
         studentName: user.name,
         email: user.email,
         belt: user.belt,
+        phone: user.phone,
+        notificationsMuted: studentMembership.notificationsMuted,
         planName: membershipPlan.name,
         dueDay: studentMembership.dueDay,
       })
@@ -84,5 +114,31 @@ export async function paymentRoutes(app: FastifyInstance) {
       }));
 
     return overdue;
+  });
+
+  // Send overdue payment email notification (instructor only)
+  app.post('/api/payments/overdue/:studentId/notify', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+    const { studentId } = request.params as { studentId: string };
+    const [student] = await db.select({ email: user.email, name: user.name })
+      .from(user).where(eq(user.id, studentId));
+    if (!student) return reply.status(404).send({ error: 'Student not found' });
+
+    const [acad] = await db.select({ name: academy.name })
+      .from(academy).where(eq(academy.id, request.academyId));
+
+    const now = new Date();
+    const currentDay = now.getDate();
+    const [membership] = await db.select({ dueDay: studentMembership.dueDay })
+      .from(studentMembership)
+      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
+
+    const daysOverdue = membership ? currentDay - membership.dueDay : 0;
+    await emailService.sendOverduePayment(student.email, student.name, acad?.name || 'PGT', daysOverdue);
+
+    await db.update(studentMembership)
+      .set({ lastOverdueEmailSentAt: now })
+      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
+
+    return { sent: true };
   });
 }

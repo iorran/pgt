@@ -81,4 +81,16 @@ export async function studentRoutes(app: FastifyInstance) {
       .returning();
     return updated;
   });
+
+  // Toggle notification muting for a student (instructor only)
+  app.put('/api/students/:id/notifications', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { muted } = request.body as { muted: boolean };
+    const [updated] = await db.update(studentMembership)
+      .set({ notificationsMuted: muted })
+      .where(and(eq(studentMembership.studentId, id), eq(studentMembership.active, true)))
+      .returning();
+    if (!updated) return reply.status(404).send({ error: 'Active membership not found' });
+    return updated;
+  });
 }
