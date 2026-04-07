@@ -22,20 +22,37 @@ beforeEach(async () => {
   await cleanDb();
 });
 
+// Academy lat/lng near São Paulo city centre
+const ACADEMY_LAT = '-23.5505';
+const ACADEMY_LNG = '-46.6333';
+// Student coords within 250m of the academy
+const NEAR_LAT = -23.551;
+const NEAR_LNG = -46.634;
+
 async function createClassAndStudent() {
-  const acad = await createTestAcademy();
+  const acad = await createTestAcademy({ latitude: ACADEMY_LAT, longitude: ACADEMY_LNG });
   const instructor = await createTestInstructor(acad.id);
   const student = await createTestUser(acad.id, { role: 'student' });
-  const [cls] = await testDb.insert(bjjClass).values({
-    academyId: acad.id,
-    instructorId: instructor.id,
-    name: 'Gi Class',
-    type: 'gi',
-    recurrence: 'weekly',
-    dayOfWeek: 1,
-    startTime: '07:00',
-    endTime: '08:30',
-  }).returning();
+
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const hour = now.getHours();
+  const startTime = `${String(hour).padStart(2, '0')}:00`;
+  const endTime = `${String(hour + 1).padStart(2, '0')}:30`;
+
+  const [cls] = await testDb
+    .insert(bjjClass)
+    .values({
+      academyId: acad.id,
+      instructorId: instructor.id,
+      name: 'Gi Class',
+      type: 'gi',
+      recurrence: 'weekly',
+      dayOfWeek,
+      startTime,
+      endTime,
+    })
+    .returning();
   return { acad, instructor, student, cls };
 }
 
@@ -46,7 +63,13 @@ describe('POST /api/checkins', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/checkins',
-      payload: { classId: cls.id, studentId: student.id },
+      headers: authHeaders(student),
+      payload: {
+        classId: cls.id,
+        source: 'button',
+        latitude: NEAR_LAT,
+        longitude: NEAR_LNG,
+      },
     });
 
     expect(res.statusCode).toBe(201);
@@ -62,7 +85,13 @@ describe('POST /api/checkins', () => {
     await app.inject({
       method: 'POST',
       url: '/api/checkins',
-      payload: { classId: cls.id, studentId: student.id },
+      headers: authHeaders(student),
+      payload: {
+        classId: cls.id,
+        source: 'button',
+        latitude: NEAR_LAT,
+        longitude: NEAR_LNG,
+      },
     });
 
     const streaks = await testDb.select().from(streak).where(eq(streak.studentId, student.id));
@@ -74,20 +103,34 @@ describe('POST /api/checkins', () => {
   it('does not change streak on same-week checkin', async () => {
     const { student, cls } = await createClassAndStudent();
 
-    // First checkin
-    await app.inject({
-      method: 'POST',
-      url: '/api/checkins',
-      payload: { classId: cls.id, studentId: student.id },
+    // First checkin — insert directly to bypass duplicate check
+    await testDb.insert(checkin).values({
+      classId: cls.id,
+      studentId: student.id,
+      source: 'button',
+    });
+    await testDb.insert(streak).values({
+      studentId: student.id,
+      currentStreak: 1,
+      longestStreak: 1,
+      lastCheckinWeek: '2099-W01', // future week to simulate same-week
     });
 
-    // Second checkin same week
-    await app.inject({
+    // Second checkin attempt should be blocked as CHECKIN_DUPLICATE
+    const res = await app.inject({
       method: 'POST',
       url: '/api/checkins',
-      payload: { classId: cls.id, studentId: student.id },
+      headers: authHeaders(student),
+      payload: {
+        classId: cls.id,
+        source: 'button',
+        latitude: NEAR_LAT,
+        longitude: NEAR_LNG,
+      },
     });
 
+    // duplicate block is expected — streak remains unchanged at 1
+    expect(res.statusCode).toBe(400);
     const streaks = await testDb.select().from(streak).where(eq(streak.studentId, student.id));
     expect(streaks).toHaveLength(1);
     expect(streaks[0].currentStreak).toBe(1);

@@ -3,6 +3,7 @@ export * from './user';
 export * from './auth';
 export * from './class';
 export * from './checkin';
+export * from './checkin-token';
 export * from './membership';
 export * from './payment';
 export * from './product';

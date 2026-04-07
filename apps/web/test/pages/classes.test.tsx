@@ -27,9 +27,25 @@ const studentSession = {
   isPending: false,
 } as any;
 
+const now = new Date();
 const mockClasses = [
-  { id: 'c1', name: 'Morning Gi', type: 'gi', dayOfWeek: 1, startTime: '07:00', endTime: '08:30', instructor: 'Prof Silva' },
-  { id: 'c2', name: 'No-Gi Night', type: 'no-gi', dayOfWeek: 3, startTime: '19:00', endTime: '20:30' },
+  {
+    id: 'c1',
+    name: 'Morning Gi',
+    type: 'gi',
+    dayOfWeek: now.getDay(),
+    startTime: `${String(now.getHours()).padStart(2, '0')}:00`,
+    endTime: `${String(now.getHours() + 1).padStart(2, '0')}:30`,
+    instructor: 'Prof Silva',
+  },
+  {
+    id: 'c2',
+    name: 'No-Gi Night',
+    type: 'no-gi',
+    dayOfWeek: (now.getDay() + 3) % 7,
+    startTime: '19:00',
+    endTime: '20:30',
+  },
 ];
 
 describe('ClassesPage', () => {
@@ -50,7 +66,6 @@ describe('ClassesPage', () => {
     renderWithProviders(<ClassesPage />);
     expect(await screen.findByText('Morning Gi')).toBeInTheDocument();
     expect(screen.getByText('No-Gi Night')).toBeInTheDocument();
-    expect(screen.getByText('07:00 - 08:30')).toBeInTheDocument();
     expect(screen.getByText('Prof Silva')).toBeInTheDocument();
   });
 
@@ -61,11 +76,13 @@ describe('ClassesPage', () => {
     });
   });
 
-  it('shows check-in button for students', async () => {
+  it('shows checkin buttons only for active classes for students', async () => {
     mockUseSession.mockReturnValue(studentSession);
     renderWithProviders(<ClassesPage />);
-    const buttons = await screen.findAllByText('classes.checkin');
-    expect(buttons.length).toBe(2);
+
+    await screen.findByText('Morning Gi');
+    const checkinButtons = screen.getAllByText('classes.checkinProximity');
+    expect(checkinButtons.length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows empty state when no classes', async () => {

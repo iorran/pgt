@@ -119,4 +119,26 @@ export async function academyRoutes(app: FastifyInstance) {
     if (!updated) return reply.status(404).send({ error: 'Student not found or not pending' });
     return updated;
   });
+
+  // Update academy location (instructor only)
+  app.put('/api/academies/:id/location', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { latitude, longitude, address } = request.body as {
+      latitude: number;
+      longitude: number;
+      address?: string;
+    };
+
+    const [updated] = await db.update(academy)
+      .set({
+        latitude: String(latitude),
+        longitude: String(longitude),
+        ...(address !== undefined && { address }),
+      })
+      .where(and(eq(academy.id, id), eq(academy.id, request.academyId)))
+      .returning();
+
+    if (!updated) return reply.status(404).send({ error: 'Academy not found' });
+    return updated;
+  });
 }

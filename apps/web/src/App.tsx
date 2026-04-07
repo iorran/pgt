@@ -25,6 +25,8 @@ import GamificationProfilePage from './pages/gamification/profile';
 import TournamentsPage from './pages/tournaments/index';
 import ForgotPasswordPage from './pages/forgot-password';
 import ResetPasswordPage from './pages/reset-password';
+import TotemPage from './pages/totem';
+import CheckinScanPage from './pages/checkin-scan';
 import { Card, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -80,6 +82,7 @@ function App() {
         <Route path="/entrar/:code" element={<EntrarPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/checkin" element={<CheckinScanPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     );
@@ -125,6 +128,8 @@ function App() {
   // Normal authenticated routes
   return (
     <Routes>
+      <Route path="/totem" element={<TotemPage />} />
+      <Route path="/checkin" element={<CheckinScanPage />} />
       <Route element={<AppLayout />}>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/pending" element={<PendingStudentsPage />} />

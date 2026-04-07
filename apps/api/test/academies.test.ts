@@ -204,3 +204,35 @@ describe('GET /api/academies/mine', () => {
     expect(res.statusCode).toBe(404);
   });
 });
+
+describe('PUT /api/academies/:id/location', () => {
+  it('requires instructor role', async () => {
+    const acad = await createTestAcademy();
+    const student = await createTestUser(acad.id, { role: 'student' });
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/api/academies/${acad.id}/location`,
+      headers: authHeaders(student),
+      payload: { latitude: -23.55, longitude: -46.63, address: 'Rua Test' },
+    });
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('updates academy location', async () => {
+    const acad = await createTestAcademy();
+    const instructor = await createTestInstructor(acad.id);
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/api/academies/${acad.id}/location`,
+      headers: authHeaders(instructor),
+      payload: { latitude: -23.5505, longitude: -46.6333, address: 'Rua Augusta, 123' },
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.latitude).toBe('-23.5505000');
+    expect(body.longitude).toBe('-46.6333000');
+    expect(body.address).toBe('Rua Augusta, 123');
+  });
+});
