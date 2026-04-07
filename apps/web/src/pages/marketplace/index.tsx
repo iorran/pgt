@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import { Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -86,7 +87,7 @@ export default function MarketplacePage() {
     },
   });
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="p-6 space-y-6">

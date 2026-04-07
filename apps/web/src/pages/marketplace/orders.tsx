@@ -3,6 +3,7 @@ import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -61,7 +62,7 @@ export default function OrdersPage() {
     },
   });
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="p-6 space-y-6">

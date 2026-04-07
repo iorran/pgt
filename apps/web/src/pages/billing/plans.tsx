@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -92,7 +93,7 @@ export default function PlansPage() {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
-  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="p-5 space-y-6">

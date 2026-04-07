@@ -3,6 +3,7 @@ import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,7 @@ export default function PendingStudentsPage() {
   });
 
   if (isLoading) {
-    return <p className="text-muted-foreground p-6">{t('common.loading')}</p>;
+    return <PageLoader />;
   }
 
   return (

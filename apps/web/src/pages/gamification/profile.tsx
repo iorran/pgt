@@ -1,6 +1,7 @@
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award } from 'lucide-react';
 
@@ -22,7 +23,7 @@ export default function GamificationProfilePage() {
     !!user?.id,
   );
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
   if (!profile) return <div className="p-6 text-muted-foreground">{t('common.noResults')}</div>;
 
   return (

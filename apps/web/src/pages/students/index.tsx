@@ -3,6 +3,7 @@ import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
 import { Link } from 'react-router-dom';
+import { PageLoader } from '@/components/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
@@ -50,7 +51,7 @@ export default function StudentsPage() {
     s.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="p-5 space-y-6">

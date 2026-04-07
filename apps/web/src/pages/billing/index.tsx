@@ -1,6 +1,7 @@
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
@@ -28,7 +29,7 @@ export default function BillingOverduePage() {
     return days >= 8 ? 'border-l-destructive' : 'border-l-yellow-500';
   }
 
-  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="p-5 space-y-6">

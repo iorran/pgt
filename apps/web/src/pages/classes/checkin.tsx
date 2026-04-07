@@ -1,6 +1,7 @@
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import {
   Table,
   TableHeader,
@@ -29,7 +30,7 @@ export default function CheckinHistoryPage() {
     !!user?.id,
   );
 
-  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="p-5 space-y-6">

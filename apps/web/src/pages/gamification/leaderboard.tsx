@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
+import { PageLoader } from '@/components/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
@@ -66,7 +67,7 @@ export default function LeaderboardPage() {
 
   const activeSeason = seasons.find(s => s.id === effectiveSeasonId);
 
-  if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) return <PageLoader />;
 
   return (
     <div className="p-6 space-y-8">
