@@ -58,6 +58,17 @@
     "checkinError": "Check-in failed",
     "checkinHistory": "Attendance History",
     "date": "Date",
+    "checkinProximity": "Check-in",
+    "checkinQR": "QR Code",
+    "checkedIn": "Checked in",
+    "checkinTooFar": "You are too far from the academy",
+    "checkinDuplicate": "You already checked in to this class today",
+    "checkinOverlap": "You already checked in to another class at this time",
+    "checkinOutsideWindow": "This class is not happening right now",
+    "checkinLocationNotSet": "The academy has not set its location yet",
+    "checkinInvalidToken": "Invalid or expired QR Code",
+    "scanQR": "Scan QR Code",
+    "scanning": "Scanning...",
     "days": {
       "sun": "Sunday",
       "mon": "Monday",
@@ -209,6 +220,16 @@
     "shareMessage": "Hey everyone! Sign up for the academy app:",
     "yourData": "Your Details",
     "yourAcademy": "Your Academy",
-    "belt": "Belt"
+    "belt": "Belt",
+    "setLocation": "Set academy location",
+    "useMyLocation": "Use my current location",
+    "locationSet": "Location saved",
+    "address": "Address"
+  },
+  "totem": {
+    "title": "Check-in Totem",
+    "noClasses": "No classes right now",
+    "nextClass": "Next class",
+    "scanToCheckin": "Scan to check in"
   }
 }

@@ -58,6 +58,17 @@
     "checkinError": "Erro ao realizar check-in",
     "checkinHistory": "Histórico de Presença",
     "date": "Data",
+    "checkinProximity": "Check-in",
+    "checkinQR": "QR Code",
+    "checkedIn": "Presente",
+    "checkinTooFar": "Você está longe da academia",
+    "checkinDuplicate": "Você já fez check-in nesta aula hoje",
+    "checkinOverlap": "Você já fez check-in em outra aula neste horário",
+    "checkinOutsideWindow": "Esta aula não está acontecendo agora",
+    "checkinLocationNotSet": "A academia ainda não configurou a localização",
+    "checkinInvalidToken": "QR Code inválido ou expirado",
+    "scanQR": "Escanear QR Code",
+    "scanning": "Escaneando...",
     "days": {
       "sun": "Domingo",
       "mon": "Segunda",
@@ -209,6 +220,16 @@
     "shareMessage": "Fala galera! Cadastrem-se no app da academia:",
     "yourData": "Seus Dados",
     "yourAcademy": "Sua Academia",
-    "belt": "Faixa"
+    "belt": "Faixa",
+    "setLocation": "Definir localização da academia",
+    "useMyLocation": "Usar minha localização atual",
+    "locationSet": "Localização salva",
+    "address": "Endereço"
+  },
+  "totem": {
+    "title": "Totem de Check-in",
+    "noClasses": "Nenhuma aula no momento",
+    "nextClass": "Próxima aula",
+    "scanToCheckin": "Escaneie para fazer check-in"
   }
 }
