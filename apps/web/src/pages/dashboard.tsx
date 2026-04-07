@@ -59,6 +59,12 @@ export default function DashboardPage() {
     !!user?.academyId,
   );
 
+  const { data: paymentStatus } = useApiQuery<{ status: string; daysOverdue?: number; daysUntilDue?: number }>(
+    ['my-payment-status'],
+    '/payments/my-status',
+    !!user?.id && !isInstructor,
+  );
+
   function handleCopy() {
     if (!academy) return;
     navigator.clipboard.writeText(academy.joinCode);
@@ -81,6 +87,22 @@ export default function DashboardPage() {
       <p className="text-muted-foreground">
         {t('common.loading').replace('...', '')}, {user?.name}
       </p>
+
+      {!isInstructor && paymentStatus?.status === 'overdue' && (
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+          <p className="text-destructive font-medium text-sm">
+            {t('billing.yourPaymentOverdue', { days: paymentStatus.daysOverdue })}
+          </p>
+        </div>
+      )}
+
+      {!isInstructor && paymentStatus?.status === 'upcoming' && (
+        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+          <p className="text-primary font-medium text-sm">
+            {t('billing.paymentDueSoon', { days: paymentStatus.daysUntilDue })}
+          </p>
+        </div>
+      )}
 
       {isInstructor && academy && (
         <Card className="bg-card border-border">

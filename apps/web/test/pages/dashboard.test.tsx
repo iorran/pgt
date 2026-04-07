@@ -38,7 +38,10 @@ describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseSession.mockReturnValue(instructorSession);
-    mockApi.mockResolvedValue(mockAcademy as any);
+    mockApi.mockImplementation((path: string) => {
+      if (path.includes('academies/mine')) return Promise.resolve(mockAcademy as any);
+      return Promise.resolve([] as any);
+    });
   });
 
   it('shows welcome message', () => {
@@ -52,6 +55,30 @@ describe('DashboardPage', () => {
       expect(screen.getByText('ABC123')).toBeInTheDocument();
       expect(screen.getByText('onboarding.joinCode')).toBeInTheDocument();
       expect(screen.getByText('onboarding.shareWhatsApp')).toBeInTheDocument();
+    });
+  });
+
+  it('shows overdue banner for student', async () => {
+    mockUseSession.mockReturnValue(studentSession);
+    mockApi.mockImplementation((path: string) => {
+      if (path.includes('my-status')) return Promise.resolve({ status: 'overdue', daysOverdue: 5 } as any);
+      return Promise.resolve([] as any);
+    });
+    renderWithProviders(<DashboardPage />);
+    await waitFor(() => {
+      expect(screen.getByText('billing.yourPaymentOverdue')).toBeInTheDocument();
+    });
+  });
+
+  it('shows upcoming payment banner for student', async () => {
+    mockUseSession.mockReturnValue(studentSession);
+    mockApi.mockImplementation((path: string) => {
+      if (path.includes('my-status')) return Promise.resolve({ status: 'upcoming', daysUntilDue: 2 } as any);
+      return Promise.resolve([] as any);
+    });
+    renderWithProviders(<DashboardPage />);
+    await waitFor(() => {
+      expect(screen.getByText('billing.paymentDueSoon')).toBeInTheDocument();
     });
   });
 
