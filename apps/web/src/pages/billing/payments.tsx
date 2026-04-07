@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -35,7 +35,23 @@ export default function PaymentsPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ studentId: '', amount: '', paymentDate: '', referenceMonth: '' });
+
+  const form = useForm({
+    defaultValues: {
+      studentId: '',
+      amount: '',
+      paymentDate: '',
+      referenceMonth: '',
+    },
+    onSubmit: async ({ value }) => {
+      await createMutation.mutateAsync({
+        ...value,
+        amount: Number(value.amount),
+        academyId: user.academyId,
+      });
+      form.reset();
+    },
+  });
 
   const { data: payments = [], isLoading: paymentsLoading } = useApiQuery<Payment[]>(
     ['payments', user?.academyId],
@@ -60,12 +76,6 @@ export default function PaymentsPage() {
     },
   });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    await createMutation.mutateAsync({ ...form, amount: Number(form.amount), academyId: user.academyId });
-    setForm({ studentId: '', amount: '', paymentDate: '', referenceMonth: '' });
-  }
-
   function formatCurrency(value: number) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
@@ -83,49 +93,75 @@ export default function PaymentsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{t('billing.selectStudent')}</Label>
-              <select
-                value={form.studentId}
-                onChange={e => setForm(f => ({ ...f, studentId: e.target.value }))}
-                required
-                className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-              >
-                <option value="">{t('billing.selectStudent')}</option>
-                {students.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label>{t('billing.amount')}</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={form.amount}
-                onChange={e => setForm(f => ({ ...f, amount: e.target.value }))}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('billing.date')}</Label>
-              <Input
-                type="date"
-                value={form.paymentDate}
-                onChange={e => setForm(f => ({ ...f, paymentDate: e.target.value }))}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t('billing.referenceMonth')}</Label>
-              <Input
-                type="month"
-                value={form.referenceMonth}
-                onChange={e => setForm(f => ({ ...f, referenceMonth: e.target.value }))}
-                required
-              />
-            </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <form.Field name="studentId">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label>{t('billing.selectStudent')}</Label>
+                  <select
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  >
+                    <option value="">{t('billing.selectStudent')}</option>
+                    {students.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </form.Field>
+            <form.Field name="amount">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label>{t('billing.amount')}</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
+            <form.Field name="paymentDate">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label>{t('billing.date')}</Label>
+                  <Input
+                    type="date"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
+            <form.Field name="referenceMonth">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label>{t('billing.referenceMonth')}</Label>
+                  <Input
+                    type="month"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
             <div className="md:col-span-2">
               <Button type="submit">{t('common.save')}</Button>
             </div>

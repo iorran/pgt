@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -31,7 +32,27 @@ export default function PlansPage() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
+
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      price: '',
+      frequency: 'monthly',
+      classesPerWeek: '',
+    },
+    onSubmit: async ({ value }) => {
+      const body = {
+        ...value,
+        price: Number(value.price),
+        classesPerWeek: Number(value.classesPerWeek),
+        academyId: user.academyId,
+      };
+      await saveMutation.mutateAsync({ editId, body });
+      setEditId(null);
+      setDialogOpen(false);
+      form.reset();
+    },
+  });
 
   const { data: plans = [], isLoading } = useApiQuery<Plan[]>(
     ['plans', user?.academyId],
@@ -53,23 +74,18 @@ export default function PlansPage() {
 
   function startEdit(plan: Plan) {
     setEditId(plan.id);
-    setForm({ name: plan.name, price: String(plan.price), frequency: plan.frequency, classesPerWeek: String(plan.classesPerWeek) });
+    form.reset();
+    form.setFieldValue('name', plan.name);
+    form.setFieldValue('price', String(plan.price));
+    form.setFieldValue('frequency', plan.frequency);
+    form.setFieldValue('classesPerWeek', String(plan.classesPerWeek));
     setDialogOpen(true);
   }
 
   function openCreate() {
     setEditId(null);
-    setForm({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
+    form.reset();
     setDialogOpen(true);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const body = { ...form, price: Number(form.price), classesPerWeek: Number(form.classesPerWeek), academyId: user.academyId };
-    await saveMutation.mutateAsync({ editId, body });
-    setForm({ name: '', price: '', frequency: 'monthly', classesPerWeek: '' });
-    setEditId(null);
-    setDialogOpen(false);
   }
 
   function formatPrice(value: number) {
@@ -84,7 +100,7 @@ export default function PlansPage() {
         <h1 className="font-heading uppercase tracking-wider text-lg">{t('billing.plansTitle')}</h1>
 
         {user?.role === 'instructor' && (
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { form.reset(); } }}>
             <DialogTrigger render={<Button />} onClick={openCreate}>
               {t('billing.createPlan')}
             </DialogTrigger>
@@ -94,46 +110,72 @@ export default function PlansPage() {
                   {editId ? t('common.edit') : t('billing.createPlan')}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div className="space-y-2">
-                  <Label>{t('billing.planName')}</Label>
-                  <Input
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('billing.price')}</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={form.price}
-                    onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('billing.frequency')}</Label>
-                  <select
-                    value={form.frequency}
-                    onChange={e => setForm(f => ({ ...f, frequency: e.target.value }))}
-                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-                  >
-                    <option value="monthly">{t('billing.monthly')}</option>
-                    <option value="quarterly">{t('billing.quarterly')}</option>
-                    <option value="yearly">{t('billing.yearly')}</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('billing.classesPerWeek')}</Label>
-                  <Input
-                    type="number"
-                    value={form.classesPerWeek}
-                    onChange={e => setForm(f => ({ ...f, classesPerWeek: e.target.value }))}
-                    required
-                  />
-                </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  form.handleSubmit();
+                }}
+                className="flex flex-col gap-4"
+              >
+                <form.Field name="name">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('billing.planName')}</Label>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+                <form.Field name="price">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('billing.price')}</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+                <form.Field name="frequency">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('billing.frequency')}</Label>
+                      <select
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                      >
+                        <option value="monthly">{t('billing.monthly')}</option>
+                        <option value="quarterly">{t('billing.quarterly')}</option>
+                        <option value="yearly">{t('billing.yearly')}</option>
+                      </select>
+                    </div>
+                  )}
+                </form.Field>
+                <form.Field name="classesPerWeek">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('billing.classesPerWeek')}</Label>
+                      <Input
+                        type="number"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
                 <Button type="submit">{editId ? t('common.save') : t('common.create')}</Button>
               </form>
             </DialogContent>
