@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { forgetPassword } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -9,21 +10,24 @@ import { Button } from '@/components/ui/button';
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();
-  const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      await forgetPassword({
-        email,
-        redirectTo: `${import.meta.env.VITE_APP_URL}/reset-password`,
-      });
-    } catch {
-      // Silently ignore — no email enumeration
-    }
-    setSubmitted(true);
-  }
+  const form = useForm({
+    defaultValues: {
+      email: '',
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        await forgetPassword({
+          email: value.email,
+          redirectTo: `${import.meta.env.VITE_APP_URL}/reset-password`,
+        });
+      } catch {
+        // Silently ignore — no email enumeration
+      }
+      setSubmitted(true);
+    },
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center arena-stripes">
@@ -51,18 +55,29 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t('auth.email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder={t('auth.email')}
-                    required
-                  />
-                </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  form.handleSubmit();
+                }}
+                className="space-y-4"
+              >
+                <form.Field name="email">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{t('auth.email')}</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t('auth.email')}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
 
                 <Button type="submit" className="w-full">
                   {t('auth.forgotPasswordSubmit')}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { resetPassword } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -11,27 +12,30 @@ export default function ResetPasswordPage() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
-  const [newPass, setNewPass] = useState('');
-  const [confirmPass, setConfirmPass] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
+  const form = useForm({
+    defaultValues: {
+      password: '',
+      confirmPassword: '',
+    },
+    onSubmit: async ({ value }) => {
+      setError('');
 
-    if (newPass !== confirmPass) {
-      setError(t('auth.resetPasswordMismatch'));
-      return;
-    }
+      if (value.password !== value.confirmPassword) {
+        setError(t('auth.resetPasswordMismatch'));
+        return;
+      }
 
-    try {
-      await resetPassword({ newPassword: newPass, token });
-      setSuccess(true);
-    } catch {
-      setError(t('auth.resetPasswordError'));
-    }
-  }
+      try {
+        await resetPassword({ newPassword: value.password, token });
+        setSuccess(true);
+      } catch {
+        setError(t('auth.resetPasswordError'));
+      }
+    },
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center arena-stripes">
@@ -58,32 +62,48 @@ export default function ResetPasswordPage() {
               </Link>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">{t('auth.newPassword')}</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPass}
-                  onChange={e => setNewPass(e.target.value)}
-                  placeholder={t('auth.newPassword')}
-                  required
-                  minLength={8}
-                />
-              </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="space-y-4"
+            >
+              <form.Field name="password">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword">{t('auth.newPassword')}</Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      placeholder={t('auth.newPassword')}
+                      required
+                      minLength={8}
+                    />
+                  </div>
+                )}
+              </form.Field>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPass}
-                  onChange={e => setConfirmPass(e.target.value)}
-                  placeholder={t('auth.confirmPassword')}
-                  required
-                  minLength={8}
-                />
-              </div>
+              <form.Field name="confirmPassword">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={field.handleBlur}
+                      placeholder={t('auth.confirmPassword')}
+                      required
+                      minLength={8}
+                    />
+                  </div>
+                )}
+              </form.Field>
 
               {error && (
                 <div className="space-y-2">

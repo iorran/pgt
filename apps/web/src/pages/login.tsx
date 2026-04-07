@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { signIn } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
@@ -10,23 +11,26 @@ import { Button } from '@/components/ui/button';
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    console.log('[Login] Attempting sign-in for:', email);
-    const result = await signIn.email({ email, password });
-    console.log('[Login] Sign-in result:', JSON.stringify(result, null, 2));
-    if (result.error) {
-      setError(result.error.message ?? 'Login failed');
-    } else {
-      console.log('[Login] Success, navigating to /');
-      navigate('/');
-    }
-  }
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    onSubmit: async ({ value }) => {
+      setError('');
+      console.log('[Login] Attempting sign-in for:', value.email);
+      const result = await signIn.email({ email: value.email, password: value.password });
+      console.log('[Login] Sign-in result:', JSON.stringify(result, null, 2));
+      if (result.error) {
+        setError(result.error.message ?? 'Login failed');
+      } else {
+        console.log('[Login] Success, navigating to /');
+        navigate('/');
+      }
+    },
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center arena-stripes">
@@ -42,30 +46,46 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('auth.email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder={t('auth.email')}
-                required
-              />
-            </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="space-y-4"
+          >
+            <form.Field name="email">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t('auth.email')}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    placeholder={t('auth.email')}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">{t('auth.password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={t('auth.password')}
-                required
-              />
-            </div>
+            <form.Field name="password">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t('auth.password')}</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    placeholder={t('auth.password')}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
 
             <div className="text-right">
               <Link
