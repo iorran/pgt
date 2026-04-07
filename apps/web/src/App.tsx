@@ -63,9 +63,15 @@ function RejectedView() {
 function App() {
   const { data: session, isPending } = useSession();
 
-  if (isPending) return <div style={{ padding: 40 }}>Carregando...</div>;
+  console.log('[App] isPending:', isPending, 'session:', session ? { user: { id: (session.user as any).id, academyId: (session.user as any).academyId, role: (session.user as any).role, status: (session.user as any).status } } : null);
+
+  if (isPending) {
+    console.log('[App] Routing → loading');
+    return <div style={{ padding: 40 }}>Carregando...</div>;
+  }
 
   if (!session) {
+    console.log('[App] Routing → unauthenticated (login/signup)');
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -83,6 +89,7 @@ function App() {
 
   // No academy yet — allow both flows (create academy OR join via code)
   if (!user.academyId) {
+    console.log('[App] Routing → no academy (criar-academia)');
     return (
       <Routes>
         <Route path="/criar-academia" element={<CriarAcademiaPage />} />
@@ -94,6 +101,7 @@ function App() {
 
   // Pending approval
   if (user.status === 'pending') {
+    console.log('[App] Routing → pending approval');
     return (
       <Routes>
         <Route path="/aguardando" element={<AguardandoPage />} />
@@ -104,12 +112,15 @@ function App() {
 
   // Rejected
   if (user.status === 'rejected') {
+    console.log('[App] Routing → rejected');
     return (
       <Routes>
         <Route path="*" element={<RejectedView />} />
       </Routes>
     );
   }
+
+  console.log('[App] Routing → authenticated (dashboard)');
 
   // Normal authenticated routes
   return (

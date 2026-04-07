@@ -17,9 +17,15 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    const { error } = await signIn.email({ email, password });
-    if (error) setError(error.message ?? 'Login failed');
-    else navigate('/');
+    console.log('[Login] Attempting sign-in for:', email);
+    const result = await signIn.email({ email, password });
+    console.log('[Login] Sign-in result:', JSON.stringify(result, null, 2));
+    if (result.error) {
+      setError(result.error.message ?? 'Login failed');
+    } else {
+      console.log('[Login] Success, navigating to /');
+      navigate('/');
+    }
   }
 
   return (
