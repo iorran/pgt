@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface ClassItem {
   id: string;
@@ -66,8 +68,9 @@ export default function ClassesPage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', type: '', recurrence: 'weekly', daysOfWeek: [] as number[], startTime: '', endTime: '' });
   const [checkinMsg, setCheckinMsg] = useState('');
+  const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
+  const [deletingClass, setDeletingClass] = useState<ClassItem | null>(null);
 
   const { data: classes = [], isLoading } = useApiQuery<ClassItem[]>(
     ['classes', user?.academyId],
@@ -88,28 +91,68 @@ export default function ClassesPage() {
     );
   }
 
-  const createMutation = useMutation({
-    mutationFn: async (formData: typeof form) => {
-      const newClasses: ClassItem[] = [];
-      for (const day of formData.daysOfWeek) {
-        const created = await api<ClassItem>('/classes', {
+  const createForm = useForm({
+    defaultValues: {
+      name: '',
+      type: '',
+      recurrence: 'weekly',
+      daysOfWeek: [] as number[],
+      startTime: '',
+      endTime: '',
+    },
+    onSubmit: async ({ value }) => {
+      for (const day of value.daysOfWeek) {
+        await api('/classes', {
           method: 'POST',
           body: JSON.stringify({
-            name: formData.name,
-            type: formData.type,
-            recurrence: formData.recurrence,
+            name: value.name,
+            type: value.type,
+            recurrence: value.recurrence,
             dayOfWeek: day,
-            startTime: formData.startTime,
-            endTime: formData.endTime,
+            startTime: value.startTime,
+            endTime: value.endTime,
             academyId: user.academyId,
           }),
         });
-        newClasses.push(created);
       }
-      return newClasses;
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
+      setDialogOpen(false);
+      createForm.reset();
     },
+  });
+
+  const editForm = useForm({
+    defaultValues: {
+      name: '',
+      type: '',
+      startTime: '',
+      endTime: '',
+    },
+    onSubmit: async ({ value }) => {
+      await api(`/classes/${editingClass!.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(value),
+      });
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
+      setEditingClass(null);
+    },
+  });
+
+  function handleEdit(cls: ClassItem) {
+    editForm.reset();
+    editForm.setFieldValue('name', cls.name);
+    editForm.setFieldValue('type', cls.type);
+    editForm.setFieldValue('startTime', cls.startTime);
+    editForm.setFieldValue('endTime', cls.endTime);
+    setEditingClass(cls);
+  }
+
+  const deleteMutation = useMutation({
+    mutationFn: (classId: string) =>
+      api(`/classes/${classId}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classes'] });
+      setDeletingClass(null);
     },
   });
 
@@ -148,22 +191,6 @@ export default function ClassesPage() {
     );
   }
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    await createMutation.mutateAsync(form);
-    setForm({ name: '', type: '', recurrence: 'weekly', daysOfWeek: [], startTime: '', endTime: '' });
-    setDialogOpen(false);
-  }
-
-  function toggleDay(day: number) {
-    setForm(f => ({
-      ...f,
-      daysOfWeek: f.daysOfWeek.includes(day)
-        ? f.daysOfWeek.filter(d => d !== day)
-        : [...f.daysOfWeek, day],
-    }));
-  }
-
   if (isLoading) {
     return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
   }
@@ -187,70 +214,112 @@ export default function ClassesPage() {
                   {t('classes.createClass')}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreate} className="flex flex-col gap-4">
-                <div className="space-y-2">
-                  <Label>{t('classes.className')}</Label>
-                  <Input
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('classes.classType')}</Label>
-                  <select
-                    value={form.type}
-                    onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-                    required
-                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-                  >
-                    <option value="">--</option>
-                    <option value="gi">Gi</option>
-                    <option value="no-gi">No-Gi</option>
-                    <option value="open-mat">Open Mat</option>
-                    <option value="kids">Kids</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('classes.daysOfWeek')}</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {DAY_KEYS.map((k, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => toggleDay(i)}
-                        className={`px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
-                          form.daysOfWeek.includes(i)
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'bg-card border-border text-muted-foreground hover:border-primary hover:text-foreground'
-                        }`}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  createForm.handleSubmit();
+                }}
+                className="flex flex-col gap-4"
+              >
+                <createForm.Field name="name">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('classes.className')}</Label>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </createForm.Field>
+                <createForm.Field name="type">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('classes.classType')}</Label>
+                      <select
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        required
+                        className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
                       >
-                        {t(k)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                        <option value="">--</option>
+                        <option value="gi">Gi</option>
+                        <option value="no-gi">No-Gi</option>
+                        <option value="open-mat">Open Mat</option>
+                        <option value="kids">Kids</option>
+                      </select>
+                    </div>
+                  )}
+                </createForm.Field>
+                <createForm.Field name="daysOfWeek">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('classes.daysOfWeek')}</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {DAY_KEYS.map((k, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => {
+                              const current = field.state.value;
+                              field.handleChange(
+                                current.includes(i)
+                                  ? current.filter((d) => d !== i)
+                                  : [...current, i],
+                              );
+                            }}
+                            className={`px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
+                              field.state.value.includes(i)
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'bg-card border-border text-muted-foreground hover:border-primary hover:text-foreground'
+                            }`}
+                          >
+                            {t(k)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </createForm.Field>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>{t('classes.startTime')}</Label>
-                    <Input
-                      type="time"
-                      value={form.startTime}
-                      onChange={e => setForm(f => ({ ...f, startTime: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t('classes.endTime')}</Label>
-                    <Input
-                      type="time"
-                      value={form.endTime}
-                      onChange={e => setForm(f => ({ ...f, endTime: e.target.value }))}
-                      required
-                    />
-                  </div>
+                  <createForm.Field name="startTime">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label>{t('classes.startTime')}</Label>
+                        <Input
+                          type="time"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          required
+                        />
+                      </div>
+                    )}
+                  </createForm.Field>
+                  <createForm.Field name="endTime">
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label>{t('classes.endTime')}</Label>
+                        <Input
+                          type="time"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          required
+                        />
+                      </div>
+                    )}
+                  </createForm.Field>
                 </div>
-                <Button type="submit" disabled={form.daysOfWeek.length === 0}>{t('common.save')}</Button>
+                <createForm.Subscribe selector={(state) => state.values.daysOfWeek}>
+                  {(daysOfWeek) => (
+                    <Button type="submit" disabled={daysOfWeek.length === 0}>
+                      {t('common.save')}
+                    </Button>
+                  )}
+                </createForm.Subscribe>
               </form>
             </DialogContent>
           </Dialog>
@@ -262,12 +331,32 @@ export default function ClassesPage() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {classes.map(c => (
+        {classes.map((c) => (
           <Card key={c.id} className={`border-l-4 ${getTypeBorder(c.type)}`}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="font-heading text-lg">{c.name}</CardTitle>
-                <Badge variant="outline">{c.type}</Badge>
+                <div className="flex items-center gap-1">
+                  <Badge variant="outline">{c.type}</Badge>
+                  {user?.role === 'instructor' && (
+                    <>
+                      <button
+                        onClick={() => handleEdit(c)}
+                        aria-label={t('classes.editClass')}
+                        className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => setDeletingClass(c)}
+                        aria-label={t('classes.deleteClass')}
+                        className="p-1 text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -309,6 +398,109 @@ export default function ClassesPage() {
       {classes.length === 0 && (
         <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
       )}
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingClass} onOpenChange={(open) => !open && setEditingClass(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-heading uppercase tracking-wider">
+              {t('classes.editClass')}
+            </DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              editForm.handleSubmit();
+            }}
+            className="flex flex-col gap-4"
+          >
+            <editForm.Field name="name">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label>{t('classes.className')}</Label>
+                  <Input
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    required
+                  />
+                </div>
+              )}
+            </editForm.Field>
+            <editForm.Field name="type">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label>{t('classes.classType')}</Label>
+                  <select
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    required
+                    className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  >
+                    <option value="">--</option>
+                    <option value="gi">Gi</option>
+                    <option value="no-gi">No-Gi</option>
+                    <option value="open-mat">Open Mat</option>
+                    <option value="kids">Kids</option>
+                  </select>
+                </div>
+              )}
+            </editForm.Field>
+            <div className="grid grid-cols-2 gap-4">
+              <editForm.Field name="startTime">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label>{t('classes.startTime')}</Label>
+                    <Input
+                      type="time"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+              </editForm.Field>
+              <editForm.Field name="endTime">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label>{t('classes.endTime')}</Label>
+                    <Input
+                      type="time"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+              </editForm.Field>
+            </div>
+            <Button type="submit">{t('common.save')}</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deletingClass} onOpenChange={(open) => !open && setDeletingClass(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('classes.deleteClass')}</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground">{t('classes.confirmDelete')}</p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setDeletingClass(null)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="outline"
+              className="text-destructive"
+              onClick={() => deleteMutation.mutate(deletingClass!.id)}
+              disabled={deleteMutation.isPending}
+            >
+              {t('classes.deleteClass')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

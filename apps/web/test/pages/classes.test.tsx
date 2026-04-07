@@ -90,4 +90,21 @@ describe('ClassesPage', () => {
     renderWithProviders(<ClassesPage />);
     expect(await screen.findByText('common.noResults')).toBeInTheDocument();
   });
+
+  it('shows edit and delete buttons for instructors', async () => {
+    renderWithProviders(<ClassesPage />);
+    await screen.findByText('Morning Gi');
+    const editButtons = screen.getAllByLabelText('classes.editClass');
+    const deleteButtons = screen.getAllByLabelText('classes.deleteClass');
+    expect(editButtons.length).toBe(2);
+    expect(deleteButtons.length).toBe(2);
+  });
+
+  it('does not show edit/delete buttons for students', async () => {
+    mockUseSession.mockReturnValue(studentSession);
+    renderWithProviders(<ClassesPage />);
+    await screen.findByText('Morning Gi');
+    expect(screen.queryByLabelText('classes.editClass')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('classes.deleteClass')).not.toBeInTheDocument();
+  });
 });
