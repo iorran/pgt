@@ -24,7 +24,7 @@ declare module 'fastify' {
 }
 
 export async function buildApp() {
-  const app = Fastify({ logger: false });
+  const app = Fastify({ logger: false, trustProxy: true });
 
   await app.register(cors, { origin: true, credentials: true });
   await app.register(cookie);
