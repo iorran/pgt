@@ -48,6 +48,10 @@
   "classes": {
     "title": "Class Schedule",
     "createClass": "Create Class",
+    "editClass": "Edit Class",
+    "deleteClass": "Delete Class",
+    "confirmDelete": "Are you sure you want to delete this class?",
+    "classDeleted": "Class deleted",
     "className": "Class Name",
     "classType": "Type",
     "daysOfWeek": "Days of the Week",

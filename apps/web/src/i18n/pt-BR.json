@@ -48,6 +48,10 @@
   "classes": {
     "title": "Quadro de Aulas",
     "createClass": "Criar Aula",
+    "editClass": "Editar Aula",
+    "deleteClass": "Excluir Aula",
+    "confirmDelete": "Tem certeza que deseja excluir esta aula?",
+    "classDeleted": "Aula excluída",
     "className": "Nome da Aula",
     "classType": "Tipo",
     "daysOfWeek": "Dias da Semana",
