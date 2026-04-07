@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signUp } from '@/lib/auth-client';
+import { signUp, useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,8 @@ import { Separator } from '@/components/ui/separator';
 export default function CriarAcademiaPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { data: session } = useSession();
+  const isLoggedIn = !!session;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,10 +28,12 @@ export default function CriarAcademiaPage() {
     setLoading(true);
 
     try {
-      const { error } = await signUp.email({ name, email, password, role: 'instructor' } as any);
-      if (error) {
-        setError(error.message ?? 'Signup failed');
-        return;
+      if (!isLoggedIn) {
+        const { error } = await signUp.email({ name, email, password, role: 'instructor' } as any);
+        if (error) {
+          setError(error.message ?? 'Signup failed');
+          return;
+        }
       }
 
       await api('/academies', {
@@ -37,7 +41,7 @@ export default function CriarAcademiaPage() {
         body: JSON.stringify({ name: academyName, city }),
       });
 
-      navigate('/');
+      window.location.href = '/';
     } catch (err: any) {
       setError(err.message ?? 'Signup failed');
     } finally {
@@ -60,48 +64,52 @@ export default function CriarAcademiaPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <h2 className="font-heading text-lg uppercase tracking-wide text-foreground mb-4">
-                {t('onboarding.yourData')}
-              </h2>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">{t('auth.name')}</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    placeholder={t('auth.name')}
-                    required
-                  />
+            {!isLoggedIn && (
+              <>
+                <div>
+                  <h2 className="font-heading text-lg uppercase tracking-wide text-foreground mb-4">
+                    {t('onboarding.yourData')}
+                  </h2>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">{t('auth.name')}</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                        placeholder={t('auth.name')}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{t('auth.email')}</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder={t('auth.email')}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">{t('auth.password')}</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder={t('auth.password')}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t('auth.email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder={t('auth.email')}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">{t('auth.password')}</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder={t('auth.password')}
-                    required
-                  />
-                </div>
-              </div>
-            </div>
 
-            <Separator />
+                <Separator />
+              </>
+            )}
 
             <div>
               <h2 className="font-heading text-lg uppercase tracking-wide text-foreground mb-4">
