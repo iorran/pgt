@@ -116,7 +116,9 @@
     "amount": "Amount",
     "date": "Date",
     "referenceMonth": "Reference Month",
-    "recentPayments": "Recent Payments"
+    "recentPayments": "Recent Payments",
+    "yourPaymentOverdue": "Your payment is {{days}} days overdue",
+    "paymentDueSoon": "Your payment is due in {{days}} days"
   },
   "marketplace": {
     "title": "Marketplace",
@@ -237,5 +239,16 @@
     "noClasses": "No classes right now",
     "nextClass": "Next class",
     "scanToCheckin": "Scan to check in"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noOverdue": "No overdue payments",
+    "daysOverdue": "{{days}} days overdue",
+    "sendReminder": "Send reminder",
+    "sendEmail": "Send email",
+    "emailSent": "Email sent",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "overdueMessage": "Hi {{name}}, your academy payment is {{days}} days overdue. Please settle it as soon as possible."
   }
 }

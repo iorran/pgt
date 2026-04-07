@@ -116,7 +116,9 @@
     "amount": "Valor",
     "date": "Data",
     "referenceMonth": "Mês Referência",
-    "recentPayments": "Pagamentos Recentes"
+    "recentPayments": "Pagamentos Recentes",
+    "yourPaymentOverdue": "Seu pagamento está {{days}} dias atrasado",
+    "paymentDueSoon": "Seu pagamento vence em {{days}} dias"
   },
   "marketplace": {
     "title": "Loja",
@@ -237,5 +239,16 @@
     "noClasses": "Nenhuma aula no momento",
     "nextClass": "Próxima aula",
     "scanToCheckin": "Escaneie para fazer check-in"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "noOverdue": "Nenhum pagamento atrasado",
+    "daysOverdue": "{{days}} dias atrasado",
+    "sendReminder": "Enviar lembrete",
+    "sendEmail": "Enviar email",
+    "emailSent": "Email enviado",
+    "mute": "Silenciar",
+    "unmute": "Ativar notificações",
+    "overdueMessage": "Olá {{name}}, seu pagamento na academia está {{days}} dias atrasado. Por favor, regularize o quanto antes."
   }
 }
