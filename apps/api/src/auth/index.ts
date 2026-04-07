@@ -24,11 +24,8 @@ export const auth = betterAuth({
     database: {
       generateId: false,
     },
-    crossSubDomainCookies: {
-      enabled: env.NODE_ENV === 'production',
-    },
     defaultCookieAttributes: {
-      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: 'lax',
       secure: env.NODE_ENV === 'production',
     },
   },

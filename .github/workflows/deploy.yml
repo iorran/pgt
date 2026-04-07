@@ -117,7 +117,6 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
           VITE_APP_URL: ${{ vars.VITE_APP_URL }}
       - name: Deploy to Vercel
         working-directory: apps/web
