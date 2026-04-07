@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { signUp } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -20,10 +21,6 @@ export default function EntrarPage() {
   const { code } = useParams<{ code: string }>();
   const [academy, setAcademy] = useState<Academy | null>(null);
   const [notFound, setNotFound] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [belt, setBelt] = useState('white');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -40,27 +37,39 @@ export default function EntrarPage() {
       });
   }, [code]);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!academy) return;
-    setError('');
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      belt: 'white',
+    },
+    onSubmit: async ({ value }) => {
+      if (!academy) return;
+      setError('');
 
-    try {
-      // Signup with academyId — databaseHook sets status to 'pending' automatically
-      const { error } = await signUp.email({
-        name, email, password, belt, role: 'student', academyId: academy.id,
-      } as any);
-      if (error) {
-        setError(error.message ?? 'Signup failed');
-        return;
+      try {
+        // Signup with academyId — databaseHook sets status to 'pending' automatically
+        const { error } = await signUp.email({
+          name: value.name,
+          email: value.email,
+          password: value.password,
+          belt: value.belt,
+          role: 'student',
+          academyId: academy.id,
+        } as any);
+        if (error) {
+          setError(error.message ?? 'Signup failed');
+          return;
+        }
+
+        // Force full reload so session reflects the pending status
+        window.location.href = '/aguardando';
+      } catch (err: any) {
+        setError(err.message ?? 'Signup failed');
       }
-
-      // Force full reload so session reflects the pending status
-      window.location.href = '/aguardando';
-    } catch (err: any) {
-      setError(err.message ?? 'Signup failed');
-    }
-  }
+    },
+  });
 
   if (loading) {
     return (
@@ -103,58 +112,84 @@ export default function EntrarPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-8 pb-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t('auth.name')}</Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder={t('auth.name')}
-                required
-              />
-            </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="space-y-4"
+          >
+            <form.Field name="name">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="name">{t('auth.name')}</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    placeholder={t('auth.name')}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('auth.email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder={t('auth.email')}
-                required
-              />
-            </div>
+            <form.Field name="email">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t('auth.email')}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    placeholder={t('auth.email')}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">{t('auth.password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={t('auth.password')}
-                required
-              />
-            </div>
+            <form.Field name="password">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t('auth.password')}</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    placeholder={t('auth.password')}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="belt">{t('onboarding.belt')}</Label>
-              <select
-                id="belt"
-                value={belt}
-                onChange={e => setBelt(e.target.value)}
-                className="bg-secondary border border-border text-foreground rounded-sm p-2.5 w-full font-body"
-              >
-                <option value="white">White</option>
-                <option value="blue">Blue</option>
-                <option value="purple">Purple</option>
-                <option value="brown">Brown</option>
-                <option value="black">Black</option>
-              </select>
-            </div>
+            <form.Field name="belt">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="belt">{t('onboarding.belt')}</Label>
+                  <select
+                    id="belt"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className="bg-secondary border border-border text-foreground rounded-sm p-2.5 w-full font-body"
+                  >
+                    <option value="white">White</option>
+                    <option value="blue">Blue</option>
+                    <option value="purple">Purple</option>
+                    <option value="brown">Brown</option>
+                    <option value="black">Black</option>
+                  </select>
+                </div>
+              )}
+            </form.Field>
 
             {error && (
               <p className="text-sm text-destructive">{error}</p>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { signUp, useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -14,40 +15,48 @@ export default function CriarAcademiaPage() {
   const navigate = useNavigate();
   const { data: session } = useSession();
   const isLoggedIn = !!session;
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [academyName, setAcademyName] = useState('');
-  const [city, setCity] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      academyName: '',
+      city: '',
+    },
+    onSubmit: async ({ value }) => {
+      setError('');
+      setLoading(true);
 
-    try {
-      if (!isLoggedIn) {
-        const { error } = await signUp.email({ name, email, password, role: 'instructor' } as any);
-        if (error) {
-          setError(error.message ?? 'Signup failed');
-          return;
+      try {
+        if (!isLoggedIn) {
+          const { error } = await signUp.email({
+            name: value.name,
+            email: value.email,
+            password: value.password,
+            role: 'instructor',
+          } as any);
+          if (error) {
+            setError(error.message ?? 'Signup failed');
+            return;
+          }
         }
+
+        await api('/academies', {
+          method: 'POST',
+          body: JSON.stringify({ name: value.academyName, city: value.city }),
+        });
+
+        window.location.href = '/';
+      } catch (err: any) {
+        setError(err.message ?? 'Signup failed');
+      } finally {
+        setLoading(false);
       }
-
-      await api('/academies', {
-        method: 'POST',
-        body: JSON.stringify({ name: academyName, city }),
-      });
-
-      window.location.href = '/';
-    } catch (err: any) {
-      setError(err.message ?? 'Signup failed');
-    } finally {
-      setLoading(false);
-    }
-  }
+    },
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
@@ -63,7 +72,13 @@ export default function CriarAcademiaPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="space-y-6"
+          >
             {!isLoggedIn && (
               <>
                 <div>
@@ -71,39 +86,54 @@ export default function CriarAcademiaPage() {
                     {t('onboarding.yourData')}
                   </h2>
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">{t('auth.name')}</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        placeholder={t('auth.name')}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">{t('auth.email')}</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder={t('auth.email')}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">{t('auth.password')}</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder={t('auth.password')}
-                        required
-                      />
-                    </div>
+                    <form.Field name="name">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label htmlFor="name">{t('auth.name')}</Label>
+                          <Input
+                            id="name"
+                            type="text"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            placeholder={t('auth.name')}
+                            required
+                          />
+                        </div>
+                      )}
+                    </form.Field>
+                    <form.Field name="email">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label htmlFor="email">{t('auth.email')}</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            placeholder={t('auth.email')}
+                            required
+                          />
+                        </div>
+                      )}
+                    </form.Field>
+                    <form.Field name="password">
+                      {(field) => (
+                        <div className="space-y-2">
+                          <Label htmlFor="password">{t('auth.password')}</Label>
+                          <Input
+                            id="password"
+                            type="password"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            onBlur={field.handleBlur}
+                            placeholder={t('auth.password')}
+                            required
+                          />
+                        </div>
+                      )}
+                    </form.Field>
                   </div>
                 </div>
 
@@ -116,28 +146,38 @@ export default function CriarAcademiaPage() {
                 {t('onboarding.yourAcademy')}
               </h2>
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="academyName">{t('onboarding.academyName')}</Label>
-                  <Input
-                    id="academyName"
-                    type="text"
-                    value={academyName}
-                    onChange={e => setAcademyName(e.target.value)}
-                    placeholder={t('onboarding.academyName')}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city">{t('onboarding.city')}</Label>
-                  <Input
-                    id="city"
-                    type="text"
-                    value={city}
-                    onChange={e => setCity(e.target.value)}
-                    placeholder={t('onboarding.city')}
-                    required
-                  />
-                </div>
+                <form.Field name="academyName">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor="academyName">{t('onboarding.academyName')}</Label>
+                      <Input
+                        id="academyName"
+                        type="text"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t('onboarding.academyName')}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+                <form.Field name="city">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor="city">{t('onboarding.city')}</Label>
+                      <Input
+                        id="city"
+                        type="text"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t('onboarding.city')}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
               </div>
             </div>
 
