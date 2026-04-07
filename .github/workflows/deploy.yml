@@ -3,6 +3,12 @@ name: Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_all:
+        description: 'Deploy all (skip change detection)'
+        type: boolean
+        default: true
 
 concurrency:
   group: deploy
@@ -79,7 +85,7 @@ jobs:
 
   deploy-api:
     needs: [test, detect-changes, migrate]
-    if: needs.detect-changes.outputs.api == 'true'
+    if: needs.detect-changes.outputs.api == 'true' || github.event.inputs.deploy_all == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +96,7 @@ jobs:
 
   deploy-web:
     needs: [test, detect-changes]
-    if: needs.detect-changes.outputs.web == 'true'
+    if: needs.detect-changes.outputs.web == 'true' || github.event.inputs.deploy_all == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
