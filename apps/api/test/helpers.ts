@@ -27,7 +27,7 @@ export async function cleanDb() {
       competition_result, season,
       "order", product,
       payment, student_membership, membership_plan,
-      checkin, class,
+      checkin_token, checkin, class,
       session, account, verification,
       "user", academy
     CASCADE
