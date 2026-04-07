@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { signOut, useSession } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { NotificationBell } from '@/components/notification-bell';
 
 export function Header() {
   const { t, i18n } = useTranslation();
@@ -12,6 +13,7 @@ export function Header() {
       <div />
 
       <div className="flex items-center gap-3">
+        <NotificationBell />
         <div className="flex items-center gap-1">
           <Button
             variant={i18n.language === 'pt-BR' ? 'ghost' : 'ghost'}
