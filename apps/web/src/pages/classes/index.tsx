@@ -49,6 +49,17 @@ function getTypeBorder(type: string) {
   return TYPE_BORDER_COLOR[key] || 'border-l-primary';
 }
 
+function isActiveNow(cls: ClassItem): boolean {
+  const now = new Date();
+  if (cls.dayOfWeek !== now.getDay()) {
+    return false;
+  }
+  const [startH, startM] = cls.startTime.split(':').map(Number);
+  const [endH, endM] = cls.endTime.split(':').map(Number);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  return nowMin >= startH * 60 + startM - 15 && nowMin <= endH * 60 + endM + 60;
+}
+
 export default function ClassesPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
@@ -63,6 +74,19 @@ export default function ClassesPage() {
     `/classes?academyId=${user?.academyId}`,
     !!user?.academyId,
   );
+
+  const { data: myCheckins = [] } = useApiQuery<any[]>(
+    ['my-checkins', user?.id],
+    `/checkins/student/${user?.id}`,
+    !!user?.id && user?.role === 'student',
+  );
+
+  function isCheckedIn(classId: string): boolean {
+    const today = new Date().toDateString();
+    return myCheckins.some(
+      (c: any) => c.classId === classId && new Date(c.checkedInAt).toDateString() === today,
+    );
+  }
 
   const createMutation = useMutation({
     mutationFn: async (formData: typeof form) => {
@@ -90,19 +114,39 @@ export default function ClassesPage() {
   });
 
   const checkinMutation = useMutation({
-    mutationFn: (classId: string) =>
+    mutationFn: (data: { classId: string; source: 'button'; latitude: number; longitude: number }) =>
       api('/checkins', {
         method: 'POST',
-        body: JSON.stringify({ classId, studentId: user.id }),
+        body: JSON.stringify(data),
       }),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-checkins'] });
+      queryClient.invalidateQueries({ queryKey: ['classes'] });
       setCheckinMsg(t('classes.checkinSuccess'));
       setTimeout(() => setCheckinMsg(''), 3000);
     },
-    onError: () => {
-      setCheckinMsg(t('classes.checkinError'));
+    onError: (err: Error) => {
+      setCheckinMsg(err.message);
+      setTimeout(() => setCheckinMsg(''), 5000);
     },
   });
+
+  function handleProximityCheckin(classId: string) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        checkinMutation.mutate({
+          classId,
+          source: 'button',
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      },
+      () => {
+        setCheckinMsg(t('classes.checkinTooFar'));
+        setTimeout(() => setCheckinMsg(''), 5000);
+      },
+    );
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -120,7 +164,9 @@ export default function ClassesPage() {
     }));
   }
 
-  if (isLoading) return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  if (isLoading) {
+    return <div className="p-5 text-muted-foreground">{t('common.loading')}</div>;
+  }
 
   return (
     <div className="p-5 space-y-6">
@@ -234,10 +280,26 @@ export default function ClassesPage() {
               {c.instructor && (
                 <p className="text-sm text-muted-foreground">{c.instructor}</p>
               )}
-              {user?.role === 'student' && (
-                <Button variant="outline" className="w-full mt-2" onClick={() => checkinMutation.mutate(c.id)}>
-                  {t('classes.checkin')}
-                </Button>
+              {user?.role === 'student' && isActiveNow(c) && !isCheckedIn(c.id) && (
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleProximityCheckin(c.id)}
+                    disabled={checkinMutation.isPending}
+                  >
+                    {t('classes.checkinProximity')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleProximityCheckin(c.id)}
+                  >
+                    {t('classes.checkinQR')}
+                  </Button>
+                </div>
+              )}
+              {user?.role === 'student' && isCheckedIn(c.id) && (
+                <p className="text-primary font-bold mt-2">{t('classes.checkedIn')}</p>
               )}
             </CardContent>
           </Card>
