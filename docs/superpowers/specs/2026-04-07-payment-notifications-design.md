@@ -120,9 +120,71 @@ notifications.overdueMessage: "Olá {{name}}, seu pagamento na academia está {{
 billing.yourPaymentOverdue: "Seu pagamento está {{days}} dias atrasado" / "Your payment is {{days}} days overdue"
 ```
 
+### 5. Email Notifications for Overdue Payments
+
+When the overdue detection runs (via the `/api/payments/overdue` endpoint or a scheduled check), send an email to students who are overdue and not muted.
+
+- Uses the existing Resend email service (`apps/api/src/email/index.ts`)
+- New email template: friendly overdue payment reminder with student name, academy name, and days overdue
+- Email sent once when a student first becomes overdue (not repeatedly). Track with a `lastOverdueEmailSentAt` timestamp on `student_membership`.
+- Instructor can trigger a manual email resend from the notification bell dropdown (button next to WhatsApp)
+
+**API:** Add `POST /api/payments/overdue/:studentId/notify` — instructor-only, sends overdue email to the student.
+
+### 6. Payment Reminder Before Due Date (In-App, Student Only)
+
+Show an in-app reminder banner on the student's dashboard 3 days before their due date.
+
+- Banner: "Seu pagamento vence em X dias" / "Your payment is due in X days"
+- Shows when: current day >= dueDay - 3 AND current day < dueDay AND payment not yet recorded for current month
+- Non-dismissable — disappears after payment or after due date (then switches to overdue banner if unpaid)
+- Uses the same `GET /api/payments/my-status` endpoint, extended to return `{ status: 'ok' | 'upcoming' | 'overdue', daysUntilDue?: number, daysOverdue?: number }`
+
+## Database Changes (Updated)
+
+### student_membership table — add columns
+
+```
+notifications_muted          boolean    not null  default false
+last_overdue_email_sent_at   timestamp  nullable
+```
+
+## Files to Create/Modify (Updated)
+
+**API — new/modified:**
+- `apps/api/src/db/schema/membership.ts` — add `notificationsMuted` and `lastOverdueEmailSentAt` columns
+- `apps/api/src/routes/payments.ts` — extend overdue endpoint, add my-status endpoint, add notify endpoint
+- `apps/api/src/routes/students.ts` — add notifications toggle endpoint
+- `apps/api/src/email/templates/overdue-payment.ts` — new email template
+- `apps/api/src/email/index.ts` — add sendOverduePaymentReminder method
+- DB migration
+
+**Frontend — new/modified:**
+- `apps/web/src/components/layout/header.tsx` — add notification bell with dropdown
+- `apps/web/src/pages/dashboard.tsx` — add overdue banner + upcoming payment banner for students
+- `apps/web/src/pages/students/detail.tsx` — plan dropdown instead of text input
+- `apps/web/src/i18n/en.json` — notification translation keys
+- `apps/web/src/i18n/pt-BR.json` — notification translation keys
+- Tests for all modified components
+
+## Translation Keys (Updated)
+
+```
+notifications.title: "Notificações" / "Notifications"
+notifications.noOverdue: "Nenhum pagamento atrasado" / "No overdue payments"
+notifications.daysOverdue: "{{days}} dias atrasado" / "{{days}} days overdue"
+notifications.sendReminder: "Enviar lembrete" / "Send reminder"
+notifications.sendEmail: "Enviar email" / "Send email"
+notifications.emailSent: "Email enviado" / "Email sent"
+notifications.mute: "Silenciar" / "Mute"
+notifications.unmute: "Ativar notificações" / "Unmute"
+notifications.overdueMessage: "Olá {{name}}, seu pagamento na academia está {{days}} dias atrasado. Por favor, regularize o quanto antes." / "Hi {{name}}, your academy payment is {{days}} days overdue. Please settle it as soon as possible."
+billing.yourPaymentOverdue: "Seu pagamento está {{days}} dias atrasado" / "Your payment is {{days}} days overdue"
+billing.paymentDueSoon: "Seu pagamento vence em {{days}} dias" / "Your payment is due in {{days}} days"
+```
+
 ## Out of Scope
 
 - Automatic WhatsApp messages (requires WhatsApp Business API)
-- Email notifications for overdue payments
-- Payment reminders before due date
 - In-app payment processing
+- Scheduled/cron-based automatic email sending (emails triggered manually by instructor or on overdue detection)
