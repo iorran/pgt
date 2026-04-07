@@ -1,4 +1,18 @@
+---
+title: Smart Checkin System Design
+date: 2026-04-07
+tags:
+  - spec
+  - checkin
+  - feature
+status: approved
+---
+
 # Smart Checkin System
+
+> [!info] Related
+> - Plan: [[2026-04-07-smart-checkin|Implementation Plan]]
+> - [[backlog|Backlog]] for future enhancements
 
 ## Overview
 

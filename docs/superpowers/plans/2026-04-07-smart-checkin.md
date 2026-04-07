@@ -1,4 +1,18 @@
+---
+title: Smart Checkin Implementation Plan
+date: 2026-04-07
+tags:
+  - plan
+  - checkin
+  - feature
+status: pending
+---
+
 # Smart Checkin Implementation Plan
+
+> [!info] Related
+> - Spec: [[2026-04-07-smart-checkin-design|Design Spec]]
+> - [[backlog|Backlog]] for future enhancements
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
