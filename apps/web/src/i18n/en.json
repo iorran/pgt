@@ -10,7 +10,8 @@
     "billing": "Billing",
     "marketplace": "Marketplace",
     "gamification": "Ranking",
-    "tournaments": "Tournaments"
+    "tournaments": "Tournaments",
+    "settings": "Settings"
   },
   "auth": {
     "login": "Log In",
@@ -228,6 +229,7 @@
     "setLocation": "Set academy location",
     "useMyLocation": "Use my current location",
     "locationSet": "Location saved",
+    "locationNotSet": "No location set yet. Tap the button below while at the gym.",
     "address": "Address"
   },
   "totem": {

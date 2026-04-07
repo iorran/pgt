@@ -18,6 +18,7 @@ export function Sidebar() {
     { to: '/marketplace', label: t('nav.marketplace'), show: true },
     { to: '/gamification', label: t('nav.gamification'), show: true },
     { to: '/tournaments', label: t('nav.tournaments'), show: true },
+    { to: '/settings', label: t('nav.settings'), show: isInstructor },
   ];
 
   return (

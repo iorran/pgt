@@ -27,6 +27,7 @@ import ForgotPasswordPage from './pages/forgot-password';
 import ResetPasswordPage from './pages/reset-password';
 import TotemPage from './pages/totem';
 import CheckinScanPage from './pages/checkin-scan';
+import SettingsPage from './pages/settings';
 import { Card, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -147,6 +148,7 @@ function App() {
         <Route path="/gamification/results" element={<ResultsPage />} />
         <Route path="/gamification/profile" element={<GamificationProfilePage />} />
         <Route path="/tournaments" element={<TournamentsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

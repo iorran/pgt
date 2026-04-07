@@ -10,7 +10,8 @@
     "billing": "Financeiro",
     "marketplace": "Loja",
     "gamification": "Ranking",
-    "tournaments": "Campeonatos"
+    "tournaments": "Campeonatos",
+    "settings": "Configurações"
   },
   "auth": {
     "login": "Entrar",
@@ -228,6 +229,7 @@
     "setLocation": "Definir localização da academia",
     "useMyLocation": "Usar minha localização atual",
     "locationSet": "Localização salva",
+    "locationNotSet": "Nenhuma localização definida. Toque no botão abaixo enquanto estiver na academia.",
     "address": "Endereço"
   },
   "totem": {
