@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -47,9 +48,7 @@ export default function TournamentsPage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [createForm, setCreateForm] = useState({ name: '', date: '', location: '', federation: '' });
   const [signupTournamentId, setSignupTournamentId] = useState<string | null>(null);
-  const [weightClass, setWeightClass] = useState('');
   const [rosterTournamentId, setRosterTournamentId] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
 
@@ -85,7 +84,7 @@ export default function TournamentsPage() {
     onSuccess: () => {
       setMsg(t('tournaments.signupSuccess'));
       setSignupTournamentId(null);
-      setWeightClass('');
+      signupForm.reset();
       setTimeout(() => setMsg(''), 3000);
     },
     onError: () => {
@@ -93,21 +92,34 @@ export default function TournamentsPage() {
     },
   });
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    await createMutation.mutateAsync({ ...createForm, academyId: user.academyId });
-    setCreateForm({ name: '', date: '', location: '', federation: '' });
-    setCreateDialogOpen(false);
-  }
+  const createForm = useForm({
+    defaultValues: {
+      name: '',
+      date: '',
+      location: '',
+      federation: '',
+    },
+    onSubmit: async ({ value }) => {
+      await createMutation.mutateAsync({ ...value, academyId: user.academyId });
+      createForm.reset();
+      setCreateDialogOpen(false);
+    },
+  });
 
-  async function handleSignup(e: React.FormEvent) {
-    e.preventDefault();
-    if (!signupTournamentId) return;
-    await signupMutation.mutateAsync({
-      tournamentId: signupTournamentId,
-      body: { studentId: user.id, weightClass },
-    });
-  }
+  const signupForm = useForm({
+    defaultValues: {
+      weightClass: '',
+    },
+    onSubmit: async ({ value }) => {
+      if (!signupTournamentId) {
+        return;
+      }
+      await signupMutation.mutateAsync({
+        tournamentId: signupTournamentId,
+        body: { studentId: user.id, weightClass: value.weightClass },
+      });
+    },
+  });
 
   function viewRoster(tournamentId: string) {
     if (rosterTournamentId === tournamentId) {
@@ -125,7 +137,7 @@ export default function TournamentsPage() {
         <h1 className="font-heading text-3xl uppercase tracking-tight">{t('tournaments.pageTitle')}</h1>
 
         {user?.role === 'instructor' && (
-          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+          <Dialog open={createDialogOpen} onOpenChange={(open) => { setCreateDialogOpen(open); if (!open) { createForm.reset(); } }}>
             <DialogTrigger render={<Button />}>
               {t('tournaments.createTournament')}
             </DialogTrigger>
@@ -133,39 +145,65 @@ export default function TournamentsPage() {
               <DialogHeader>
                 <DialogTitle className="font-heading text-xl uppercase">{t('tournaments.createTournament')}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreate} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>{t('tournaments.tournamentName')}</Label>
-                  <Input
-                    value={createForm.name}
-                    onChange={e => setCreateForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('classes.date')}</Label>
-                  <Input
-                    type="date"
-                    value={createForm.date}
-                    onChange={e => setCreateForm(f => ({ ...f, date: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('tournaments.location')}</Label>
-                  <Input
-                    value={createForm.location}
-                    onChange={e => setCreateForm(f => ({ ...f, location: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('tournaments.federation')}</Label>
-                  <Input
-                    value={createForm.federation}
-                    onChange={e => setCreateForm(f => ({ ...f, federation: e.target.value }))}
-                  />
-                </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  createForm.handleSubmit();
+                }}
+                className="space-y-4"
+              >
+                <createForm.Field name="name">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('tournaments.tournamentName')}</Label>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </createForm.Field>
+                <createForm.Field name="date">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('classes.date')}</Label>
+                      <Input
+                        type="date"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </createForm.Field>
+                <createForm.Field name="location">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('tournaments.location')}</Label>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </createForm.Field>
+                <createForm.Field name="federation">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('tournaments.federation')}</Label>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
+                    </div>
+                  )}
+                </createForm.Field>
                 <Button type="submit" className="w-full">{t('common.create')}</Button>
               </form>
             </DialogContent>
@@ -191,7 +229,7 @@ export default function TournamentsPage() {
                     {user?.role === 'student' && (
                       <Dialog open={signupTournamentId === tr.id} onOpenChange={(open) => {
                         setSignupTournamentId(open ? tr.id : null);
-                        if (!open) setWeightClass('');
+                        if (!open) { signupForm.reset(); }
                       }}>
                         <DialogTrigger render={<Button size="sm" variant="outline" />}>
                           {t('tournaments.signUp')}
@@ -200,15 +238,26 @@ export default function TournamentsPage() {
                           <DialogHeader>
                             <DialogTitle className="font-heading text-lg uppercase">{t('tournaments.signUp')}</DialogTitle>
                           </DialogHeader>
-                          <form onSubmit={handleSignup} className="space-y-4">
-                            <div className="space-y-2">
-                              <Label>{t('tournaments.weightClass')}</Label>
-                              <Input
-                                value={weightClass}
-                                onChange={e => setWeightClass(e.target.value)}
-                                required
-                              />
-                            </div>
+                          <form
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              signupForm.handleSubmit();
+                            }}
+                            className="space-y-4"
+                          >
+                            <signupForm.Field name="weightClass">
+                              {(field) => (
+                                <div className="space-y-2">
+                                  <Label>{t('tournaments.weightClass')}</Label>
+                                  <Input
+                                    value={field.state.value}
+                                    onChange={(e) => field.handleChange(e.target.value)}
+                                    onBlur={field.handleBlur}
+                                    required
+                                  />
+                                </div>
+                              )}
+                            </signupForm.Field>
                             <Button type="submit" className="w-full">{t('common.confirm')}</Button>
                           </form>
                         </DialogContent>

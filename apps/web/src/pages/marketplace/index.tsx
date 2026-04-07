@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
@@ -32,7 +33,6 @@ export default function MarketplacePage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', description: '', price: '', stock: '' });
   const [msg, setMsg] = useState('');
 
   const { data: products = [], isLoading } = useApiQuery<Product[]>(
@@ -67,12 +67,24 @@ export default function MarketplacePage() {
     },
   });
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    await createMutation.mutateAsync({ ...form, price: Number(form.price), stock: Number(form.stock), academyId: user.academyId });
-    setForm({ name: '', description: '', price: '', stock: '' });
-    setDialogOpen(false);
-  }
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+      price: '',
+      stock: '',
+    },
+    onSubmit: async ({ value }) => {
+      await createMutation.mutateAsync({
+        ...value,
+        price: Number(value.price),
+        stock: Number(value.stock),
+        academyId: user.academyId,
+      });
+      form.reset();
+      setDialogOpen(false);
+    },
+  });
 
   if (isLoading) return <div className="p-6 text-muted-foreground">{t('common.loading')}</div>;
 
@@ -82,7 +94,7 @@ export default function MarketplacePage() {
         <h1 className="font-heading text-3xl uppercase tracking-tight">{t('marketplace.pageTitle')}</h1>
 
         {user?.role === 'instructor' && (
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { form.reset(); } }}>
             <DialogTrigger render={<Button />}>
               {t('marketplace.addProduct')}
             </DialogTrigger>
@@ -90,41 +102,67 @@ export default function MarketplacePage() {
               <DialogHeader>
                 <DialogTitle className="font-heading text-xl uppercase">{t('marketplace.addProduct')}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleCreate} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>{t('marketplace.productName')}</Label>
-                  <Input
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('marketplace.description')}</Label>
-                  <Input
-                    value={form.description}
-                    onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('marketplace.price')}</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={form.price}
-                    onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('marketplace.stock')}</Label>
-                  <Input
-                    type="number"
-                    value={form.stock}
-                    onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
-                    required
-                  />
-                </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  form.handleSubmit();
+                }}
+                className="space-y-4"
+              >
+                <form.Field name="name">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('marketplace.productName')}</Label>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+                <form.Field name="description">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('marketplace.description')}</Label>
+                      <Input
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                      />
+                    </div>
+                  )}
+                </form.Field>
+                <form.Field name="price">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('marketplace.price')}</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+                <form.Field name="stock">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label>{t('marketplace.stock')}</Label>
+                      <Input
+                        type="number"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
                 <Button type="submit" className="w-full">{t('common.save')}</Button>
               </form>
             </DialogContent>
