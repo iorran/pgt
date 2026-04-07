@@ -32,6 +32,9 @@ const mockAcademy = {
   name: 'Fight Arena',
   city: 'Sao Paulo',
   joinCode: 'ABC123',
+  latitude: null,
+  longitude: null,
+  address: null,
 };
 
 describe('DashboardPage', () => {
@@ -64,5 +67,34 @@ describe('DashboardPage', () => {
     });
     expect(screen.queryByText('onboarding.joinCode')).not.toBeInTheDocument();
     expect(screen.queryByText('onboarding.shareWhatsApp')).not.toBeInTheDocument();
+  });
+
+  it('shows set location button for instructor', async () => {
+    renderWithProviders(<DashboardPage />);
+    await waitFor(() => {
+      expect(screen.getByText('onboarding.setLocation')).toBeInTheDocument();
+    });
+  });
+
+  it('shows saved address when location is set', async () => {
+    mockApi.mockResolvedValue({
+      ...mockAcademy,
+      latitude: '-23.5505',
+      longitude: '-46.6333',
+      address: 'Rua Augusta, 123',
+    } as any);
+    renderWithProviders(<DashboardPage />);
+    await waitFor(() => {
+      expect(screen.getByText('Rua Augusta, 123')).toBeInTheDocument();
+    });
+  });
+
+  it('does not show location section for students', async () => {
+    mockUseSession.mockReturnValue(studentSession);
+    renderWithProviders(<DashboardPage />);
+    await waitFor(() => {
+      expect(screen.getByText('nav.dashboard')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('onboarding.setLocation')).not.toBeInTheDocument();
   });
 });
