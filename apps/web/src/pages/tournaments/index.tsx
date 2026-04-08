@@ -205,7 +205,7 @@ export default function TournamentsPage() {
                     </div>
                   )}
                 </createForm.Field>
-                <Button type="submit" className="w-full">{t('common.create')}</Button>
+                <Button type="submit" className="w-full" loading={createMutation.isPending}>{t('common.create')}</Button>
               </form>
             </DialogContent>
           </Dialog>
@@ -259,7 +259,7 @@ export default function TournamentsPage() {
                                 </div>
                               )}
                             </signupForm.Field>
-                            <Button type="submit" className="w-full">{t('common.confirm')}</Button>
+                            <Button type="submit" className="w-full" loading={signupMutation.isPending}>{t('common.confirm')}</Button>
                           </form>
                         </DialogContent>
                       </Dialog>

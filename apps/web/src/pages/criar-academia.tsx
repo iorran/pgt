@@ -185,8 +185,8 @@ export default function CriarAcademiaPage() {
               <p className="text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? t('onboarding.creating') : t('onboarding.createAcademy')}
+            <Button type="submit" className="w-full" loading={loading}>
+              {t('onboarding.createAcademy')}
             </Button>
           </form>
         </CardContent>

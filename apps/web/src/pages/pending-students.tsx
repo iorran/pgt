@@ -70,12 +70,13 @@ export default function PendingStudentsPage() {
                   </Badge>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" onClick={() => approveMutation.mutate(student.id)}>
+                  <Button size="sm" loading={approveMutation.isPending} onClick={() => approveMutation.mutate(student.id)}>
                     {t('onboarding.approve')}
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
+                    loading={rejectMutation.isPending}
                     onClick={() => rejectMutation.mutate(student.id)}
                   >
                     {t('onboarding.reject')}

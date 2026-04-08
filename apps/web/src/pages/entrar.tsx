@@ -195,9 +195,13 @@ export default function EntrarPage() {
               <p className="text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="w-full">
-              {t('onboarding.continue')}
-            </Button>
+            <form.Subscribe selector={(state) => state.isSubmitting}>
+              {(isSubmitting) => (
+                <Button type="submit" className="w-full" loading={isSubmitting}>
+                  {t('onboarding.continue')}
+                </Button>
+              )}
+            </form.Subscribe>
           </form>
         </CardContent>
       </Card>

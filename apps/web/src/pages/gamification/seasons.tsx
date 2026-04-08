@@ -218,7 +218,7 @@ export default function SeasonsPage() {
                     </form.Field>
                   </div>
                 </div>
-                <Button type="submit" className="w-full">{t('common.create')}</Button>
+                <Button type="submit" className="w-full" loading={createMutation.isPending}>{t('common.create')}</Button>
               </form>
             </DialogContent>
           </Dialog>

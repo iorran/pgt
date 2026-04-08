@@ -169,7 +169,7 @@ export default function PaymentsPage() {
               )}
             </form.Field>
             <div className="md:col-span-2">
-              <Button type="submit">{t('common.save')}</Button>
+              <Button type="submit" loading={createMutation.isPending}>{t('common.save')}</Button>
             </div>
           </form>
         </CardContent>

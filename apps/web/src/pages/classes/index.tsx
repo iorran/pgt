@@ -318,9 +318,9 @@ export default function ClassesPage() {
                     )}
                   </createForm.Field>
                 </div>
-                <createForm.Subscribe selector={(state) => state.values.daysOfWeek}>
-                  {(daysOfWeek) => (
-                    <Button type="submit" disabled={daysOfWeek.length === 0}>
+                <createForm.Subscribe selector={(state) => ({ daysOfWeek: state.values.daysOfWeek, isSubmitting: state.isSubmitting })}>
+                  {({ daysOfWeek, isSubmitting }) => (
+                    <Button type="submit" disabled={daysOfWeek.length === 0} loading={isSubmitting}>
                       {t('common.save')}
                     </Button>
                   )}
@@ -380,7 +380,7 @@ export default function ClassesPage() {
                     variant="outline"
                     className="flex-1"
                     onClick={() => handleProximityCheckin(c.id)}
-                    disabled={checkinMutation.isPending}
+                    loading={checkinMutation.isPending}
                   >
                     {t('classes.checkinProximity')}
                   </Button>
@@ -479,7 +479,11 @@ export default function ClassesPage() {
                 )}
               </editForm.Field>
             </div>
-            <Button type="submit">{t('common.save')}</Button>
+            <editForm.Subscribe selector={(state) => state.isSubmitting}>
+              {(isSubmitting) => (
+                <Button type="submit" loading={isSubmitting}>{t('common.save')}</Button>
+              )}
+            </editForm.Subscribe>
           </form>
         </DialogContent>
       </Dialog>
@@ -499,7 +503,7 @@ export default function ClassesPage() {
               variant="outline"
               className="text-destructive"
               onClick={() => deleteMutation.mutate(deletingClass!.id)}
-              disabled={deleteMutation.isPending}
+              loading={deleteMutation.isPending}
             >
               {t('classes.deleteClass')}
             </Button>

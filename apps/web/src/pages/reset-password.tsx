@@ -119,9 +119,13 @@ export default function ResetPasswordPage() {
                 </div>
               )}
 
-              <Button type="submit" className="w-full">
-                {t('auth.resetPasswordSubmit')}
-              </Button>
+              <form.Subscribe selector={(state) => state.isSubmitting}>
+                {(isSubmitting) => (
+                  <Button type="submit" className="w-full" loading={isSubmitting}>
+                    {t('auth.resetPasswordSubmit')}
+                  </Button>
+                )}
+              </form.Subscribe>
             </form>
           )}
         </CardContent>

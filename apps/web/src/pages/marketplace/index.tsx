@@ -167,7 +167,7 @@ export default function MarketplacePage() {
                     </div>
                   )}
                 </form.Field>
-                <Button type="submit" className="w-full">{t('common.save')}</Button>
+                <Button type="submit" className="w-full" loading={createMutation.isPending}>{t('common.save')}</Button>
               </form>
             </DialogContent>
           </Dialog>
@@ -205,6 +205,7 @@ export default function MarketplacePage() {
                     variant="outline"
                     className="w-full hover:arena-glow"
                     onClick={() => orderMutation.mutate(p.id)}
+                    loading={orderMutation.isPending}
                   >
                     {t('marketplace.request')}
                   </Button>

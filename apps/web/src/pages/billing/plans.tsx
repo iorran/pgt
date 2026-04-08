@@ -181,7 +181,7 @@ export default function PlansPage() {
                     </div>
                   )}
                 </form.Field>
-                <Button type="submit">{editId ? t('common.save') : t('common.create')}</Button>
+                <Button type="submit" loading={saveMutation.isPending}>{editId ? t('common.save') : t('common.create')}</Button>
               </form>
             </DialogContent>
           </Dialog>

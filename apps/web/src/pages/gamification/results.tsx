@@ -203,7 +203,7 @@ export default function ResultsPage() {
                         </div>
                       )}
                     </form.Field>
-                    <Button type="submit" className="w-full">{t('common.save')}</Button>
+                    <Button type="submit" className="w-full" loading={submitMutation.isPending}>{t('common.save')}</Button>
                   </form>
                 </CardContent>
               </Card>
@@ -252,10 +252,10 @@ export default function ResultsPage() {
                           <span className="arena-stat text-primary font-mono">+{r.pointsAwarded}pts</span>
                         )}
                         <div className="flex gap-2 shrink-0">
-                          <Button size="sm" onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'approved' })}>
+                          <Button size="sm" loading={approvalMutation.isPending} onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'approved' })}>
                             {t('gamification.approve')}
                           </Button>
-                          <Button size="sm" variant="destructive" onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'rejected' })}>
+                          <Button size="sm" variant="destructive" loading={approvalMutation.isPending} onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'rejected' })}>
                             {t('gamification.reject')}
                           </Button>
                         </div>

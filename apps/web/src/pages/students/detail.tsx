@@ -34,7 +34,9 @@ interface Student {
   email: string;
   belt: string;
   phone?: string;
-  plan?: string;
+  planName?: string;
+  dueDay?: number;
+  membershipStartDate?: string;
 }
 
 interface Payment {
@@ -259,14 +261,27 @@ export default function StudentDetailPage() {
                       </div>
                     )}
                   </form.Field>
-                  <Button type="submit">{t('common.save')}</Button>
+                  <Button type="submit" loading={assignMembershipMutation.isPending}>
+                    {t('common.save')}
+                  </Button>
                 </form>
               </DialogContent>
             </Dialog>
           )}
         </CardHeader>
         <CardContent>
-          <p>{student.plan || '-'}</p>
+          {student.planName ? (
+            <div className="space-y-1">
+              <p className="font-medium">{student.planName}</p>
+              {student.dueDay && (
+                <p className="text-sm text-muted-foreground">
+                  {t('students.dueDay')}: {student.dueDay}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">-</p>
+          )}
         </CardContent>
       </Card>
 

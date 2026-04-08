@@ -100,9 +100,13 @@ export default function LoginPage() {
               <p className="text-sm text-destructive">{error}</p>
             )}
 
-            <Button type="submit" className="w-full">
-              {t('auth.login')}
-            </Button>
+            <form.Subscribe selector={(state) => state.isSubmitting}>
+              {(isSubmitting) => (
+                <Button type="submit" className="w-full" loading={isSubmitting}>
+                  {t('auth.login')}
+                </Button>
+              )}
+            </form.Subscribe>
           </form>
 
           <p className="mt-6 text-center text-sm">

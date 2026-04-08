@@ -79,9 +79,13 @@ export default function ForgotPasswordPage() {
                   )}
                 </form.Field>
 
-                <Button type="submit" className="w-full">
-                  {t('auth.forgotPasswordSubmit')}
-                </Button>
+                <form.Subscribe selector={(state) => state.isSubmitting}>
+                  {(isSubmitting) => (
+                    <Button type="submit" className="w-full" loading={isSubmitting}>
+                      {t('auth.forgotPasswordSubmit')}
+                    </Button>
+                  )}
+                </form.Subscribe>
               </form>
 
               <p className="mt-6 text-center text-sm">
