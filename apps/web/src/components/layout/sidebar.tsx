@@ -51,7 +51,7 @@ export function Sidebar() {
       <div className="mt-auto">
         <Separator className="mb-3" />
         <p className="text-[10px] text-muted-foreground">
-          v0.0.1 &middot; {new Date((__BUILD_TIME__ as string)).toLocaleDateString()}
+          v0.0.1 &middot; {new Date((__BUILD_TIME__ as string)).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
         </p>
       </div>
     </nav>
