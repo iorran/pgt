@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/iorran/pgt/compare/v1.1.0...v1.1.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* deactivate existing active membership when assigning a new plan ([77fb943](https://github.com/iorran/pgt/commit/77fb943285fc76d16be625f7b2ab2ac88c721505))
+
 # [1.1.0](https://github.com/iorran/pgt/compare/v1.0.0...v1.1.0) (2026-04-08)
 
 
