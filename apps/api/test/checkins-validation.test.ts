@@ -46,7 +46,7 @@ async function setupClassToday(opts: { withLocation?: boolean } = {}) {
 
   const now = new Date();
   const dayOfWeek = now.getDay();
-  const hour = now.getHours();
+  const hour = Math.min(now.getHours(), 22);
   const startTime = `${String(hour).padStart(2, '0')}:00`;
   const endTime = `${String(hour + 1).padStart(2, '0')}:30`;
 
@@ -101,7 +101,7 @@ describe('POST /api/checkins — CLASS_NOT_ACTIVE', () => {
         recurrence: 'weekly',
         dayOfWeek: now.getDay(),
         startTime: `${String(now.getHours()).padStart(2, '0')}:00`,
-        endTime: `${String(now.getHours() + 1).padStart(2, '0')}:30`,
+        endTime: `${String(Math.min(now.getHours() + 1, 23)).padStart(2, '0')}:30`,
         active: false,
       })
       .returning();
@@ -237,9 +237,11 @@ describe('POST /api/checkins — different class same day', () => {
 
     // Pre-existing checkin for a different class with a different startTime
     const now = new Date();
-    const hour = now.getHours();
-    const altStart = `${String((hour + 2) % 24).padStart(2, '0')}:00`;
-    const altEnd = `${String((hour + 3) % 24).padStart(2, '0')}:30`;
+    const safeHour = Math.min(now.getHours(), 22);
+    // Use a different hour than setupClassToday's class
+    const altHour = safeHour >= 2 ? safeHour - 2 : safeHour + 2;
+    const altStart = `${String(altHour).padStart(2, '0')}:00`;
+    const altEnd = `${String(altHour + 1).padStart(2, '0')}:30`;
 
     const [otherCls] = await testDb
       .insert(bjjClass)

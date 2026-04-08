@@ -36,7 +36,7 @@ async function createClassAndStudent() {
 
   const now = new Date();
   const dayOfWeek = now.getDay();
-  const hour = now.getHours();
+  const hour = Math.min(now.getHours(), 22);
   const startTime = `${String(hour).padStart(2, '0')}:00`;
   const endTime = `${String(hour + 1).padStart(2, '0')}:30`;
 

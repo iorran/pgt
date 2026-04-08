@@ -34,7 +34,7 @@ async function setupActiveClass() {
 
   const now = new Date();
   const dayOfWeek = now.getDay();
-  const hour = now.getHours();
+  const hour = Math.min(now.getHours(), 22);
   const startTime = `${String(hour).padStart(2, '0')}:00`;
   const endTime = `${String(hour + 1).padStart(2, '0')}:30`;
 
@@ -207,7 +207,7 @@ describe('POST /api/checkins — QR token validation', () => {
     const { acad, instructor, student, cls } = await setupActiveClass();
 
     const now = new Date();
-    const hour = now.getHours();
+    const hour = Math.min(now.getHours(), 22);
     const [otherCls] = await testDb
       .insert(bjjClass)
       .values({
