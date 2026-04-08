@@ -62,6 +62,12 @@ export async function studentRoutes(app: FastifyInstance) {
   app.post('/api/students/:id/membership', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = request.body as { planId: string; startDate: string; dueDay: number };
+
+    // Deactivate any existing active membership first
+    await db.update(studentMembership)
+      .set({ active: false })
+      .where(and(eq(studentMembership.studentId, id), eq(studentMembership.active, true)));
+
     const [created] = await db.insert(studentMembership).values({
       studentId: id,
       planId: body.planId,

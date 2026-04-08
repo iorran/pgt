@@ -143,6 +143,54 @@ describe('POST /api/students/:id/membership', () => {
 
     expect(res.statusCode).toBe(403);
   });
+
+  it('deactivates previous active membership when assigning a new one', async () => {
+    const academy = await createTestAcademy();
+    const instructor = await createTestInstructor(academy.id);
+    const student = await createTestUser(academy.id);
+    const [plan1] = await testDb.insert(schema.membershipPlan).values({
+      academyId: academy.id, name: 'Basic', price: '99.00', frequency: 'monthly',
+    }).returning();
+    const [plan2] = await testDb.insert(schema.membershipPlan).values({
+      academyId: academy.id, name: 'Premium', price: '199.00', frequency: 'monthly',
+    }).returning();
+
+    // Assign first plan
+    await app.inject({
+      method: 'POST',
+      url: `/api/students/${student.id}/membership`,
+      headers: authHeaders(instructor),
+      payload: { planId: plan1.id, startDate: '2025-01-01', dueDay: 7 },
+    });
+
+    // Assign second plan
+    await app.inject({
+      method: 'POST',
+      url: `/api/students/${student.id}/membership`,
+      headers: authHeaders(instructor),
+      payload: { planId: plan2.id, startDate: '2025-06-01', dueDay: 15 },
+    });
+
+    // Should only have one active membership
+    const { eq, and } = await import('drizzle-orm');
+    const activeMemberships = await testDb
+      .select()
+      .from(schema.studentMembership)
+      .where(and(eq(schema.studentMembership.studentId, student.id), eq(schema.studentMembership.active, true)));
+
+    expect(activeMemberships).toHaveLength(1);
+    expect(activeMemberships[0].planId).toBe(plan2.id);
+    expect(activeMemberships[0].dueDay).toBe(15);
+
+    // Students list should return one row (not duplicated)
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/students?academyId=${academy.id}`,
+    });
+    const body = res.json();
+    expect(body).toHaveLength(1);
+    expect(body[0].planName).toBe('Premium');
+  });
 });
 
 describe('PUT /api/students/:id/membership', () => {
