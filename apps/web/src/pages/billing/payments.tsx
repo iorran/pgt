@@ -17,6 +17,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface Payment {
   id: string;
@@ -85,7 +86,11 @@ export default function PaymentsPage() {
 
   return (
     <div className="p-5 space-y-6">
-      <h1 className="font-heading uppercase tracking-wider text-lg">{t('billing.paymentsTitle')}</h1>
+      <TabsNav items={[
+        { to: '/billing', label: t('billing.overdueTitle') },
+        { to: '/billing/plans', label: t('billing.plansTitle') },
+        { to: '/billing/payments', label: t('billing.paymentsTitle') },
+      ]} />
 
       <Card>
         <CardHeader>

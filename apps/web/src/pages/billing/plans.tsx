@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface Plan {
   id: string;
@@ -97,9 +98,12 @@ export default function PlansPage() {
 
   return (
     <div className="p-5 space-y-6">
+      <TabsNav items={[
+        { to: '/billing', label: t('billing.overdueTitle') },
+        { to: '/billing/plans', label: t('billing.plansTitle') },
+        { to: '/billing/payments', label: t('billing.paymentsTitle') },
+      ]} />
       <div className="flex items-center justify-between">
-        <h1 className="font-heading uppercase tracking-wider text-lg">{t('billing.plansTitle')}</h1>
-
         {user?.role === 'instructor' && (
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { form.reset(); } }}>
             <DialogTrigger render={<Button />} onClick={openCreate}>

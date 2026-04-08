@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface CompetitionResult {
   id: string;
@@ -109,7 +110,12 @@ export default function ResultsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="font-heading text-3xl uppercase tracking-tight">{t('gamification.resultsTitle')}</h1>
+      <TabsNav items={[
+        { to: '/gamification', label: t('gamification.leaderboardTitle') },
+        { to: '/gamification/seasons', label: t('gamification.seasonsTitle') },
+        { to: '/gamification/results', label: t('gamification.resultsTitle') },
+        { to: '/gamification/profile', label: t('gamification.profileTitle') },
+      ]} />
 
       {user?.role === 'student' && (
         <Tabs defaultValue="submit">

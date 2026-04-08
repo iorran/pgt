@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface Product {
   id: string;
@@ -91,9 +92,11 @@ export default function MarketplacePage() {
 
   return (
     <div className="p-6 space-y-6">
+      <TabsNav items={[
+        { to: '/marketplace', label: t('marketplace.pageTitle') },
+        { to: '/marketplace/orders', label: t('marketplace.ordersPageTitle') },
+      ]} />
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-3xl uppercase tracking-tight">{t('marketplace.pageTitle')}</h1>
-
         {user?.role === 'instructor' && (
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { form.reset(); } }}>
             <DialogTrigger render={<Button />}>

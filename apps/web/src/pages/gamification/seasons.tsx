@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface Season {
   id: string;
@@ -89,9 +90,13 @@ export default function SeasonsPage() {
 
   return (
     <div className="p-6 space-y-6">
+      <TabsNav items={[
+        { to: '/gamification', label: t('gamification.leaderboardTitle') },
+        { to: '/gamification/seasons', label: t('gamification.seasonsTitle') },
+        { to: '/gamification/results', label: t('gamification.resultsTitle') },
+        { to: '/gamification/profile', label: t('gamification.profileTitle') },
+      ]} />
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-3xl uppercase tracking-tight">{t('gamification.seasonsPageTitle')}</h1>
-
         {user?.role === 'instructor' && (
           <Dialog
             open={dialogOpen}

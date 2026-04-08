@@ -14,6 +14,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface Order {
   id: string;
@@ -66,7 +67,10 @@ export default function OrdersPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="font-heading text-3xl uppercase tracking-tight">{t('marketplace.ordersPageTitle')}</h1>
+      <TabsNav items={[
+        { to: '/marketplace', label: t('marketplace.pageTitle') },
+        { to: '/marketplace/orders', label: t('marketplace.ordersPageTitle') },
+      ]} />
 
       {orders.length === 0 ? (
         <p className="text-muted-foreground">{t('common.noResults')}</p>

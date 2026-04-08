@@ -4,6 +4,7 @@ import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Award } from 'lucide-react';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface GamificationProfile {
   totalXp: number;
@@ -28,6 +29,12 @@ export default function GamificationProfilePage() {
 
   return (
     <div className="p-6 space-y-8">
+      <TabsNav items={[
+        { to: '/gamification', label: t('gamification.leaderboardTitle') },
+        { to: '/gamification/seasons', label: t('gamification.seasonsTitle') },
+        { to: '/gamification/results', label: t('gamification.resultsTitle') },
+        { to: '/gamification/profile', label: t('gamification.profileTitle') },
+      ]} />
       {/* XP Header */}
       <div className="text-center space-y-1">
         <div className="font-display text-6xl text-primary arena-glow">

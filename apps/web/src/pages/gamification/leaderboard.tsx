@@ -6,6 +6,7 @@ import { PageLoader } from '@/components/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface Season {
   id: string;
@@ -71,6 +72,12 @@ export default function LeaderboardPage() {
 
   return (
     <div className="p-6 space-y-8">
+      <TabsNav items={[
+        { to: '/gamification', label: t('gamification.leaderboardTitle') },
+        { to: '/gamification/seasons', label: t('gamification.seasonsTitle') },
+        { to: '/gamification/results', label: t('gamification.resultsTitle') },
+        { to: '/gamification/profile', label: t('gamification.profileTitle') },
+      ]} />
       {/* Hero Title */}
       <div className="text-center space-y-2">
         <h1 className="font-display text-5xl text-primary arena-glow tracking-wider">

@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Pencil, Trash2 } from 'lucide-react';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface ClassItem {
   id: string;
@@ -198,9 +199,12 @@ export default function ClassesPage() {
 
   return (
     <div className="p-5 space-y-6">
+      <TabsNav items={[
+        { to: '/classes', label: t('classes.title') },
+        { to: '/classes/history', label: t('classes.checkinHistory') },
+      ]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="font-heading uppercase tracking-wider text-lg">{t('classes.title')}</h1>
           <span className="arena-stat text-primary text-2xl">{classes.length}</span>
         </div>
 

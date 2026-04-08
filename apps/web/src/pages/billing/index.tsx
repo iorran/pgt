@@ -5,6 +5,7 @@ import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface OverdueRecord {
   id: string;
@@ -33,8 +34,12 @@ export default function BillingOverduePage() {
 
   return (
     <div className="p-5 space-y-6">
+      <TabsNav items={[
+        { to: '/billing', label: t('billing.overdueTitle') },
+        { to: '/billing/plans', label: t('billing.plansTitle') },
+        { to: '/billing/payments', label: t('billing.paymentsTitle') },
+      ]} />
       <div className="flex items-center gap-3">
-        <h1 className="font-heading uppercase tracking-wider text-lg">{t('billing.overdueTitle')}</h1>
         {records.length > 0 && (
           <Badge variant="destructive">{records.length}</Badge>
         )}

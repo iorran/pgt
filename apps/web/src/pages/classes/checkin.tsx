@@ -10,6 +10,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface CheckinRecord {
   id: string;
@@ -34,7 +35,10 @@ export default function CheckinHistoryPage() {
 
   return (
     <div className="p-5 space-y-6">
-      <h1 className="font-heading uppercase tracking-wider text-lg">{t('classes.checkinHistory')}</h1>
+      <TabsNav items={[
+        { to: '/classes', label: t('classes.title') },
+        { to: '/classes/history', label: t('classes.checkinHistory') },
+      ]} />
 
       {checkins.length === 0 ? (
         <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>

@@ -14,6 +14,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface Student {
   id: string;
@@ -55,8 +56,11 @@ export default function StudentsPage() {
 
   return (
     <div className="p-5 space-y-6">
+      <TabsNav items={[
+        { to: '/students', label: t('nav.students') },
+        { to: '/pending', label: t('onboarding.pendingStudents') },
+      ]} />
       <div className="flex items-center gap-3">
-        <h1 className="font-heading uppercase tracking-wider text-lg">{t('students.title')}</h1>
         <Badge variant="outline">{students.length}</Badge>
       </div>
 

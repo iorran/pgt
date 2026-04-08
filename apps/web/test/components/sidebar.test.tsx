@@ -31,7 +31,7 @@ describe('Sidebar', () => {
     expect(screen.getByText('nav.dashboard')).toBeInTheDocument();
     expect(screen.getByText('nav.classes')).toBeInTheDocument();
     expect(screen.getByText('nav.students')).toBeInTheDocument();
-    expect(screen.getByText('onboarding.pendingStudents')).toBeInTheDocument();
+    expect(screen.queryByText('onboarding.pendingStudents')).not.toBeInTheDocument();
     expect(screen.getByText('nav.billing')).toBeInTheDocument();
     expect(screen.getByText('nav.marketplace')).toBeInTheDocument();
     expect(screen.getByText('nav.gamification')).toBeInTheDocument();

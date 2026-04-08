@@ -7,6 +7,7 @@ import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { TabsNav } from '@/components/tabs-nav';
 
 interface PendingStudent {
   id: string;
@@ -49,9 +50,10 @@ export default function PendingStudentsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="font-heading text-2xl uppercase tracking-wide">
-        {t('onboarding.pendingStudents')}
-      </h1>
+      <TabsNav items={[
+        { to: '/students', label: t('nav.students') },
+        { to: '/pending', label: t('onboarding.pendingStudents') },
+      ]} />
 
       {students.length === 0 ? (
         <p className="text-muted-foreground">{t('onboarding.noPending')}</p>
