@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/iorran/pgt/compare/v1.0.0...v1.1.0) (2026-04-08)
+
+
+### Features
+
+* add loading state to all mutation buttons across the app ([deb01a6](https://github.com/iorran/pgt/commit/deb01a694efe73558d7eb0b24f259848eb8a85a0))
+
 # 1.0.0 (2026-04-08)
 
 
