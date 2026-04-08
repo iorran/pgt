@@ -5,6 +5,7 @@ import path from 'path';
 export default defineConfig({
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __APP_VERSION__: JSON.stringify('0.0.0-test'),
   },
   plugins: [react()],
   resolve: {
