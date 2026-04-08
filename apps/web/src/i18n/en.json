@@ -93,9 +93,11 @@
     "email": "Email",
     "phone": "Phone",
     "assignMembership": "Assign Membership",
-    "planId": "Plan ID",
+    "planId": "Plan",
     "startDate": "Start Date",
-    "paymentHistory": "Payment History"
+    "paymentHistory": "Payment History",
+    "totalClasses": "Total Classes",
+    "currentStreak": "Current Streak"
   },
   "billing": {
     "overdueTitle": "Overdue Payments",

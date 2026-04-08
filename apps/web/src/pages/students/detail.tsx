@@ -84,6 +84,22 @@ export default function StudentDetailPage() {
     !!user?.academyId,
   );
 
+  const { data: checkins = [] } = useApiQuery<any[]>(
+    ['checkins', 'student', id!],
+    `/checkins/student/${id}`,
+    !!id,
+  );
+
+  const { data: profile } = useApiQuery<{
+    xp: number;
+    streak: { currentStreak: number; longestStreak: number };
+    badges: any[];
+  }>(
+    ['gamification-profile', id!],
+    `/gamification/profile/${id}`,
+    !!id,
+  );
+
   const isLoading = studentLoading || paymentsLoading;
 
   const assignMembershipMutation = useMutation({
@@ -139,7 +155,7 @@ export default function StudentDetailPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="arena-stat text-3xl text-primary">--</p>
+            <p className="arena-stat text-3xl text-primary">{checkins.length}</p>
             <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
               {t('students.totalClasses')}
             </p>
@@ -147,7 +163,7 @@ export default function StudentDetailPage() {
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="arena-stat text-3xl text-primary">--</p>
+            <p className="arena-stat text-3xl text-primary">{profile?.streak?.currentStreak ?? 0}</p>
             <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
               {t('students.currentStreak')}
             </p>
@@ -155,7 +171,7 @@ export default function StudentDetailPage() {
         </Card>
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="arena-stat text-3xl text-primary">--</p>
+            <p className="arena-stat text-3xl text-primary">{profile?.xp ?? 0}</p>
             <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">XP</p>
           </CardContent>
         </Card>

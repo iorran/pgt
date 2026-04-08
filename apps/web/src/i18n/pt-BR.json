@@ -93,9 +93,11 @@
     "email": "E-mail",
     "phone": "Telefone",
     "assignMembership": "Atribuir Plano",
-    "planId": "ID do Plano",
+    "planId": "Plano",
     "startDate": "Data de Início",
-    "paymentHistory": "Histórico de Pagamentos"
+    "paymentHistory": "Histórico de Pagamentos",
+    "totalClasses": "Total de Aulas",
+    "currentStreak": "Sequência Atual"
   },
   "billing": {
     "overdueTitle": "Inadimplentes",
