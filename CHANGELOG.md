@@ -1,3 +1,13 @@
+## [1.2.1](https://github.com/iorran/pgt/compare/v1.2.0...v1.2.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* **i18n:** add missing billing.week key ([07c0554](https://github.com/iorran/pgt/commit/07c0554b06cae1e39252ba092ecca02fff5673a4))
+* **i18n:** restore missing accents in pt-BR onboarding strings ([c71e484](https://github.com/iorran/pgt/commit/c71e484247361b56b08f27b4ba9e9f2d63aa7463))
+* **web:** use i18n for settings geolocation error ([94e2197](https://github.com/iorran/pgt/commit/94e2197ebb6dc3e7b1fcbccf934f7c3430dd6a70))
+* **web:** use proper dashboard greeting key instead of loading string ([26948d2](https://github.com/iorran/pgt/commit/26948d29227eea36079a1d71a2904e9c01af1c2b))
+
 # [1.2.0](https://github.com/iorran/pgt/compare/v1.1.1...v1.2.0) (2026-04-09)
 
 
