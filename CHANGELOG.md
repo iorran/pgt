@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/iorran/pgt/compare/v1.1.1...v1.2.0) (2026-04-09)
+
+
+### Features
+
+* multi-month overdue detection and quick pay current month button ([2b58571](https://github.com/iorran/pgt/commit/2b58571ce394de3821b8081b23640692446a5fd2))
+
 ## [1.1.1](https://github.com/iorran/pgt/compare/v1.1.0...v1.1.1) (2026-04-08)
 
 
