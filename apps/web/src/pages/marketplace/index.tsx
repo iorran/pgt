@@ -194,7 +194,7 @@ export default function MarketplacePage() {
                 )}
                 <div className="flex items-center justify-between">
                   <span className="arena-stat text-2xl text-primary font-mono">
-                    R$ {p.price.toFixed(2).replace('.', ',')}
+                    R$ {Number(p.price).toFixed(2).replace('.', ',')}
                   </span>
                   <Badge variant="outline">
                     {t('marketplace.stock')}: {p.stock}
