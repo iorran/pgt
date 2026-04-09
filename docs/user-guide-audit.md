@@ -636,6 +636,30 @@ tags:
 
 ---
 
+### `<NotificationBell>` — shared header component
+
+**File:** `apps/web/src/components/notification-bell.tsx`
+**Mounted in:** `apps/web/src/components/layout/header.tsx`
+**Role:** Instructor
+**Labels / buttons (pt-BR):**
+- Bell icon button with red badge showing count of unmuted overdue students (aria-label: `t('notifications.title')` → "Notificações")
+- Dropdown panel heading: "Notificações"
+- Empty state: "Nenhum pagamento atrasado"
+- Per-student row: `<student name>` (bold), `<plan name> · {{days}} dias atrasado` (sub-text)
+- **WhatsApp button** (only shown when student has a phone number): "Enviar lembrete" (with MessageCircle icon)
+- **Email button**: "Enviar email" / "Email enviado" (after send, with Mail icon; disabled once sent per session)
+- **Mute button**: BellOff icon only (no text label); mutes student notifications via PUT `/api/students/:id/notifications`
+**States:**
+- Bell closed: shows bell icon; red badge appears with count when ≥1 unmuted overdue student exists; renders `null` for non-instructors
+- Dropdown open: card panel (max-h-96, scrollable); lists only unmuted overdue students
+- Empty (all muted or none overdue): "Nenhum pagamento atrasado"
+- Email sent: email button disabled + label changes to "Email enviado" for that student (local state, resets on page reload)
+- Mute in flight: mutation pending (no explicit loading state shown)
+**Entry points:** Every authenticated page — `<NotificationBell>` is rendered inside `<Header>`, which is part of the main app layout wrapping all authenticated routes
+**Exit points:** WhatsApp external link (opens `https://wa.me/<phone>?text=<overdueMessage>` in new tab); no in-app navigation
+
+---
+
 ## Gap Table
 
 | Guide section | Role | Current text (summary) | Actual app behavior | Action | Screenshot slug |
@@ -661,8 +685,8 @@ tags:
 | "Editar Planos" | Instructor | Guide says click "pencil icon" on plan card. | Edit button is labeled "Editar" (text button), not a pencil icon. | Update | billing-plans |
 | "Registrar um Pagamento" | Instructor | Guide says tap "Registrar Pagamento" button to open a form. | /billing/payments shows a persistent "Registrar Pagamento" card form always visible on the page — no button to open it. | Update | billing-payments |
 | "Histórico de Pagamentos" | Student | Guide says "Abra seu perfil para ver pagamentos". | There is no student-facing profile page; payment history lives on /students/:id (instructor view) or /billing/payments (instructor-only form). Students cannot access their own payment history directly. | Update | billing-payments |
-| "Sino de Notificações" | Instructor | Describes a notification bell with "Enviar Lembrete", "Enviar E-mail", and "Silenciar" actions per overdue student. | No notification bell or dropdown is present in any page contract — this feature may not be implemented or may have been removed. | Verify | notification-bell |
-| "Silenciar um Aluno" | Instructor | Describes muting a student from the notification bell to hide them from the overdue list. | No mute/silence functionality appears in any page contract — verify whether feature exists in header component not covered by page contracts. | Verify | notification-bell |
+| "Sino de Notificações" | Instructor | Describes a notification bell with "Enviar Lembrete", "Enviar E-mail", and "Silenciar" actions per overdue student. | NotificationBell component exists in the header on every authenticated page. It shows a red badge with the count of unmuted overdue students and a dropdown with per-student "Enviar lembrete" (WhatsApp), "Enviar email", and BellOff (mute) actions. Guide label "Silenciar" matches the mute button's intent. Guide action names match closely but "Enviar Lembrete" is WhatsApp-only (requires phone number on file). | Update | notification-bell |
+| "Silenciar um Aluno" | Instructor | Describes muting a student from the notification bell to hide them from the overdue list. | Mute is implemented: clicking the BellOff icon calls PUT `/api/students/:id/notifications` with `{ muted: true }`, which sets `notificationsMuted` on the student's active membership. Muted students are filtered out of the bell dropdown and do not count toward the badge. Guide description is accurate in intent; update to reflect the BellOff icon button (no text label) and confirm the endpoint exists. | Update | notification-bell |
 | "Adicionar Produtos" | Instructor | Step 1 says "Loja → aba Produtos". | /marketplace tab is labeled "LOJA" (not "Produtos") and is the default tab — navigation is "Loja" from sidebar, no sub-tab named "Produtos". | Update | marketplace-products |
 | "Fazer um Pedido" | Student | Step 1 says "Toque em qualquer cartão de produto" then step 2 "Toque em Solicitar". | "Solicitar" button is directly on each product card — no need to tap the card first as a separate step. | Update | marketplace-order |
 | "Gerenciar Pedidos" | Instructor | Guide says tap "Entregar" to mark order as delivered; covers status list. | Order statuses "Pendente", "Confirmado", "Entregue", "Cancelado" exist. Instructor sees "Confirmar", "Cancelar", and "Entregar" action buttons per order status. Guide omits "Confirmar" and "Cancelar" actions. | Update | marketplace-orders |
@@ -699,7 +723,7 @@ tags:
 | billing-overdue | Instructor | /billing | desktop | instrutor@demo.pgt | none | Shows "Inadimplentes" tab (not "Em Atraso"); overdue cards with yellow (< 8 days) and red (≥ 8 days) borders |
 | billing-plans | Instructor | /billing/plans | desktop | instrutor@demo.pgt | none | Shows plan cards; "Editar" text button (not pencil icon); blank "classes/week" label due to missing t('billing.week') translation |
 | billing-payments | Instructor | /billing/payments | desktop | instrutor@demo.pgt | none | Shows persistent "Registrar Pagamento" form always visible (no button to open it); student payment history not accessible to students |
-| notification-bell | Instructor | /billing | desktop | instrutor@demo.pgt | none | Verify whether a notification bell with "Enviar Lembrete", "Enviar E-mail", and "Silenciar" actions exists in the header or billing page |
+| notification-bell | Instructor | / | desktop | instrutor@demo.pgt | Ensure at least one student has an overdue payment so the badge appears; open the bell dropdown | Shows bell icon with red badge (unmuted overdue count); dropdown lists overdue students with "Enviar lembrete" (WhatsApp), "Enviar email", and BellOff mute button per student |
 | marketplace-products | Instructor | /marketplace | desktop | instrutor@demo.pgt | none | Shows "LOJA" tab (not "Produtos"); "Adicionar Produto" button; product cards with Package icon |
 | marketplace-order | Student | /marketplace | desktop | joao.azul@demo.pgt | none | Shows "Solicitar" button directly on each product card — no need to tap card first as a separate step |
 | marketplace-orders | Instructor | /marketplace/orders | desktop | instrutor@demo.pgt | none | Shows orders table with "Confirmar", "Cancelar", and "Entregar" action buttons; guide omits "Confirmar" and "Cancelar" |
@@ -711,6 +735,7 @@ tags:
 | totem-page | Instructor | /totem | mobile | instrutor@demo.pgt | none | Shows active class cards with QR codes; demonstrates 4-minute refresh interval (guide incorrectly states 5 minutes) |
 | classes-student-checkin | Student | /classes | desktop | joao.azul@demo.pgt | Wait for or mock an active class time window | Shows both "Check-in" and "QR Code" buttons on active class card; both trigger geolocation proximity check-in |
 | checkin-history | Instructor | /classes/history | desktop | instrutor@demo.pgt | Click "Histórico de Presença" tab | Shows check-in history table with Date, Class Name, Type columns |
+| checkin-scan | Student | /checkin | mobile | joao.azul@demo.pgt | Arrive from totem QR code; grant geolocation permission | Shows the QR scanning / token redemption screen used by students on their phones |
 | tournaments-instructor | Instructor | /tournaments | desktop | instrutor@demo.pgt | Click "Ver Inscritos" on a tournament | Shows inline roster table with Nome, Faixa, Categoria de Peso; "Criar Campeonato" button visible |
 | tournaments-student | Student | /tournaments | desktop | joao.azul@demo.pgt | Click "Inscrever-se" on a tournament | Shows sign-up dialog with "Categoria de Peso" field; flash message after submission |
 | settings-location | Instructor | /settings | desktop | instrutor@demo.pgt | none | Shows "Definir localização da academia" card; "Usar minha localização atual" button; error message is in English ("Geolocation unavailable") |
