@@ -14,34 +14,34 @@ tags:
 
 | Route | Page component | Role(s) | Guide section | Status |
 | ----- | -------------- | ------- | ------------- | ------ |
-| `/login` | `LoginPage — apps/web/src/pages/login` | `unauth` | TBD | |
-| `/signup` | `SignupPage — apps/web/src/pages/signup` | `unauth` | TBD | |
-| `/criar-academia` | `CriarAcademiaPage — apps/web/src/pages/criar-academia` | `unauth, no-academy` | TBD | |
-| `/entrar/:code` | `EntrarPage — apps/web/src/pages/entrar` | `unauth, no-academy` | TBD | |
-| `/forgot-password` | `ForgotPasswordPage — apps/web/src/pages/forgot-password` | `unauth` | TBD | |
-| `/reset-password` | `ResetPasswordPage — apps/web/src/pages/reset-password` | `unauth` | TBD | |
-| `/checkin` | `CheckinScanPage — apps/web/src/pages/checkin-scan` | `unauth` | TBD | |
-| `/aguardando` | `AguardandoPage — apps/web/src/pages/aguardando` | `pending` | TBD | |
-| `*` (catch-all) | `RejectedView — apps/web/src/App.tsx` | `rejected` | TBD | |
-| `/` | `DashboardPage — apps/web/src/pages/dashboard` | `instructor + student` | TBD | |
-| `/pending` | `PendingStudentsPage — apps/web/src/pages/pending-students` | `instructor + student` | TBD | |
-| `/classes` | `ClassesPage — apps/web/src/pages/classes/index` | `instructor + student` | TBD | |
-| `/classes/history` | `CheckinHistoryPage — apps/web/src/pages/classes/checkin` | `instructor + student` | TBD | |
-| `/students` | `StudentsPage — apps/web/src/pages/students/index` | `instructor + student` | TBD | |
-| `/students/:id` | `StudentDetailPage — apps/web/src/pages/students/detail` | `instructor + student` | TBD | |
-| `/billing` | `BillingOverduePage — apps/web/src/pages/billing/index` | `instructor + student` | TBD | |
-| `/billing/plans` | `PlansPage — apps/web/src/pages/billing/plans` | `instructor + student` | TBD | |
-| `/billing/payments` | `PaymentsPage — apps/web/src/pages/billing/payments` | `instructor + student` | TBD | |
-| `/marketplace` | `MarketplacePage — apps/web/src/pages/marketplace/index` | `instructor + student` | TBD | |
-| `/marketplace/orders` | `OrdersPage — apps/web/src/pages/marketplace/orders` | `instructor + student` | TBD | |
-| `/gamification` | `LeaderboardPage — apps/web/src/pages/gamification/leaderboard` | `instructor + student` | TBD | |
-| `/gamification/seasons` | `SeasonsPage — apps/web/src/pages/gamification/seasons` | `instructor + student` | TBD | |
-| `/gamification/results` | `ResultsPage — apps/web/src/pages/gamification/results` | `instructor + student` | TBD | |
-| `/gamification/profile` | `GamificationProfilePage — apps/web/src/pages/gamification/profile` | `instructor + student` | TBD | |
-| `/tournaments` | `TournamentsPage — apps/web/src/pages/tournaments/index` | `instructor + student` | TBD | |
-| `/settings` | `SettingsPage — apps/web/src/pages/settings` | `instructor + student` | TBD | |
-| `/totem` | `TotemPage — apps/web/src/pages/totem` | `instructor + student` | TBD | |
-| `/checkin` | `CheckinScanPage — apps/web/src/pages/checkin-scan` | `instructor + student` | TBD | |
+| `/login` | `LoginPage — apps/web/src/pages/login` | `unauth` | MISSING | |
+| `/signup` | `SignupPage — apps/web/src/pages/signup` | `unauth` | "Criar Sua Academia" (Instructor); "Entrar em uma Academia" (Student) | |
+| `/criar-academia` | `CriarAcademiaPage — apps/web/src/pages/criar-academia` | `unauth, no-academy` | "Criar Sua Academia" (Instructor) | |
+| `/entrar/:code` | `EntrarPage — apps/web/src/pages/entrar` | `unauth, no-academy` | "Entrar em uma Academia" (Student) | |
+| `/forgot-password` | `ForgotPasswordPage — apps/web/src/pages/forgot-password` | `unauth` | MISSING | |
+| `/reset-password` | `ResetPasswordPage — apps/web/src/pages/reset-password` | `unauth` | MISSING | |
+| `/checkin` | `CheckinScanPage — apps/web/src/pages/checkin-scan` | `unauth` | — | |
+| `/aguardando` | `AguardandoPage — apps/web/src/pages/aguardando` | `pending` | "Aguardar Aprovação" (Student) | |
+| `*` (catch-all) | `RejectedView — apps/web/src/App.tsx` | `rejected` | — | |
+| `/` | `DashboardPage — apps/web/src/pages/dashboard` | `instructor + student` | "Compartilhar Seu Código de Acesso" (Instructor); "Banners de Pagamento" (Student) | |
+| `/pending` | `PendingStudentsPage — apps/web/src/pages/pending-students` | `instructor + student` | "Aprovar Novos Alunos" (Instructor) | |
+| `/classes` | `ClassesPage — apps/web/src/pages/classes/index` | `instructor + student` | "Criar uma Aula" (Instructor); "Editar ou Excluir uma Aula" (Instructor); "Método 1: Tocar no Botão de Check-in" (Student) | |
+| `/classes/history` | `CheckinHistoryPage — apps/web/src/pages/classes/checkin` | `instructor + student` | "Ver Histórico de Check-ins" (Instructor); "Ver Seu Histórico de Check-ins" (Student) | |
+| `/students` | `StudentsPage — apps/web/src/pages/students/index` | `instructor + student` | "Ver Detalhes do Aluno" (Instructor) | |
+| `/students/:id` | `StudentDetailPage — apps/web/src/pages/students/detail` | `instructor + student` | "Ver Detalhes do Aluno" (Instructor); "Atribuir um Plano de Matrícula" (Instructor) | |
+| `/billing` | `BillingOverduePage — apps/web/src/pages/billing/index` | `instructor + student` | "Acompanhar Alunos em Atraso" (Instructor) | |
+| `/billing/plans` | `PlansPage — apps/web/src/pages/billing/plans` | `instructor + student` | "Criar Planos de Matrícula" (Instructor); "Editar Planos" (Instructor) | |
+| `/billing/payments` | `PaymentsPage — apps/web/src/pages/billing/payments` | `instructor + student` | "Registrar um Pagamento" (Instructor); "Histórico de Pagamentos" (Student) | |
+| `/marketplace` | `MarketplacePage — apps/web/src/pages/marketplace/index` | `instructor + student` | "Adicionar Produtos" (Instructor); "Explorar Produtos" (Student); "Fazer um Pedido" (Student) | |
+| `/marketplace/orders` | `OrdersPage — apps/web/src/pages/marketplace/orders` | `instructor + student` | "Gerenciar Pedidos" (Instructor) | |
+| `/gamification` | `LeaderboardPage — apps/web/src/pages/gamification/leaderboard` | `instructor + student` | "Ver o Ranking" (Instructor); "Ranking" (Student) | |
+| `/gamification/seasons` | `SeasonsPage — apps/web/src/pages/gamification/seasons` | `instructor + student` | "Criar uma Temporada" (Instructor) | |
+| `/gamification/results` | `ResultsPage — apps/web/src/pages/gamification/results` | `instructor + student` | "Aprovar Resultados de Competição" (Instructor); "Enviar Resultados de Competição" (Student) | |
+| `/gamification/profile` | `GamificationProfilePage — apps/web/src/pages/gamification/profile` | `instructor + student` | "Seu Perfil" (Student) | |
+| `/tournaments` | `TournamentsPage — apps/web/src/pages/tournaments/index` | `instructor + student` | "Campeonatos" (Instructor); "Inscrever-se em um Evento" (Student) | |
+| `/settings` | `SettingsPage — apps/web/src/pages/settings` | `instructor + student` | "Definir a Localização da Academia" (Instructor) | |
+| `/totem` | `TotemPage — apps/web/src/pages/totem` | `instructor + student` | "Método 2: Totem com QR Code" (Instructor) | |
+| `/checkin` | `CheckinScanPage — apps/web/src/pages/checkin-scan` | `instructor + student` | "Método 2: Escanear o QR Code" (Student); "Método 2: Totem com QR Code" (Instructor) | |
 
 ## Page Contracts
 
@@ -640,6 +640,47 @@ tags:
 
 | Guide section | Role | Current text (summary) | Actual app behavior | Action | Screenshot slug |
 | ------------- | ---- | ---------------------- | ------------------- | ------ | --------------- |
+| (new) | Instructor | (not documented) | Login page has E-mail + Senha form with "Entrar" button and "Esqueceu a senha?" link. | Add | login-page |
+| (new) | Student | (not documented) | Login page has E-mail + Senha form with "Entrar" button and "Esqueceu a senha?" link. | Add | login-page |
+| (new) | Instructor | (not documented) | Forgot-password sends a recovery email; reset-password accepts a token and new password with confirm-password field. | Add | forgot-reset-password |
+| (new) | Student | (not documented) | Forgot-password sends a recovery email; reset-password accepts a token and new password with confirm-password field. | Add | forgot-reset-password |
+| "Criar Sua Academia" | Instructor | Step 1 says click "Cadastrar" to sign up. | Signup link on the login page is labeled "Criar Conta", not "Cadastrar". | Update | signup-screen |
+| "Entrar em uma Academia" | Student | Step 1 says tap "Cadastrar"; step 4 lists phone and date of birth as required fields. | Link is labeled "Criar Conta"; /entrar/:code form only collects Nome, E-mail, Senha, and Faixa — phone and DOB fields do not exist. | Update | student-join-form |
+| "Entrar em uma Academia" | Student | (covered above) | Belt options are shown as English literals ("White", "Blue", etc.), not translated. | Update | student-join-form |
+| "Aguardar Aprovação" | Student | Describes a waiting screen until instructor approves. | Waiting screen exists with "Aguardando Aprovacao" heading, "Verificar status" and "Sair" buttons. | Verify | aguardando-screen |
+| "Compartilhar Seu Código de Acesso" | Instructor | Dashboard shows join code with Copy and WhatsApp share buttons. | Dashboard shows join code card with "Copiar"/"Copiado!" toggle and "Compartilhar no WhatsApp" button — matches guide. | Verify | dashboard-instructor |
+| "Banners de Pagamento" | Student | Payment due-soon banner triggers 3 days before due; banner is orange. | Banner uses "primary" color (not explicitly orange) and threshold may be more than 3 days — needs screenshot to verify exact threshold. | Verify | dashboard-student-banner |
+| "Banners de Pagamento" | Student | Overdue banner says "banner vermelho mostrando dias de atraso". | Overdue banner is destructive (red) showing "{{days}} dias atrasado" — matches. | Verify | dashboard-student-banner |
+| "Aprovar Novos Alunos" | Instructor | Step 1 says go to "Alunos → aba Pendentes". | /pending page has two tabs: "Alunos" (→ /students) and "Pendentes" (active). Navigation path is correct. | Verify | pending-students |
+| "Ver Detalhes do Aluno" | Instructor | Step 1 says "Alunos → aba Ativos". | /students page has tabs "Alunos" (active) and "Pendentes" — there is no "Ativos" tab; the main tab is simply "Alunos". | Update | students-list |
+| "Atribuir um Plano de Matrícula" | Instructor | Covers assigning a plan via a dialog with plan, start date, and due day. | Detail page also shows a "Pagar Mês Atual" quick-pay button (added in recent release) when a plan is already assigned — not mentioned in guide. | Update | student-detail-plan |
+| "Atribuir um Plano de Matrícula" | Instructor | (covered above — same screenshot) | Assign plan dialog matches guide: plan select, start date, due day, Save. | Verify | student-detail-plan |
+| "Acompanhar Alunos em Atraso" | Instructor | Guide calls the tab "Em Atraso". | Tab in app is labeled "Inadimplentes", not "Em Atraso". | Update | billing-overdue |
+| "Acompanhar Alunos em Atraso" | Instructor | Cards are yellow (1–7 days) or red (8+ days). | Code uses yellow for < 8 days and destructive red for ≥ 8 days — matches guide. | Verify | billing-overdue |
+| "Criar Planos de Matrícula" | Instructor | Steps match: name, price, frequency, classes per week, Save. | Plan card displays `t('billing.week')` which is missing from pt-BR.json and renders blank for "classes/week" label. | Update | billing-plans |
+| "Editar Planos" | Instructor | Guide says click "pencil icon" on plan card. | Edit button is labeled "Editar" (text button), not a pencil icon. | Update | billing-plans |
+| "Registrar um Pagamento" | Instructor | Guide says tap "Registrar Pagamento" button to open a form. | /billing/payments shows a persistent "Registrar Pagamento" card form always visible on the page — no button to open it. | Update | billing-payments |
+| "Histórico de Pagamentos" | Student | Guide says "Abra seu perfil para ver pagamentos". | There is no student-facing profile page; payment history lives on /students/:id (instructor view) or /billing/payments (instructor-only form). Students cannot access their own payment history directly. | Update | billing-payments |
+| "Sino de Notificações" | Instructor | Describes a notification bell with "Enviar Lembrete", "Enviar E-mail", and "Silenciar" actions per overdue student. | No notification bell or dropdown is present in any page contract — this feature may not be implemented or may have been removed. | Verify | notification-bell |
+| "Silenciar um Aluno" | Instructor | Describes muting a student from the notification bell to hide them from the overdue list. | No mute/silence functionality appears in any page contract — verify whether feature exists in header component not covered by page contracts. | Verify | notification-bell |
+| "Adicionar Produtos" | Instructor | Step 1 says "Loja → aba Produtos". | /marketplace tab is labeled "LOJA" (not "Produtos") and is the default tab — navigation is "Loja" from sidebar, no sub-tab named "Produtos". | Update | marketplace-products |
+| "Fazer um Pedido" | Student | Step 1 says "Toque em qualquer cartão de produto" then step 2 "Toque em Solicitar". | "Solicitar" button is directly on each product card — no need to tap the card first as a separate step. | Update | marketplace-order |
+| "Gerenciar Pedidos" | Instructor | Guide says tap "Entregar" to mark order as delivered; covers status list. | Order statuses "Pendente", "Confirmado", "Entregue", "Cancelado" exist. Instructor sees "Confirmar", "Cancelar", and "Entregar" action buttons per order status. Guide omits "Confirmar" and "Cancelar" actions. | Update | marketplace-orders |
+| "Criar uma Temporada" | Instructor | Step 3 sets name, start date, end date, and points for 1st/2nd/3rd. | Season creation dialog also has a "Premiação" (prize) field not mentioned in the guide. | Update | gamification-seasons |
+| "Aprovar Resultados de Competição" | Instructor | Pending results appear at the top; tap Approve or Reject. | Instructor view has a season selector filter above pending results; results also show competition name, date, and position badge. | Verify | gamification-results-instructor |
+| "Enviar Resultados de Competição" | Student | Steps: season, competition name, placement (1st/2nd/3rd). | Form field for placement uses position buttons ("1º Lugar" / "2º Lugar" / "3º Lugar") and also includes a "Data" field not mentioned in the guide. | Update | gamification-results-student |
+| "Ver o Ranking" | Instructor | Filter by adults/kids and belt level. | Leaderboard has category tabs ("Adultos", "Kids") and belt filter buttons — matches guide. Season selector also present. | Verify | gamification-leaderboard |
+| "Ranking" | Student | Filter by belt level. | Same leaderboard view — matches guide. | Verify | gamification-leaderboard |
+| "Seu Perfil" | Student | Shows Total XP, current streak, longest streak, badges. | Profile page shows totalXp header, 3 stat cards (Sequência Atual, Maior Sequência, XP Total), and "Conquistas" badges section — matches guide. | Verify | gamification-profile |
+| "Método 2: Totem com QR Code" | Instructor | Step 3 says codes refresh every 5 minutes. | TotemPage polls every 4 minutes (not 5) — guide is inaccurate. | Update | totem-page |
+| "Método 1: Tocar no Botão de Check-in" | Student | Describes "Check-in" button on active classes. | Classes page shows both a "Check-in" button and a "QR Code" button for students on active classes — both trigger geolocation proximity check-in (not a QR scan). Guide does not document the "QR Code" button or clarify that it also triggers proximity check-in. | Update | classes-student-checkin |
+| "Ver Histórico de Check-ins" | Instructor | View check-ins ordered by date. | /classes/history table shows Date, Class Name, Type — matches guide. | Verify | checkin-history |
+| "Ver Seu Histórico de Check-ins" | Student | Same — view past check-ins. | Same table, same columns — matches guide. | Verify | checkin-history |
+| "Campeonatos" | Instructor | Create tournaments; view roster per tournament. | "Ver Inscritos" toggle button reveals inline roster table with Name, Belt, Weight Category. Sign-up is student-initiated, not instructor — guide is accurate. | Verify | tournaments-instructor |
+| "Inscrever-se em um Evento" | Student | Tap "Inscrever-se" and select weight class. | Sign-up dialog also requires a "Categoria de Peso" field (matches guide). Flash messages on success/error. | Verify | tournaments-student |
+| "Definir a Localização da Academia" | Instructor | Open Settings, tap "Usar minha localização atual" while at gym. | Settings page shows "Definir localização da academia" card; button is "Usar minha localização atual"; error message "Geolocation unavailable" is in English (not translated). | Update | settings-location |
+| "Criar uma Aula" | Instructor | Fill name, type, days of week, start/end time; one class created per day selected. | /classes dialog has all those fields. | Verify | classes-create |
+| "Editar ou Excluir uma Aula" | Instructor | Tap pencil icon to edit; trash icon to delete. | Edit and delete are triggered by icon buttons (pencil / trash) on class cards — matches guide. | Verify | classes-edit-delete |
 
 ## Screenshot Shot List
 
