@@ -1,0 +1,85 @@
+name: e2e
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pgt
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pgt
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      BETTER_AUTH_URL: http://localhost:3000
+      # Intentional: the dev auth bypass is active in CI so Playwright can
+      # impersonate seeded users without going through the real login form.
+      # The endpoint is still 404-locked in production because production
+      # sets NODE_ENV=production (this env var only takes effect when
+      # NODE_ENV=development is also set, which the playwright config does
+      # on the API process).
+      DEV_AUTH_BYPASS: '1'
+      NODE_ENV: development
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: npm run db:migrate --workspace=@pgt/api
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Build API
+        run: npm run build --workspace=@pgt/api
+
+      - name: Build Web
+        run: npm run build --workspace=@pgt/web
+
+      - name: Run Playwright tests
+        run: npm run test:e2e:ci
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
