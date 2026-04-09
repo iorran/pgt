@@ -1,0 +1,54 @@
+import { defineConfig } from '@playwright/test';
+import path from 'path';
+
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+
+const TEST_TARGET = process.env.TEST_TARGET ?? 'local';
+const IS_CI = TEST_TARGET === 'ci';
+
+const API_HEALTH_URL = 'http://localhost:3000/health';
+const WEB_URL = 'http://localhost:5173';
+
+const API_DEV_COMMAND =
+  'DEV_AUTH_BYPASS=1 NODE_ENV=development npm run dev --workspace=@pgt/api';
+const WEB_DEV_COMMAND = 'npm run dev --workspace=@pgt/web';
+
+const API_BUILD_COMMAND =
+  'npm run build --workspace=@pgt/api && DEV_AUTH_BYPASS=1 NODE_ENV=development node apps/api/dist/index.js';
+const WEB_BUILD_COMMAND =
+  'npm run build --workspace=@pgt/web && npm run preview --workspace=@pgt/web -- --port 5173 --strictPort';
+
+export default defineConfig({
+  testDir: path.join(__dirname, 'flows'),
+  outputDir: path.join(REPO_ROOT, 'test-results'),
+  fullyParallel: false,
+  workers: IS_CI ? 1 : 2,
+  retries: IS_CI ? 1 : 0,
+  reporter: IS_CI
+    ? [['github'], ['html', { outputFolder: 'playwright-report' }]]
+    : [['list'], ['html', { open: 'never' }]],
+  use: {
+    baseURL: WEB_URL,
+    locale: 'pt-BR',
+    timezoneId: 'Europe/Lisbon',
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+  webServer: [
+    {
+      command: IS_CI ? API_BUILD_COMMAND : API_DEV_COMMAND,
+      url: API_HEALTH_URL,
+      reuseExistingServer: !IS_CI,
+      timeout: 120_000,
+      cwd: REPO_ROOT,
+    },
+    {
+      command: IS_CI ? WEB_BUILD_COMMAND : WEB_DEV_COMMAND,
+      url: WEB_URL,
+      reuseExistingServer: !IS_CI,
+      timeout: 120_000,
+      cwd: REPO_ROOT,
+    },
+  ],
+});

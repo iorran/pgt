@@ -5,3 +5,5 @@ dist/
 *.tsbuildinfo
 !package-lock.json
 .vercel
+test-results/
+playwright-report/
