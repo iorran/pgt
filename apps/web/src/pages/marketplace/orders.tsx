@@ -110,7 +110,7 @@ export default function OrdersPage() {
                   {user?.role === 'instructor' && (
                     <TableCell>
                       <div className="flex gap-2">
-                        {o.status === 'pending' && (
+                        {o.status === 'requested' && (
                           <>
                             <Button size="sm" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'confirmed' })}>
                               {t('common.confirm')}
