@@ -12,7 +12,7 @@ Guia completo para gerenciar sua academia de BJJ com o PGT.
 <sub><em>Complete guide to managing your BJJ academy with PGT.</em></sub>
 
 > [!info] Guias relacionados
-> - [[User Guide - Student|Guia do Aluno]]
+> - [Guia do Aluno](./User%20Guide%20-%20Student.md)
 
 ## Primeiros Passos
 <sub><em>Getting Started</em></sub>

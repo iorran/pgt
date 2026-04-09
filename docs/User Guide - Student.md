@@ -12,7 +12,7 @@ Tudo o que você precisa saber para usar o PGT e acompanhar seu treino de BJJ.
 <sub><em>Everything you need to know about using PGT to track your BJJ training.</em></sub>
 
 > [!info] Guias relacionados
-> - [[User Guide - Instructor|Guia do Instrutor]]
+> - [Guia do Instrutor](./User%20Guide%20-%20Instructor.md)
 
 ## Primeiros Passos
 <sub><em>Getting Started</em></sub>
