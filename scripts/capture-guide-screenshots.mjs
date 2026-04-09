@@ -306,7 +306,10 @@ const SHOTS = [
 async function impersonate(context, email) {
   const page = await context.newPage();
   const response = await page.goto(
-    `${API_URL}/api/dev/impersonate?email=${encodeURIComponent(email)}`,
+    // Call through the Vite dev proxy so the cookie is scoped to the web origin.
+    // Hitting API_URL directly would set the cookie on localhost:3000 which the
+    // browser will not send with the web app's same-origin /api/auth/get-session.
+    `${WEB_URL}/api/dev/impersonate?email=${encodeURIComponent(email)}`,
   );
   if (!response || !response.ok()) {
     throw new Error(
@@ -331,9 +334,16 @@ async function captureShot(browser, shot) {
 
     const page = await context.newPage();
     await page.goto(`${WEB_URL}${shot.path}`);
-    // Wait for network to settle, then short pause for any animations.
-    await page.waitForLoadState('networkidle', { timeout: 15_000 });
-    await page.waitForTimeout(500);
+    // Wait for DOM content (always works). Some pages (e.g., /totem) poll on
+    // a timer so `networkidle` never fires — fall back to domcontentloaded +
+    // a longer settle delay for those.
+    await page.waitForLoadState('domcontentloaded', { timeout: 15_000 });
+    try {
+      await page.waitForLoadState('networkidle', { timeout: 5_000 });
+    } catch {
+      // Polling pages never idle; proceed with a longer settle.
+    }
+    await page.waitForTimeout(1_000);
 
     const outPath = path.join(
       OUT_DIR,
