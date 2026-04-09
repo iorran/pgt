@@ -7,6 +7,7 @@
     "lint": {},
     "db:generate": { "cache": false },
     "db:migrate": { "cache": false },
-    "db:seed": { "cache": false }
+    "db:seed": { "cache": false },
+    "db:seed:guide": { "cache": false }
   }
 }
