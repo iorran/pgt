@@ -16,6 +16,7 @@
     "db:migrate": "turbo db:migrate --filter=@pgt/api",
     "db:seed": "turbo db:seed --filter=@pgt/api",
     "db:seed:guide": "turbo db:seed:guide --filter=@pgt/api",
+    "screenshots:capture": "node scripts/capture-guide-screenshots.mjs",
     "release": "semantic-release"
   },
   "devDependencies": {
