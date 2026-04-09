@@ -238,6 +238,9 @@
     "locationNotSet": "Nenhuma localização definida. Toque no botão abaixo enquanto estiver na academia.",
     "address": "Endereço"
   },
+  "dashboard": {
+    "greeting": "Olá, {{name}}"
+  },
   "settings": {
     "geolocationUnavailable": "Geolocalização indisponível"
   },

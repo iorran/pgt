@@ -85,7 +85,7 @@ export default function DashboardPage() {
       </h1>
 
       <p className="text-muted-foreground">
-        {t('common.loading').replace('...', '')}, {user?.name}
+        {t('dashboard.greeting', { name: user?.name })}
       </p>
 
       {!isInstructor && paymentStatus?.status === 'overdue' && (
