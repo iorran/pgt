@@ -684,4 +684,35 @@ tags:
 
 ## Screenshot Shot List
 
-(Populated in Task 1.4)
+| Slug | Role | Route | Viewport | Login as | Prep steps | Notes |
+| ---- | ---- | ----- | -------- | -------- | ---------- | ----- |
+| login-page | Unauth | /login | desktop | (unauth) | none | Shows E-mail + Senha form with "Entrar" button and "Esqueceu a senha?" link |
+| forgot-reset-password | Unauth | /forgot-password | desktop | (unauth) | none | Shows "Recuperar Senha" form with "Enviar Link" button and "Voltar ao Login" link |
+| signup-screen | Unauth | /signup | desktop | (unauth) | none | Shows two-card layout; "Criar Academia" and "Tenho um codigo" cards; link is labeled "Criar Conta" (not "Cadastrar") |
+| student-join-form | Unauth | /entrar/DEMO | desktop | (unauth) | Enter a valid academy join code in /signup to land on /entrar/:code | Shows join form with Nome, E-mail, Senha, Faixa — no phone/DOB fields; belt options appear as English literals ("White", "Blue", etc.) |
+| aguardando-screen | Student | /aguardando | desktop | lucas.branca.pending@demo.pgt | none | Shows "Aguardando Aprovacao" heading with "Verificar status" and "Sair" buttons; student awaiting instructor approval |
+| dashboard-instructor | Instructor | / | desktop | instrutor@demo.pgt | none | Shows join code card with "Copiar"/"Copiado!" toggle and "Compartilhar no WhatsApp" button plus stat cards |
+| dashboard-student-banner | Student | / | desktop | pedro.branca.overdue@demo.pgt | none | Shows destructive red overdue banner "{{days}} dias atrasado"; use maria.roxa@demo.pgt for the upcoming due-soon banner variant |
+| pending-students | Instructor | /pending | desktop | instrutor@demo.pgt | none | Shows "Pendentes" tab active; student cards with "Aprovar" and "Rejeitar" buttons; should show lucas.branca.pending@demo.pgt card |
+| students-list | Instructor | /students | desktop | instrutor@demo.pgt | none | Shows "Alunos" tab (not "Ativos") — demonstrates there is no "Ativos" tab as the guide claims |
+| student-detail-plan | Instructor | /students/:id | desktop | instrutor@demo.pgt | Click on a student who has a plan assigned (e.g., João Azul) | Shows membership card with "Pagar Mês Atual" quick-pay button (not in guide) and "Atribuir Plano" dialog |
+| billing-overdue | Instructor | /billing | desktop | instrutor@demo.pgt | none | Shows "Inadimplentes" tab (not "Em Atraso"); overdue cards with yellow (< 8 days) and red (≥ 8 days) borders |
+| billing-plans | Instructor | /billing/plans | desktop | instrutor@demo.pgt | none | Shows plan cards; "Editar" text button (not pencil icon); blank "classes/week" label due to missing t('billing.week') translation |
+| billing-payments | Instructor | /billing/payments | desktop | instrutor@demo.pgt | none | Shows persistent "Registrar Pagamento" form always visible (no button to open it); student payment history not accessible to students |
+| notification-bell | Instructor | /billing | desktop | instrutor@demo.pgt | none | Verify whether a notification bell with "Enviar Lembrete", "Enviar E-mail", and "Silenciar" actions exists in the header or billing page |
+| marketplace-products | Instructor | /marketplace | desktop | instrutor@demo.pgt | none | Shows "LOJA" tab (not "Produtos"); "Adicionar Produto" button; product cards with Package icon |
+| marketplace-order | Student | /marketplace | desktop | joao.azul@demo.pgt | none | Shows "Solicitar" button directly on each product card — no need to tap card first as a separate step |
+| marketplace-orders | Instructor | /marketplace/orders | desktop | instrutor@demo.pgt | none | Shows orders table with "Confirmar", "Cancelar", and "Entregar" action buttons; guide omits "Confirmar" and "Cancelar" |
+| gamification-seasons | Instructor | /gamification/seasons | desktop | instrutor@demo.pgt | Click "Criar Temporada" to open dialog | Shows season creation dialog with "Premiação" (prize) field not mentioned in guide |
+| gamification-results-instructor | Instructor | /gamification/results | desktop | instrutor@demo.pgt | none | Shows "Resultados Pendentes" tab with season selector filter above pending results; approve/reject buttons per result |
+| gamification-results-student | Student | /gamification/results | desktop | joao.azul@demo.pgt | Click "Enviar Resultado" tab | Shows submission form with position buttons ("1º Lugar" / "2º Lugar" / "3º Lugar") and "Data" field not mentioned in guide |
+| gamification-leaderboard | Instructor | /gamification | desktop | instrutor@demo.pgt | none | Shows "Adultos"/"Kids" category tabs and belt filter buttons ("Todas as faixas", "white", "blue", etc.) plus season selector |
+| gamification-profile | Student | /gamification/profile | desktop | joao.azul@demo.pgt | none | Shows totalXp header, 3 stat cards (Sequência Atual, Maior Sequência, XP Total), and "Conquistas" badges section |
+| totem-page | Instructor | /totem | mobile | instrutor@demo.pgt | none | Shows active class cards with QR codes; demonstrates 4-minute refresh interval (guide incorrectly states 5 minutes) |
+| classes-student-checkin | Student | /classes | desktop | joao.azul@demo.pgt | Wait for or mock an active class time window | Shows both "Check-in" and "QR Code" buttons on active class card; both trigger geolocation proximity check-in |
+| checkin-history | Instructor | /classes/history | desktop | instrutor@demo.pgt | Click "Histórico de Presença" tab | Shows check-in history table with Date, Class Name, Type columns |
+| tournaments-instructor | Instructor | /tournaments | desktop | instrutor@demo.pgt | Click "Ver Inscritos" on a tournament | Shows inline roster table with Nome, Faixa, Categoria de Peso; "Criar Campeonato" button visible |
+| tournaments-student | Student | /tournaments | desktop | joao.azul@demo.pgt | Click "Inscrever-se" on a tournament | Shows sign-up dialog with "Categoria de Peso" field; flash message after submission |
+| settings-location | Instructor | /settings | desktop | instrutor@demo.pgt | none | Shows "Definir localização da academia" card; "Usar minha localização atual" button; error message is in English ("Geolocation unavailable") |
+| classes-create | Instructor | /classes | desktop | instrutor@demo.pgt | Click "Criar Aula" button | Shows create class dialog with Nome, Tipo, Dias da Semana, Horário Início, Horário Fim fields |
+| classes-edit-delete | Instructor | /classes | desktop | instrutor@demo.pgt | none | Shows class cards with pencil (edit) and trash (delete) icon buttons — matches guide description |
