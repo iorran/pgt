@@ -98,8 +98,16 @@ export class StudentDetailPage {
     const dialog = this.page.getByRole('dialog');
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
-    // Native <select> inside the dialog
-    await dialog.locator('select').selectOption({ label: new RegExp(planName, 'i') });
+    // Native <select> inside the dialog — options are "{name} — {price}", select by partial label match
+    const selectEl = dialog.locator('select');
+    const options = await selectEl.locator('option').allInnerTexts();
+    const matchedLabel = options.find((o) =>
+      o.toLowerCase().includes(planName.toLowerCase()),
+    );
+    if (!matchedLabel) {
+      throw new Error(`Plan option "${planName}" not found. Available: ${options.join(', ')}`);
+    }
+    await selectEl.selectOption({ label: matchedLabel });
 
     // Fill in a start date (today) and due day
     const today = new Date().toISOString().split('T')[0];
