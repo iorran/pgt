@@ -36,26 +36,50 @@ export async function paymentRoutes(app: FastifyInstance) {
   app.get('/api/payments/my-status', { preHandler: [requireAuth] }, async (request) => {
     const studentId = request.user.id;
     const [membership] = await db
-      .select({ dueDay: studentMembership.dueDay })
+      .select({ dueDay: studentMembership.dueDay, startDate: studentMembership.startDate })
       .from(studentMembership)
       .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
     if (!membership) return { status: 'ok' };
 
     const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
     const currentDay = now.getDate();
-    const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-    const [paid] = await db.select({ id: payment.id }).from(payment)
-      .where(and(eq(payment.studentId, studentId), eq(payment.referenceMonth, referenceMonth)))
-      .limit(1);
-    if (paid) return { status: 'ok' };
+    const studentPayments = await db
+      .select({ referenceMonth: payment.referenceMonth })
+      .from(payment)
+      .where(eq(payment.studentId, studentId));
+    const paidMonths = new Set(studentPayments.map(p => p.referenceMonth));
 
-    if (currentDay > membership.dueDay) {
-      return { status: 'overdue', daysOverdue: currentDay - membership.dueDay };
+    // Walk every month from startDate to current month and find first unpaid overdue
+    const start = new Date(membership.startDate);
+    let earliestDueDate: Date | null = null;
+    for (let y = start.getFullYear(), m = start.getMonth(); y < currentYear || (y === currentYear && m <= currentMonth); ) {
+      const refMonth = `${y}-${String(m + 1).padStart(2, '0')}`;
+      if (!paidMonths.has(refMonth)) {
+        const isPastMonth = y < currentYear || (y === currentYear && m < currentMonth);
+        const isCurrentMonthPastDueDay = y === currentYear && m === currentMonth && currentDay > membership.dueDay;
+        if (isPastMonth || isCurrentMonthPastDueDay) {
+          earliestDueDate = new Date(y, m, membership.dueDay);
+          break;
+        }
+      }
+      m += 1;
+      if (m > 11) { m = 0; y += 1; }
     }
-    if (currentDay >= membership.dueDay - 3) {
+
+    if (earliestDueDate) {
+      const daysOverdue = Math.floor((now.getTime() - earliestDueDate.getTime()) / (1000 * 60 * 60 * 24));
+      return { status: 'overdue', daysOverdue };
+    }
+
+    // Not overdue — check upcoming
+    const currentRef = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+    if (!paidMonths.has(currentRef) && currentDay >= membership.dueDay - 3 && currentDay <= membership.dueDay) {
       return { status: 'upcoming', daysUntilDue: membership.dueDay - currentDay };
     }
+
     return { status: 'ok' };
   });
 
@@ -70,8 +94,9 @@ export async function paymentRoutes(app: FastifyInstance) {
     const { academyId } = request.query as { academyId: string };
 
     const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-indexed
     const currentDay = now.getDate();
-    const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     // Get all students with active memberships for this academy
     const studentsWithMemberships = await db
@@ -84,6 +109,7 @@ export async function paymentRoutes(app: FastifyInstance) {
         notificationsMuted: studentMembership.notificationsMuted,
         planName: membershipPlan.name,
         dueDay: studentMembership.dueDay,
+        startDate: studentMembership.startDate,
       })
       .from(user)
       .innerJoin(studentMembership, and(
@@ -93,27 +119,105 @@ export async function paymentRoutes(app: FastifyInstance) {
       .innerJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
       .where(and(eq(user.academyId, academyId), eq(user.role, 'student')));
 
-    // Get all payments for current month
-    const monthPayments = await db
-      .select({ studentId: payment.studentId })
+    // Get all payments for this academy grouped by student + reference month
+    const allPayments = await db
+      .select({ studentId: payment.studentId, referenceMonth: payment.referenceMonth })
       .from(payment)
-      .where(and(
-        eq(payment.academyId, academyId),
-        eq(payment.referenceMonth, referenceMonth),
-      ));
+      .where(eq(payment.academyId, academyId));
 
-    const paidStudentIds = new Set(monthPayments.map(p => p.studentId));
+    const paidByStudent = new Map<string, Set<string>>();
+    for (const p of allPayments) {
+      if (!paidByStudent.has(p.studentId)) paidByStudent.set(p.studentId, new Set());
+      paidByStudent.get(p.studentId)!.add(p.referenceMonth);
+    }
 
-    // Filter to students who haven't paid AND current day > their dueDay
+    // For each student, walk every month from startDate to current and find unpaid past-due months
     const overdue = studentsWithMemberships
-      .filter(s => !paidStudentIds.has(s.studentId) && currentDay > s.dueDay)
-      .map(s => ({
-        ...s,
-        daysOverdue: currentDay - s.dueDay,
-        referenceMonth,
-      }));
+      .map(s => {
+        const start = new Date(s.startDate);
+        const startYear = start.getFullYear();
+        const startMonth = start.getMonth();
+        const paidMonths = paidByStudent.get(s.studentId) || new Set<string>();
+
+        const missedMonths: string[] = [];
+        let earliestDueDate: Date | null = null;
+
+        for (let y = startYear, m = startMonth; y < currentYear || (y === currentYear && m <= currentMonth); ) {
+          const refMonth = `${y}-${String(m + 1).padStart(2, '0')}`;
+          // Skip if paid
+          if (!paidMonths.has(refMonth)) {
+            // Determine if this month's due date has already passed
+            const isPastMonth = y < currentYear || (y === currentYear && m < currentMonth);
+            const isCurrentMonthPastDueDay = y === currentYear && m === currentMonth && currentDay > s.dueDay;
+            if (isPastMonth || isCurrentMonthPastDueDay) {
+              missedMonths.push(refMonth);
+              if (!earliestDueDate) {
+                earliestDueDate = new Date(y, m, s.dueDay);
+              }
+            }
+          }
+          // Advance one month
+          m += 1;
+          if (m > 11) { m = 0; y += 1; }
+        }
+
+        if (missedMonths.length === 0) return null;
+
+        const daysOverdue = earliestDueDate
+          ? Math.floor((now.getTime() - earliestDueDate.getTime()) / (1000 * 60 * 60 * 24))
+          : 0;
+
+        return {
+          studentId: s.studentId,
+          studentName: s.studentName,
+          email: s.email,
+          belt: s.belt,
+          phone: s.phone,
+          notificationsMuted: s.notificationsMuted,
+          planName: s.planName,
+          dueDay: s.dueDay,
+          daysOverdue,
+          missedMonths,
+          referenceMonth: missedMonths[missedMonths.length - 1],
+        };
+      })
+      .filter((s): s is NonNullable<typeof s> => s !== null);
 
     return overdue;
+  });
+
+  // Quick payment for the current month (instructor only)
+  app.post('/api/payments/quick/:studentId', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+    const { studentId } = request.params as { studentId: string };
+
+    // Get the student's active membership and plan price
+    const [membership] = await db
+      .select({
+        planId: studentMembership.planId,
+        price: membershipPlan.price,
+      })
+      .from(studentMembership)
+      .innerJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
+      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
+
+    if (!membership) {
+      return reply.status(404).send({ error: 'Active membership not found' });
+    }
+
+    const now = new Date();
+    const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const paymentDate = now.toISOString().split('T')[0];
+
+    const [created] = await db.insert(payment).values({
+      studentId,
+      academyId: request.academyId,
+      amount: membership.price,
+      paymentDate,
+      referenceMonth,
+      recordedBy: request.user.id,
+    }).returning();
+
+    return reply.status(201).send(created);
   });
 
   // Send overdue payment email notification (instructor only)

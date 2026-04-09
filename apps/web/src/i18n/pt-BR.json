@@ -97,7 +97,8 @@
     "startDate": "Data de Início",
     "paymentHistory": "Histórico de Pagamentos",
     "totalClasses": "Total de Aulas",
-    "currentStreak": "Sequência Atual"
+    "currentStreak": "Sequência Atual",
+    "payCurrentMonth": "Pagar Mês Atual"
   },
   "billing": {
     "overdueTitle": "Inadimplentes",

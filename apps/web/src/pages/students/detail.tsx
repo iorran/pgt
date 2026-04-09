@@ -117,6 +117,16 @@ export default function StudentDetailPage() {
     },
   });
 
+  const quickPayMutation = useMutation({
+    mutationFn: () =>
+      api(`/payments/quick/${id}`, { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['payments', 'student', id] });
+      queryClient.invalidateQueries({ queryKey: ['overdue'] });
+      queryClient.invalidateQueries({ queryKey: ['my-payment-status'] });
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       planId: '',
@@ -269,7 +279,7 @@ export default function StudentDetailPage() {
             </Dialog>
           )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {student.planName ? (
             <div className="space-y-1">
               <p className="font-medium">{student.planName}</p>
@@ -281,6 +291,16 @@ export default function StudentDetailPage() {
             </div>
           ) : (
             <p className="text-muted-foreground">-</p>
+          )}
+          {user?.role === 'instructor' && student.planName && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => quickPayMutation.mutate()}
+              loading={quickPayMutation.isPending}
+            >
+              {t('students.payCurrentMonth')}
+            </Button>
           )}
         </CardContent>
       </Card>

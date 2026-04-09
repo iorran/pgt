@@ -133,20 +133,21 @@ describe('GET /api/payments/overdue', () => {
       academyId: academy.id, name: 'Standard', price: '100.00', frequency: 'monthly',
     }).returning();
 
-    // Both students have membership with dueDay=1 (always overdue after the 1st)
+    // Both students start this month with dueDay=1 so current day > dueDay means overdue
+    const now = new Date();
+    const currentMonthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     await testDb.insert(schema.studentMembership).values([
-      { studentId: paidStudent.id, planId: plan.id, startDate: '2025-01-01', dueDay: 1 },
-      { studentId: unpaidStudent.id, planId: plan.id, startDate: '2025-01-01', dueDay: 1 },
+      { studentId: paidStudent.id, planId: plan.id, startDate: currentMonthStart, dueDay: 1 },
+      { studentId: unpaidStudent.id, planId: plan.id, startDate: currentMonthStart, dueDay: 1 },
     ]);
 
     // Record payment for paidStudent for current month
-    const now = new Date();
     const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     await testDb.insert(schema.payment).values({
       studentId: paidStudent.id,
       academyId: academy.id,
       amount: '100.00',
-      paymentDate: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`,
+      paymentDate: `${referenceMonth}-01`,
       referenceMonth,
       recordedBy: instructor.id,
     });
@@ -159,7 +160,6 @@ describe('GET /api/payments/overdue', () => {
     expect(res.statusCode).toBe(200);
     const body = res.json();
 
-    // Only the unpaid student should appear (if current day > 1)
     const currentDay = now.getDate();
     if (currentDay > 1) {
       expect(body).toHaveLength(1);
@@ -167,7 +167,6 @@ describe('GET /api/payments/overdue', () => {
       expect(body[0].daysOverdue).toBe(currentDay - 1);
       expect(body[0].referenceMonth).toBe(referenceMonth);
     } else {
-      // On the 1st of the month, no one is overdue yet (currentDay is not > dueDay)
       expect(body).toHaveLength(0);
     }
   });
@@ -181,11 +180,12 @@ describe('GET /api/payments/overdue', () => {
       academyId: academy.id, name: 'Plan', price: '100.00', frequency: 'monthly',
     }).returning();
 
+    const now = new Date();
+    const currentMonthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     await testDb.insert(schema.studentMembership).values({
-      studentId: student.id, planId: plan.id, startDate: '2025-01-01', dueDay: 1,
+      studentId: student.id, planId: plan.id, startDate: currentMonthStart, dueDay: 1,
     });
 
-    const now = new Date();
     const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     await testDb.insert(schema.payment).values({
       studentId: student.id,
@@ -203,5 +203,37 @@ describe('GET /api/payments/overdue', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
+  });
+
+  it('detects overdue students with unpaid past months (multi-month backlog)', async () => {
+    const academy = await createTestAcademy();
+    const student = await createTestUser(academy.id, { name: 'Behind Student' });
+
+    const [plan] = await testDb.insert(schema.membershipPlan).values({
+      academyId: academy.id, name: 'Plan', price: '100.00', frequency: 'monthly',
+    }).returning();
+
+    // Membership started 2 months ago, never paid
+    const now = new Date();
+    const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    const startDate = `${twoMonthsAgo.getFullYear()}-${String(twoMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`;
+
+    await testDb.insert(schema.studentMembership).values({
+      studentId: student.id, planId: plan.id, startDate, dueDay: 5,
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/payments/overdue?academyId=${academy.id}`,
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body).toHaveLength(1);
+    expect(body[0].studentName).toBe('Behind Student');
+    // At least 2 unpaid past months
+    expect(body[0].missedMonths.length).toBeGreaterThanOrEqual(2);
+    // Days overdue should be more than a month
+    expect(body[0].daysOverdue).toBeGreaterThan(30);
   });
 });

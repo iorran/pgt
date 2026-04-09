@@ -7,6 +7,11 @@ let app: FastifyInstance;
 beforeAll(async () => { app = await createTestApp(); });
 beforeEach(async () => { await cleanDb(); });
 
+function currentMonthStart(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+}
+
 async function setupOverdueStudent() {
   const acad = await createTestAcademy();
   const instructor = await createTestInstructor(acad.id);
@@ -16,7 +21,7 @@ async function setupOverdueStudent() {
   }).returning();
   const currentDay = new Date().getDate();
   await testDb.insert(studentMembership).values({
-    studentId: student.id, planId: plan.id, startDate: '2026-01-01',
+    studentId: student.id, planId: plan.id, startDate: currentMonthStart(),
     dueDay: Math.max(1, currentDay - 3),
   });
   return { acad, instructor, student, plan };
@@ -83,7 +88,7 @@ describe('GET /api/payments/my-status', () => {
     // Only run this sub-test when upcomingDueDay is a valid day of the month
     if (upcomingDueDay <= 28) {
       await testDb.insert(studentMembership).values({
-        studentId: student.id, planId: plan.id, startDate: '2026-01-01',
+        studentId: student.id, planId: plan.id, startDate: currentMonthStart(),
         dueDay: upcomingDueDay,
       });
 

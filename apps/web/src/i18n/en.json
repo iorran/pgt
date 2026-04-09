@@ -97,7 +97,8 @@
     "startDate": "Start Date",
     "paymentHistory": "Payment History",
     "totalClasses": "Total Classes",
-    "currentStreak": "Current Streak"
+    "currentStreak": "Current Streak",
+    "payCurrentMonth": "Pay Current Month"
   },
   "billing": {
     "overdueTitle": "Overdue Payments",
