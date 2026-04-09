@@ -50,8 +50,21 @@ export type FixtureUser = typeof user.$inferSelect;
 export type FixturePlan = typeof membershipPlan.$inferSelect;
 export type FixtureClass = typeof bjjClass.$inferSelect;
 
+import crypto from 'node:crypto';
+
 function randomSlug(prefix: string): string {
-  return `e2e-${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  // Use a crypto-random token to avoid collisions across parallel workers.
+  // The previous Date.now() + Math.random().slice(2,8) approach could collide
+  // when workers launched within the same millisecond and got similar
+  // Math.random values, tripping the join_code unique constraint.
+  const token = crypto.randomBytes(6).toString('hex');
+  return `e2e-${prefix}-${token}`;
+}
+
+function randomJoinCode(): string {
+  // 10 uppercase hex chars from a fresh random source — independent of slug
+  // so truncation doesn't reintroduce collisions.
+  return `E2E-${crypto.randomBytes(5).toString('hex').toUpperCase()}`;
 }
 
 /**
@@ -66,7 +79,7 @@ export async function setupAcademy(
     .values({
       name: overrides?.name ?? `E2E Academy ${slug}`,
       slug,
-      joinCode: `E2E-${slug.toUpperCase().slice(4, 14)}`,
+      joinCode: randomJoinCode(),
       city: overrides?.city ?? 'Lisboa',
       ...overrides,
     })
