@@ -46,8 +46,23 @@ export async function devRoutes(app: FastifyInstance) {
       userAgent: (request.headers['user-agent'] as string) || null,
     });
 
-    // Set the session cookie
-    reply.setCookie('better-auth.session_token', token, {
+    // Set the session cookie.
+    // BetterAuth signs cookies as `<value>.<base64(HMAC-SHA256(value, secret))>`
+    // (see node_modules/better-auth/node_modules/better-call/dist/crypto.mjs
+    // `signCookieValue`). The final value is URL-encoded. We must produce the
+    // same format here so BetterAuth's `getSignedCookie` verification passes.
+    const secret = process.env.BETTER_AUTH_SECRET;
+    if (!secret) {
+      return reply
+        .status(500)
+        .send({ error: 'BETTER_AUTH_SECRET not set' });
+    }
+    const signature = crypto
+      .createHmac('sha256', secret)
+      .update(token)
+      .digest('base64');
+    const signedValue = `${token}.${signature}`;
+    reply.setCookie('better-auth.session_token', signedValue, {
       path: '/',
       httpOnly: true,
       sameSite: 'lax',
