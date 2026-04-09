@@ -17,28 +17,77 @@ Tudo o que você precisa saber para usar o PGT e acompanhar seu treino de BJJ.
 ## Primeiros Passos
 <sub><em>Getting Started</em></sub>
 
+### Fazer Login
+<sub><em>Log In</em></sub>
+
+![Tela de login](./assets/user-guide/unauth/login-page.png)
+
+Acesse o PGT pelo navegador e faça login com seu e-mail e senha.
+<sub><em>Open PGT in your browser and log in with your email and password.</em></sub>
+
+1. Na tela de login, preencha **E-mail** e **Senha**
+   <sub><em>On the login screen, enter your **Email** and **Password**</em></sub>
+2. Toque em **"Entrar"**
+   <sub><em>Tap **"Entrar"**</em></sub>
+
+Caso ainda não tenha conta, toque em **"Criar Conta"** para se cadastrar.
+<sub><em>If you don't have an account yet, tap **"Criar Conta"** to sign up.</em></sub>
+
+### Recuperar Senha
+<sub><em>Recover Password</em></sub>
+
+![Tela de recuperação de senha](./assets/user-guide/unauth/forgot-reset-password.png)
+
+Se você esqueceu sua senha:
+<sub><em>If you forgot your password:</em></sub>
+
+1. Na tela de login, toque em **"Esqueceu a senha?"**
+   <sub><em>On the login screen, tap **"Esqueceu a senha?"**</em></sub>
+2. Digite seu e-mail e toque em **"Enviar Link"**
+   <sub><em>Enter your email and tap **"Enviar Link"**</em></sub>
+3. Você receberá um e-mail com o link de redefinição — toque nele
+   <sub><em>You'll receive a recovery email — tap the link in it</em></sub>
+4. Na tela **"Redefinir Senha"**, digite a nova senha, confirme e toque em **"Redefinir"**
+   <sub><em>On the **"Redefinir Senha"** screen, enter your new password, confirm it, and tap **"Redefinir"**</em></sub>
+
+> [!note] Link de expiração
+> O link de redefinição expira após um curto período. Se você ver "Link inválido ou expirado", toque em **"Solicitar novo link"** para receber outro.
+> <sub><em>The reset link expires after a short time. If you see "Link inválido ou expirado", tap **"Solicitar novo link"** to receive a new one.</em></sub>
+
 ### Entrar em uma Academia
 <sub><em>Join Your Academy</em></sub>
+
+![Formulário de cadastro do aluno](./assets/user-guide/unauth/student-join-form.png)
 
 Você precisa de um código de acesso do seu instrutor (ex.: `PGT-PONTINHA-CM7`).
 <sub><em>You need a join code from your instructor (e.g., `PGT-PONTINHA-CM7`).</em></sub>
 
-1. Vá ao aplicativo e toque em **"Cadastrar"**
-   <sub><em>Go to the app and tap "Sign Up"</em></sub>
-2. Escolha **"Entrar com código"**
-   <sub><em>Choose "Join with code"</em></sub>
-3. Digite o código que seu instrutor enviou
-   <sub><em>Enter the code your instructor sent you</em></sub>
-4. Preencha seus dados: nome, e-mail, senha, telefone, data de nascimento, faixa
-   <sub><em>Fill in your details: name, email, password, phone, date of birth, belt</em></sub>
-5. Envie
-   <sub><em>Submit</em></sub>
+1. Vá ao aplicativo e toque em **"Criar Conta"**
+   <sub><em>Go to the app and tap **"Criar Conta"**</em></sub>
+2. Escolha **"Tenho um código"** e digite o código que seu instrutor enviou
+   <sub><em>Choose **"Tenho um código"** and enter the code your instructor sent you</em></sub>
+3. Toque em **"Continuar"** — o sistema identifica sua academia
+   <sub><em>Tap **"Continuar"** — the system identifies your academy</em></sub>
+4. Preencha seus dados: **Nome**, **E-mail**, **Senha** e **Faixa**
+   <sub><em>Fill in your details: **Nome** (name), **Email**, **Senha** (password), and **Faixa** (belt)</em></sub>
+
+> [!note] Opções de faixa
+> As faixas aparecem em inglês no formulário: White, Blue, Purple, Brown, Black.
+> <sub><em>Belt options appear in English on the form: White, Blue, Purple, Brown, Black.</em></sub>
+
+5. Toque em **"Continuar"** para enviar o cadastro
+   <sub><em>Tap **"Continuar"** to submit your registration</em></sub>
 
 ### Aguardar Aprovação
 <sub><em>Wait for Approval</em></sub>
 
-Após o cadastro, seu status é **Pendente**. Seu instrutor precisa aprová-lo antes que você possa acessar as aulas. Você verá uma tela de espera até lá.
-<sub><em>After signing up, your status is Pending. Your instructor needs to approve you before you can access classes. You'll see a waiting screen until then.</em></sub>
+![Tela de aguardando aprovação](./assets/user-guide/student/aguardando-screen.png)
+
+Após o cadastro, seu status é **Pendente**. Seu instrutor precisa aprová-lo antes que você possa acessar as aulas. Você verá uma tela de espera com o botão **"Verificar status"** até lá.
+<sub><em>After signing up, your status is Pending. Your instructor needs to approve you before you can access classes. You'll see a waiting screen with a **"Verificar status"** button until then.</em></sub>
+
+Para sair durante a espera, toque em **"Sair"**.
+<sub><em>To sign out while waiting, tap **"Sair"**.</em></sub>
 
 ## Fazer Check-in nas Aulas
 <sub><em>Checking In to Classes</em></sub>
@@ -49,33 +98,34 @@ Você pode fazer check-in de duas formas. Ambas são igualmente válidas.
 ### Método 1: Tocar no Botão de Check-in
 <sub><em>Method 1: Tap the Check-in Button</em></sub>
 
+![Tela de aulas com botões de check-in do aluno](./assets/user-guide/student/classes-student-checkin.png)
+
 1. Menu lateral → **Aulas**
    <sub><em>Sidebar → Classes</em></sub>
-2. Para qualquer aula ativa no momento, você verá um botão **"Check-in"**
-   <sub><em>For any class that's currently active, you'll see a "Check-in" button</em></sub>
-3. Toque nele — seu celular solicitará permissão de localização, aprove
-   <sub><em>Tap it — your phone will ask for location permission, approve it</em></sub>
-4. O sistema verifica se você está na academia (dentro de 250m) e registra sua presença
+2. Para qualquer aula ativa no momento, você verá dois botões: **"Check-in"** e **"QR Code"**
+   <sub><em>For any class that's currently active, you'll see two buttons: **"Check-in"** and **"QR Code"**</em></sub>
+3. Toque em qualquer um dos dois — ambos usam GPS para verificar sua presença
+   <sub><em>Tap either button — both use GPS to verify your presence</em></sub>
+4. Seu celular solicitará permissão de localização — aprove
+   <sub><em>Your phone will ask for location permission — approve it</em></sub>
+5. O sistema verifica se você está na academia (dentro de 250m) e registra sua presença
    <sub><em>The system verifies you're at the gym (within 250m) and logs your attendance</em></sub>
 
 > [!warning] Você precisa estar fisicamente na academia
 > O sistema usa o GPS do seu celular. Se você não estiver dentro de 250 metros da academia, o check-in será recusado.
 > <sub><em>You must be physically at the gym. The system uses your phone's GPS. If you're not within 250 meters of the gym, the check-in is rejected.</em></sub>
 
-### Método 2: Escanear o QR Code
-<sub><em>Method 2: Scan the QR Code</em></sub>
+Após o check-in, o botão é substituído por **"Presente"**.
+<sub><em>After checking in, the button is replaced by **"Presente"**.</em></sub>
+
+### Método 2: Escanear o QR Code do Totem
+<sub><em>Method 2: Scan the Totem QR Code</em></sub>
 
 Se sua academia tiver um tablet na entrada exibindo QR Codes:
 <sub><em>If your gym has a tablet at the entrance showing QR codes:</em></sub>
 
-1. Abra a câmera do seu celular
-   <sub><em>Open your phone camera</em></sub>
-2. Aponte para o QR Code da aula que você está frequentando
-   <sub><em>Point it at the QR code for the class you're attending</em></sub>
-3. Toque no link que aparecer
-   <sub><em>Tap the link that appears</em></sub>
-4. O check-in é concluído automaticamente
-   <sub><em>The check-in completes automatically</em></sub>
+Aponte a câmera do celular para o QR Code do totem na academia. O navegador abre automaticamente a página de check-in e confirma sua presença.
+<sub><em>Point your phone camera at the totem QR code at the academy. The browser automatically opens the check-in page and confirms your attendance.</em></sub>
 
 ### Regras de Check-in
 <sub><em>Check-in Rules</em></sub>
@@ -92,8 +142,8 @@ Se sua academia tiver um tablet na entrada exibindo QR Codes:
 ### Ver Seu Histórico de Check-ins
 <sub><em>View Your Check-in History</em></sub>
 
-Menu lateral → **Aulas** → aba **Histórico**. Veja todos os seus check-ins anteriores.
-<sub><em>Sidebar → Classes → History tab. See all your past check-ins.</em></sub>
+Menu lateral → **Aulas** → aba **Histórico de Presença**. Veja todos os seus check-ins anteriores com data, nome da aula e tipo.
+<sub><em>Sidebar → Classes → **Histórico de Presença** tab. See all your past check-ins with date, class name, and type.</em></sub>
 
 ## Pagamentos
 <sub><em>Payments</em></sub>
@@ -101,19 +151,21 @@ Menu lateral → **Aulas** → aba **Histórico**. Veja todos os seus check-ins 
 ### Banners de Pagamento
 <sub><em>Payment Banners</em></sub>
 
+![Banner de pagamento em atraso no painel do aluno](./assets/user-guide/student/dashboard-student-banner.png)
+
 Ao fazer login, o painel exibe um banner se:
 <sub><em>When you log in, the dashboard shows a banner if:</em></sub>
 
-- **Seu pagamento está próximo do vencimento** (3 dias antes): banner laranja
-  <sub><em>Your payment is due soon (3 days before): orange banner</em></sub>
-- **Seu pagamento está em atraso**: banner vermelho mostrando dias de atraso
-  <sub><em>Your payment is overdue: red banner showing days late</em></sub>
+- **Seu pagamento está próximo do vencimento**: banner azul (cor primária)
+  <sub><em>Your payment is due soon: blue (primary) banner</em></sub>
+- **Seu pagamento está em atraso**: banner vermelho mostrando quantos dias de atraso
+  <sub><em>Your payment is overdue: red banner showing how many days late</em></sub>
 
 ### Histórico de Pagamentos
 <sub><em>Payment History</em></sub>
 
-Abra seu perfil para ver todos os pagamentos registrados — data, valor e qual mês eles cobrem.
-<sub><em>Open your profile to see all recorded payments — date, amount, and which month they cover.</em></sub>
+Os pagamentos são registrados pelo seu instrutor. Para ver seu histórico, peça ao instrutor para consultá-lo na tela de detalhes do seu perfil — ele verá data, valor e o mês de referência de cada pagamento.
+<sub><em>Payments are recorded by your instructor. To see your payment history, ask your instructor to look it up in your student detail screen — they will see the date, amount, and reference month for each payment.</em></sub>
 
 > [!note] Você não pode pagar pelo aplicativo
 > O aplicativo apenas registra pagamentos. Pague ao seu instrutor da forma que vocês combinarem (dinheiro, transferência, etc.) — ele registrará no sistema.
@@ -125,8 +177,10 @@ Abra seu perfil para ver todos os pagamentos registrados — data, valor e qual 
 ### Seu Perfil
 <sub><em>Your Profile</em></sub>
 
-Menu lateral → **Ranking** → aba **Perfil**. Veja:
-<sub><em>Sidebar → Gamification → Profile tab. See your:</em></sub>
+![Perfil de gamificação do aluno](./assets/user-guide/student/gamification-profile.png)
+
+Menu lateral → **Ranking** → aba **Perfil de Gamificação**. Veja:
+<sub><em>Sidebar → Ranking → **Perfil de Gamificação** tab. See your:</em></sub>
 
 - Total de XP
   <sub><em>Total XP</em></sub>
@@ -140,23 +194,35 @@ Menu lateral → **Ranking** → aba **Perfil**. Veja:
 ### Enviar Resultados de Competição
 <sub><em>Submit Competition Results</em></sub>
 
+![Formulário de envio de resultado de competição](./assets/user-guide/student/gamification-results-student.png)
+
 Quando você competir em um campeonato, envie seu resultado para ganhar pontos.
 <sub><em>When you compete in a tournament, submit your result for points.</em></sub>
 
-1. Menu lateral → **Ranking** → aba **Resultados**
-   <sub><em>Sidebar → Gamification → Results tab</em></sub>
+1. Menu lateral → **Ranking** → aba **Resultados de Competição**
+   <sub><em>Sidebar → Ranking → **Resultados de Competição** tab</em></sub>
 2. Toque em **"Enviar Resultado"**
-   <sub><em>Tap "Submit Result"</em></sub>
-3. Preencha: temporada, nome do campeonato, sua colocação (1º/2º/3º)
-   <sub><em>Fill in: season, tournament name, your position (1st/2nd/3rd)</em></sub>
-4. Envie — seu instrutor irá revisar e aprovar
-   <sub><em>Submit — your instructor will review and approve it</em></sub>
+   <sub><em>Tap **"Enviar Resultado"**</em></sub>
+3. Preencha o formulário:
+   <sub><em>Fill in the form:</em></sub>
+   - **Temporadas**: selecione a temporada ativa
+     <sub><em>**Temporadas**: select the active season</em></sub>
+   - **Nome da Competição**: nome do campeonato
+     <sub><em>**Nome da Competição**: tournament name</em></sub>
+   - **Data**: data em que o campeonato ocorreu
+     <sub><em>**Data**: date the tournament took place</em></sub>
+   - **Colocação**: toque em **"1º Lugar"**, **"2º Lugar"** ou **"3º Lugar"**
+     <sub><em>**Colocação**: tap **"1º Lugar"**, **"2º Lugar"**, or **"3º Lugar"**</em></sub>
+4. Toque em **"Salvar"** — seu instrutor irá revisar e aprovar
+   <sub><em>Tap **"Salvar"** — your instructor will review and approve it</em></sub>
 
 ### Ranking
 <sub><em>Leaderboard</em></sub>
 
-Menu lateral → **Ranking** → aba **Ranking**. Veja onde você se posiciona em relação aos outros alunos. Filtre por nível de faixa.
-<sub><em>Sidebar → Gamification → Leaderboard tab. See where you rank against other students. Filter by belt level.</em></sub>
+![Ranking de gamificação](./assets/user-guide/instructor/gamification-leaderboard.png)
+
+Menu lateral → **Ranking** → aba **Classificação**. Veja onde você se posiciona em relação aos outros alunos. Filtre por categoria (**Adultos** / **Kids**) e por nível de faixa.
+<sub><em>Sidebar → Ranking → **Classificação** tab. See where you rank against other students. Filter by category (**Adultos** / **Kids**) and by belt level.</em></sub>
 
 ## Loja
 <sub><em>Marketplace</em></sub>
@@ -170,14 +236,14 @@ Menu lateral → **Loja**. Veja quimonos, equipamentos e outros itens que sua ac
 ### Fazer um Pedido
 <sub><em>Place an Order</em></sub>
 
-1. Toque em qualquer cartão de produto
-   <sub><em>Tap any product card</em></sub>
-2. Toque em **"Solicitar"**
-   <sub><em>Tap "Request"</em></sub>
-3. Seu instrutor recebe o pedido e o prepara
+![Produto na loja com botão Solicitar](./assets/user-guide/student/marketplace-order.png)
+
+1. Na tela **Loja**, cada produto tem um botão **"Solicitar"** — toque nele diretamente
+   <sub><em>On the **Loja** screen, each product card has a **"Solicitar"** button — tap it directly</em></sub>
+2. Seu instrutor recebe o pedido e o prepara
    <sub><em>Your instructor receives the order and prepares it</em></sub>
-4. Acompanhe o status na aba **Pedidos**
-   <sub><em>Track status under the Orders tab</em></sub>
+3. Acompanhe o status na aba **Pedidos**
+   <sub><em>Track status under the **Pedidos** tab</em></sub>
 
 ## Campeonatos
 <sub><em>Tournaments</em></sub>
@@ -185,14 +251,16 @@ Menu lateral → **Loja**. Veja quimonos, equipamentos e outros itens que sua ac
 ### Inscrever-se em um Evento
 <sub><em>Sign Up for an Event</em></sub>
 
+![Inscrição em campeonato pelo aluno](./assets/user-guide/student/tournaments-student.png)
+
 1. Menu lateral → **Campeonatos**
    <sub><em>Sidebar → Tournaments</em></sub>
 2. Encontre o campeonato que deseja participar
    <sub><em>Find the tournament you want to attend</em></sub>
-3. Toque em **"Inscrever-se"** e selecione sua categoria de peso
-   <sub><em>Tap "Sign Up" and select your weight class</em></sub>
-4. Você está na lista de inscritos
-   <sub><em>You're on the roster</em></sub>
+3. Toque em **"Inscrever-se"** e selecione sua **Categoria de Peso**
+   <sub><em>Tap **"Inscrever-se"** and select your **Categoria de Peso** (weight class)</em></sub>
+4. Toque em **"Confirmar"** — você aparecerá na lista de inscritos
+   <sub><em>Tap **"Confirmar"** — you'll appear on the roster</em></sub>
 
 ## Dicas
 <sub><em>Tips</em></sub>
@@ -203,5 +271,5 @@ Menu lateral → **Loja**. Veja quimonos, equipamentos e outros itens que sua ac
   <sub><em>Check in every time you train — it builds your streak and XP</em></sub>
 - **Envie resultados de competições** — seja reconhecido no ranking
   <sub><em>Submit competition results — get recognized on the leaderboard</em></sub>
-- **Fique atento aos lembretes de pagamento** — o banner laranja avisa quando o pagamento está próximo
-  <sub><em>Watch for payment reminders — the orange banner tells you when payment is due</em></sub>
+- **Fique atento aos lembretes de pagamento** — o banner vermelho avisa quando o pagamento está em atraso
+  <sub><em>Watch for payment reminders — the red banner tells you when payment is overdue</em></sub>
