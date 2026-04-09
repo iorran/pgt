@@ -121,7 +121,8 @@
     "referenceMonth": "Mês Referência",
     "recentPayments": "Pagamentos Recentes",
     "yourPaymentOverdue": "Seu pagamento está {{days}} dias atrasado",
-    "paymentDueSoon": "Seu pagamento vence em {{days}} dias"
+    "paymentDueSoon": "Seu pagamento vence em {{days}} dias",
+    "week": "semana"
   },
   "marketplace": {
     "title": "Loja",

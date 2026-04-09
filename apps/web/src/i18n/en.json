@@ -121,7 +121,8 @@
     "referenceMonth": "Reference Month",
     "recentPayments": "Recent Payments",
     "yourPaymentOverdue": "Your payment is {{days}} days overdue",
-    "paymentDueSoon": "Your payment is due in {{days}} days"
+    "paymentDueSoon": "Your payment is due in {{days}} days",
+    "week": "week"
   },
   "marketplace": {
     "title": "Marketplace",
