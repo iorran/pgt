@@ -247,14 +247,9 @@ const SHOTS = [
     login: INSTRUCTOR,
     // prep: Click "Histórico de Presença" tab
   },
-  {
-    slug: 'checkin-scan',
-    role: 'student',
-    path: '/checkin',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: Arrive from totem QR code; grant geolocation permission
-  },
+  // checkin-scan: intentionally not captured. The page is a QR-redemption
+  // landing that requires a `?token=...` from a totem scan; without one it
+  // sits in a loading state. The student guide describes the flow in text.
 
   // ── Tournaments ──────────────────────────────────────────────────────────────
   {
