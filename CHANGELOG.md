@@ -1,3 +1,18 @@
+# [1.3.0](https://github.com/iorran/pgt/compare/v1.2.1...v1.3.0) (2026-04-09)
+
+
+### Bug Fixes
+
+* **api:** sign dev impersonate cookie with BetterAuth HMAC format ([e253d87](https://github.com/iorran/pgt/commit/e253d87631e60a6c027715ab26b014fdb2930819))
+* **scripts:** route dev impersonate through Vite proxy, relax wait ([5ce228a](https://github.com/iorran/pgt/commit/5ce228a0963acbdcce6953449999af28b9a2d2af))
+
+
+### Features
+
+* **api:** add currently-running class to guide seed ([529801d](https://github.com/iorran/pgt/commit/529801d56a0d575f346900027008c2046b51fd5e))
+* **api:** add dev-only auth impersonation endpoint ([343609a](https://github.com/iorran/pgt/commit/343609a0e524aebd3192194ac5d39994401f1df2))
+* **api:** add seed-guide script for documentation fixtures ([c7c5246](https://github.com/iorran/pgt/commit/c7c5246d7db4fcaa64f08c19304e0810912d8eeb))
+
 ## [1.2.1](https://github.com/iorran/pgt/compare/v1.2.0...v1.2.1) (2026-04-09)
 
 
