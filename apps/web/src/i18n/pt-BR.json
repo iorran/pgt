@@ -121,7 +121,8 @@
     "referenceMonth": "Mês Referência",
     "recentPayments": "Pagamentos Recentes",
     "yourPaymentOverdue": "Seu pagamento está {{days}} dias atrasado",
-    "paymentDueSoon": "Seu pagamento vence em {{days}} dias"
+    "paymentDueSoon": "Seu pagamento vence em {{days}} dias",
+    "week": "semana"
   },
   "marketplace": {
     "title": "Loja",
@@ -202,20 +203,20 @@
     "roster": "Lista de Inscritos"
   },
   "onboarding": {
-    "chooseRole": "Como deseja comecar?",
+    "chooseRole": "Como deseja começar?",
     "createAcademy": "Criar Academia",
     "createAcademyDesc": "Sou instrutor e quero cadastrar minha academia",
-    "haveCode": "Tenho um codigo",
-    "haveCodeDesc": "Sou aluno e recebi um codigo do meu instrutor",
+    "haveCode": "Tenho um código",
+    "haveCodeDesc": "Sou aluno e recebi um código do meu instrutor",
     "academyName": "Nome da Academia",
     "city": "Cidade",
     "creating": "Criando...",
     "joinTitle": "Entrar na Academia",
-    "enterCode": "Digite o codigo da academia",
+    "enterCode": "Digite o código da academia",
     "continue": "Continuar",
-    "academyNotFound": "Academia nao encontrada",
-    "waitingTitle": "Aguardando Aprovacao",
-    "waitingMessage": "Seu cadastro foi enviado. O instrutor ira aprovar sua entrada em breve.",
+    "academyNotFound": "Academia não encontrada",
+    "waitingTitle": "Aguardando Aprovação",
+    "waitingMessage": "Seu cadastro foi enviado. O instrutor irá aprovar sua entrada em breve.",
     "waitingRefresh": "Verificar status",
     "rejectedTitle": "Cadastro Recusado",
     "rejectedMessage": "Infelizmente seu cadastro foi recusado pelo instrutor.",
@@ -223,7 +224,7 @@
     "approve": "Aprovar",
     "reject": "Rejeitar",
     "noPending": "Nenhum aluno pendente",
-    "joinCode": "Codigo de Acesso",
+    "joinCode": "Código de Acesso",
     "shareWhatsApp": "Compartilhar no WhatsApp",
     "copyCode": "Copiar",
     "copied": "Copiado!",
@@ -236,6 +237,12 @@
     "locationSet": "Localização salva",
     "locationNotSet": "Nenhuma localização definida. Toque no botão abaixo enquanto estiver na academia.",
     "address": "Endereço"
+  },
+  "dashboard": {
+    "greeting": "Olá, {{name}}"
+  },
+  "settings": {
+    "geolocationUnavailable": "Geolocalização indisponível"
   },
   "totem": {
     "title": "Totem de Check-in",

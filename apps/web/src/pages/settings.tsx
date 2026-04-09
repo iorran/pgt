@@ -46,7 +46,7 @@ export default function SettingsPage() {
         setTimeout(() => setLocationMsg(''), 3000);
       },
       () => {
-        setLocationMsg('Geolocation unavailable');
+        setLocationMsg(t('settings.geolocationUnavailable'));
         setTimeout(() => setLocationMsg(''), 3000);
       },
     );

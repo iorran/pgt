@@ -121,7 +121,8 @@
     "referenceMonth": "Reference Month",
     "recentPayments": "Recent Payments",
     "yourPaymentOverdue": "Your payment is {{days}} days overdue",
-    "paymentDueSoon": "Your payment is due in {{days}} days"
+    "paymentDueSoon": "Your payment is due in {{days}} days",
+    "week": "week"
   },
   "marketplace": {
     "title": "Marketplace",
@@ -236,6 +237,12 @@
     "locationSet": "Location saved",
     "locationNotSet": "No location set yet. Tap the button below while at the gym.",
     "address": "Address"
+  },
+  "dashboard": {
+    "greeting": "Hello, {{name}}"
+  },
+  "settings": {
+    "geolocationUnavailable": "Geolocation unavailable"
   },
   "totem": {
     "title": "Check-in Totem",
