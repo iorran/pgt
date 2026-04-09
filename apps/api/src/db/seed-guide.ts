@@ -248,7 +248,14 @@ export async function seedGuide(
   //    Maria (roxa): current month NOT yet paid — eligible for quick-pay.
   await db.insert(schema.payment).values(paymentRows);
 
-  // 8. Classes — 2 weekly recurring so dashboard and classes page have content.
+  // 8. Classes — 2 weekly recurring + one "currently running" so the totem
+  //    page always has a class to show regardless of when the screenshot
+  //    capture script runs.
+  const nowHour = now.getHours();
+  const nowDay = now.getDay(); // 0-6
+  const startHour = Math.max(0, nowHour - 1);
+  const endHour = Math.min(23, nowHour + 2);
+  const pad = (n: number) => String(n).padStart(2, '0');
   await db.insert(schema.bjjClass).values([
     {
       academyId: acad.id,
@@ -269,6 +276,16 @@ export async function seedGuide(
       dayOfWeek: 3,
       startTime: '19:00',
       endTime: '20:30',
+    },
+    {
+      academyId: acad.id,
+      instructorId: instructor.id,
+      name: 'Fundamentos (Demo)',
+      type: 'gi' as const,
+      recurrence: 'weekly' as const,
+      dayOfWeek: nowDay,
+      startTime: `${pad(startHour)}:00`,
+      endTime: `${pad(endHour)}:00`,
     },
   ]);
 
