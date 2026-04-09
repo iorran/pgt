@@ -1,0 +1,106 @@
+name: User Guide Drift Detection
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'apps/web/src/pages/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  detect-drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute changed files
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$CHANGED" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Detect guide drift and post comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changedRaw = `${{ steps.diff.outputs.files }}`;
+            const changedFiles = changedRaw.trim() ? changedRaw.trim().split('\n') : [];
+
+            core.info(`Changed files:\n${changedFiles.join('\n')}`);
+
+            const pagesChanged = changedFiles.some(f => f.startsWith('apps/web/src/pages/'));
+            const guideChanged =
+              changedFiles.includes('docs/User Guide - Instructor.md') ||
+              changedFiles.includes('docs/User Guide - Student.md');
+
+            const STICKY_MARKER = '<!-- drift-detection-sticky -->';
+
+            const DRIFT_BODY = [
+              '📖 **User guide drift possible**',
+              '',
+              'This PR modifies pages under `apps/web/src/pages/**` but doesn\'t touch either user guide:',
+              '',
+              '- `docs/User Guide - Instructor.md`',
+              '- `docs/User Guide - Student.md`',
+              '',
+              'Consider whether the changes affect documented flows. If yes, update the relevant guide in this PR or open a follow-up to refresh the corresponding sections and screenshots (`npm run screenshots:capture`).',
+              '',
+              '_This check is non-blocking — it just flags a reminder._',
+              '',
+              STICKY_MARKER,
+            ].join('\n');
+
+            const RESOLVED_BODY = [
+              '📖 **User guide drift possible** — resolved',
+              '',
+              'The PR now updates the user guide(s) alongside the page changes. Thanks!',
+              '',
+              STICKY_MARKER,
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            const existing = comments.find(c => c.body && c.body.includes(STICKY_MARKER));
+
+            if (pagesChanged && !guideChanged) {
+              core.info('Drift detected — posting or updating sticky comment.');
+              if (existing) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body: DRIFT_BODY,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.pull_request.number,
+                  body: DRIFT_BODY,
+                });
+              }
+            } else if (existing) {
+              core.info('Guide updated — resolving sticky comment.');
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: RESOLVED_BODY,
+              });
+            } else {
+              core.info('No drift detected and no prior sticky comment. Nothing to do.');
+            }
+
+            // Always exits 0 — non-blocking reminder only
