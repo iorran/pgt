@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/iorran/pgt/compare/v1.3.0...v1.3.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* **e2e:** use crypto.randomBytes for academy slug and joinCode ([24114e0](https://github.com/iorran/pgt/commit/24114e0a0d0f02fa932879f5d6b0de76bc9e30ca))
+
 # [1.3.0](https://github.com/iorran/pgt/compare/v1.2.1...v1.3.0) (2026-04-09)
 
 
