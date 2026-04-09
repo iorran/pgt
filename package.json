@@ -15,6 +15,7 @@
     "db:generate": "turbo db:generate --filter=@pgt/api",
     "db:migrate": "turbo db:migrate --filter=@pgt/api",
     "db:seed": "turbo db:seed --filter=@pgt/api",
+    "db:seed:guide": "turbo db:seed:guide --filter=@pgt/api",
     "release": "semantic-release"
   },
   "devDependencies": {
