@@ -18,6 +18,7 @@ const {
   tournament,
   tournamentSignup,
   competitionResult,
+  season,
   session,
   account,
   xpEntry,
@@ -241,6 +242,9 @@ export async function cleanAcademy(academyId: string): Promise<void> {
   await e2eDb.delete(product).where(eq(product.academyId, academyId));
 
   await e2eDb.delete(tournament).where(eq(tournament.academyId, academyId));
+  // season has academyId column — competitionResult rows (FK to season) were
+  // already deleted above via studentId, so season can be dropped now.
+  await e2eDb.delete(season).where(eq(season.academyId, academyId));
   await e2eDb.delete(payment).where(eq(payment.academyId, academyId));
   await e2eDb
     .delete(membershipPlan)

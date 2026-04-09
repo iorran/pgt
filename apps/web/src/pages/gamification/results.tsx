@@ -80,11 +80,12 @@ export default function ResultsPage() {
   });
 
   const approvalMutation = useMutation({
-    mutationFn: ({ resultId, status }: { resultId: string; status: 'approved' | 'rejected' }) =>
-      api(`/competition-results/${resultId}`, {
+    mutationFn: ({ resultId, status }: { resultId: string; status: 'approved' | 'rejected' }) => {
+      const action = status === 'approved' ? 'approve' : 'reject';
+      return api(`/competition-results/${resultId}/${action}`, {
         method: 'PUT',
-        body: JSON.stringify({ status }),
-      }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['competition-results'] });
     },
@@ -98,7 +99,8 @@ export default function ResultsPage() {
     },
     onSubmit: async ({ value }) => {
       await submitMutation.mutateAsync({
-        ...value,
+        competitionName: value.competitionName,
+        competitionDate: value.date,
         position: Number(value.position),
         studentId: user.id,
         seasonId: effectiveSeasonId,

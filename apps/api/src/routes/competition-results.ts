@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { competitionResult, season, xpEntry } from '../db/schema/index.js';
+import { competitionResult, season, xpEntry, user } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 
@@ -21,14 +21,32 @@ export async function competitionResultRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // List competition results with optional status filter
+  // List competition results with optional status filter (includes studentName via join)
   app.get('/api/competition-results', async (request) => {
     const { seasonId, status } = request.query as { seasonId: string; status?: string };
     const conditions = [eq(competitionResult.seasonId, seasonId)];
     if (status) {
       conditions.push(eq(competitionResult.status, status as 'pending' | 'approved' | 'rejected'));
     }
-    return db.select().from(competitionResult).where(and(...conditions));
+    const rows = await db
+      .select({
+        id: competitionResult.id,
+        seasonId: competitionResult.seasonId,
+        studentId: competitionResult.studentId,
+        competitionName: competitionResult.competitionName,
+        date: competitionResult.competitionDate,
+        position: competitionResult.position,
+        pointsAwarded: competitionResult.pointsAwarded,
+        status: competitionResult.status,
+        submittedBy: competitionResult.submittedBy,
+        reviewedBy: competitionResult.reviewedBy,
+        createdAt: competitionResult.createdAt,
+        studentName: user.name,
+      })
+      .from(competitionResult)
+      .leftJoin(user, eq(competitionResult.studentId, user.id))
+      .where(and(...conditions));
+    return rows;
   });
 
   // Approve a competition result (instructor only)
