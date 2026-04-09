@@ -238,6 +238,9 @@
     "locationNotSet": "Nenhuma localização definida. Toque no botão abaixo enquanto estiver na academia.",
     "address": "Endereço"
   },
+  "settings": {
+    "geolocationUnavailable": "Geolocalização indisponível"
+  },
   "totem": {
     "title": "Totem de Check-in",
     "noClasses": "Nenhuma aula no momento",

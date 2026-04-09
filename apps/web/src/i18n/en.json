@@ -238,6 +238,9 @@
     "locationNotSet": "No location set yet. Tap the button below while at the gym.",
     "address": "Address"
   },
+  "settings": {
+    "geolocationUnavailable": "Geolocation unavailable"
+  },
   "totem": {
     "title": "Check-in Totem",
     "noClasses": "No classes right now",
