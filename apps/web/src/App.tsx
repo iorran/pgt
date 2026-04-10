@@ -70,8 +70,6 @@ function RejectedView() {
 function App() {
   const { data: session, isPending, isRefetching } = useSession();
 
-  console.log('[App] isPending:', isPending, 'isRefetching:', isRefetching, 'session:', session ? { user: { id: (session.user as any).id, academyId: (session.user as any).academyId, role: (session.user as any).role, status: (session.user as any).status } } : null);
-
   // Hold the loading screen during any fetch or refetch. Without the
   // isRefetching guard, better-auth can transiently surface
   // { isPending: false, data: null } in the middle of a background
