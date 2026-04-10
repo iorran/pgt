@@ -1,3 +1,18 @@
+# [1.5.0](https://github.com/iorran/pgt/compare/v1.4.1...v1.5.0) (2026-04-10)
+
+
+### Bug Fixes
+
+* **web:** clearer checkin scanner errors and secure-context guard ([2174047](https://github.com/iorran/pgt/commit/2174047345f2ea37237b17dfa42d05ff56cc2a1a))
+* **web:** in-app QR scanner on /checkin when no URL credentials ([920c358](https://github.com/iorran/pgt/commit/920c358f095afa89b8210a64f5843124dc5eef85))
+* **web:** remove debug console.log that crashed on partial session ([54cb485](https://github.com/iorran/pgt/commit/54cb485ec2cfe518e0fa3b3174850faf11d9e5d4))
+* **web:** switch QR scanner from html5-qrcode to @yudiel/react-qr-scanner ([212df46](https://github.com/iorran/pgt/commit/212df46f0382ef3e9808960af6f1ef18099dd822))
+
+
+### Features
+
+* **web:** students land on /classes, not the instructor dashboard ([69c3589](https://github.com/iorran/pgt/commit/69c3589da8f578e74976213697c3ec17a5e46ada))
+
 ## [1.4.1](https://github.com/iorran/pgt/compare/v1.4.0...v1.4.1) (2026-04-10)
 
 
