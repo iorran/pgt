@@ -11,7 +11,11 @@
     "marketplace": "Marketplace",
     "gamification": "Ranking",
     "tournaments": "Tournaments",
-    "settings": "Settings"
+    "settings": "Settings",
+    "progress": "Progress",
+    "shop": "Shop",
+    "me": "Me",
+    "checkin": "Check-in"
   },
   "auth": {
     "login": "Log In",
@@ -249,6 +253,20 @@
     "noClasses": "No classes right now",
     "nextClass": "Next class",
     "scanToCheckin": "Scan to check in"
+  },
+  "me": {
+    "title": "My Profile",
+    "billingStatus": "Membership",
+    "billingUpToDate": "Up to date",
+    "billingOverdue": "Overdue",
+    "tournaments": "Tournaments",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "settings": "Settings",
+    "signOut": "Sign out"
   },
   "notifications": {
     "title": "Notifications",

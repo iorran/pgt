@@ -89,6 +89,47 @@ Após o cadastro, seu status é **Pendente**. Seu instrutor precisa aprová-lo a
 Para sair durante a espera, toque em **"Sair"**.
 <sub><em>To sign out while waiting, tap **"Sair"**.</em></sub>
 
+## Instalar o PGT como aplicativo
+<sub><em>Install PGT as an app</em></sub>
+
+Você pode instalar o PGT na tela inicial do seu celular e usá-lo como um aplicativo nativo, sem abrir o navegador.
+<sub><em>You can install PGT on your phone's home screen and use it like a native app, without opening a browser.</em></sub>
+
+### iPhone (Safari)
+1. Abra o PGT no **Safari** (não funciona em outros navegadores no iPhone).
+   <sub><em>Open PGT in **Safari** (it won't work in other browsers on iPhone).</em></sub>
+2. Toque no botão de **compartilhar** na barra inferior.
+   <sub><em>Tap the **share** button in the bottom bar.</em></sub>
+3. Escolha **"Adicionar à Tela de Início"**.
+   <sub><em>Choose **"Add to Home Screen"**.</em></sub>
+4. Confirme o nome e toque em **Adicionar**.
+   <sub><em>Confirm the name and tap **Add**.</em></sub>
+
+### Android (Chrome)
+1. Abra o PGT no **Chrome**.
+   <sub><em>Open PGT in **Chrome**.</em></sub>
+2. Toque no menu (três pontinhos) no canto superior direito.
+   <sub><em>Tap the menu (three dots) in the top right.</em></sub>
+3. Escolha **"Instalar app"** ou **"Adicionar à tela inicial"**.
+   <sub><em>Choose **"Install app"** or **"Add to home screen"**.</em></sub>
+
+## Navegando no app
+<sub><em>Navigating the app</em></sub>
+
+A navegação principal fica na barra inferior, sempre visível.
+<sub><em>The main navigation lives in the bottom bar, always visible.</em></sub>
+
+- **Aulas** — sua agenda e histórico de presenças.
+  <sub><em>**Classes** — your schedule and attendance history.</em></sub>
+- **Progresso** — faixas, graus, conquistas e ranking.
+  <sub><em>**Progress** — belts, stripes, achievements, and ranking.</em></sub>
+- **Check-in (botão central verde)** — abre o leitor de QR code em tela cheia.
+  <sub><em>**Check-in (center green button)** — opens the QR code scanner full-screen.</em></sub>
+- **Loja** — produtos da academia.
+  <sub><em>**Shop** — academy products.</em></sub>
+- **Perfil** — mensalidade, torneios, idioma, tema, sair.
+  <sub><em>**Me** — membership, tournaments, language, theme, sign out.</em></sub>
+
 ## Fazer Check-in nas Aulas
 <sub><em>Checking In to Classes</em></sub>
 
@@ -100,8 +141,8 @@ Você pode fazer check-in de duas formas. Ambas são igualmente válidas.
 
 ![Tela de aulas com botões de check-in do aluno](./assets/user-guide/student/classes-student-checkin.png)
 
-1. Menu lateral → **Aulas**
-   <sub><em>Sidebar → Classes</em></sub>
+1. Barra inferior → **Aulas**
+   <sub><em>Bottom nav → Classes</em></sub>
 2. Para qualquer aula ativa no momento, você verá dois botões: **"Check-in"** e **"QR Code"**
    <sub><em>For any class that's currently active, you'll see two buttons: **"Check-in"** and **"QR Code"**</em></sub>
 3. Toque em qualquer um dos dois — ambos usam GPS para verificar sua presença
@@ -142,8 +183,14 @@ Aponte a câmera do celular para o QR Code do totem na academia. O navegador abr
 ### Ver Seu Histórico de Check-ins
 <sub><em>View Your Check-in History</em></sub>
 
-Menu lateral → **Aulas** → aba **Histórico de Presença**. Veja todos os seus check-ins anteriores com data, nome da aula e tipo.
-<sub><em>Sidebar → Classes → **Histórico de Presença** tab. See all your past check-ins with date, class name, and type.</em></sub>
+Barra inferior → **Aulas** → aba **Histórico de Presença**. Veja todos os seus check-ins anteriores com data, nome da aula e tipo.
+<sub><em>Bottom nav → Classes → **Histórico de Presença** tab. See all your past check-ins with date, class name, and type.</em></sub>
+
+## Check-in rápido
+<sub><em>Quick check-in</em></sub>
+
+Toque no grande botão verde no centro da barra inferior para abrir o leitor de QR code. Aponte a câmera para o QR code na entrada da sua academia para marcar presença.
+<sub><em>Tap the large green button in the center of the bottom bar to open the QR code scanner. Point your camera at the QR code at your academy's entrance to check in.</em></sub>
 
 ## Pagamentos
 <sub><em>Payments</em></sub>
@@ -171,6 +218,25 @@ Os pagamentos são registrados pelo seu instrutor. Para ver seu histórico, peç
 > O aplicativo apenas registra pagamentos. Pague ao seu instrutor da forma que vocês combinarem (dinheiro, transferência, etc.) — ele registrará no sistema.
 > <sub><em>You can't pay through the app. The app only tracks payments. Pay your instructor however you normally do (cash, transfer, etc.) — they'll record it in the system.</em></sub>
 
+## Minha conta
+<sub><em>My account</em></sub>
+
+A aba **Perfil** reúne tudo que é seu.
+<sub><em>The **Me** tab gathers everything that's yours.</em></sub>
+
+- **Mensalidade** — status do pagamento.
+  <sub><em>**Membership** — payment status.</em></sub>
+- **Torneios** — inscrições e resultados.
+  <sub><em>**Tournaments** — registrations and results.</em></sub>
+- **Idioma** — alternar entre Português e Inglês.
+  <sub><em>**Language** — switch between Portuguese and English.</em></sub>
+- **Tema** — claro, escuro ou automático.
+  <sub><em>**Theme** — light, dark, or automatic.</em></sub>
+- **Configurações** — dados pessoais e segurança.
+  <sub><em>**Settings** — personal details and security.</em></sub>
+- **Sair** — encerra a sessão neste dispositivo.
+  <sub><em>**Sign out** — ends the session on this device.</em></sub>
+
 ## Gamificação
 <sub><em>Gamification</em></sub>
 
@@ -179,8 +245,8 @@ Os pagamentos são registrados pelo seu instrutor. Para ver seu histórico, peç
 
 ![Perfil de gamificação do aluno](./assets/user-guide/student/gamification-profile.png)
 
-Menu lateral → **Ranking** → aba **Perfil de Gamificação**. Veja:
-<sub><em>Sidebar → Ranking → **Perfil de Gamificação** tab. See your:</em></sub>
+Barra inferior → **Progresso** → aba **Perfil de Gamificação**. Veja:
+<sub><em>Bottom nav → Progress → **Perfil de Gamificação** tab. See your:</em></sub>
 
 - Total de XP
   <sub><em>Total XP</em></sub>
@@ -199,8 +265,8 @@ Menu lateral → **Ranking** → aba **Perfil de Gamificação**. Veja:
 Quando você competir em um campeonato, envie seu resultado para ganhar pontos.
 <sub><em>When you compete in a tournament, submit your result for points.</em></sub>
 
-1. Menu lateral → **Ranking** → aba **Resultados de Competição**
-   <sub><em>Sidebar → Ranking → **Resultados de Competição** tab</em></sub>
+1. Barra inferior → **Progresso** → aba **Resultados de Competição**
+   <sub><em>Bottom nav → Progress → **Resultados de Competição** tab</em></sub>
 2. Toque em **"Enviar Resultado"**
    <sub><em>Tap **"Enviar Resultado"**</em></sub>
 3. Preencha o formulário:
@@ -221,8 +287,8 @@ Quando você competir em um campeonato, envie seu resultado para ganhar pontos.
 
 ![Ranking de gamificação](./assets/user-guide/instructor/gamification-leaderboard.png)
 
-Menu lateral → **Ranking** → aba **Classificação**. Veja onde você se posiciona em relação aos outros alunos. Filtre por categoria (**Adultos** / **Kids**) e por nível de faixa.
-<sub><em>Sidebar → Ranking → **Classificação** tab. See where you rank against other students. Filter by category (**Adultos** / **Kids**) and by belt level.</em></sub>
+Barra inferior → **Progresso** → aba **Classificação**. Veja onde você se posiciona em relação aos outros alunos. Filtre por categoria (**Adultos** / **Kids**) e por nível de faixa.
+<sub><em>Bottom nav → Progress → **Classificação** tab. See where you rank against other students. Filter by category (**Adultos** / **Kids**) and by belt level.</em></sub>
 
 ## Loja
 <sub><em>Marketplace</em></sub>
@@ -230,8 +296,8 @@ Menu lateral → **Ranking** → aba **Classificação**. Veja onde você se pos
 ### Explorar Produtos
 <sub><em>Browse Products</em></sub>
 
-Menu lateral → **Loja**. Veja quimonos, equipamentos e outros itens que sua academia vende.
-<sub><em>Sidebar → Marketplace. See gear, kimonos, and other items your academy sells.</em></sub>
+Barra inferior → **Loja**. Veja quimonos, equipamentos e outros itens que sua academia vende.
+<sub><em>Bottom nav → Shop. See gear, kimonos, and other items your academy sells.</em></sub>
 
 ### Fazer um Pedido
 <sub><em>Place an Order</em></sub>
@@ -253,8 +319,8 @@ Menu lateral → **Loja**. Veja quimonos, equipamentos e outros itens que sua ac
 
 ![Inscrição em campeonato pelo aluno](./assets/user-guide/student/tournaments-student.png)
 
-1. Menu lateral → **Campeonatos**
-   <sub><em>Sidebar → Tournaments</em></sub>
+1. Barra inferior → **Perfil** → **Torneios**
+   <sub><em>Bottom nav → Me → Tournaments</em></sub>
 2. Encontre o campeonato que deseja participar
    <sub><em>Find the tournament you want to attend</em></sub>
 3. Toque em **"Inscrever-se"** e selecione sua **Categoria de Peso**
@@ -265,6 +331,8 @@ Menu lateral → **Loja**. Veja quimonos, equipamentos e outros itens que sua ac
 ## Dicas
 <sub><em>Tips</em></sub>
 
+- **Instale o PGT na tela inicial** — acesse sem abrir o navegador a cada vez
+  <sub><em>Install PGT on your home screen — open it without launching a browser each time</em></sub>
 - **Permita o acesso à localização** quando solicitado — necessário para check-ins por proximidade
   <sub><em>Allow location access when prompted — required for proximity check-ins</em></sub>
 - **Faça check-in toda vez que treinar** — isso aumenta sua sequência e XP

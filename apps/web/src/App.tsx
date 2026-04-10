@@ -8,7 +8,11 @@ import EntrarPage from './pages/entrar';
 import AguardandoPage from './pages/aguardando';
 import DashboardPage from './pages/dashboard';
 import PendingStudentsPage from './pages/pending-students';
-import { AppLayout } from './components/layout/app-layout';
+import { StaffShell } from './components/layout/staff-shell';
+import { StudentShell } from './components/layout/student-shell';
+import MePage from './pages/me';
+import BillingStatusPage from './pages/me/billing-status';
+import ThemePage from './pages/me/theme';
 import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
 import StudentsPage from './pages/students/index';
@@ -127,11 +131,13 @@ function App() {
   console.log('[App] Routing → authenticated (dashboard)');
 
   // Normal authenticated routes
+  const Shell = (user.role as string) === 'student' ? StudentShell : StaffShell;
+
   return (
     <Routes>
       <Route path="/totem" element={<TotemPage />} />
       <Route path="/checkin" element={<CheckinScanPage />} />
-      <Route element={<AppLayout />}>
+      <Route element={<Shell />}>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/pending" element={<PendingStudentsPage />} />
         <Route path="/classes" element={<ClassesPage />} />
@@ -149,6 +155,9 @@ function App() {
         <Route path="/gamification/profile" element={<GamificationProfilePage />} />
         <Route path="/tournaments" element={<TournamentsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/me" element={<MePage />} />
+        <Route path="/me/billing" element={<BillingStatusPage />} />
+        <Route path="/me/theme" element={<ThemePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

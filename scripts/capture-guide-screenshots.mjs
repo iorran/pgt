@@ -67,7 +67,7 @@ const SHOTS = [
     slug: 'aguardando-screen',
     role: 'student',
     path: '/aguardando',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: STUDENT_PENDING,
     // prep: none — lucas.branca.pending@demo.pgt has status='pending'
   },
@@ -85,7 +85,7 @@ const SHOTS = [
     slug: 'dashboard-student-banner',
     role: 'student',
     path: '/',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: STUDENT_OVERDUE,
     // prep: pedro.branca.overdue@demo.pgt has overdue payments seeded; shows destructive red banner
   },
@@ -165,9 +165,9 @@ const SHOTS = [
     slug: 'marketplace-order',
     role: 'student',
     path: '/marketplace',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: STUDENT_AZUL,
-    // prep: none — shows "Solicitar" button directly on each product card
+    // prep: none — shows "Solicitar" button directly on each product card; mobile shows 2-col grid
   },
   {
     slug: 'marketplace-orders',
@@ -199,7 +199,7 @@ const SHOTS = [
     slug: 'gamification-results-student',
     role: 'student',
     path: '/gamification/results',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: STUDENT_AZUL,
     // prep: Click "Enviar Resultado" tab before screenshot
   },
@@ -215,9 +215,47 @@ const SHOTS = [
     slug: 'gamification-profile',
     role: 'student',
     path: '/gamification/profile',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: STUDENT_AZUL,
     // prep: none
+  },
+
+  // ── Student hub — /me (Milestone 4) ─────────────────────────────────────────
+  {
+    slug: 'student-hub',
+    role: 'student',
+    path: '/me',
+    viewport: 'mobile',
+    login: STUDENT_AZUL,
+    // prep: none — hub page showing billing status, tournaments link, settings, theme, sign-out
+  },
+  {
+    slug: 'student-billing',
+    role: 'student',
+    path: '/me/billing',
+    viewport: 'mobile',
+    login: STUDENT_AZUL,
+    // prep: none — billing detail showing current plan and payment status
+  },
+  {
+    slug: 'student-theme',
+    role: 'student',
+    path: '/me/theme',
+    viewport: 'mobile',
+    login: STUDENT_AZUL,
+    // prep: none — theme toggle (light / dark / system)
+  },
+  // ── Student check-in scanner ─────────────────────────────────────────────────
+  // Camera permission is requested; if the scanner throws or stalls without a
+  // real camera, the shot is skipped gracefully rather than failing the run.
+  {
+    slug: 'checkin-scanner',
+    role: 'student',
+    path: '/checkin',
+    viewport: 'mobile',
+    login: STUDENT_AZUL,
+    permissions: ['camera'],
+    // prep: camera permission granted via context options; fullscreen scanner UI
   },
 
   // ── Totem (mobile) ───────────────────────────────────────────────────────────
@@ -235,9 +273,10 @@ const SHOTS = [
     slug: 'classes-student-checkin',
     role: 'student',
     path: '/classes',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: STUDENT_AZUL,
-    // prep: Wait for or mock an active class time window to show Check-in and QR Code buttons
+    // prep: Wait for or mock an active class time window to show Check-in and QR Code buttons;
+    //       mobile viewport confirms the new bottom nav is visible.
   },
   {
     slug: 'checkin-history',
@@ -264,7 +303,7 @@ const SHOTS = [
     slug: 'tournaments-student',
     role: 'student',
     path: '/tournaments',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: STUDENT_AZUL,
     // prep: Click "Inscrever-se" on a tournament to show sign-up dialog
   },
@@ -320,6 +359,7 @@ async function captureShot(browser, shot) {
     locale: 'pt-BR',
     timezoneId: 'Europe/Lisbon',
     baseURL: WEB_URL,
+    ...(shot.permissions?.length ? { permissions: shot.permissions } : {}),
   });
 
   try {

@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
 
-export function AppLayout() {
+export function StaffShell() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
