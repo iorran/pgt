@@ -68,11 +68,19 @@ function RejectedView() {
 }
 
 function App() {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending, isRefetching } = useSession();
 
-  console.log('[App] isPending:', isPending, 'session:', session ? { user: { id: (session.user as any).id, academyId: (session.user as any).academyId, role: (session.user as any).role, status: (session.user as any).status } } : null);
+  console.log('[App] isPending:', isPending, 'isRefetching:', isRefetching, 'session:', session ? { user: { id: (session.user as any).id, academyId: (session.user as any).academyId, role: (session.user as any).role, status: (session.user as any).status } } : null);
 
-  if (isPending) {
+  // Hold the loading screen during any fetch or refetch. Without the
+  // isRefetching guard, better-auth can transiently surface
+  // { isPending: false, data: null } in the middle of a background
+  // refetch; the unauthenticated branch below would then redirect to
+  // /login via its catch-all, and when the refetch resolved the
+  // authenticated catch-all would bounce to /, yanking the user off
+  // whatever page they were on. Treating "no data while refetching"
+  // as "still waiting" keeps URLs stable across refetches.
+  if (isPending || (isRefetching && !session)) {
     console.log('[App] Routing → loading');
     return <div style={{ padding: 40 }}>Carregando...</div>;
   }

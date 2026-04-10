@@ -29,21 +29,17 @@ test('student sees bottom nav and can navigate via tabs', async ({ browser }) =>
     const nav = page.getByRole('navigation', { name: /student bottom navigation/i });
     await expect(nav).toBeVisible({ timeout: 10_000 });
 
-    // Classes tab
-    await nav.getByRole('link', { name: /classes|aulas/i }).first().click();
-    await expect(page).toHaveURL(/\/classes$/);
+    await nav.locator('a[href="/classes"]').click();
+    await page.waitForURL((url) => url.pathname === '/classes');
 
-    // Progress tab
-    await nav.getByRole('link', { name: /progress|progresso/i }).first().click();
-    await expect(page).toHaveURL(/\/gamification\/profile$/);
+    await nav.locator('a[href="/gamification/profile"]').click();
+    await page.waitForURL((url) => url.pathname === '/gamification/profile');
 
-    // Shop tab
-    await nav.getByRole('link', { name: /shop|loja/i }).first().click();
-    await expect(page).toHaveURL(/\/marketplace$/);
+    await nav.locator('a[href="/marketplace"]').click();
+    await page.waitForURL((url) => url.pathname === '/marketplace');
 
-    // Me tab
-    await nav.getByRole('link', { name: /^me$|^perfil$/i }).first().click();
-    await expect(page).toHaveURL(/\/me$/);
+    await nav.locator('a[href="/me"]').click();
+    await page.waitForURL((url) => url.pathname === '/me');
   } finally {
     await context.close();
   }
@@ -60,7 +56,7 @@ test('FAB navigates to fullscreen check-in without the shell', async ({ browser 
     await page.goto('/');
     await page
       .getByRole('navigation', { name: /student bottom navigation/i })
-      .getByRole('link', { name: /check-in/i })
+      .locator('a[href="/checkin"]')
       .click();
     await expect(page).toHaveURL(/\/checkin/);
     await expect(

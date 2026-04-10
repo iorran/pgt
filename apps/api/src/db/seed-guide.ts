@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { db as defaultDb } from './client.js';
 import * as schema from './schema/index.js';
 
@@ -82,6 +82,22 @@ export async function seedGuide(
   await db
     .delete(schema.tournament)
     .where(eq(schema.tournament.academyId, demoId));
+
+  // Classes are referenced by checkin and checkin_token — delete those first
+  // or the FK constraint blocks the class delete on re-runs.
+  const demoClasses = await db
+    .select({ id: schema.bjjClass.id })
+    .from(schema.bjjClass)
+    .where(eq(schema.bjjClass.academyId, demoId));
+  const classIds = demoClasses.map((c) => c.id);
+  if (classIds.length > 0) {
+    await db
+      .delete(schema.checkinToken)
+      .where(inArray(schema.checkinToken.classId, classIds));
+    await db
+      .delete(schema.checkin)
+      .where(inArray(schema.checkin.classId, classIds));
+  }
   await db
     .delete(schema.bjjClass)
     .where(eq(schema.bjjClass.academyId, demoId));

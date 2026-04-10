@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 
+// vite-plugin-pwa only emits the manifest link and service worker in a
+// production build. The dev server (TEST_TARGET=local, the default)
+// doesn't serve them, so these assertions only make sense when the web
+// app is running from `vite preview` after `vite build` — i.e., when
+// TEST_TARGET=ci.
+const IS_BUILT = process.env.TEST_TARGET === 'ci';
+
 test.describe('PWA installability', () => {
+  test.skip(!IS_BUILT, 'PWA assets are only present in build/preview mode');
+
   test('manifest is linked and contains required fields', async ({ page, request }) => {
     await page.goto('/');
 
@@ -32,20 +41,15 @@ test.describe('PWA installability', () => {
 
   test('service worker registers', async ({ page }) => {
     await page.goto('/');
-    // In dev mode, vite-plugin-pwa only generates the manifest/SW in build.
-    // The webServer config uses dev server by default (npm run dev), so the
-    // SW may not be served. Probe registration and accept either outcome.
-    const registered = await page.evaluate(async () => {
-      if (!('serviceWorker' in navigator)) return false;
-      try {
+    // Give the SW a moment to register after page load.
+    await page.waitForFunction(
+      async () => {
+        if (!('serviceWorker' in navigator)) return false;
         const reg = await navigator.serviceWorker.getRegistration();
         return Boolean(reg);
-      } catch {
-        return false;
-      }
-    });
-    // Accept both — manifest presence is the hard assertion, SW registration
-    // depends on whether we're running preview or dev.
-    expect([true, false]).toContain(registered);
+      },
+      null,
+      { timeout: 10_000 },
+    );
   });
 });
