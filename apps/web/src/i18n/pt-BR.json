@@ -50,6 +50,12 @@
     "confirm": "Confirmar",
     "back": "Voltar"
   },
+  "checkin": {
+    "scanInstruction": "Aponte a câmera para o QR code da sua academia",
+    "invalidQr": "QR code inválido",
+    "cameraDenied": "Permissão da câmera negada. Habilite nas configurações do navegador.",
+    "cameraUnavailable": "Câmera não disponível neste dispositivo"
+  },
   "classes": {
     "title": "Quadro de Aulas",
     "createClass": "Criar Aula",
