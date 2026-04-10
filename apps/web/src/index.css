@@ -7,11 +7,20 @@
 /* === Arena Design System for shadcn === */
 
 @theme inline {
+  /* PGT brand palette — sampled from LOGO_PGT.png on 2026-04-10 */
+  --pgt-green: #006437;        /* outer green ring */
+  --pgt-red: #C8102E;          /* red fist ring */
+  --pgt-gold: #F5C518;         /* gold fill */
+  --pgt-black: #0A0A0A;        /* outer black ring */
+  --pgt-green-muted: color-mix(in oklab, var(--pgt-green) 70%, black);
+  --pgt-red-muted: color-mix(in oklab, var(--pgt-red) 70%, black);
+
   /* Fonts */
   --font-sans: 'Barlow', sans-serif;
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-heading: 'Oswald', sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  --font-display: 'Bebas Neue', system-ui, sans-serif;
+  --font-heading: 'Oswald', system-ui, sans-serif;
+  --font-body: 'Barlow Variable', 'Barlow', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
 
   /* Radius — sharp/angular for Arena */
   --radius-sm: 2px;
