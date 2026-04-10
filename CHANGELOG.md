@@ -1,3 +1,12 @@
+## [1.4.1](https://github.com/iorran/pgt/compare/v1.4.0...v1.4.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* **api:** delete checkin_token and checkin rows in seed-guide cleanup ([e160e9c](https://github.com/iorran/pgt/commit/e160e9cf48568abd02dd3989b8e4c3bf8bffec4f))
+* **web,e2e:** unblock student-mobile e2e spec ([47945e3](https://github.com/iorran/pgt/commit/47945e356e4a9ef481c82c89c5491f931fc7e2e5))
+* **web:** preserve URL through session refetches and contain TabsNav overflow ([86f86d3](https://github.com/iorran/pgt/commit/86f86d35d0c12ae69402b6606ed4d15173d70f51))
+
 # [1.4.0](https://github.com/iorran/pgt/compare/v1.3.1...v1.4.0) (2026-04-10)
 
 
