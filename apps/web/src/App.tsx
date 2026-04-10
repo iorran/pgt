@@ -8,7 +8,7 @@ import EntrarPage from './pages/entrar';
 import AguardandoPage from './pages/aguardando';
 import DashboardPage from './pages/dashboard';
 import PendingStudentsPage from './pages/pending-students';
-import { AppLayout } from './components/layout/app-layout';
+import { StaffShell } from './components/layout/staff-shell';
 import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
 import StudentsPage from './pages/students/index';
@@ -131,7 +131,7 @@ function App() {
     <Routes>
       <Route path="/totem" element={<TotemPage />} />
       <Route path="/checkin" element={<CheckinScanPage />} />
-      <Route element={<AppLayout />}>
+      <Route element={<StaffShell />}>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/pending" element={<PendingStudentsPage />} />
         <Route path="/classes" element={<ClassesPage />} />
