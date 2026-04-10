@@ -7,10 +7,6 @@ vi.mock('@/lib/auth-client', () => ({
   useSession: vi.fn(),
 }));
 
-vi.mock('@/components/notification-bell', () => ({
-  NotificationBell: () => <div data-testid="notification-bell" />,
-}));
-
 import { useSession } from '@/lib/auth-client';
 
 const mockedUseSession = vi.mocked(useSession);
@@ -19,7 +15,7 @@ describe('StudentHeader', () => {
   beforeEach(() => {
     mockedUseSession.mockReturnValue({
       data: {
-        user: { name: 'Aluno', role: 'student', academyName: 'Academia Teste' },
+        user: { name: 'Aluno Teste', role: 'student' },
       },
       isPending: false,
     } as any);
@@ -30,13 +26,17 @@ describe('StudentHeader', () => {
     expect(screen.getByText('PGT')).toBeInTheDocument();
   });
 
-  it('renders the academy name from session', () => {
+  it('renders the authenticated user name', () => {
     renderWithProviders(<StudentHeader />);
-    expect(screen.getByText('Academia Teste')).toBeInTheDocument();
+    expect(screen.getByText('Aluno Teste')).toBeInTheDocument();
   });
 
-  it('renders the notification bell', () => {
+  it('omits the user name when the session has none', () => {
+    mockedUseSession.mockReturnValue({
+      data: { user: { role: 'student' } },
+      isPending: false,
+    } as any);
     renderWithProviders(<StudentHeader />);
-    expect(screen.getByTestId('notification-bell')).toBeInTheDocument();
+    expect(screen.getByText('PGT')).toBeInTheDocument();
   });
 });

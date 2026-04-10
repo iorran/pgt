@@ -8,9 +8,6 @@ import { StudentShell } from '@/components/layout/student-shell';
 vi.mock('@/lib/auth-client', () => ({
   useSession: vi.fn(),
 }));
-vi.mock('@/components/notification-bell', () => ({
-  NotificationBell: () => <div data-testid="notification-bell" />,
-}));
 
 import { useSession } from '@/lib/auth-client';
 

@@ -1,10 +1,9 @@
 import { useSession } from '@/lib/auth-client';
-import { NotificationBell } from '@/components/notification-bell';
 
 export function StudentHeader() {
   const { data: session } = useSession();
-  const user = session?.user as { academyName?: string } | undefined;
-  const academyName = user?.academyName ?? '';
+  const user = session?.user as { name?: string } | undefined;
+  const userName = user?.name ?? '';
 
   return (
     <header
@@ -20,12 +19,11 @@ export function StudentHeader() {
         />
         <span className="font-display text-2xl leading-none">PGT</span>
       </div>
-      {academyName ? (
+      {userName ? (
         <span className="font-heading text-sm uppercase tracking-wide truncate">
-          {academyName}
+          {userName}
         </span>
       ) : null}
-      <NotificationBell />
     </header>
   );
 }
