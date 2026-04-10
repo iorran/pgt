@@ -139,14 +139,19 @@ function App() {
   console.log('[App] Routing → authenticated (dashboard)');
 
   // Normal authenticated routes
-  const Shell = (user.role as string) === 'student' ? StudentShell : StaffShell;
+  const isStudent = (user.role as string) === 'student';
+  const Shell = isStudent ? StudentShell : StaffShell;
+  const studentHome = '/classes';
 
   return (
     <Routes>
       <Route path="/totem" element={<TotemPage />} />
       <Route path="/checkin" element={<CheckinScanPage />} />
       <Route element={<Shell />}>
-        <Route path="/" element={<DashboardPage />} />
+        <Route
+          path="/"
+          element={isStudent ? <Navigate to={studentHome} replace /> : <DashboardPage />}
+        />
         <Route path="/pending" element={<PendingStudentsPage />} />
         <Route path="/classes" element={<ClassesPage />} />
         <Route path="/classes/history" element={<CheckinHistoryPage />} />
@@ -167,7 +172,7 @@ function App() {
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/theme" element={<ThemePage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to={isStudent ? studentHome : '/'} replace />} />
     </Routes>
   );
 }
