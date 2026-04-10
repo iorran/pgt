@@ -24,7 +24,7 @@ function TabLink({ tab }: { tab: Tab }) {
   return (
     <NavLink
       to={tab.to}
-      aria-label={tab.labelKey}
+      aria-label={t(tab.labelKey)}
       className={({ isActive }) =>
         [
           'flex flex-col items-center justify-center gap-1 flex-1 min-h-[44px]',
