@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen } from '@testing-library/react';
+import { Outlet } from 'react-router-dom';
 import { renderWithProviders } from './render';
 import App from '@/App';
 
@@ -8,10 +9,24 @@ vi.mock('@/lib/auth-client', () => ({
   signOut: vi.fn(),
 }));
 vi.mock('@/components/layout/student-shell', () => ({
-  StudentShell: () => <div data-testid="student-shell" />,
+  StudentShell: () => (
+    <div data-testid="student-shell">
+      <Outlet />
+    </div>
+  ),
 }));
 vi.mock('@/components/layout/staff-shell', () => ({
-  StaffShell: () => <div data-testid="staff-shell" />,
+  StaffShell: () => (
+    <div data-testid="staff-shell">
+      <Outlet />
+    </div>
+  ),
+}));
+vi.mock('@/pages/dashboard', () => ({
+  default: () => <div data-testid="dashboard-page" />,
+}));
+vi.mock('@/pages/classes/index', () => ({
+  default: () => <div data-testid="classes-page" />,
 }));
 
 import { useSession } from '@/lib/auth-client';
@@ -35,6 +50,9 @@ function setSession(role: 'student' | 'instructor') {
 describe('App shell selector', () => {
   beforeEach(() => {
     mockedUseSession.mockReset();
+    // BrowserRouter reads window.location; reset to '/' between tests
+    // so redirects from earlier cases don't leak into the next.
+    window.history.replaceState({}, '', '/');
   });
 
   it('mounts StudentShell for role=student', () => {
@@ -49,6 +67,20 @@ describe('App shell selector', () => {
     renderWithProviders(<App />);
     expect(screen.getByTestId('staff-shell')).toBeInTheDocument();
     expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
+  });
+
+  it('redirects students from / to /classes (no instructor dashboard)', () => {
+    setSession('student');
+    renderWithProviders(<App />);
+    expect(screen.getByTestId('classes-page')).toBeInTheDocument();
+    expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument();
+  });
+
+  it('shows the dashboard at / for instructors', () => {
+    setSession('instructor');
+    renderWithProviders(<App />);
+    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
+    expect(screen.queryByTestId('classes-page')).not.toBeInTheDocument();
   });
 
   // Regression guard for the session-refetch flap. Without the

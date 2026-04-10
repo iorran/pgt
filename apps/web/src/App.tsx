@@ -70,8 +70,6 @@ function RejectedView() {
 function App() {
   const { data: session, isPending, isRefetching } = useSession();
 
-  console.log('[App] isPending:', isPending, 'isRefetching:', isRefetching, 'session:', session ? { user: { id: (session.user as any).id, academyId: (session.user as any).academyId, role: (session.user as any).role, status: (session.user as any).status } } : null);
-
   // Hold the loading screen during any fetch or refetch. Without the
   // isRefetching guard, better-auth can transiently surface
   // { isPending: false, data: null } in the middle of a background
@@ -139,14 +137,19 @@ function App() {
   console.log('[App] Routing → authenticated (dashboard)');
 
   // Normal authenticated routes
-  const Shell = (user.role as string) === 'student' ? StudentShell : StaffShell;
+  const isStudent = (user.role as string) === 'student';
+  const Shell = isStudent ? StudentShell : StaffShell;
+  const studentHome = '/classes';
 
   return (
     <Routes>
       <Route path="/totem" element={<TotemPage />} />
       <Route path="/checkin" element={<CheckinScanPage />} />
       <Route element={<Shell />}>
-        <Route path="/" element={<DashboardPage />} />
+        <Route
+          path="/"
+          element={isStudent ? <Navigate to={studentHome} replace /> : <DashboardPage />}
+        />
         <Route path="/pending" element={<PendingStudentsPage />} />
         <Route path="/classes" element={<ClassesPage />} />
         <Route path="/classes/history" element={<CheckinHistoryPage />} />
@@ -167,7 +170,7 @@ function App() {
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/theme" element={<ThemePage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to={isStudent ? studentHome : '/'} replace />} />
     </Routes>
   );
 }
