@@ -198,14 +198,14 @@ export default function ClassesPage() {
   }
 
   return (
-    <div className="p-5 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       <TabsNav items={[
         { to: '/classes', label: t('classes.title') },
         { to: '/classes/history', label: t('classes.checkinHistory') },
       ]} />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <span className="arena-stat text-primary text-2xl">{classes.length}</span>
+          <span className="arena-stat text-primary text-xl md:text-2xl">{classes.length}</span>
         </div>
 
         {user?.role === 'instructor' && (
@@ -378,7 +378,7 @@ export default function ClassesPage() {
                 <div className="flex gap-2 mt-2">
                   <Button
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 min-h-[44px]"
                     onClick={() => handleProximityCheckin(c.id)}
                     loading={checkinMutation.isPending}
                   >
@@ -386,6 +386,7 @@ export default function ClassesPage() {
                   </Button>
                   <Button
                     variant="outline"
+                    className="min-h-[44px]"
                     onClick={() => handleProximityCheckin(c.id)}
                   >
                     {t('classes.checkinQR')}
