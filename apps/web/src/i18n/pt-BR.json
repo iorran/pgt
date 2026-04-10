@@ -54,7 +54,9 @@
     "scanInstruction": "Aponte a câmera para o QR code da sua academia",
     "invalidQr": "QR code inválido",
     "cameraDenied": "Permissão da câmera negada. Habilite nas configurações do navegador.",
-    "cameraUnavailable": "Câmera não disponível neste dispositivo"
+    "cameraUnavailable": "Câmera não disponível neste dispositivo",
+    "noCameraFound": "Nenhuma câmera encontrada neste dispositivo",
+    "insecureContext": "A câmera só funciona via HTTPS. Use o app instalado na tela inicial, ou acesse por https://."
   },
   "classes": {
     "title": "Quadro de Aulas",

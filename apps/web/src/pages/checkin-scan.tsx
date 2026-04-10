@@ -68,6 +68,17 @@ export default function CheckinScanPage() {
   useEffect(() => {
     if (!session || hasUrlCredentials || status !== 'scanning') return;
 
+    // Camera APIs only exist in a secure context (HTTPS or localhost).
+    // Fail fast with a specific, actionable message when the site is
+    // served over plain HTTP on a LAN IP — otherwise html5-qrcode
+    // surfaces a cryptic "NotFoundError" or TypeError that makes it
+    // look like the device has no camera.
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      setErrorMsg(t('checkin.insecureContext'));
+      setStatus('error');
+      return;
+    }
+
     const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID);
     scannerRef.current = scanner;
     let cancelled = false;
@@ -95,11 +106,13 @@ export default function CheckinScanPage() {
         },
       )
       .catch((err: Error) => {
-        setErrorMsg(
-          err.name === 'NotAllowedError'
-            ? t('checkin.cameraDenied')
-            : t('checkin.cameraUnavailable'),
-        );
+        if (err.name === 'NotAllowedError') {
+          setErrorMsg(t('checkin.cameraDenied'));
+        } else if (err.name === 'NotFoundError') {
+          setErrorMsg(t('checkin.noCameraFound'));
+        } else {
+          setErrorMsg(`${t('checkin.cameraUnavailable')} (${err.name}: ${err.message})`);
+        }
         setStatus('error');
       });
 

@@ -54,7 +54,9 @@
     "scanInstruction": "Point the camera at your academy's QR code",
     "invalidQr": "Invalid QR code",
     "cameraDenied": "Camera permission denied. Enable it in your browser settings.",
-    "cameraUnavailable": "Camera not available on this device"
+    "cameraUnavailable": "Camera not available on this device",
+    "noCameraFound": "No camera found on this device",
+    "insecureContext": "The camera only works over HTTPS. Install the app to your home screen, or open the site over https://."
   },
   "classes": {
     "title": "Class Schedule",
