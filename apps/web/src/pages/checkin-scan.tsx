@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Html5Qrcode } from 'html5-qrcode';
+import { Scanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
@@ -8,8 +8,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 type Status = 'scanning' | 'processing' | 'success' | 'error';
-
-const SCANNER_ELEMENT_ID = 'pgt-qr-scanner';
 
 function parseCheckinUrl(raw: string): { token: string; classId: string } | null {
   try {
@@ -28,17 +26,16 @@ export default function CheckinScanPage() {
   const { data: session } = useSession();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const scannerRef = useRef<Html5Qrcode | null>(null);
 
   const urlToken = searchParams.get('token');
   const urlClassId = searchParams.get('classId');
   const hasUrlCredentials = Boolean(urlToken && urlClassId);
 
-  // Mode A: credentials present in URL (student scanned the academy QR
-  // with their phone's native camera). Process the check-in immediately.
+  // Mode A: credentials in URL (student scanned the academy totem QR
+  //   with their phone's native camera). Process the check-in now.
   // Mode B: no credentials (student opened the app and tapped the FAB).
-  // Render the in-app scanner with html5-qrcode and process the decoded
-  // URL the same way Mode A does.
+  //   Render an in-app scanner that decodes the QR, extracts the same
+  //   token + classId, and processes the check-in the same way.
   const [status, setStatus] = useState<Status>(
     hasUrlCredentials ? 'processing' : 'scanning',
   );
@@ -57,74 +54,39 @@ export default function CheckinScanPage() {
     }
   }
 
-  // Mode A — URL-driven check-in
+  // Mode A
   useEffect(() => {
     if (!session || !hasUrlCredentials) return;
     void submitCheckin(urlToken!, urlClassId!);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, hasUrlCredentials]);
 
-  // Mode B — in-app QR scanner
-  useEffect(() => {
-    if (!session || hasUrlCredentials || status !== 'scanning') return;
-
-    // Camera APIs only exist in a secure context (HTTPS or localhost).
-    // Fail fast with a specific, actionable message when the site is
-    // served over plain HTTP on a LAN IP — otherwise html5-qrcode
-    // surfaces a cryptic "NotFoundError" or TypeError that makes it
-    // look like the device has no camera.
-    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
-      setErrorMsg(t('checkin.insecureContext'));
+  function handleScan(results: IDetectedBarcode[]) {
+    if (status !== 'scanning' || results.length === 0) return;
+    const parsed = parseCheckinUrl(results[0].rawValue);
+    if (!parsed) {
+      setErrorMsg(t('checkin.invalidQr'));
       setStatus('error');
       return;
     }
+    setStatus('processing');
+    void submitCheckin(parsed.token, parsed.classId);
+  }
 
-    const scanner = new Html5Qrcode(SCANNER_ELEMENT_ID);
-    scannerRef.current = scanner;
-    let cancelled = false;
-
-    scanner
-      .start(
-        { facingMode: 'environment' },
-        { fps: 10, qrbox: { width: 260, height: 260 } },
-        async (decodedText) => {
-          if (cancelled) return;
-          const parsed = parseCheckinUrl(decodedText);
-          if (!parsed) {
-            setErrorMsg(t('checkin.invalidQr'));
-            setStatus('error');
-            await scanner.stop().catch(() => undefined);
-            return;
-          }
-          cancelled = true;
-          setStatus('processing');
-          await scanner.stop().catch(() => undefined);
-          await submitCheckin(parsed.token, parsed.classId);
-        },
-        () => {
-          // Per-frame decode failure — silently keep scanning.
-        },
-      )
-      .catch((err: Error) => {
-        if (err.name === 'NotAllowedError') {
-          setErrorMsg(t('checkin.cameraDenied'));
-        } else if (err.name === 'NotFoundError') {
-          setErrorMsg(t('checkin.noCameraFound'));
-        } else {
-          setErrorMsg(`${t('checkin.cameraUnavailable')} (${err.name}: ${err.message})`);
-        }
-        setStatus('error');
-      });
-
-    return () => {
-      cancelled = true;
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        scannerRef.current.stop().catch(() => undefined);
-      }
-      scannerRef.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, hasUrlCredentials, status]);
+  function handleScannerError(err: unknown) {
+    const e = err as { name?: string; message?: string };
+    if (e?.name === 'NotAllowedError') {
+      setErrorMsg(t('checkin.cameraDenied'));
+    } else if (e?.name === 'NotFoundError') {
+      setErrorMsg(t('checkin.noCameraFound'));
+    } else if (!window.isSecureContext) {
+      setErrorMsg(t('checkin.insecureContext'));
+    } else {
+      const detail = e?.message ? ` (${e.message})` : '';
+      setErrorMsg(`${t('checkin.cameraUnavailable')}${detail}`);
+    }
+    setStatus('error');
+  }
 
   if (!session) return null;
 
@@ -141,10 +103,15 @@ export default function CheckinScanPage() {
               <p className="text-sm text-muted-foreground">
                 {t('checkin.scanInstruction')}
               </p>
-              <div
-                id={SCANNER_ELEMENT_ID}
-                className="mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-border"
-              />
+              <div className="mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-border">
+                <Scanner
+                  onScan={handleScan}
+                  onError={handleScannerError}
+                  constraints={{ facingMode: 'environment' }}
+                  formats={['qr_code']}
+                  scanDelay={300}
+                />
+              </div>
               <Button variant="outline" onClick={() => navigate('/')}>
                 {t('common.cancel')}
               </Button>
