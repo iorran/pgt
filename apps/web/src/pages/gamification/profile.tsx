@@ -27,6 +27,13 @@ export default function GamificationProfilePage() {
   if (isLoading) return <PageLoader />;
   if (!profile) return <div className="p-6 text-muted-foreground">{t('common.noResults')}</div>;
 
+  // Fresh students may have no gamification rows yet; the API can return
+  // a partial object. Default each numeric field so the page never crashes.
+  const totalXp = profile.totalXp ?? 0;
+  const currentStreak = profile.currentStreak ?? 0;
+  const longestStreak = profile.longestStreak ?? 0;
+  const badges = profile.badges ?? [];
+
   return (
     <div className="p-4 md:p-6 space-y-8">
       <TabsNav items={[
@@ -38,7 +45,7 @@ export default function GamificationProfilePage() {
       {/* XP Header */}
       <div className="text-center space-y-1">
         <div className="font-display text-5xl md:text-6xl text-primary arena-glow">
-          {profile.totalXp.toLocaleString()}
+          {totalXp.toLocaleString()}
         </div>
         <p className="font-heading text-lg text-muted-foreground uppercase">{t('gamification.totalXp')}</p>
       </div>
@@ -48,7 +55,7 @@ export default function GamificationProfilePage() {
         <Card className="rounded-sm text-center">
           <CardContent className="p-6 space-y-1">
             <div className="arena-stat text-3xl font-mono text-primary">
-              {profile.currentStreak}
+              {currentStreak}
             </div>
             <p className="text-sm text-muted-foreground">{t('gamification.currentStreakFire')}</p>
           </CardContent>
@@ -56,7 +63,7 @@ export default function GamificationProfilePage() {
         <Card className="rounded-sm text-center">
           <CardContent className="p-6 space-y-1">
             <div className="arena-stat text-3xl font-mono text-primary">
-              {profile.longestStreak}
+              {longestStreak}
             </div>
             <p className="text-sm text-muted-foreground">{t('gamification.longestStreak')}</p>
           </CardContent>
@@ -64,7 +71,7 @@ export default function GamificationProfilePage() {
         <Card className="rounded-sm text-center">
           <CardContent className="p-6 space-y-1">
             <div className="arena-stat text-3xl font-mono text-primary">
-              {profile.totalXp.toLocaleString()}
+              {totalXp.toLocaleString()}
             </div>
             <p className="text-sm text-muted-foreground">{t('gamification.totalXp')}</p>
           </CardContent>
@@ -74,11 +81,11 @@ export default function GamificationProfilePage() {
       {/* Badges */}
       <div className="space-y-4">
         <h2 className="font-heading text-xl md:text-2xl uppercase">{t('gamification.badges')}</h2>
-        {profile.badges.length === 0 ? (
+        {badges.length === 0 ? (
           <p className="text-muted-foreground">{t('gamification.noBadges')}</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {profile.badges.map(b => (
+            {badges.map(b => (
               <Card key={b.id} className="rounded-sm">
                 <CardContent className="p-4 flex items-start gap-3">
                   <div className="size-10 rounded-sm bg-primary/10 flex items-center justify-center shrink-0">

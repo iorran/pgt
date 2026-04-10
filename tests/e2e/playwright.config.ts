@@ -30,10 +30,24 @@ export default defineConfig({
     {
       name: 'desktop-chromium',
       use: { ...devices['Desktop Chrome'] },
+      // Desktop project skips mobile-specific specs; they have their
+      // own project that runs at a phone viewport.
+      testIgnore: [
+        '**/student-mobile.spec.ts',
+        '**/pwa-installability.spec.ts',
+      ],
     },
     {
-      name: 'mobile-iphone-13',
-      use: { ...devices['iPhone 13'] },
+      // Mobile viewport via Chromium (not WebKit) so no extra browser
+      // install is needed. Scoped to the new mobile-first specs only —
+      // the rest of the suite was written for desktop and doesn't need
+      // to re-run on a phone viewport.
+      name: 'mobile-chromium',
+      use: { ...devices['Pixel 5'] },
+      testMatch: [
+        '**/student-mobile.spec.ts',
+        '**/pwa-installability.spec.ts',
+      ],
     },
   ],
   outputDir: path.join(REPO_ROOT, 'test-results'),
