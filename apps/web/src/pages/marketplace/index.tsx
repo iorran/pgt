@@ -91,7 +91,7 @@ export default function MarketplacePage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       <TabsNav items={[
         { to: '/marketplace', label: t('marketplace.pageTitle') },
         { to: '/marketplace/orders', label: t('marketplace.ordersPageTitle') },
@@ -181,10 +181,10 @@ export default function MarketplacePage() {
       {products.length === 0 ? (
         <p className="text-muted-foreground">{t('common.noResults')}</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {products.map(p => (
             <Card key={p.id} className="rounded-sm overflow-hidden">
-              <div className="bg-muted h-40 flex items-center justify-center">
+              <div className="bg-muted aspect-square flex items-center justify-center">
                 <Package className="size-10 text-muted-foreground" />
               </div>
               <CardContent className="p-4 space-y-3">
@@ -193,7 +193,7 @@ export default function MarketplacePage() {
                   <p className="text-sm text-muted-foreground">{p.description}</p>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="arena-stat text-2xl text-primary font-mono">
+                  <span className="arena-stat text-xl md:text-2xl text-primary font-mono">
                     R$ {Number(p.price).toFixed(2).replace('.', ',')}
                   </span>
                   <Badge variant="outline">
@@ -203,7 +203,7 @@ export default function MarketplacePage() {
                 {user?.role === 'student' && (
                   <Button
                     variant="outline"
-                    className="w-full hover:arena-glow"
+                    className="w-full h-11 hover:arena-glow"
                     onClick={() => orderMutation.mutate(p.id)}
                     loading={orderMutation.isPending}
                   >
