@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -20,6 +20,16 @@ const WEB_BUILD_COMMAND =
 
 export default defineConfig({
   testDir: path.join(__dirname, 'flows'),
+  projects: [
+    {
+      name: 'desktop-chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'mobile-iphone-13',
+      use: { ...devices['iPhone 13'] },
+    },
+  ],
   outputDir: path.join(REPO_ROOT, 'test-results'),
   fullyParallel: false,
   workers: IS_CI ? 1 : 2,
