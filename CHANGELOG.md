@@ -1,3 +1,23 @@
+# [1.4.0](https://github.com/iorran/pgt/compare/v1.3.1...v1.4.0) (2026-04-10)
+
+
+### Bug Fixes
+
+* **web:** StudentHeader uses user name, drops instructor-only bell ([317d821](https://github.com/iorran/pgt/commit/317d82149fbc524973eb40a1df04dc5a86701cbd))
+* **web:** translate StudentBottomNav aria-labels ([ed7a9fd](https://github.com/iorran/pgt/commit/ed7a9fd5f335e7743f2a7ab62a2f6f0c6bd336c6))
+
+
+### Features
+
+* **web:** add /me student hub page ([6cab4c4](https://github.com/iorran/pgt/commit/6cab4c4bd330f8597b90d1b48b5e0c6bfd0303b3))
+* **web:** add light/dark/system theme toggle ([e648bfc](https://github.com/iorran/pgt/commit/e648bfc705da1947636ae9fdaaeb7591cd2dfaa4))
+* **web:** add student billing status detail page ([390bd83](https://github.com/iorran/pgt/commit/390bd83646c3c0eeb4479245099745ef7f22cf91))
+* **web:** add StudentBottomNav with FAB ([9cb38d9](https://github.com/iorran/pgt/commit/9cb38d94bcc83c7a6a8cda9d1dd2eac89d8fd70e))
+* **web:** add StudentHeader ([29222d8](https://github.com/iorran/pgt/commit/29222d8bc76e05380955f65495df3d5b7b9e9079))
+* **web:** add StudentShell composition with page transitions ([518a7b2](https://github.com/iorran/pgt/commit/518a7b22941128d36ef67258ab2f263a58d8755c))
+* **web:** configure PWA — manifest, service worker, and meta tags ([149a480](https://github.com/iorran/pgt/commit/149a4806cf0667292fe93cb9a1ba77bc54d9244b))
+* **web:** route-level role-based shell selector ([ca4a833](https://github.com/iorran/pgt/commit/ca4a8338eda4b1f4418a37b619a820b8d890db84))
+
 ## [1.3.1](https://github.com/iorran/pgt/compare/v1.3.0...v1.3.1) (2026-04-09)
 
 
