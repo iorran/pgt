@@ -28,7 +28,7 @@ export default function GamificationProfilePage() {
   if (!profile) return <div className="p-6 text-muted-foreground">{t('common.noResults')}</div>;
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-4 md:p-6 space-y-8">
       <TabsNav items={[
         { to: '/gamification', label: t('gamification.leaderboardTitle') },
         { to: '/gamification/seasons', label: t('gamification.seasonsTitle') },
@@ -37,7 +37,7 @@ export default function GamificationProfilePage() {
       ]} />
       {/* XP Header */}
       <div className="text-center space-y-1">
-        <div className="font-display text-6xl text-primary arena-glow">
+        <div className="font-display text-5xl md:text-6xl text-primary arena-glow">
           {profile.totalXp.toLocaleString()}
         </div>
         <p className="font-heading text-lg text-muted-foreground uppercase">{t('gamification.totalXp')}</p>
@@ -73,7 +73,7 @@ export default function GamificationProfilePage() {
 
       {/* Badges */}
       <div className="space-y-4">
-        <h2 className="font-heading text-2xl uppercase">{t('gamification.badges')}</h2>
+        <h2 className="font-heading text-xl md:text-2xl uppercase">{t('gamification.badges')}</h2>
         {profile.badges.length === 0 ? (
           <p className="text-muted-foreground">{t('gamification.noBadges')}</p>
         ) : (
