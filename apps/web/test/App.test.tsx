@@ -50,4 +50,34 @@ describe('App shell selector', () => {
     expect(screen.getByTestId('staff-shell')).toBeInTheDocument();
     expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
   });
+
+  // Regression guard for the session-refetch flap. Without the
+  // isRefetching check, a transient { data: null, isPending: false }
+  // during a background refetch would render the login routes and
+  // bounce the URL to /login — yanking the user off their current
+  // page. When isRefetching is true, App should show the loading
+  // screen instead.
+  it('shows the loading screen during a background refetch', () => {
+    mockedUseSession.mockReturnValue({
+      data: null,
+      isPending: false,
+      isRefetching: true,
+    } as any);
+    renderWithProviders(<App />);
+    expect(screen.getByText(/Carregando/)).toBeInTheDocument();
+    expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('staff-shell')).not.toBeInTheDocument();
+  });
+
+  it('shows login routes when session is null and no refetch is in flight', () => {
+    mockedUseSession.mockReturnValue({
+      data: null,
+      isPending: false,
+      isRefetching: false,
+    } as any);
+    renderWithProviders(<App />);
+    expect(screen.queryByText(/Carregando/)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('staff-shell')).not.toBeInTheDocument();
+  });
 });
