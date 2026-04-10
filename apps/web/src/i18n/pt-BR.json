@@ -11,7 +11,11 @@
     "marketplace": "Loja",
     "gamification": "Ranking",
     "tournaments": "Campeonatos",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "progress": "Progresso",
+    "shop": "Loja",
+    "me": "Perfil",
+    "checkin": "Check-in"
   },
   "auth": {
     "login": "Entrar",
@@ -249,6 +253,20 @@
     "noClasses": "Nenhuma aula no momento",
     "nextClass": "Próxima aula",
     "scanToCheckin": "Escaneie para fazer check-in"
+  },
+  "me": {
+    "title": "Meu Perfil",
+    "billingStatus": "Mensalidade",
+    "billingUpToDate": "Em dia",
+    "billingOverdue": "Atrasada",
+    "tournaments": "Torneios",
+    "language": "Idioma",
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Sistema",
+    "settings": "Configurações",
+    "signOut": "Sair"
   },
   "notifications": {
     "title": "Notificações",
