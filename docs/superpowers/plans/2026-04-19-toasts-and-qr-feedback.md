@@ -872,6 +872,8 @@ git commit -m "feat(web): honor validated redirect query param on login"
 **Files:**
 - Create: `tests/e2e/flows/checkin-qr-redirect.spec.ts`
 
+> **Implementation note (post-execution):** the final test deviates from the template below. Fixture users are inserted directly into the DB without a better-auth password, so the email/password form cannot be used to complete the round-trip. The shipped test runs in two phases: Phase 1 asserts the unauthenticated redirect preserves the full `?redirect=` param; Phase 2 uses `impersonateAs` to verify an authenticated direct navigation to `/checkin` is NOT bounced to `/login`. The `safeRedirect` → `navigate(target)` branch is covered by unit tests in `apps/web/test/pages/login.test.tsx`.
+
 - [ ] **Step 1: Write the test file**
 
 Create `tests/e2e/flows/checkin-qr-redirect.spec.ts`:

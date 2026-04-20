@@ -182,7 +182,9 @@ Backend errors already come through as localized, human-readable strings (via th
   - Update the check-in tests to assert on the toast mock rather than inline message DOM.
 
 - **e2e (new, Playwright):**
-  - Mode A: unauthenticated visit to `/checkin?token=X&classId=Y` → redirect to login preserving URL → after login, check-in success UI renders.
+  - Mode A, Phase 1: unauthenticated visit to `/checkin?token=X&classId=Y` → redirect to `/login?redirect=<encoded url>`, asserting the encoded `redirect` param matches the original path+query.
+  - Mode A, Phase 2: authenticated context (via `impersonateAs`) navigates directly to `/checkin?…` and is NOT bounced to `/login`.
+  - **Known gap:** the test does NOT submit the login form to complete the round-trip. Fixture users are inserted directly into the DB without a better-auth password, so the email/password form cannot authenticate them. The `safeRedirect` → `navigate(target)` branch is covered by unit tests in `apps/web/test/pages/login.test.tsx` instead. If fixture seeding later creates real auth credentials, replace Phase 2 with a form-submission round-trip.
 
 ## Risks
 

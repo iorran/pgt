@@ -17,20 +17,19 @@ test.afterEach(async () => {
 });
 
 /**
- * Verifies the unauthenticated QR-scan redirect round-trip (Mode A).
+ * Verifies the unauthenticated QR-scan redirect (Mode A).
  *
- * Flow:
- *   1. Fresh unauthenticated context visits /checkin?token=X&classId=Y
- *   2. App redirects to /login?redirect=%2Fcheckin%3Ftoken%3DX%26classId%3DY
- *   3. After authenticating (via impersonation — fixture users have no
- *      BetterAuth password, so the form cannot be used), the preserved URL
- *      is navigated to directly, confirming the redirect param is correct.
+ * Phase 1: Fresh unauthenticated context visits /checkin?token=X&classId=Y
+ *          and lands on /login with the full ?redirect= param preserved.
+ * Phase 2: Authenticated context (via impersonation) navigates directly to
+ *          /checkin?… and is NOT bounced to /login.
  *
- * NOTE: Fixture users are inserted directly into the DB without going through
- * BetterAuth's signup flow, so they have no password and cannot log in via
- * the email/password form. This test therefore validates the redirect-to-login
- * behaviour and the correctness of the encoded redirect param, then uses the
- * dev impersonation endpoint (DEV_AUTH_BYPASS=1) to complete the round-trip.
+ * KNOWN GAP — NOT TESTED HERE: the login-form → navigate(safeRedirect) branch.
+ * Fixture users are inserted directly into the DB without a BetterAuth
+ * password, so they cannot log in via the email/password form. The full
+ * form-submission round-trip is covered by unit tests at
+ * apps/web/test/pages/login.test.tsx. If fixtures later seed real auth
+ * credentials, replace Phase 2 with a form-submission round-trip.
  */
 test('unauthenticated QR scan redirects to login and preserves the checkin URL', async ({
   browser,
