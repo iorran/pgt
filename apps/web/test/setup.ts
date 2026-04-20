@@ -30,3 +30,11 @@ vi.mock('better-auth/react', () => ({
     resetPassword: vi.fn(),
   }),
 }));
+
+vi.mock('@/lib/toast', () => ({
+  toast: Object.assign(vi.fn(), {
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+  }),
+}));
