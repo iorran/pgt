@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { signIn } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,16 @@ import { Button } from '@/components/ui/button';
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState('');
+
+  function safeRedirect(raw: string | null): string {
+    if (!raw) return '/';
+    if (!raw.startsWith('/') || raw.startsWith('//') || raw.startsWith('/\\')) {
+      return '/';
+    }
+    return raw;
+  }
 
   const form = useForm({
     defaultValues: {
@@ -26,8 +35,9 @@ export default function LoginPage() {
       if (result.error) {
         setError(result.error.message ?? 'Login failed');
       } else {
-        console.log('[Login] Success, navigating to /');
-        navigate('/');
+        const target = safeRedirect(searchParams.get('redirect'));
+        console.log('[Login] Success, navigating to', target);
+        navigate(target);
       }
     },
   });

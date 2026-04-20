@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { render } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderWithProviders } from '../render';
 import LoginPage from '../../src/pages/login';
 
@@ -15,6 +18,21 @@ vi.mock('@/lib/auth-client', () => ({
 import { signIn } from '@/lib/auth-client';
 
 const mockedSignInEmail = vi.mocked(signIn.email);
+
+function renderAt(url: string) {
+  const client = new QueryClient();
+  return render(
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[url]}>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/checkin" element={<div data-testid="checkin">checkin</div>} />
+          <Route path="/" element={<div data-testid="home">home</div>} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
 
 describe('LoginPage', () => {
   beforeEach(() => {
@@ -65,5 +83,41 @@ describe('LoginPage', () => {
     await waitFor(() => {
       expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
     });
+  });
+
+  it('navigates to redirect param when it is a safe relative path', async () => {
+    mockedSignInEmail.mockResolvedValue({ error: null } as any);
+    const user = userEvent.setup();
+    renderAt('/login?redirect=%2Fcheckin%3Ftoken%3Dabc%26classId%3Dc1');
+
+    await user.type(screen.getByLabelText('auth.email'), 'a@b.com');
+    await user.type(screen.getByLabelText('auth.password'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'auth.login' }));
+
+    await waitFor(() => expect(screen.getByTestId('checkin')).toBeInTheDocument());
+  });
+
+  it('falls back to / when redirect param is missing', async () => {
+    mockedSignInEmail.mockResolvedValue({ error: null } as any);
+    const user = userEvent.setup();
+    renderAt('/login');
+
+    await user.type(screen.getByLabelText('auth.email'), 'a@b.com');
+    await user.type(screen.getByLabelText('auth.password'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'auth.login' }));
+
+    await waitFor(() => expect(screen.getByTestId('home')).toBeInTheDocument());
+  });
+
+  it('ignores redirect when it is protocol-relative (open-redirect guard)', async () => {
+    mockedSignInEmail.mockResolvedValue({ error: null } as any);
+    const user = userEvent.setup();
+    renderAt('/login?redirect=%2F%2Fevil.example.com');
+
+    await user.type(screen.getByLabelText('auth.email'), 'a@b.com');
+    await user.type(screen.getByLabelText('auth.password'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'auth.login' }));
+
+    await waitFor(() => expect(screen.getByTestId('home')).toBeInTheDocument());
   });
 });
