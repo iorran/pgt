@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Navigate } from 'react-router-dom';
 import { Scanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
@@ -61,6 +61,17 @@ export default function CheckinScanPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, hasUrlCredentials]);
 
+  useEffect(() => {
+    if (status !== 'scanning' || !import.meta.env.DEV) return;
+    const timer = setTimeout(() => {
+      // eslint-disable-next-line no-console
+      console.warn(
+        '[checkin-scan] Scanner still in "scanning" status after 15s — no QR detected or camera not initialised',
+      );
+    }, 15_000);
+    return () => clearTimeout(timer);
+  }, [status]);
+
   function handleScan(results: IDetectedBarcode[]) {
     if (status !== 'scanning' || results.length === 0) return;
     const parsed = parseCheckinUrl(results[0].rawValue);
@@ -88,7 +99,16 @@ export default function CheckinScanPage() {
     setStatus('error');
   }
 
-  if (!session) return null;
+  if (!session) {
+    const query = searchParams.toString();
+    const target = `/checkin${query ? `?${query}` : ''}`;
+    return (
+      <Navigate
+        to={`/login?redirect=${encodeURIComponent(target)}`}
+        replace
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center arena-stripes px-4 py-8">
