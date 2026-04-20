@@ -7,7 +7,7 @@ import { api } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-type Status = 'scanning' | 'processing' | 'success' | 'error';
+type Status = 'camera-starting' | 'scanning' | 'processing' | 'success' | 'error';
 
 function parseCheckinUrl(raw: string): { token: string; classId: string } | null {
   try {
@@ -37,7 +37,7 @@ export default function CheckinScanPage() {
   //   Render an in-app scanner that decodes the QR, extracts the same
   //   token + classId, and processes the check-in the same way.
   const [status, setStatus] = useState<Status>(
-    hasUrlCredentials ? 'processing' : 'scanning',
+    hasUrlCredentials ? 'processing' : 'camera-starting',
   );
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -62,6 +62,12 @@ export default function CheckinScanPage() {
   }, [session, hasUrlCredentials]);
 
   useEffect(() => {
+    if (status !== 'camera-starting') return;
+    const timer = setTimeout(() => setStatus('scanning'), 1500);
+    return () => clearTimeout(timer);
+  }, [status]);
+
+  useEffect(() => {
     if (status !== 'scanning' || !import.meta.env.DEV) return;
     const timer = setTimeout(() => {
       // eslint-disable-next-line no-console
@@ -73,7 +79,8 @@ export default function CheckinScanPage() {
   }, [status]);
 
   function handleScan(results: IDetectedBarcode[]) {
-    if (status !== 'scanning' || results.length === 0) return;
+    if (results.length === 0) return;
+    if (status !== 'camera-starting' && status !== 'scanning') return;
     const parsed = parseCheckinUrl(results[0].rawValue);
     if (!parsed) {
       setErrorMsg(t('checkin.invalidQr'));
@@ -118,12 +125,14 @@ export default function CheckinScanPage() {
             PGT
           </h1>
 
-          {status === 'scanning' && (
+          {(status === 'camera-starting' || status === 'scanning') && (
             <>
               <p className="text-sm text-muted-foreground">
-                {t('checkin.scanInstruction')}
+                {status === 'camera-starting'
+                  ? t('checkin.cameraStarting')
+                  : t('checkin.scanInstruction')}
               </p>
-              <div className="mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-border">
+              <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-border">
                 <Scanner
                   onScan={handleScan}
                   onError={handleScannerError}
@@ -131,6 +140,13 @@ export default function CheckinScanPage() {
                   formats={['qr_code']}
                   scanDelay={300}
                 />
+                {status === 'camera-starting' && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm">
+                    <span className="font-heading uppercase tracking-wider text-sm text-muted-foreground">
+                      {t('checkin.cameraStarting')}
+                    </span>
+                  </div>
+                )}
               </div>
               <Button variant="outline" onClick={() => navigate('/')}>
                 {t('common.cancel')}
