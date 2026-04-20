@@ -35,6 +35,7 @@ import SettingsPage from './pages/settings';
 import { Card, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { Toaster } from './components/ui/sonner';
 
 function RejectedView() {
   const { t } = useTranslation();
@@ -68,6 +69,15 @@ function RejectedView() {
 }
 
 function App() {
+  return (
+    <>
+      <AppRoutes />
+      <Toaster richColors position="top-right" />
+    </>
+  );
+}
+
+function AppRoutes() {
   const { data: session, isPending, isRefetching } = useSession();
 
   // Hold the loading screen during any fetch or refetch. Without the
