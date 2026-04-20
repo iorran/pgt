@@ -1,3 +1,20 @@
+# [1.6.0](https://github.com/iorran/pgt/compare/v1.5.0...v1.6.0) (2026-04-20)
+
+
+### Bug Fixes
+
+* **web:** preserve check-in URL across login when unauthenticated ([33d0e26](https://github.com/iorran/pgt/commit/33d0e26a2eacb091b635ec241010643c80a5a874))
+
+
+### Features
+
+* **web:** add @/lib/toast re-export wrapper ([2827ea1](https://github.com/iorran/pgt/commit/2827ea146d1f72b11338bdaa2bc50cf16eed5d5e))
+* **web:** add createQueryClient factory with toast-driven cache handlers ([92fcf73](https://github.com/iorran/pgt/commit/92fcf732de41775ddc65f7f0ed4287f0ee35af19))
+* **web:** honor validated redirect query param on login ([4747119](https://github.com/iorran/pgt/commit/474711919ee025caaf58a205b43f44c7d30590b9))
+* **web:** mount sonner Toaster at app root ([39d31f5](https://github.com/iorran/pgt/commit/39d31f5fb43d04d49f342fb43c368654049838bb))
+* **web:** show camera-starting overlay before QR scanner is ready ([76d10ca](https://github.com/iorran/pgt/commit/76d10ca9a30eeb579eb848a813d78dbb8460f459))
+* **web:** wire createQueryClient factory into app entry ([42a03ec](https://github.com/iorran/pgt/commit/42a03ec46722b411c2e589a25201e45920b95e8b))
+
 # [1.5.0](https://github.com/iorran/pgt/compare/v1.4.1...v1.5.0) (2026-04-10)
 
 
