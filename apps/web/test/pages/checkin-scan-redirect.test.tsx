@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CheckinScanPage from '@/pages/checkin-scan';
@@ -15,6 +15,15 @@ vi.mock('@yudiel/react-qr-scanner', () => ({
   Scanner: () => <div data-testid="scanner" />,
 }));
 
+function LoginPageProbe() {
+  const location = useLocation();
+  return (
+    <div data-testid="login-page" data-search={location.search}>
+      login
+    </div>
+  );
+}
+
 describe('CheckinScanPage — unauthenticated', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,17 +36,15 @@ describe('CheckinScanPage — unauthenticated', () => {
         <MemoryRouter initialEntries={['/checkin?token=abc&classId=c1']}>
           <Routes>
             <Route path="/checkin" element={<CheckinScanPage />} />
-            <Route
-              path="/login"
-              element={<div data-testid="login-page">login</div>}
-            />
+            <Route path="/login" element={<LoginPageProbe />} />
           </Routes>
         </MemoryRouter>
       </QueryClientProvider>,
     );
 
-    await waitFor(() =>
-      expect(screen.getByTestId('login-page')).toBeInTheDocument(),
-    );
+    const loginPage = await screen.findByTestId('login-page');
+    const search = loginPage.getAttribute('data-search') ?? '';
+    const params = new URLSearchParams(search);
+    expect(params.get('redirect')).toBe('/checkin?token=abc&classId=c1');
   });
 });

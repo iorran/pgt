@@ -82,7 +82,7 @@ describe('createQueryClient', () => {
 
   it('suppresses error toast when query meta.silent', async () => {
     const client = createQueryClient();
-    renderHook(
+    const { result } = renderHook(
       () =>
         useQuery({
           queryKey: ['silent-fail'],
@@ -92,10 +92,7 @@ describe('createQueryClient', () => {
         }),
       { wrapper: makeWrapper(client) },
     );
-    await waitFor(() => {
-      // Let the query settle
-      expect(true).toBe(true);
-    });
+    await waitFor(() => expect(result.current.isError).toBe(true));
     expect(toastError).not.toHaveBeenCalled();
   });
 });
