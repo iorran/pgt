@@ -1,20 +1,16 @@
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter, MemoryRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactElement } from 'react';
+import { createQueryClient } from '@/lib/query-client';
 
 function createTestQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: 0,
-      },
-      mutations: {
-        retry: false,
-      },
-    },
+  const client = createQueryClient();
+  client.setDefaultOptions({
+    queries: { retry: false, gcTime: 0 },
+    mutations: { retry: false },
   });
+  return client;
 }
 
 function Providers({ children }: { children: React.ReactNode }) {

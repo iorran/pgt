@@ -4,6 +4,7 @@ import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from '@/lib/toast';
 import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +71,6 @@ export default function ClassesPage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [checkinMsg, setCheckinMsg] = useState('');
   const [editingClass, setEditingClass] = useState<ClassItem | null>(null);
   const [deletingClass, setDeletingClass] = useState<ClassItem | null>(null);
 
@@ -127,6 +127,7 @@ export default function ClassesPage() {
     defaultValues: {
       name: '',
       type: '',
+      dayOfWeek: 0,
       startTime: '',
       endTime: '',
     },
@@ -144,6 +145,7 @@ export default function ClassesPage() {
     editForm.reset();
     editForm.setFieldValue('name', cls.name);
     editForm.setFieldValue('type', cls.type);
+    editForm.setFieldValue('dayOfWeek', cls.dayOfWeek);
     editForm.setFieldValue('startTime', cls.startTime);
     editForm.setFieldValue('endTime', cls.endTime);
     setEditingClass(cls);
@@ -167,13 +169,8 @@ export default function ClassesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-checkins'] });
       queryClient.invalidateQueries({ queryKey: ['classes'] });
-      setCheckinMsg(t('classes.checkinSuccess'));
-      setTimeout(() => setCheckinMsg(''), 3000);
     },
-    onError: (err: Error) => {
-      setCheckinMsg(err.message);
-      setTimeout(() => setCheckinMsg(''), 5000);
-    },
+    meta: { successMessage: t('classes.checkinSuccess') },
   });
 
   function handleProximityCheckin(classId: string) {
@@ -187,8 +184,7 @@ export default function ClassesPage() {
         });
       },
       () => {
-        setCheckinMsg(t('classes.checkinTooFar'));
-        setTimeout(() => setCheckinMsg(''), 5000);
+        toast.error(t('classes.checkinTooFar'));
       },
     );
   }
@@ -331,10 +327,6 @@ export default function ClassesPage() {
         )}
       </div>
 
-      {checkinMsg && (
-        <p className="text-primary font-bold">{checkinMsg}</p>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {classes.map((c) => (
           <Card key={c.id} className={`border-l-4 ${getTypeBorder(c.type)}`}>
@@ -449,6 +441,29 @@ export default function ClassesPage() {
                     <option value="open-mat">Open Mat</option>
                     <option value="kids">Kids</option>
                   </select>
+                </div>
+              )}
+            </editForm.Field>
+            <editForm.Field name="dayOfWeek">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label>{t('classes.daysOfWeek')}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {DAY_KEYS.map((k, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => field.handleChange(i)}
+                        className={`px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
+                          field.state.value === i
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card border-border text-muted-foreground hover:border-primary hover:text-foreground'
+                        }`}
+                      >
+                        {t(k)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </editForm.Field>
