@@ -1,7 +1,5 @@
-/* ── Event blocks ───────────────────────────────────────────────────────────
-   Arena palette: events render as dark cards with a 4px left accent stripe
-   per type. Matches the original card-grid's visual language instead of the
-   garish bright-blue RBC default. */
+/* ── Event blocks ──────────────────────────────────────────────────────────
+   Arena palette: dark cards with a 4px left accent stripe per type. */
 .rbc-event {
   background: var(--card);
   color: var(--foreground);
@@ -14,6 +12,10 @@
 .rbc-event.rbc-selected {
   outline: 2px solid var(--primary);
   outline-offset: -1px;
+}
+.rbc-event-label {
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
 }
 .cc-event-gi {
   border-left-color: var(--pgt-gold);
@@ -31,7 +33,7 @@
   border-left-color: var(--primary);
 }
 
-/* ── Toolbar ────────────────────────────────────────────────────────────── */
+/* ── Toolbar ───────────────────────────────────────────────────────────── */
 .rbc-toolbar {
   padding: 0.75rem 0;
   font-family: var(--font-heading);
@@ -61,7 +63,7 @@
   border-color: var(--primary);
 }
 
-/* ── View shells + headers ─────────────────────────────────────────────── */
+/* ── View shells ───────────────────────────────────────────────────────── */
 .rbc-time-view,
 .rbc-month-view,
 .rbc-agenda-view {
@@ -70,48 +72,80 @@
   border-radius: var(--radius);
   color: var(--foreground);
 }
+
+/* ── Headers (day names, all-day band, gutter) ─────────────────────────── */
 .rbc-time-header,
 .rbc-time-header-content,
 .rbc-time-header-cell,
+.rbc-time-header-gutter,
 .rbc-month-header,
-.rbc-header {
+.rbc-header,
+.rbc-allday-cell {
   background: var(--card);
   color: var(--muted-foreground);
-  border-color: var(--border);
+  border-color: var(--border) !important;
   font-weight: 400;
 }
+
+/* ── Time gutter (left "00:00 / 01:00 …" labels) ───────────────────────── */
 .rbc-time-gutter,
 .rbc-time-gutter .rbc-timeslot-group,
 .rbc-label {
   background: var(--card);
   color: var(--muted-foreground);
+  border-color: var(--border) !important;
 }
+
+/* ── Slot grid lines — RBC ships hardcoded #f7f7f7 here, override aggressively */
+.rbc-time-slot,
 .rbc-timeslot-group,
 .rbc-day-slot,
 .rbc-time-content,
+.rbc-time-content > * + * > *,
 .rbc-day-bg,
-.rbc-month-row {
-  border-color: var(--border);
+.rbc-day-bg + .rbc-day-bg,
+.rbc-month-row,
+.rbc-row-bg,
+.rbc-row-content {
+  border-color: var(--border) !important;
+}
+.rbc-time-content {
+  border-top: 1px solid var(--border) !important;
+}
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid color-mix(in oklab, var(--border) 50%, transparent) !important;
+}
+.rbc-timeslot-group {
+  border-bottom: 1px solid var(--border) !important;
+  min-height: 40px;
 }
 .rbc-time-slot {
   color: var(--muted-foreground);
 }
 
-/* ── Today highlight ───────────────────────────────────────────────────── */
-/* RBC's default is a very light blue-white that clashes with the dark theme.
-   Replace with a subtle tint of the arena primary, ~8% opacity. */
+/* ── Today column — subtle tint, not flood ─────────────────────────────── */
+/* RBC applies .rbc-today on multiple elements (day-bg, header-cell, allday).
+   Use rgba directly and !important; oklab color-mix with bright #E5FF00
+   alpha-blends inconsistently across elements. */
+.rbc-day-bg.rbc-today,
 .rbc-today {
-  background: color-mix(in oklab, var(--primary) 8%, transparent);
+  background-color: rgba(229, 255, 0, 0.04) !important;
 }
-.rbc-now,
-.rbc-current-time-indicator {
-  background-color: var(--primary);
+.rbc-time-header-cell.rbc-today {
+  background-color: rgba(229, 255, 0, 0.06) !important;
+  color: var(--primary);
 }
 
-/* ── Off-range days (month view spillover) ─────────────────────────────── */
+/* ── Off-range month cells ─────────────────────────────────────────────── */
 .rbc-off-range-bg {
   background: color-mix(in oklab, var(--card) 60%, var(--background));
 }
 .rbc-off-range {
   color: color-mix(in oklab, var(--muted-foreground) 60%, var(--background));
+}
+
+/* ── Current-time indicator (red line in day/week view) ────────────────── */
+.rbc-current-time-indicator {
+  background-color: var(--primary);
+  height: 2px;
 }
