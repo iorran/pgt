@@ -15,6 +15,7 @@ interface AcademyInfo {
   latitude: string | null;
   longitude: string | null;
   address: string | null;
+  joinCode: string;
 }
 
 export default function SettingsPage() {
@@ -24,6 +25,7 @@ export default function SettingsPage() {
   const isInstructor = user?.role === 'instructor';
   const queryClient = useQueryClient();
   const [locationMsg, setLocationMsg] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const { data: academy } = useApiQuery<AcademyInfo>(
     ['academy-mine'],
@@ -52,11 +54,52 @@ export default function SettingsPage() {
     );
   }
 
+  function handleCopy() {
+    if (!academy) { return; }
+    navigator.clipboard.writeText(academy.joinCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function handleShareWhatsApp() {
+    if (!academy) { return; }
+    const message = `${t('onboarding.shareMessage')} ${window.location.origin}/entrar/${academy.joinCode}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+  }
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="font-heading text-2xl uppercase tracking-wide">
         {t('nav.settings')}
       </h1>
+
+      {isInstructor && academy && (
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="font-heading text-lg uppercase">
+              {academy.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">
+                {t('onboarding.joinCode')}
+              </p>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-2xl bg-secondary p-4 rounded-sm flex-1 text-center">
+                  {academy.joinCode}
+                </span>
+                <Button variant="outline" onClick={handleCopy}>
+                  {copied ? t('onboarding.copied') : t('onboarding.copyCode')}
+                </Button>
+              </div>
+            </div>
+            <Button variant="outline" className="w-full" onClick={handleShareWhatsApp}>
+              {t('onboarding.shareWhatsApp')}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {isInstructor && academy && (
         <Card className="bg-card border-border">
@@ -81,14 +124,10 @@ export default function SettingsPage() {
                 {t('onboarding.locationNotSet')}
               </p>
             )}
-
             <Button variant="outline" className="w-full" onClick={handleSetLocation}>
               {t('onboarding.useMyLocation')}
             </Button>
-
-            {locationMsg && (
-              <p className="text-primary text-sm">{locationMsg}</p>
-            )}
+            {locationMsg && <p className="text-primary text-sm">{locationMsg}</p>}
           </CardContent>
         </Card>
       )}
