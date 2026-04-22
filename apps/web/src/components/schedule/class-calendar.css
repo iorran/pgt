@@ -1,144 +1,224 @@
-/* ── Event blocks ──────────────────────────────────────────────────────────
-   Dark cards raised purely by shadow — no border color, no type stripe.
-   !important is required to beat RBC's default .rbc-event blue border. */
-.rbc-event {
-  background: var(--card) !important;
-  color: var(--foreground) !important;
-  border: none !important;
-  border-radius: 6px !important;
-  padding: 4px 6px !important;
-  /* Efeito de Relevo Simples (soft neumorphism): dark shadow bottom-right,
-     subtle light highlight top-left. */
-  box-shadow:
-    2px 2px 8px rgba(0, 0, 0, 0.6),
-    -1px -1px 3px rgba(255, 255, 255, 0.04) !important;
-}
-.rbc-event:focus,
-.rbc-event.rbc-selected {
-  outline: 2px solid var(--primary);
-  outline-offset: 1px;
-}
-.rbc-event-label {
-  color: var(--muted-foreground);
-  font-size: 0.7rem;
+/* ────────────────────────────────────────────────────────────────────────
+   ClassCalendar — "Fight Card" look.
+
+   Hierarchy via surface elevation: shell (--background) → slot (--card) →
+   events (raised #262626). Typography splits monospace time from heading
+   billing. Primary yellow reserved for moments of authority: active view,
+   today's column wash, focus rings.
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* ── Calendar shell ───────────────────────────────────────────────────── */
+.rbc-time-view,
+.rbc-month-view,
+.rbc-agenda-view {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--foreground);
+  overflow: hidden;
 }
 
-/* ── Toolbar ───────────────────────────────────────────────────────────── */
+/* ── Toolbar ──────────────────────────────────────────────────────────── */
 .rbc-toolbar {
-  padding: 0.75rem 0;
+  padding: 0.5rem 0 1rem;
   font-family: var(--font-heading);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
   color: var(--muted-foreground);
+  gap: 0.25rem;
 }
 .rbc-toolbar-label {
   color: var(--muted-foreground);
+  letter-spacing: 0.12em;
 }
+.rbc-btn-group button,
 .rbc-toolbar button {
   color: var(--muted-foreground);
-  border-color: var(--border);
+  border: 1px solid var(--border);
   background: var(--card);
+  padding: 0.375rem 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
+.rbc-btn-group button:hover,
 .rbc-toolbar button:hover,
+.rbc-btn-group button:focus,
 .rbc-toolbar button:focus {
   color: var(--foreground);
   background: var(--secondary);
   border-color: var(--border);
 }
+.rbc-btn-group button.rbc-active,
 .rbc-toolbar button.rbc-active,
-.rbc-toolbar button.rbc-active:hover,
-.rbc-toolbar button.rbc-active:focus {
+.rbc-btn-group button.rbc-active:hover,
+.rbc-toolbar button.rbc-active:hover {
   background: var(--primary);
   color: var(--primary-foreground);
   border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
 }
 
-/* ── View shells ───────────────────────────────────────────────────────── */
-.rbc-time-view,
-.rbc-month-view,
-.rbc-agenda-view {
-  border-color: var(--border);
-  background: var(--card);
-  border-radius: var(--radius);
-  color: var(--foreground);
-}
-
-/* ── Headers (day names, all-day band, gutter) ─────────────────────────── */
+/* ── Day-name headers ─────────────────────────────────────────────────── */
 .rbc-time-header,
 .rbc-time-header-content,
-.rbc-time-header-cell,
-.rbc-time-header-gutter,
-.rbc-month-header,
+.rbc-month-header {
+  border-color: var(--border) !important;
+  background: var(--background);
+}
 .rbc-header,
-.rbc-allday-cell {
-  background: var(--card);
+.rbc-time-header-cell {
+  background: var(--background);
   color: var(--muted-foreground);
   border-color: var(--border) !important;
-  font-weight: 400;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.625rem 0.5rem;
 }
 
-/* ── Time gutter (left "00:00 / 01:00 …" labels) ───────────────────────── */
+/* ── Time gutter (left column with 00:00 / 01:00 …) ───────────────────── */
 .rbc-time-gutter,
 .rbc-time-gutter .rbc-timeslot-group,
+.rbc-time-header-gutter,
 .rbc-label {
-  background: var(--card);
+  background: var(--background);
   color: var(--muted-foreground);
   border-color: var(--border) !important;
+  font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+.rbc-time-gutter .rbc-timeslot-group {
+  border-bottom: 1px solid var(--border) !important;
 }
 
-/* ── Slot grid lines — RBC ships hardcoded colors here, override aggressively */
-.rbc-time-slot,
-.rbc-timeslot-group,
-.rbc-day-slot,
-.rbc-time-content,
-.rbc-time-content > * + * > *,
+/* ── Day-slot canvas (where events live) ──────────────────────────────── */
 .rbc-day-bg,
-.rbc-day-bg + .rbc-day-bg,
+.rbc-day-slot,
 .rbc-month-row,
 .rbc-row-bg,
 .rbc-row-content,
 .rbc-events-container,
 .rbc-day-slot .rbc-events-container {
+  background: var(--card);
   border-color: var(--border) !important;
+}
+
+/* Grid ticks — hour lines bolder, half-hour nearly invisible */
+.rbc-timeslot-group {
+  border-bottom: 1px solid var(--border) !important;
+  min-height: 44px;
+}
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid transparent !important;
+}
+.rbc-day-slot .rbc-time-slot:not(:first-child) {
+  border-top: 1px solid color-mix(in oklab, var(--border) 30%, transparent) !important;
 }
 .rbc-time-content {
   border-top: 1px solid var(--border) !important;
-}
-.rbc-day-slot .rbc-time-slot {
-  border-top: 1px solid color-mix(in oklab, var(--border) 50%, transparent) !important;
-}
-.rbc-timeslot-group {
-  border-bottom: 1px solid var(--border) !important;
-  min-height: 40px;
 }
 .rbc-time-slot {
   color: var(--muted-foreground);
 }
 
-/* ── Today column — subtle tint, not flood ─────────────────────────────── */
-/* RBC applies .rbc-today on multiple elements (day-bg, header-cell, allday).
-   Use rgba directly and !important; oklab color-mix with bright #E5FF00
-   alpha-blends inconsistently across elements. */
-.rbc-day-bg.rbc-today,
-.rbc-today {
-  background-color: rgba(229, 255, 0, 0.04) !important;
-}
-.rbc-time-header-cell.rbc-today {
-  background-color: rgba(229, 255, 0, 0.06) !important;
-  color: var(--primary);
+/* Inter-column vertical lines */
+.rbc-time-content > * + * > *,
+.rbc-day-bg + .rbc-day-bg {
+  border-color: var(--border) !important;
 }
 
-/* ── Off-range month cells ─────────────────────────────────────────────── */
+/* ── Events ───────────────────────────────────────────────────────────── */
+/* Brighter explicit surface so events clear the --card canvas. Shadow does
+   the "Efeito de Relevo" — dark diffuse drop + tiny top-edge highlight +
+   inset top line for a bezelled feel. No coloured border. */
+.rbc-event {
+  background: #262626 !important;
+  color: var(--foreground) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 5px 8px !important;
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, 0.55),
+    -1px -1px 2px rgba(255, 255, 255, 0.025),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease,
+    transform 0.15s ease;
+  cursor: pointer;
+}
+.rbc-event:hover {
+  background: #2e2e2e !important;
+  box-shadow:
+    6px 6px 18px rgba(0, 0, 0, 0.65),
+    -1px -1px 3px rgba(255, 255, 255, 0.035),
+    inset 0 1px 0 rgba(229, 255, 0, 0.1) !important;
+  transform: translateY(-1px);
+}
+.rbc-event:focus,
+.rbc-event.rbc-selected {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+  background: #2e2e2e !important;
+}
+
+/* Event typography — monospace time label above, heading-font title below */
+.rbc-event-content {
+  font-family: var(--font-heading, inherit);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: var(--foreground);
+}
+.rbc-event-label {
+  display: block;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+/* ── Today column — understated wash, primary accent in header ───────── */
+.rbc-day-bg.rbc-today,
+.rbc-day-slot.rbc-today {
+  background: color-mix(in oklab, var(--card) 93%, var(--primary)) !important;
+}
+.rbc-header.rbc-today,
+.rbc-time-header-cell.rbc-today {
+  background: var(--background) !important;
+  color: var(--primary) !important;
+  border-bottom: 2px solid var(--primary) !important;
+}
+
+/* ── Current-time indicator — blue with a halo (arena spotlight) ──────── */
+.rbc-current-time-indicator {
+  background: #3b82f6 !important;
+  height: 2px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.55);
+}
+
+/* ── Off-range month cells ────────────────────────────────────────────── */
 .rbc-off-range-bg {
-  background: color-mix(in oklab, var(--card) 60%, var(--background));
+  background: color-mix(in oklab, var(--card) 55%, var(--background));
 }
 .rbc-off-range {
-  color: color-mix(in oklab, var(--muted-foreground) 60%, var(--background));
+  color: color-mix(in oklab, var(--muted-foreground) 55%, var(--background));
 }
 
-/* ── Current-time indicator (horizontal line crossing today's column) ──── */
-/* Blue complements the yellow-green events — stands out without clashing. */
-.rbc-current-time-indicator {
-  background-color: #3b82f6 !important;
-  height: 2px;
+/* ── All-day band — compact so bad-data (00:00-23:59) doesn't dominate ── */
+.rbc-allday-cell {
+  background: var(--background);
+  max-height: 48px;
+  overflow-y: auto;
+  border-color: var(--border) !important;
+}
+.rbc-allday-cell .rbc-event {
+  font-size: 0.7rem;
+  padding: 2px 6px !important;
 }
