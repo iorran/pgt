@@ -30,18 +30,6 @@ function i18nToCulture(language: string | undefined): 'en-US' | 'pt-BR' {
   return language.toLowerCase().startsWith('en') ? 'en-US' : 'pt-BR';
 }
 
-const TYPE_CLASS: Record<string, string> = {
-  gi: 'cc-event-gi',
-  'no-gi': 'cc-event-nogi',
-  'open-mat': 'cc-event-openmat',
-  kids: 'cc-event-kids',
-};
-
-function eventPropGetter(event: CalendarEvent) {
-  const key = event.resource.type.toLowerCase().trim();
-  return { className: TYPE_CLASS[key] ?? 'cc-event-default' };
-}
-
 export interface ClassCalendarProps {
   events: CalendarEvent[];
   view: CalendarRange;
@@ -115,7 +103,6 @@ export function ClassCalendar(props: ClassCalendarProps) {
         onEventDrop(args.event.id, args.start as Date, args.end as Date);
       }}
       onSelectEvent={(e) => onEventClick(e.id)}
-      eventPropGetter={eventPropGetter}
       components={components}
       style={{ height: 600 }}
     />
