@@ -109,6 +109,16 @@ export function InstructorClassesView() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (classId: string) =>
+      api(`/classes/${classId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['classes', user.academyId] });
+      setEditing(null);
+    },
+    meta: { successMessage: t('classes.classDeleted') },
+  });
+
   const calendar = useClassCalendar({
     classes,
     onMove: (id, patch) => moveMutation.mutate({ id, ...patch }),
@@ -307,6 +317,9 @@ export function InstructorClassesView() {
         onSubmit={async (patch) => {
           if (!editing) return;
           await editMutation.mutateAsync({ id: editing.id, patch });
+        }}
+        onDelete={async (classId) => {
+          await deleteMutation.mutateAsync(classId);
         }}
       />
     </div>

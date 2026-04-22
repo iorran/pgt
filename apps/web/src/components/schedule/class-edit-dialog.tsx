@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -32,10 +32,18 @@ export interface ClassEditDialogProps {
     startTime: string;
     endTime: string;
   }) => Promise<void> | void;
+  onDelete?: (classId: string) => Promise<void> | void;
 }
 
-export function ClassEditDialog({ cls, onOpenChange, onSubmit }: ClassEditDialogProps) {
+export function ClassEditDialog({
+  cls,
+  onOpenChange,
+  onSubmit,
+  onDelete,
+}: ClassEditDialogProps) {
   const { t } = useTranslation();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -51,7 +59,10 @@ export function ClassEditDialog({ cls, onOpenChange, onSubmit }: ClassEditDialog
   });
 
   useEffect(() => {
-    if (!cls) return;
+    if (!cls) {
+      setConfirmingDelete(false);
+      return;
+    }
     form.reset();
     form.setFieldValue('name', cls.name);
     form.setFieldValue('type', cls.type);
@@ -60,6 +71,17 @@ export function ClassEditDialog({ cls, onOpenChange, onSubmit }: ClassEditDialog
     form.setFieldValue('endTime', cls.endTime);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cls]);
+
+  async function handleDelete() {
+    if (!cls || !onDelete) return;
+    setDeleting(true);
+    try {
+      await onDelete(cls.id);
+    } finally {
+      setDeleting(false);
+      setConfirmingDelete(false);
+    }
+  }
 
   return (
     <Dialog open={!!cls} onOpenChange={onOpenChange}>
@@ -167,6 +189,41 @@ export function ClassEditDialog({ cls, onOpenChange, onSubmit }: ClassEditDialog
             )}
           </form.Subscribe>
         </form>
+
+        {onDelete && !confirmingDelete && (
+          <Button
+            variant="outline"
+            className="text-destructive mt-4"
+            onClick={() => setConfirmingDelete(true)}
+          >
+            {t('classes.deleteClass')}
+          </Button>
+        )}
+
+        {onDelete && confirmingDelete && (
+          <div className="mt-4 space-y-3 border-t border-border pt-4">
+            <p className="text-sm text-muted-foreground">
+              {t('classes.confirmDelete')}
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setConfirmingDelete(false)}
+                disabled={deleting}
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                variant="outline"
+                className="text-destructive"
+                onClick={handleDelete}
+                loading={deleting}
+              >
+                {t('classes.deleteClass')}
+              </Button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
