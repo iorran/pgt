@@ -111,7 +111,7 @@ export function ClassEditDialog({ cls, onOpenChange, onSubmit }: ClassEditDialog
           <form.Field name="dayOfWeek">
             {(field) => (
               <div className="space-y-2">
-                <Label>{t('classes.daysOfWeek')}</Label>
+                <Label>{t('classes.dayOfWeek')}</Label>
                 <div className="flex flex-wrap gap-2">
                   {DAY_KEYS.map((k, i) => (
                     <button

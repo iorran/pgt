@@ -69,6 +69,7 @@
     "className": "Nome da Aula",
     "classType": "Tipo",
     "daysOfWeek": "Dias da Semana",
+    "dayOfWeek": "Dia da Semana",
     "startTime": "Horário Início",
     "endTime": "Horário Fim",
     "checkin": "Check-in",
