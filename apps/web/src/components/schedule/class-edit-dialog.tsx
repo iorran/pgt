@@ -183,7 +183,11 @@ export function ClassEditDialog({
           </div>
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
-              <Button type="submit" loading={isSubmitting}>
+              <Button
+                type="submit"
+                loading={isSubmitting}
+                disabled={confirmingDelete}
+              >
                 {t('common.save')}
               </Button>
             )}

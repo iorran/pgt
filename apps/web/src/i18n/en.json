@@ -50,6 +50,21 @@
     "confirm": "Confirm",
     "back": "Back"
   },
+  "calendar": {
+    "today": "Today",
+    "previous": "Back",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda",
+    "date": "Date",
+    "time": "Time",
+    "event": "Class",
+    "noEvents": "No classes in this range",
+    "allDay": "All day",
+    "showMore": "+ {{count}} more"
+  },
   "checkin": {
     "cameraStarting": "Starting camera...",
     "scanInstruction": "Point the camera at your academy's QR code",

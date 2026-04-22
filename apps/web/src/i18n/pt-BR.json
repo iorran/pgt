@@ -50,6 +50,21 @@
     "confirm": "Confirmar",
     "back": "Voltar"
   },
+  "calendar": {
+    "today": "Hoje",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia",
+    "agenda": "Agenda",
+    "date": "Data",
+    "time": "Hora",
+    "event": "Aula",
+    "noEvents": "Nenhuma aula neste período",
+    "allDay": "Dia inteiro",
+    "showMore": "+ {{count}} mais"
+  },
   "checkin": {
     "cameraStarting": "Iniciando câmera...",
     "scanInstruction": "Aponte a câmera para o QR code da sua academia",

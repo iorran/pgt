@@ -57,7 +57,7 @@ export interface ClassCalendarProps {
 }
 
 export function ClassCalendar(props: ClassCalendarProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     events,
     view,
@@ -72,6 +72,22 @@ export function ClassCalendar(props: ClassCalendarProps) {
     renderEvent,
   } = props;
 
+  const messages = {
+    today: t('calendar.today'),
+    previous: t('calendar.previous'),
+    next: t('calendar.next'),
+    month: t('calendar.month'),
+    week: t('calendar.week'),
+    day: t('calendar.day'),
+    agenda: t('calendar.agenda'),
+    date: t('calendar.date'),
+    time: t('calendar.time'),
+    event: t('calendar.event'),
+    allDay: t('calendar.allDay'),
+    noEventsInRange: t('calendar.noEvents'),
+    showMore: (count: number) => t('calendar.showMore', { count }),
+  };
+
   const components = renderEvent
     ? {
         event: ({ event }: EventProps<CalendarEvent>) => <>{renderEvent(event)}</>,
@@ -82,6 +98,7 @@ export function ClassCalendar(props: ClassCalendarProps) {
     <DnDCalendar
       localizer={localizer}
       culture={culture}
+      messages={messages}
       events={events}
       view={view}
       onView={(v) => onViewChange(v as CalendarRange)}
