@@ -99,14 +99,20 @@
 }
 
 /* ── Day-slot canvas (where events live) ──────────────────────────────── */
+/* Only the OUTER slot/bg layers get the card colour. Inner containers
+   (events-container, row-content) stay transparent so the today wash on
+   the parent slot shows through them. */
 .rbc-day-bg,
 .rbc-day-slot,
 .rbc-month-row,
-.rbc-row-bg,
-.rbc-row-content,
-.rbc-events-container,
-.rbc-day-slot .rbc-events-container {
+.rbc-row-bg {
   background: var(--card);
+  border-color: var(--border) !important;
+}
+.rbc-events-container,
+.rbc-day-slot .rbc-events-container,
+.rbc-row-content {
+  background: transparent !important;
   border-color: var(--border) !important;
 }
 
