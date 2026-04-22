@@ -123,19 +123,20 @@ export function StudentClassesView() {
           { to: '/classes/history', label: t('classes.checkinHistory') },
         ]}
       />
-      <ClassCalendar
-        events={calendar.events}
-        view="day"
-        date={calendar.date}
-        onViewChange={() => {}}
-        onDateChange={() => {}}
-        onEventDrop={() => {}}
-        onEventClick={() => {}}
-        readOnly
-        toolbar={false}
-        renderEvent={renderEvent}
-      />
-      {calendar.events.length === 0 && (
+      {calendar.events.length > 0 ? (
+        <ClassCalendar
+          events={calendar.events}
+          view={calendar.view}
+          date={calendar.date}
+          onViewChange={calendar.setView}
+          onDateChange={calendar.setDate}
+          onEventDrop={calendar.onEventDrop}
+          onEventClick={calendar.onEventClick}
+          readOnly
+          toolbar={false}
+          renderEvent={renderEvent}
+        />
+      ) : (
         <p className="text-muted-foreground text-center py-8">
           {t('common.noResults')}
         </p>

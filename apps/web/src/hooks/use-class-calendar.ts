@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   classesToCalendarEvents,
   type CalendarEvent,
@@ -45,8 +45,28 @@ export function useClassCalendar(
 ): UseClassCalendarResult {
   const { classes, onMove, onSelect, initialView, readOnly = false } = opts;
 
-  const [view, setView] = useState<CalendarRange>(() => pickDefaultView(initialView));
+  const [view, setViewState] = useState<CalendarRange>(() => pickDefaultView(initialView));
   const [date, setDate] = useState<Date>(() => new Date());
+  const manualViewRef = useRef(false);
+
+  // If the parent didn't pin a view, track the viewport breakpoint so
+  // a resize (or device rotation) that crosses md switches month↔day
+  // automatically. Suppressed once the user explicitly picks a view.
+  useEffect(() => {
+    if (initialView || typeof window === 'undefined') return;
+    const mql = window.matchMedia('(min-width: 768px)');
+    const onChange = () => {
+      if (manualViewRef.current) return;
+      setViewState(mql.matches ? 'week' : 'day');
+    };
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, [initialView]);
+
+  const setView = useCallback((v: CalendarRange) => {
+    manualViewRef.current = true;
+    setViewState(v);
+  }, []);
 
   const events = useMemo(
     () => classesToCalendarEvents(classes, date, view),
@@ -65,12 +85,17 @@ export function useClassCalendar(
     [onMove, readOnly],
   );
 
+  // Keep a ref to the latest classes so onEventClick's identity is stable
+  // across renders that only change the classes array reference.
+  const classesRef = useRef(classes);
+  classesRef.current = classes;
+
   const onEventClick = useCallback(
     (eventId: string) => {
-      const match = classes.find((c) => c.id === eventId);
+      const match = classesRef.current.find((c) => c.id === eventId);
       if (match) onSelect(match);
     },
-    [classes, onSelect],
+    [onSelect],
   );
 
   return {
