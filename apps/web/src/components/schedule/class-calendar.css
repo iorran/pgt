@@ -1,0 +1,49 @@
+.cc-event-gi {
+  background-color: var(--color-blue-500, #3b82f6);
+  border-color: var(--color-blue-600, #2563eb);
+}
+.cc-event-nogi {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+.cc-event-openmat {
+  background-color: var(--color-cyan-400, #22d3ee);
+  border-color: var(--color-cyan-500, #06b6d4);
+  color: #000;
+}
+.cc-event-kids {
+  background-color: var(--color-purple-500, #a855f7);
+  border-color: var(--color-purple-600, #9333ea);
+}
+.cc-event-default {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.rbc-toolbar {
+  padding: 0.75rem 0;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.rbc-toolbar button {
+  color: var(--foreground);
+  border-color: var(--border);
+  background: var(--card);
+}
+.rbc-toolbar button.rbc-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.rbc-time-view,
+.rbc-month-view {
+  border-color: var(--border);
+  background: var(--card);
+  border-radius: var(--radius);
+}
+.rbc-time-header-content,
+.rbc-header,
+.rbc-time-gutter {
+  background: var(--card);
+  color: var(--muted-foreground);
+}
