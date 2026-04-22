@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import DashboardPage from '@/pages/dashboard';
 
@@ -13,82 +14,47 @@ vi.mock('@/lib/api', () => ({
 
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
-
 const mockUseSession = vi.mocked(useSession);
 const mockApi = vi.mocked(api);
 
 const instructorSession = {
-  data: { user: { id: 'u1', name: 'Instructor', role: 'instructor', academyId: 'a1', status: 'active' } },
+  data: { user: { id: 'u1', role: 'instructor', academyId: 'a1', status: 'active' } },
   isPending: false,
 } as any;
-
-const studentSession = {
-  data: { user: { id: 'u2', name: 'Student', role: 'student', academyId: 'a1', status: 'active' } },
-  isPending: false,
-} as any;
-
-const mockAcademy = {
-  id: 'a1',
-  name: 'Fight Arena',
-  city: 'Sao Paulo',
-  joinCode: 'ABC123',
-};
 
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseSession.mockReturnValue(instructorSession);
-    mockApi.mockImplementation((path: string) => {
-      if (path.includes('academies/mine')) return Promise.resolve(mockAcademy as any);
-      return Promise.resolve([] as any);
-    });
+    mockApi.mockResolvedValue([] as any);
   });
 
-  it('shows welcome message', () => {
+  it('shows Open Totem card for instructors', async () => {
     renderWithProviders(<DashboardPage />);
-    expect(screen.getByText('nav.dashboard')).toBeInTheDocument();
+    // Explainer text is unique to this card
+    await waitFor(() =>
+      expect(screen.getByText('totem.openTotemExplainer')).toBeInTheDocument(),
+    );
+    // Both the title and the button render the key; expect exactly 2 nodes
+    expect(screen.getAllByText('totem.openTotem')).toHaveLength(2);
   });
 
-  it('for instructor: shows join code and WhatsApp share button', async () => {
+  it('Open Totem button opens /totem in a new tab', async () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const user = userEvent.setup();
     renderWithProviders(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('ABC123')).toBeInTheDocument();
-      expect(screen.getByText('onboarding.joinCode')).toBeInTheDocument();
-      expect(screen.getByText('onboarding.shareWhatsApp')).toBeInTheDocument();
-    });
+    const button = await screen.findByRole('button', { name: 'totem.openTotem' });
+    await user.click(button);
+    expect(openSpy).toHaveBeenCalledWith('/totem', '_blank', 'noopener');
+    openSpy.mockRestore();
   });
 
-  it('shows overdue banner for student', async () => {
-    mockUseSession.mockReturnValue(studentSession);
-    mockApi.mockImplementation((path: string) => {
-      if (path.includes('my-status')) return Promise.resolve({ status: 'overdue', daysOverdue: 5 } as any);
-      return Promise.resolve([] as any);
-    });
+  it('does not render join-code card on dashboard', async () => {
     renderWithProviders(<DashboardPage />);
     await waitFor(() => {
-      expect(screen.getByText('billing.yourPaymentOverdue')).toBeInTheDocument();
+      expect(screen.queryByText('onboarding.joinCode')).not.toBeInTheDocument();
+      expect(screen.queryByText('onboarding.copyCode')).not.toBeInTheDocument();
+      expect(screen.queryByText('onboarding.shareWhatsApp')).not.toBeInTheDocument();
     });
-  });
-
-  it('shows upcoming payment banner for student', async () => {
-    mockUseSession.mockReturnValue(studentSession);
-    mockApi.mockImplementation((path: string) => {
-      if (path.includes('my-status')) return Promise.resolve({ status: 'upcoming', daysUntilDue: 2 } as any);
-      return Promise.resolve([] as any);
-    });
-    renderWithProviders(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('billing.paymentDueSoon')).toBeInTheDocument();
-    });
-  });
-
-  it('for student: does not show join code management', async () => {
-    mockUseSession.mockReturnValue(studentSession);
-    renderWithProviders(<DashboardPage />);
-    await waitFor(() => {
-      expect(screen.getByText('nav.dashboard')).toBeInTheDocument();
-    });
-    expect(screen.queryByText('onboarding.joinCode')).not.toBeInTheDocument();
-    expect(screen.queryByText('onboarding.shareWhatsApp')).not.toBeInTheDocument();
   });
 });
