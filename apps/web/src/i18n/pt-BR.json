@@ -87,6 +87,7 @@
     "checkinInvalidToken": "QR Code inválido ou expirado",
     "scanQR": "Escanear QR Code",
     "scanning": "Escaneando...",
+    "moveSuccess": "Aula reagendada",
     "days": {
       "sun": "Domingo",
       "mon": "Segunda",
@@ -261,7 +262,9 @@
     "title": "Totem de Check-in",
     "noClasses": "Nenhuma aula no momento",
     "nextClass": "Próxima aula",
-    "scanToCheckin": "Escaneie para fazer check-in"
+    "scanToCheckin": "Escaneie para fazer check-in",
+    "openTotem": "Abrir Totem",
+    "openTotemExplainer": "Abra a tela de QR codes em outro dispositivo para seus alunos fazerem check-in."
   },
   "me": {
     "title": "Meu Perfil",
