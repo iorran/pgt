@@ -11,7 +11,17 @@ vi.mock('@/lib/api', () => ({
   api: vi.fn(),
 }));
 
-// Mock ClassCalendar — captures props so tests can inspect events and fire callbacks
+// Mock ClassCalendar — captures the latest props so tests can inspect `events`
+// and fire `onEventDrop`/`onEventClick` directly without mounting RBC.
+//
+// capturedProps is module-level because the factory passed to vi.mock() is
+// hoisted above all imports; a stable reference is needed so the mock and the
+// tests see the same object. Vitest runs tests within a file sequentially, so
+// the `beforeEach` reset below is sufficient. Cross-file isolation is handled
+// by vitest's per-file worker model.
+//
+// The student-view test uses <div> instead of <button> here because its
+// renderEvent prop returns a <Button>, and button-in-button is invalid HTML.
 let capturedProps: any = {};
 vi.mock('@/components/schedule/class-calendar', () => ({
   ClassCalendar: (props: any) => {

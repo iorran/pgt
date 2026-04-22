@@ -13,19 +13,36 @@ const cls = (over: Partial<ClassItem> = {}): ClassItem => ({
   ...over,
 });
 
+// Live matchMedia stub: tracks the latest MediaQueryList so tests can flip
+// `matches` and fire the `change` event to exercise the hook's resize path.
+// Uses only addEventListener/removeEventListener (what the hook actually calls);
+// the deprecated addListener/removeListener surface is intentionally omitted.
+type MqlStub = MediaQueryList & { __fire: (next: boolean) => void };
+let currentMql: MqlStub | undefined;
+
 function stubMatchMedia(matches: boolean) {
+  currentMql = undefined;
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
-    value: (q: string) => ({
-      matches,
-      media: q,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }),
+    value: (q: string) => {
+      const listeners = new Set<(e: MediaQueryListEvent) => void>();
+      const mql: MqlStub = {
+        matches,
+        media: q,
+        onchange: null,
+        addEventListener: (_type: string, cb: any) => listeners.add(cb),
+        removeEventListener: (_type: string, cb: any) => listeners.delete(cb),
+        dispatchEvent: () => true,
+        __fire: (next: boolean) => {
+          mql.matches = next;
+          listeners.forEach((cb) =>
+            cb({ matches: next, media: q } as MediaQueryListEvent),
+          );
+        },
+      } as MqlStub;
+      currentMql = mql;
+      return mql;
+    },
   });
 }
 
@@ -129,5 +146,52 @@ describe('useClassCalendar', () => {
       result.current.onEventDrop('c1', new Date(2026, 3, 22, 9, 0), new Date(2026, 3, 22, 10, 0));
     });
     expect(onMove).not.toHaveBeenCalled();
+  });
+
+  it('switches to day view when the viewport crosses the breakpoint downward', () => {
+    stubMatchMedia(true);
+    const { result } = renderHook(() =>
+      useClassCalendar({ classes: [cls()], onMove: vi.fn(), onSelect: vi.fn() }),
+    );
+    expect(result.current.view).toBe('week');
+
+    act(() => {
+      currentMql!.__fire(false);
+    });
+    expect(result.current.view).toBe('day');
+  });
+
+  it('stops auto-switching once the user explicitly picks a view', () => {
+    stubMatchMedia(true);
+    const { result } = renderHook(() =>
+      useClassCalendar({ classes: [cls()], onMove: vi.fn(), onSelect: vi.fn() }),
+    );
+
+    act(() => {
+      result.current.setView('month');
+    });
+    expect(result.current.view).toBe('month');
+
+    act(() => {
+      currentMql!.__fire(false);
+    });
+    // User's explicit choice should NOT be overridden by a resize
+    expect(result.current.view).toBe('month');
+  });
+
+  it('does not attach a resize listener when initialView is pinned', () => {
+    stubMatchMedia(true);
+    renderHook(() =>
+      useClassCalendar({
+        classes: [cls()],
+        onMove: vi.fn(),
+        onSelect: vi.fn(),
+        initialView: 'day',
+      }),
+    );
+    // `currentMql` stays undefined when the hook skips the effect entirely:
+    // the stub only records the MQL on `window.matchMedia(...)` calls, so if
+    // it was never called, the hook never subscribed.
+    expect(currentMql).toBeUndefined();
   });
 });
