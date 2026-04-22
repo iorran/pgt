@@ -78,23 +78,26 @@ describe('useClassCalendar', () => {
     expect(result.current.events[0].title).toBe('Morning Gi');
   });
 
-  it('onEventDrop translates a new start/end into dayOfWeek + HH:mm and calls onMove', () => {
+  it('onEventDrop preserves the class duration regardless of RBC newEnd', () => {
     const onMove = vi.fn();
+    // Original class: 07:00 – 08:30 → 90-minute duration.
     const { result } = renderHook(() =>
       useClassCalendar({ classes: [cls()], onMove, onSelect: vi.fn() }),
     );
 
     const newStart = new Date(2026, 3, 22, 9, 15);
-    const newEnd = new Date(2026, 3, 22, 10, 45);
+    // Pretend RBC suggests a shorter end (e.g. target slot truncated it).
+    // The hook should IGNORE this and recompute from the original duration.
+    const rbcTruncatedEnd = new Date(2026, 3, 22, 9, 45);
 
     act(() => {
-      result.current.onEventDrop('c1', newStart, newEnd);
+      result.current.onEventDrop('c1', newStart, rbcTruncatedEnd);
     });
 
     expect(onMove).toHaveBeenCalledWith('c1', {
       dayOfWeek: 3,
       startTime: '09:15',
-      endTime: '10:45',
+      endTime: '10:45', // 09:15 + 90 min, not RBC's 09:45
     });
   });
 
