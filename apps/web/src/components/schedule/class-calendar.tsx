@@ -4,6 +4,7 @@ import withDragAndDrop, {
 } from 'react-big-calendar/lib/addons/dragAndDrop';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS, ptBR } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import './class-calendar.css';
@@ -19,7 +20,15 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
+// `Calendar as any`: RBC's public `Calendar` is typed as a class whose
+// generic doesn't line up with `withDragAndDrop`'s expected constructor
+// signature. The cast is load-bearing and limited to this single line.
 const DnDCalendar = withDragAndDrop<CalendarEvent>(Calendar as any);
+
+function i18nToCulture(language: string | undefined): 'en-US' | 'pt-BR' {
+  if (!language) return 'pt-BR';
+  return language.toLowerCase().startsWith('en') ? 'en-US' : 'pt-BR';
+}
 
 const TYPE_CLASS: Record<string, string> = {
   gi: 'cc-event-gi',
@@ -48,6 +57,7 @@ export interface ClassCalendarProps {
 }
 
 export function ClassCalendar(props: ClassCalendarProps) {
+  const { i18n } = useTranslation();
   const {
     events,
     view,
@@ -58,7 +68,7 @@ export function ClassCalendar(props: ClassCalendarProps) {
     onEventClick,
     readOnly = false,
     toolbar = true,
-    culture = 'pt-BR',
+    culture = i18nToCulture(i18n.language),
     renderEvent,
   } = props;
 
