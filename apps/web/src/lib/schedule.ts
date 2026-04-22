@@ -75,11 +75,12 @@ export function classesToCalendarEvents(
     });
   }
 
+  // RBC month view always renders a fixed 6-week grid so we don't under-fill
+  // when the month aligns with week boundaries (e.g. 1st on Mon + last on Sun).
   const first = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
-  const last = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
   const gridStart = mondayOf(first);
-  const gridEnd = mondayOf(last);
-  gridEnd.setDate(gridEnd.getDate() + 6);
+  const gridEnd = new Date(gridStart);
+  gridEnd.setDate(gridEnd.getDate() + 6 * 7 - 1);
 
   const events: CalendarEvent[] = [];
   const cursor = new Date(gridStart);

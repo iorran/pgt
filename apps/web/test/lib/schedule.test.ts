@@ -43,22 +43,26 @@ describe('classesToCalendarEvents', () => {
     expect(events[0].resource.id).toBe('c2');
   });
 
-  it('month range: repeats each class across every week in the rendered month window', () => {
-    // April 2026 has 5 Tuesdays (7, 14, 21, 28) plus spillover.
-    // Anchor: April 15, 2026.
+  it('month range: always materializes 6 weeks (RBC month view height)', () => {
+    // Anchor: April 15, 2026. Grid: Mon Mar 30 → Sun May 10 (6 weeks).
     const anchor = new Date(2026, 3, 15);
     const events = classesToCalendarEvents([cls()], anchor, 'month');
 
-    // Tuesdays in the April grid the calendar renders (Mon-start weeks):
-    // Week 1: Mar 30 - Apr 5 → Tue Mar 31
-    // Week 2: Apr 6 - Apr 12 → Tue Apr 7
-    // Week 3: Apr 13 - Apr 19 → Tue Apr 14
-    // Week 4: Apr 20 - Apr 26 → Tue Apr 21
-    // Week 5: Apr 27 - May 3 → Tue Apr 28
-    // ⇒ 5 events
-    expect(events).toHaveLength(5);
+    // 6 Tuesdays: Mar 31, Apr 7, 14, 21, 28, May 5.
+    expect(events).toHaveLength(6);
     const days = events.map((e) => e.start.getDate()).sort((a, b) => a - b);
-    expect(days).toEqual([7, 14, 21, 28, 31]);
+    expect(days).toEqual([5, 7, 14, 21, 28, 31]);
+  });
+
+  it('month range: fills 6 weeks even when the 1st of the month is Monday', () => {
+    // June 2026: Jun 1 is Mon, Jun 30 is Tue. Naive grids return only 5 weeks.
+    // Grid: Mon Jun 1 → Sun Jul 12. 6 Tuesdays: Jun 2, 9, 16, 23, 30, Jul 7.
+    const anchor = new Date(2026, 5, 15);
+    const events = classesToCalendarEvents([cls()], anchor, 'month');
+
+    expect(events).toHaveLength(6);
+    const days = events.map((e) => e.start.getDate()).sort((a, b) => a - b);
+    expect(days).toEqual([2, 7, 9, 16, 23, 30]);
   });
 
   it('DST: class at 08:00 stays at wall-clock 08:00 across a DST transition', () => {
