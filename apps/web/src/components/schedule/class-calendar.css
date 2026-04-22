@@ -1,36 +1,41 @@
 /* ── Event blocks ──────────────────────────────────────────────────────────
-   Arena palette: dark cards with a 4px left accent stripe per type. */
+   Arena palette: dark cards with a soft neumorphic raise. Base border is
+   --primary (yellow-green), left-stripe accent varies by class type.
+   !important is required to beat RBC's default .rbc-event blue border. */
 .rbc-event {
-  background: var(--card);
-  color: var(--foreground);
-  border: 1px solid var(--border);
-  border-left-width: 4px;
-  border-radius: 4px;
-  padding: 2px 4px;
+  background: var(--card) !important;
+  color: var(--foreground) !important;
+  border: 1px solid var(--primary) !important;
+  border-left-width: 4px !important;
+  border-radius: 6px !important;
+  padding: 4px 6px !important;
+  /* Efeito de Relevo Simples (soft neumorphism): dark shadow bottom-right,
+     subtle light highlight top-left. Stays readable on the dark theme. */
+  box-shadow:
+    2px 2px 8px rgba(0, 0, 0, 0.6),
+    -1px -1px 3px rgba(255, 255, 255, 0.04) !important;
 }
 .rbc-event:focus,
 .rbc-event.rbc-selected {
   outline: 2px solid var(--primary);
-  outline-offset: -1px;
+  outline-offset: 1px;
 }
 .rbc-event-label {
   color: var(--muted-foreground);
   font-size: 0.7rem;
 }
-.cc-event-gi {
-  border-left-color: var(--pgt-gold);
+.cc-event-gi,
+.cc-event-default {
+  border-left-color: var(--primary) !important;
 }
 .cc-event-nogi {
-  border-left-color: var(--primary);
+  border-left-color: var(--pgt-gold) !important;
 }
 .cc-event-openmat {
-  border-left-color: var(--pgt-green);
+  border-left-color: var(--pgt-green) !important;
 }
 .cc-event-kids {
-  border-left-color: var(--pgt-red);
-}
-.cc-event-default {
-  border-left-color: var(--primary);
+  border-left-color: var(--pgt-red) !important;
 }
 
 /* ── Toolbar ───────────────────────────────────────────────────────────── */
@@ -96,7 +101,7 @@
   border-color: var(--border) !important;
 }
 
-/* ── Slot grid lines — RBC ships hardcoded #f7f7f7 here, override aggressively */
+/* ── Slot grid lines — RBC ships hardcoded colors here, override aggressively */
 .rbc-time-slot,
 .rbc-timeslot-group,
 .rbc-day-slot,
@@ -106,7 +111,9 @@
 .rbc-day-bg + .rbc-day-bg,
 .rbc-month-row,
 .rbc-row-bg,
-.rbc-row-content {
+.rbc-row-content,
+.rbc-events-container,
+.rbc-day-slot .rbc-events-container {
   border-color: var(--border) !important;
 }
 .rbc-time-content {
@@ -144,8 +151,9 @@
   color: color-mix(in oklab, var(--muted-foreground) 60%, var(--background));
 }
 
-/* ── Current-time indicator (red line in day/week view) ────────────────── */
+/* ── Current-time indicator (horizontal line crossing today's column) ──── */
+/* Blue complements the yellow-green events — stands out without clashing. */
 .rbc-current-time-indicator {
-  background-color: var(--primary);
+  background-color: #3b82f6 !important;
   height: 2px;
 }
