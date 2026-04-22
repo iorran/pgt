@@ -66,6 +66,7 @@
     "deleteClass": "Delete Class",
     "confirmDelete": "Are you sure you want to delete this class?",
     "classDeleted": "Class deleted",
+    "classUpdated": "Class updated",
     "className": "Class Name",
     "classType": "Type",
     "daysOfWeek": "Days of the Week",

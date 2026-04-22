@@ -66,6 +66,7 @@
     "deleteClass": "Excluir Aula",
     "confirmDelete": "Tem certeza que deseja excluir esta aula?",
     "classDeleted": "Aula excluída",
+    "classUpdated": "Aula atualizada",
     "className": "Nome da Aula",
     "classType": "Tipo",
     "daysOfWeek": "Dias da Semana",

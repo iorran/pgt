@@ -190,39 +190,45 @@ export function ClassEditDialog({
           </form.Subscribe>
         </form>
 
-        {onDelete && !confirmingDelete && (
-          <Button
-            variant="outline"
-            className="text-destructive mt-4"
-            onClick={() => setConfirmingDelete(true)}
-          >
-            {t('classes.deleteClass')}
-          </Button>
-        )}
-
-        {onDelete && confirmingDelete && (
-          <div className="mt-4 space-y-3 border-t border-border pt-4">
-            <p className="text-sm text-muted-foreground">
-              {t('classes.confirmDelete')}
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setConfirmingDelete(false)}
-                disabled={deleting}
-              >
-                {t('common.cancel')}
-              </Button>
-              <Button
-                variant="outline"
-                className="text-destructive"
-                onClick={handleDelete}
-                loading={deleting}
-              >
-                {t('classes.deleteClass')}
-              </Button>
-            </div>
-          </div>
+        {onDelete && (
+          <form.Subscribe selector={(state) => state.isSubmitting}>
+            {(saving) =>
+              !confirmingDelete ? (
+                <Button
+                  variant="outline"
+                  className="text-destructive mt-4"
+                  onClick={() => setConfirmingDelete(true)}
+                  disabled={saving}
+                >
+                  {t('classes.deleteClass')}
+                </Button>
+              ) : (
+                <div className="mt-4 space-y-3 border-t border-border pt-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t('classes.confirmDelete')}
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setConfirmingDelete(false)}
+                      disabled={deleting || saving}
+                    >
+                      {t('common.cancel')}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="text-destructive"
+                      onClick={handleDelete}
+                      loading={deleting}
+                      disabled={saving}
+                    >
+                      {t('classes.deleteClass')}
+                    </Button>
+                  </div>
+                </div>
+              )
+            }
+          </form.Subscribe>
         )}
       </DialogContent>
     </Dialog>

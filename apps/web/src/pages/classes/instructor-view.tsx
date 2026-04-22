@@ -87,6 +87,7 @@ export function InstructorClassesView() {
       queryClient.invalidateQueries({ queryKey: ['classes', user.academyId] });
       setEditing(null);
     },
+    meta: { successMessage: t('classes.classUpdated') },
   });
 
   const deleteMutation = useMutation({
