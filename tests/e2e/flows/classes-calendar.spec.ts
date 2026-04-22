@@ -37,8 +37,15 @@ test('instructor visits /classes, clicks an event, edit dialog opens', async ({
 
   const context = await impersonateAs(browser, setup.instructor.email);
   try {
+    // Desktop viewport → the hook defaults to week view.
     const page = await context.newPage();
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/classes');
+
+    // Confirm week view is active in the RBC toolbar.
+    await expect(
+      page.locator('.rbc-toolbar button.rbc-active', { hasText: /week|semana/i }),
+    ).toBeVisible({ timeout: 10_000 });
 
     await expect(page.getByText(cls.name)).toBeVisible({ timeout: 10_000 });
 
