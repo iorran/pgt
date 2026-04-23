@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import SettingsPage from '@/pages/settings';
 
@@ -17,8 +18,18 @@ import { api } from '@/lib/api';
 const mockUseSession = vi.mocked(useSession);
 const mockApi = vi.mocked(api);
 
+const academy = {
+  id: 'a1',
+  name: 'Test Academy',
+  city: 'Lisbon',
+  latitude: null,
+  longitude: null,
+  address: null,
+  joinCode: 'ABC123',
+};
+
 const instructorSession = {
-  data: { user: { id: 'u1', name: 'Instructor', role: 'instructor', academyId: 'a1', status: 'active' } },
+  data: { user: { id: 'u1', role: 'instructor', academyId: 'a1', status: 'active' } },
   isPending: false,
 } as any;
 
@@ -27,20 +38,11 @@ const studentSession = {
   isPending: false,
 } as any;
 
-const mockAcademy = {
-  id: 'a1',
-  name: 'Fight Arena',
-  city: 'Sao Paulo',
-  latitude: null,
-  longitude: null,
-  address: null,
-};
-
 describe('SettingsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseSession.mockReturnValue(instructorSession);
-    mockApi.mockResolvedValue(mockAcademy as any);
+    mockApi.mockResolvedValue(academy as any);
   });
 
   it('shows settings title', () => {
@@ -65,7 +67,7 @@ describe('SettingsPage', () => {
 
   it('shows saved coordinates when location is set', async () => {
     mockApi.mockResolvedValue({
-      ...mockAcademy,
+      ...academy,
       latitude: '-23.5505',
       longitude: '-46.6333',
       address: 'Rua Augusta, 123',
@@ -83,5 +85,41 @@ describe('SettingsPage', () => {
       expect(screen.getByText('nav.settings')).toBeInTheDocument();
     });
     expect(screen.queryByText('onboarding.setLocation')).not.toBeInTheDocument();
+  });
+
+  it('renders the join code for instructors', async () => {
+    renderWithProviders(<SettingsPage />);
+    await waitFor(() => {
+      expect(screen.getByText('ABC123')).toBeInTheDocument();
+    });
+  });
+
+  it('copy button writes join code to clipboard', async () => {
+    // userEvent.setup() installs its own Clipboard on navigator; spy after setup
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
+
+    renderWithProviders(<SettingsPage />);
+
+    const btn = await screen.findByRole('button', { name: 'onboarding.copyCode' });
+    await user.click(btn);
+
+    expect(writeText).toHaveBeenCalledWith('ABC123');
+    writeText.mockRestore();
+  });
+
+  it('WhatsApp share opens a wa.me link with the join URL', async () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const user = userEvent.setup();
+    renderWithProviders(<SettingsPage />);
+
+    const btn = await screen.findByRole('button', { name: 'onboarding.shareWhatsApp' });
+    await user.click(btn);
+
+    expect(openSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/^https:\/\/wa\.me\/\?text=.*ABC123/),
+      '_blank',
+    );
+    openSpy.mockRestore();
   });
 });

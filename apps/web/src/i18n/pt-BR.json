@@ -50,6 +50,21 @@
     "confirm": "Confirmar",
     "back": "Voltar"
   },
+  "calendar": {
+    "today": "Hoje",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia",
+    "agenda": "Agenda",
+    "date": "Data",
+    "time": "Hora",
+    "event": "Aula",
+    "noEvents": "Nenhuma aula neste período",
+    "allDay": "Dia inteiro",
+    "showMore": "+ {{count}} mais"
+  },
   "checkin": {
     "cameraStarting": "Iniciando câmera...",
     "scanInstruction": "Aponte a câmera para o QR code da sua academia",
@@ -66,9 +81,11 @@
     "deleteClass": "Excluir Aula",
     "confirmDelete": "Tem certeza que deseja excluir esta aula?",
     "classDeleted": "Aula excluída",
+    "classUpdated": "Aula atualizada",
     "className": "Nome da Aula",
     "classType": "Tipo",
     "daysOfWeek": "Dias da Semana",
+    "dayOfWeek": "Dia da Semana",
     "startTime": "Horário Início",
     "endTime": "Horário Fim",
     "checkin": "Check-in",
@@ -87,6 +104,7 @@
     "checkinInvalidToken": "QR Code inválido ou expirado",
     "scanQR": "Escanear QR Code",
     "scanning": "Escaneando...",
+    "moveSuccess": "Aula reagendada",
     "days": {
       "sun": "Domingo",
       "mon": "Segunda",
@@ -261,7 +279,9 @@
     "title": "Totem de Check-in",
     "noClasses": "Nenhuma aula no momento",
     "nextClass": "Próxima aula",
-    "scanToCheckin": "Escaneie para fazer check-in"
+    "scanToCheckin": "Escaneie para fazer check-in",
+    "openTotem": "Abrir Totem",
+    "openTotemExplainer": "Abra a tela de QR codes em outro dispositivo para seus alunos fazerem check-in."
   },
   "me": {
     "title": "Meu Perfil",

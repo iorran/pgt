@@ -50,6 +50,21 @@
     "confirm": "Confirm",
     "back": "Back"
   },
+  "calendar": {
+    "today": "Today",
+    "previous": "Back",
+    "next": "Next",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "agenda": "Agenda",
+    "date": "Date",
+    "time": "Time",
+    "event": "Class",
+    "noEvents": "No classes in this range",
+    "allDay": "All day",
+    "showMore": "+ {{count}} more"
+  },
   "checkin": {
     "cameraStarting": "Starting camera...",
     "scanInstruction": "Point the camera at your academy's QR code",
@@ -66,9 +81,11 @@
     "deleteClass": "Delete Class",
     "confirmDelete": "Are you sure you want to delete this class?",
     "classDeleted": "Class deleted",
+    "classUpdated": "Class updated",
     "className": "Class Name",
     "classType": "Type",
     "daysOfWeek": "Days of the Week",
+    "dayOfWeek": "Day of the Week",
     "startTime": "Start Time",
     "endTime": "End Time",
     "checkin": "Check-in",
@@ -87,6 +104,7 @@
     "checkinInvalidToken": "Invalid or expired QR Code",
     "scanQR": "Scan QR Code",
     "scanning": "Scanning...",
+    "moveSuccess": "Class rescheduled",
     "days": {
       "sun": "Sunday",
       "mon": "Monday",
@@ -261,7 +279,9 @@
     "title": "Check-in Totem",
     "noClasses": "No classes right now",
     "nextClass": "Next class",
-    "scanToCheckin": "Scan to check in"
+    "scanToCheckin": "Scan to check in",
+    "openTotem": "Open Totem",
+    "openTotemExplainer": "Open the QR-code screen on another device so students can check in."
   },
   "me": {
     "title": "My Profile",
