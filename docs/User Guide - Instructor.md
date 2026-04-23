@@ -146,6 +146,113 @@ Quando um aluno entra com seu código, ele aparece como **Pendente**.
 Quando um plano já está atribuído, o botão **"Pagar Mês Atual"** aparece no cartão de plano — use-o para registrar rapidamente o pagamento do mês corrente sem sair da página.
 <sub><em>When a plan is already assigned, the "Pagar Mês Atual" (Pay Current Month) button appears on the plan card — use it to quickly record the current month's payment without leaving the page.</em></sub>
 
+## Painel da Academia
+<sub><em>Owner Dashboard</em></sub>
+
+![Painel da Academia](./assets/user-guide/instructor/owner-dashboard-overview.png)
+
+O Painel da Academia é uma visão de alto nível da presença dos alunos e do engajamento nas aulas. É visível apenas para o **dono da academia** (papel `owner`) — o sistema diferencia o dono (quem opera a academia) dos instrutores (alunos promovidos que também dão aula). Se você criou a academia, você é o dono automaticamente.
+<sub><em>The Academy Dashboard is a high-level view of student attendance and class engagement. It's visible only to the academy **owner** (role `owner`) — the system distinguishes the owner (who runs the academy) from instructors (promoted students who also teach). If you created the academy, you're the owner automatically.</em></sub>
+
+> [!note] Dono vs. Instrutor
+> Na prática, o dono costuma ser também instrutor. Mas um instrutor promovido (aluno que passou a dar aulas) **não** vê o Painel da Academia — só o dono vê.
+> <sub><em>In practice, the owner is usually also an instructor. But a promoted instructor (a student who teaches) does **not** see the Academy Dashboard — only the owner does.</em></sub>
+
+### Acessar o Painel
+<sub><em>Open the Dashboard</em></sub>
+
+1. No **Painel** inicial (`/dashboard`), procure o cartão **"Academy dashboard"** — ele aparece apenas para o dono
+   <sub><em>On the main Dashboard (`/dashboard`), look for the "Academy dashboard" card — it appears only for the owner</em></sub>
+2. Toque no cartão para abrir `/owner/dashboard`
+   <sub><em>Tap the card to open `/owner/dashboard`</em></sub>
+3. Alternativamente, acesse a URL `/owner/dashboard` diretamente. Alunos ou instrutores (não-donos) que tentarem essa URL verão a mensagem **"Forbidden (403)"**
+   <sub><em>Alternatively, visit the URL `/owner/dashboard` directly. Students or instructors (non-owners) who try this URL see a "Forbidden (403)" message</em></sub>
+
+### Filtrar por Período
+<sub><em>Period Filter</em></sub>
+
+No topo do painel há um alternador **Day / Week / Month**. O padrão é **Week** (semana ISO, de segunda a domingo, no fuso da academia). Trocar o período recarrega o gráfico e a lista de aulas com dados do intervalo selecionado. O período fica salvo na URL (`?period=week`), então você pode compartilhar um link com a visão que está vendo.
+<sub><em>At the top of the dashboard there's a **Day / Week / Month** toggle. Default is **Week** (ISO week, Monday through Sunday, in the academy timezone). Switching the period reloads the chart and classes list for the selected range. The period is saved in the URL (`?period=week`), so you can share a link to the view you're looking at.</em></sub>
+
+### Aderência por Aula
+<sub><em>Class Adherence Chart</em></sub>
+
+![Gráfico de aderência](./assets/user-guide/instructor/owner-aderencia-chart.png)
+
+O gráfico de barras mostra o total de check-ins por aula no período selecionado. Cada barra corresponde a uma aula ativa, ordenadas do maior para o menor total. Passe o mouse (ou toque) sobre uma barra para ver:
+<sub><em>The bar chart shows total check-ins per class for the selected period. Each bar is one active class, sorted highest to lowest total. Hover (or tap) a bar to see:</em></sub>
+
+- **Total** — check-ins totais no período
+  <sub><em>Total — total check-ins in the period</em></sub>
+- **Unique students** — quantos alunos distintos apareceram
+  <sub><em>Unique students — how many distinct students showed up</em></sub>
+- **Avg/occurrence** — média de alunos por ocorrência (dia) da aula
+  <sub><em>Avg/occurrence — average students per class occurrence (day)</em></sub>
+- **Trend** — comparação com a média das últimas 4 ocorrências da mesma aula. Ex.: `120%` significa 20% acima da base; `80%` significa 20% abaixo
+  <sub><em>Trend — comparison against the rolling average of the last 4 occurrences. e.g., `120%` means 20% above baseline; `80%` means 20% below</em></sub>
+
+### Lista de Aulas com Tendência
+<sub><em>Classes List with Trend</em></sub>
+
+![Aula expandida com trend e roster](./assets/user-guide/instructor/owner-classes-expanded.png)
+
+Abaixo do gráfico, cada aula aparece como uma linha com nome, tipo, total de check-ins e uma **seta de tendência**:
+<sub><em>Below the chart, each class appears as a row with name, type, total check-ins, and a **trend arrow**:</em></sub>
+
+- **↑ verde** — aderência acima da média das últimas 4 ocorrências (+10% ou mais)
+  <sub><em>↑ green — adherence above the last-4-occurrence baseline (+10% or more)</em></sub>
+- **→ cinza** — aderência dentro da faixa normal (entre -10% e +10%)
+  <sub><em>→ grey — adherence within normal range (between -10% and +10%)</em></sub>
+- **↓ vermelho** — aderência caindo (-10% ou mais abaixo)
+  <sub><em>↓ red — adherence falling (-10% or more below)</em></sub>
+- **—** — tendência indisponível (aula com menos de 3 ocorrências anteriores)
+  <sub><em>— — trend unavailable (class with fewer than 3 prior occurrences)</em></sub>
+
+Clique em qualquer linha para expandi-la:
+<sub><em>Click any row to expand it:</em></sub>
+
+1. Aparece um mini gráfico de linha com os check-ins por dia nas últimas ocorrências
+   <sub><em>A mini line chart shows check-ins per day across recent occurrences</em></sub>
+2. Abaixo, a **lista de presença** (roster) da ocorrência mais recente — nome e faixa de cada aluno que fez check-in
+   <sub><em>Below it, the **roster** for the most recent occurrence — name and belt of each student who checked in</em></sub>
+3. Apenas uma aula fica expandida por vez — clique em outra linha para trocar, ou na mesma para recolher
+   <sub><em>Only one class is expanded at a time — click another row to switch, or the same row to collapse</em></sub>
+
+### Lista de Alunos por Atividade
+<sub><em>Students List by Activity</em></sub>
+
+![Lista de alunos com chips de status](./assets/user-guide/instructor/owner-students-list.png)
+
+A seção de alunos mostra todos os alunos da academia agrupados pelo tempo desde o último check-in. No topo há chips de filtro com a contagem de cada bucket:
+<sub><em>The students section shows every student in the academy grouped by days since their last check-in. At the top, filter chips show the count in each bucket:</em></sub>
+
+| Chip | Dias desde o último check-in | Cor |
+|------|------------------------------|-----|
+| **Active** | 0 a 6 dias | Verde |
+| **Slowing** | 7 a 13 dias | Âmbar |
+| **Drifting** | 14 a 29 dias | Vermelho |
+| **Inactive** | 30 dias ou mais, ou nunca treinou | Cinza |
+
+<sub><em>Active: 0–6 days since last check-in (green). Slowing: 7–13 days (amber). Drifting: 14–29 days (red). Inactive: 30+ days, or never trained (grey).</em></sub>
+
+Toque em **All** para ver todos, ou em qualquer outro chip para filtrar. Clique em uma linha de aluno para expandir:
+<sub><em>Tap **All** to see everyone, or any other chip to filter. Click a student row to expand:</em></sub>
+
+- **Total** — total de check-ins do aluno em todas as aulas
+  <sub><em>Total — student's total check-ins across all classes</em></sub>
+- **Classes** — número de aulas diferentes que o aluno já frequentou
+  <sub><em>Classes — number of distinct classes the student has attended</em></sub>
+- **Streak** — sequência atual de semanas consecutivas com ≥ 1 check-in
+  <sub><em>Streak — current run of consecutive weeks with ≥ 1 check-in</em></sub>
+- **Best** — maior sequência já alcançada
+  <sub><em>Best — longest streak ever achieved</em></sub>
+- Histórico dos últimos 30 dias (data + nome da aula)
+  <sub><em>Last 30 days of history (date + class name)</em></sub>
+
+> [!tip] Fluxo de retenção
+> Use o chip **Drifting** como sinal de alerta — são alunos que vinham treinando e pararam há 2–4 semanas. Uma mensagem no WhatsApp nessa janela costuma trazê-los de volta antes de virarem **Inactive**.
+> <sub><em>Retention tip: use the **Drifting** chip as an early-warning list — these are students who were training and stopped 2–4 weeks ago. A WhatsApp message in that window often brings them back before they become **Inactive**.</em></sub>
+
 ## Aulas
 <sub><em>Classes</em></sub>
 
