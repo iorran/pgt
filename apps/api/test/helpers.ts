@@ -39,12 +39,13 @@ export async function createTestAcademy(
   overrides: Partial<typeof schema.academy.$inferInsert> = {},
 ) {
   const ts = Date.now();
+  const rand = Math.random().toString(36).slice(2, 8);
   const [result] = await testDb
     .insert(schema.academy)
     .values({
       name: 'Test Academy',
-      slug: `test-academy-${ts}`,
-      joinCode: `TEST-${ts}`,
+      slug: `test-academy-${ts}-${rand}`,
+      joinCode: `TEST-${ts}-${rand}`,
       city: 'Test City',
       ...overrides,
     })
