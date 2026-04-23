@@ -89,6 +89,34 @@ export async function createTestInstructor(
   });
 }
 
+// Factory: create class (auto-creates an instructor if none provided)
+export async function createTestClass(
+  academyId: string,
+  overrides: Partial<typeof schema.bjjClass.$inferInsert> = {},
+) {
+  let instructorId = overrides.instructorId;
+  if (!instructorId) {
+    const instructor = await createTestInstructor(academyId);
+    instructorId = instructor.id;
+  }
+  const [row] = await testDb
+    .insert(schema.bjjClass)
+    .values({
+      academyId,
+      instructorId,
+      name: 'Test Class',
+      type: 'gi',
+      recurrence: 'weekly',
+      dayOfWeek: 1,
+      startTime: '19:00',
+      endTime: '20:00',
+      active: true,
+      ...overrides,
+    })
+    .returning();
+  return row;
+}
+
 // Helper: inject auth into a request (bypasses BetterAuth)
 export function authHeaders(user: any) {
   return {

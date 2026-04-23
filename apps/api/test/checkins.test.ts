@@ -5,10 +5,12 @@ import {
   createTestAcademy,
   createTestUser,
   createTestInstructor,
+  createTestClass,
   authHeaders,
   testDb,
 } from './helpers';
 import { bjjClass, checkin, streak } from '../src/db/schema/index';
+import * as schema from '../src/db/schema/index';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
@@ -176,12 +178,13 @@ describe('GET /api/checkins/student/:studentId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
     });
 
     expect(res.statusCode).toBe(200);
     const body = res.json();
     expect(body).toHaveLength(1);
-    expect(body[0].studentId).toBe(student.id);
+    expect(body[0].class.id).toBe(cls.id);
   });
 
   it('returns empty array for student with no checkins', async () => {
@@ -190,9 +193,56 @@ describe('GET /api/checkins/student/:studentId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
     });
 
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
+  });
+});
+
+describe('GET /api/checkins/student/:studentId (enriched + TZ-aware)', () => {
+  it('returns rows with class.name, class.type, and date in academy TZ', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id, { name: 'No-Gi Mon 19:00', type: 'no-gi' });
+    // 2026-04-22T23:30:00Z -> 2026-04-23 in Lisbon (DST, UTC+1)
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id,
+      studentId: student.id,
+      source: 'button',
+      checkedInAt: new Date('2026-04-22T23:30:00Z'),
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body).toHaveLength(1);
+    expect(body[0].date).toBe('2026-04-23');
+    expect(body[0].class).toEqual({ id: cls.id, name: 'No-Gi Mon 19:00', type: 'no-gi' });
+    expect(body[0].checkedInAt).toBeDefined();
+    expect(body[0].id).toBeDefined();
+  });
+
+  it('orders rows by checkedInAt desc', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id);
+    await testDb.insert(schema.checkin).values([
+      { classId: cls.id, studentId: student.id, source: 'button', checkedInAt: new Date('2026-04-20T18:00:00Z') },
+      { classId: cls.id, studentId: student.id, source: 'button', checkedInAt: new Date('2026-04-22T18:00:00Z') },
+    ]);
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
+    });
+    const body = res.json();
+    expect(body).toHaveLength(2);
+    expect(new Date(body[0].checkedInAt).getTime()).toBeGreaterThan(new Date(body[1].checkedInAt).getTime());
   });
 });

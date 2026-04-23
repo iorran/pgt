@@ -1,11 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { checkin, streak, bjjClass, academy, checkinToken } from '../db/schema/index.js';
-import { eq, and, gte, lte, ne } from 'drizzle-orm';
+import { checkin, streak, bjjClass, academy, checkinToken, user } from '../db/schema/index.js';
+import { eq, and, gte, lte, ne, desc } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { haversineDistance } from '../utils/haversine.js';
 import { isClassActiveNow } from '../utils/time-window.js';
+import { dayInTz, isoDateInTz, DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
 
 function getISOWeek(date: Date): string {
   const d = new Date(date);
@@ -252,9 +253,47 @@ export async function checkinRoutes(app: FastifyInstance) {
     return db.select().from(checkin).where(eq(checkin.classId, classId));
   });
 
-  // Get attendance history for a student
-  app.get('/api/checkins/student/:studentId', async (request) => {
+  // Get attendance history for a student (TZ-aware, enriched with class info)
+  app.get('/api/checkins/student/:studentId', { preHandler: requireAuth }, async (request) => {
     const { studentId } = request.params as { studentId: string };
-    return db.select().from(checkin).where(eq(checkin.studentId, studentId));
+
+    // Resolve the student's academy timezone (fall back to default)
+    let tz = DEFAULT_ACADEMY_TIMEZONE;
+    const [studentRow] = await db
+      .select({ academyId: user.academyId })
+      .from(user)
+      .where(eq(user.id, studentId))
+      .limit(1);
+    if (studentRow?.academyId) {
+      const [acad] = await db
+        .select({ tz: academy.timezone })
+        .from(academy)
+        .where(eq(academy.id, studentRow.academyId))
+        .limit(1);
+      if (acad?.tz) tz = acad.tz;
+    }
+
+    const rows = await db
+      .select({
+        id: checkin.id,
+        checkedInAt: checkin.checkedInAt,
+        date: dayInTz(checkin.checkedInAt, tz).as('date'),
+        classId: bjjClass.id,
+        className: bjjClass.name,
+        classType: bjjClass.type,
+      })
+      .from(checkin)
+      .leftJoin(bjjClass, eq(bjjClass.id, checkin.classId))
+      .where(eq(checkin.studentId, studentId))
+      .orderBy(desc(checkin.checkedInAt));
+
+    return rows.map((r) => ({
+      id: r.id,
+      checkedInAt: r.checkedInAt,
+      date: r.date instanceof Date ? isoDateInTz(r.date, tz) : String(r.date),
+      class: r.classId
+        ? { id: r.classId, name: r.className, type: r.classType }
+        : null,
+    }));
   });
 }
