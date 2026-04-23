@@ -32,6 +32,7 @@ import ResetPasswordPage from './pages/reset-password';
 import TotemPage from './pages/totem';
 import CheckinScanPage from './pages/checkin-scan';
 import SettingsPage from './pages/settings';
+import OwnerDashboardPage from './pages/owner/dashboard';
 import { Card, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -176,6 +177,7 @@ function AppRoutes() {
         <Route path="/gamification/profile" element={<GamificationProfilePage />} />
         <Route path="/tournaments" element={<TournamentsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/owner/dashboard" element={<OwnerDashboardPage />} />
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/theme" element={<ThemePage />} />
