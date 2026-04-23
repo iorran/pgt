@@ -4,6 +4,7 @@ import { requireOwner } from '../middleware/require-owner.js';
 import { db } from '../db/client.js';
 import { bjjClass } from '../db/schema/class.js';
 import { checkin } from '../db/schema/checkin.js';
+import { user as userTable } from '../db/schema/user.js';
 import {
   weekBoundsInTz,
   monthBoundsInTz,
@@ -164,6 +165,45 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
           uniqueStudents: Number(r.uniqueStudents),
         })),
       };
+    },
+  );
+
+  app.get(
+    '/api/owner/classes/:classId/occurrences/:date/roster',
+    { preHandler: requireOwner },
+    async (request, reply) => {
+      const { classId, date } = request.params as { classId: string; date: string };
+      const tz = request.academy!.timezone;
+      const dayStart = startOfDayInTz(date, tz);
+      const nextDay = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+
+      const [cls] = await db
+        .select({ id: bjjClass.id })
+        .from(bjjClass)
+        .where(and(eq(bjjClass.id, classId), eq(bjjClass.academyId, request.academy!.id)))
+        .limit(1);
+      if (!cls) return reply.status(404).send({ error: 'Class not found' });
+
+      const students = await db
+        .select({
+          id: userTable.id,
+          name: userTable.name,
+          belt: userTable.belt,
+          checkedInAt: checkin.checkedInAt,
+          source: checkin.source,
+        })
+        .from(checkin)
+        .innerJoin(userTable, eq(userTable.id, checkin.studentId))
+        .where(
+          and(
+            eq(checkin.classId, classId),
+            gte(checkin.checkedInAt, dayStart),
+            lt(checkin.checkedInAt, nextDay),
+          ),
+        )
+        .orderBy(checkin.checkedInAt);
+
+      return { classId, date, students };
     },
   );
 }
