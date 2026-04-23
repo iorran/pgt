@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/iorran/pgt/compare/v1.8.0...v1.8.1) (2026-04-23)
+
+
+### Bug Fixes
+
+* **api:** allow same-academy staff to read student-scoped resources ([1c74a83](https://github.com/iorran/pgt/commit/1c74a83389d559841a93b54f73b42c1d2582c0dd))
+
 # [1.8.0](https://github.com/iorran/pgt/compare/v1.7.0...v1.8.0) (2026-04-23)
 
 
