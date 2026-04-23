@@ -207,6 +207,86 @@ describe('GET /api/owner/classes/:classId/occurrences', () => {
   });
 });
 
+describe('GET /api/owner/students (real handler)', () => {
+  let app: FastifyInstance;
+
+  beforeAll(async () => { app = await createTestApp(); });
+  afterAll(async () => { await app.close(); });
+  beforeEach(async () => { await cleanDb(); });
+
+  it('buckets students by days since last check-in', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner', name: 'Owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const cls = await createTestClass(academy.id);
+    const sActive = await createTestUser(academy.id, { role: 'student', name: 'Active' });
+    const sSlowing = await createTestUser(academy.id, { role: 'student', name: 'Slowing' });
+    const sDrifting = await createTestUser(academy.id, { role: 'student', name: 'Drifting' });
+    const sInactive = await createTestUser(academy.id, { role: 'student', name: 'Inactive' });
+    const sNever = await createTestUser(academy.id, { role: 'student', name: 'NeverCheckedIn' });
+
+    const now = new Date();
+    const daysAgo = (n: number) => new Date(now.getTime() - n * 24 * 60 * 60 * 1000);
+    await testDb.insert(schema.checkin).values([
+      { classId: cls.id, studentId: sActive.id,   source: 'button', checkedInAt: daysAgo(2) },
+      { classId: cls.id, studentId: sSlowing.id,  source: 'button', checkedInAt: daysAgo(10) },
+      { classId: cls.id, studentId: sDrifting.id, source: 'button', checkedInAt: daysAgo(20) },
+      { classId: cls.id, studentId: sInactive.id, source: 'button', checkedInAt: daysAgo(40) },
+    ]);
+
+    const res = await app.inject({ method: 'GET', url: '/api/owner/students', headers: authHeaders(owner) });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    const names = body.students.map((s: any) => s.name);
+    expect(names).not.toContain('Owner');
+    expect(new Set(names)).toEqual(new Set(['Active', 'Slowing', 'Drifting', 'Inactive', 'NeverCheckedIn']));
+
+    const byName = Object.fromEntries(body.students.map((s: any) => [s.name, s]));
+    expect(byName.Active.status).toBe('active');
+    expect(byName.Slowing.status).toBe('slowing');
+    expect(byName.Drifting.status).toBe('drifting');
+    expect(byName.Inactive.status).toBe('inactive');
+    expect(byName.NeverCheckedIn.status).toBe('inactive');
+    expect(byName.NeverCheckedIn.daysSinceCheckin).toBeNull();
+    expect(byName.NeverCheckedIn.lastCheckinAt).toBeNull();
+    expect(byName.Active.daysSinceCheckin).toBeGreaterThanOrEqual(1);
+    expect(byName.Active.daysSinceCheckin).toBeLessThan(7);
+  });
+
+  it('filters by status query param', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const cls = await createTestClass(academy.id);
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: s1.id, source: 'button',
+      checkedInAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000), // 20 days ago → drifting
+    });
+    const resActive = await app.inject({
+      method: 'GET', url: '/api/owner/students?status=active', headers: authHeaders(owner),
+    });
+    expect(resActive.json().students).toHaveLength(0);
+    const resDrifting = await app.inject({
+      method: 'GET', url: '/api/owner/students?status=drifting', headers: authHeaders(owner),
+    });
+    expect(resDrifting.json().students).toHaveLength(1);
+  });
+
+  it('excludes students from other academies', async () => {
+    const a1 = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const a2 = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(a1.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, a1.id));
+    await createTestUser(a1.id, { role: 'student', name: 'MyStudent' });
+    await createTestUser(a2.id, { role: 'student', name: 'OtherAcademyStudent' });
+    const res = await app.inject({ method: 'GET', url: '/api/owner/students', headers: authHeaders(owner) });
+    const names = res.json().students.map((s: any) => s.name);
+    expect(names).toContain('MyStudent');
+    expect(names).not.toContain('OtherAcademyStudent');
+  });
+});
+
 describe('GET /api/owner/classes/:classId/occurrences/:date/roster', () => {
   let app: FastifyInstance;
 

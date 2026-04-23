@@ -28,8 +28,70 @@ function periodBounds(period: 'day' | 'week' | 'month', fromIso: string, tz: str
 }
 
 export async function ownerDashboardRoutes(app: FastifyInstance) {
-  app.get('/api/owner/students', { preHandler: requireOwner }, async () => {
-    return { students: [] };
+  app.get('/api/owner/students', { preHandler: requireOwner }, async (request) => {
+    const q = request.query as { status?: string };
+    const tz = request.academy!.timezone;
+    const academyId = request.academy!.id;
+
+    const rows = await db
+      .select({
+        id: userTable.id,
+        name: userTable.name,
+        belt: userTable.belt,
+        lastCheckinAt: sql<Date | string | null>`max(${checkin.checkedInAt})`.as('last_checkin_at'),
+      })
+      .from(userTable)
+      .leftJoin(checkin, eq(checkin.studentId, userTable.id))
+      .where(and(
+        eq(userTable.academyId, academyId),
+        eq(userTable.role, 'student'),
+      ))
+      .groupBy(userTable.id, userTable.name, userTable.belt);
+
+    const todayIso = isoDateInTz(new Date(), tz);
+    const todayStart = startOfDayInTz(todayIso, tz);
+
+    const enriched = rows.map((r) => {
+      if (!r.lastCheckinAt) {
+        return {
+          id: r.id,
+          name: r.name,
+          belt: r.belt,
+          lastCheckinAt: null,
+          daysSinceCheckin: null,
+          status: 'inactive' as const,
+        };
+      }
+      const lastDate = r.lastCheckinAt instanceof Date
+        ? r.lastCheckinAt
+        : new Date(r.lastCheckinAt);
+      const lastIso = isoDateInTz(lastDate, tz);
+      const lastStart = startOfDayInTz(lastIso, tz);
+      const days = Math.max(
+        0,
+        Math.floor((todayStart.getTime() - lastStart.getTime()) / (24 * 60 * 60 * 1000)),
+      );
+      let status: 'active' | 'slowing' | 'drifting' | 'inactive';
+      if (days < 7) status = 'active';
+      else if (days < 14) status = 'slowing';
+      else if (days < 30) status = 'drifting';
+      else status = 'inactive';
+      return {
+        id: r.id,
+        name: r.name,
+        belt: r.belt,
+        lastCheckinAt: lastDate.toISOString(),
+        daysSinceCheckin: days,
+        status,
+      };
+    });
+
+    const status = q.status;
+    const filtered = status && status !== 'all'
+      ? enriched.filter((s) => s.status === status)
+      : enriched;
+
+    return { students: filtered };
   });
 
   app.get('/api/owner/classes/aderencia', { preHandler: requireOwner }, async (request) => {
