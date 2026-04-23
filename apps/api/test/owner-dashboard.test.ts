@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import * as schema from '../src/db/schema/index.js';
 import {
   createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor,
-  authHeaders, testDb,
+  createTestClass, authHeaders, testDb,
 } from './helpers.js';
 
 describe('requireOwner middleware (via /api/owner/students stub)', () => {
@@ -47,5 +47,95 @@ describe('requireOwner middleware (via /api/owner/students stub)', () => {
     // (This test mainly guards against a buggy implementation that resolves academyId from somewhere else.)
     const res = await app.inject({ method: 'GET', url: '/api/owner/students', headers: authHeaders(ownerOfB) });
     expect(res.statusCode).toBe(200);
+  });
+});
+
+describe('GET /api/owner/classes/aderencia', () => {
+  let app: FastifyInstance;
+
+  beforeAll(async () => { app = await createTestApp(); });
+  afterAll(async () => { await app.close(); });
+  beforeEach(async () => { await cleanDb(); });
+
+  it('returns per-class aggregates with a 4-occurrence rolling trend', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const cls = await createTestClass(academy.id, { name: 'No-Gi', type: 'no-gi' });
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    const s2 = await createTestUser(academy.id, { role: 'student' });
+
+    // 4 prior Mondays with 2 checkins each (baseline avg = 2)
+    const baselineWeeks = ['2026-03-23', '2026-03-30', '2026-04-06', '2026-04-13'];
+    for (const d of baselineWeeks) {
+      await testDb.insert(schema.checkin).values([
+        { classId: cls.id, studentId: s1.id, source: 'button', checkedInAt: new Date(`${d}T18:00:00Z`) },
+        { classId: cls.id, studentId: s2.id, source: 'button', checkedInAt: new Date(`${d}T18:00:00Z`) },
+      ]);
+    }
+    // Current week: 2026-04-20 (Mon), 1 check-in → avg 1 → trend 0.5
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-20T18:00:00Z'),
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/owner/classes/aderencia?period=week&from=2026-04-20',
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.period).toBe('week');
+    expect(body.from).toBe('2026-04-20');
+    expect(body.to).toBe('2026-04-27');
+    expect(body.classes).toHaveLength(1);
+    const c = body.classes[0];
+    expect(c.classId).toBe(cls.id);
+    expect(c.totalCheckins).toBe(1);
+    expect(c.uniqueStudents).toBe(1);
+    expect(c.occurrences).toBe(1);
+    expect(c.avgPerOccurrence).toBeCloseTo(1);
+    expect(c.trend).toBeCloseTo(0.5, 2);
+  });
+
+  it('returns trend:null for classes with <3 prior occurrences', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const cls = await createTestClass(academy.id);
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    // Only 1 checkin in current week, 0 prior
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-20T18:00:00Z'),
+    });
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/owner/classes/aderencia?period=week&from=2026-04-20',
+      headers: authHeaders(owner),
+    });
+    expect(res.json().classes[0].trend).toBeNull();
+  });
+
+  it('sorts classes by totalCheckins desc', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const clsA = await createTestClass(academy.id, { name: 'A' });
+    const clsB = await createTestClass(academy.id, { name: 'B' });
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    const s2 = await createTestUser(academy.id, { role: 'student' });
+    // B gets 2 checkins, A gets 1
+    await testDb.insert(schema.checkin).values([
+      { classId: clsA.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-20T18:00:00Z') },
+      { classId: clsB.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-20T19:00:00Z') },
+      { classId: clsB.id, studentId: s2.id, source: 'button', checkedInAt: new Date('2026-04-20T19:00:00Z') },
+    ]);
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/owner/classes/aderencia?period=week&from=2026-04-20',
+      headers: authHeaders(owner),
+    });
+    const names = res.json().classes.map((c: any) => c.name);
+    expect(names).toEqual(['B', 'A']);
   });
 });
