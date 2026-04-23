@@ -31,14 +31,45 @@ const ACADEMY_LNG = '-46.6333';
 const NEAR_LAT = -23.551;
 const NEAR_LNG = -46.634;
 
+// Academy timezone used by the tests — matches the DB default so behavior
+// is deterministic regardless of the server's wall clock.
+const ACADEMY_TZ = 'Europe/Lisbon';
+
+function nowInTz(tz: string): { dayOfWeek: number; hour: number; minute: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    hour12: false,
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .formatToParts(new Date())
+    .reduce<Record<string, string>>((acc, p) => {
+      if (p.type !== 'literal') acc[p.type] = p.value;
+      return acc;
+    }, {});
+  const map: Record<string, number> = {
+    Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+  };
+  const hourRaw = Number(parts.hour);
+  return {
+    dayOfWeek: map[parts.weekday] ?? 0,
+    hour: hourRaw === 24 ? 0 : hourRaw,
+    minute: Number(parts.minute),
+  };
+}
+
 async function createClassAndStudent() {
-  const acad = await createTestAcademy({ latitude: ACADEMY_LAT, longitude: ACADEMY_LNG });
+  const acad = await createTestAcademy({
+    latitude: ACADEMY_LAT,
+    longitude: ACADEMY_LNG,
+    timezone: ACADEMY_TZ,
+  });
   const instructor = await createTestInstructor(acad.id);
   const student = await createTestUser(acad.id, { role: 'student' });
 
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const hour = Math.min(now.getHours(), 22);
+  const { dayOfWeek, hour: tzHour } = nowInTz(ACADEMY_TZ);
+  const hour = Math.min(tzHour, 22);
   const startTime = `${String(hour).padStart(2, '0')}:00`;
   const endTime = `${String(hour + 1).padStart(2, '0')}:30`;
 

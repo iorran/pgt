@@ -60,14 +60,32 @@ export async function checkinRoutes(app: FastifyInstance) {
       token?: string;
     };
 
-    // 1. Class exists and active=true
-    const [cls] = await db.select().from(bjjClass).where(eq(bjjClass.id, classId)).limit(1);
+    // 1. Class exists and active=true (join academy to read its timezone)
+    const [cls] = await db
+      .select({
+        id: bjjClass.id,
+        academyId: bjjClass.academyId,
+        instructorId: bjjClass.instructorId,
+        name: bjjClass.name,
+        type: bjjClass.type,
+        recurrence: bjjClass.recurrence,
+        dayOfWeek: bjjClass.dayOfWeek,
+        date: bjjClass.date,
+        startTime: bjjClass.startTime,
+        endTime: bjjClass.endTime,
+        active: bjjClass.active,
+        academyTimezone: academy.timezone,
+      })
+      .from(bjjClass)
+      .innerJoin(academy, eq(academy.id, bjjClass.academyId))
+      .where(eq(bjjClass.id, classId))
+      .limit(1);
     if (!cls || !cls.active) {
       return reply.status(400).send({ error: 'CLASS_NOT_ACTIVE' });
     }
 
-    // 2. Time window check
-    if (!isClassActiveNow(cls)) {
+    // 2. Time window check (in academy TZ)
+    if (!isClassActiveNow(cls, new Date(), cls.academyTimezone)) {
       return reply.status(400).send({ error: 'OUTSIDE_TIME_WINDOW' });
     }
 
@@ -184,14 +202,22 @@ export async function checkinRoutes(app: FastifyInstance) {
       const academyId = request.academyId;
       const now = new Date();
 
+      // Resolve this academy's timezone (falls back to default if missing)
+      const [acad] = await db
+        .select({ timezone: academy.timezone })
+        .from(academy)
+        .where(eq(academy.id, academyId))
+        .limit(1);
+      const tz = acad?.timezone ?? DEFAULT_ACADEMY_TIMEZONE;
+
       // Find all active classes for this academy
       const classes = await db
         .select()
         .from(bjjClass)
         .where(and(eq(bjjClass.academyId, academyId), eq(bjjClass.active, true)));
 
-      // Filter to currently active classes
-      const activeClasses = classes.filter((cls) => isClassActiveNow(cls, now));
+      // Filter to currently active classes (time window evaluated in academy TZ)
+      const activeClasses = classes.filter((cls) => isClassActiveNow(cls, now, tz));
 
       const results = [];
 
