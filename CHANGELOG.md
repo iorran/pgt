@@ -1,3 +1,44 @@
+# [1.8.0](https://github.com/iorran/pgt/compare/v1.7.0...v1.8.0) (2026-04-23)
+
+
+### Bug Fixes
+
+* **api/test:** per-migration transaction in test setup to handle enum-then-update chain ([dc8667a](https://github.com/iorran/pgt/commit/dc8667aa33b7c9b2034f6d43b5c406ee97ad265d))
+* **api:** duplicate-check uses academy TZ day bounds ([2195b92](https://github.com/iorran/pgt/commit/2195b92f92d3d539cc6388358a3f0736f025a2da))
+* **api:** isClassActiveNow uses academy TZ, not server TZ ([330c7ef](https://github.com/iorran/pgt/commit/330c7ef633d8b5ade848632d73036c9d58b1c160))
+* **api:** move owner-role backfill out of migration 0007 ([059767d](https://github.com/iorran/pgt/commit/059767d81391bc0681b4cd1bd34ca7c15d85cb56))
+* **api:** student history is self-only + consolidated TZ lookup ([ccccc19](https://github.com/iorran/pgt/commit/ccccc19e6ccefda86f375ee100554ca9bf831e07))
+* **api:** student history returns class.name + TZ-aware date ([28a003e](https://github.com/iorran/pgt/commit/28a003eb7df19b6d511c5421b5ce899019596013))
+* **api:** tighten dayInTz col type and DST-safe startOfDayInTz ([e55d46e](https://github.com/iorran/pgt/commit/e55d46eadc8c8ed5f3ae6636450645b12fb77a34))
+* **api:** updateStreak uses academy TZ for ISO week boundary ([4a6c07d](https://github.com/iorran/pgt/commit/4a6c07d528d12e68dce7906a66ce5262efdccbb4))
+* **web:** show payment banner to students in the student shell ([ca5c31b](https://github.com/iorran/pgt/commit/ca5c31bdc9cc3dc2808b404a19a77e81014945a1))
+* **web:** student history shows class name + real date ([b4965a6](https://github.com/iorran/pgt/commit/b4965a6fe14b75d9aa76a3360ee1555b915d5183))
+* **web:** student-view consumes new checkin.class shape (not old classId) ([dfdafa9](https://github.com/iorran/pgt/commit/dfdafa9f4346028f080a1d0e0b71a5765f912eb2))
+
+
+### Features
+
+* **api:** add 'owner' to user_role enum ([c3eeef7](https://github.com/iorran/pgt/commit/c3eeef7d30151516eb5f7aa8695058b893d0a554))
+* **api:** add academy.timezone (default Europe/Lisbon) and backfill owner role ([c35cde0](https://github.com/iorran/pgt/commit/c35cde031bb776ab76cb05ec361ace3fb9e20355))
+* **api:** GET /api/owner/classes/:classId/occurrences ([c20745a](https://github.com/iorran/pgt/commit/c20745ac229640ce4e9d61b7f076f059fc367bd8))
+* **api:** GET /api/owner/classes/:classId/occurrences/:date/roster ([11e7250](https://github.com/iorran/pgt/commit/11e725015a91de705071a2a78c487a22c16f8d34))
+* **api:** GET /api/owner/classes/aderencia with 4-occurrence trend ([98d4a90](https://github.com/iorran/pgt/commit/98d4a906dcf8f362da14e8b6780a670830cef09a))
+* **api:** GET /api/owner/students with activity buckets ([746a292](https://github.com/iorran/pgt/commit/746a292872d9a1d0b66f3f070ea5b4f38bba957e))
+* **api:** GET /api/owner/students/:studentId/history ([74d79b2](https://github.com/iorran/pgt/commit/74d79b289fa5a4629c0bf1ac020dae5260043a75))
+* **api:** requireOwner middleware + stub owner dashboard route ([9b387ac](https://github.com/iorran/pgt/commit/9b387acc4b218a6def39828a8b415023f1856fe2))
+* **api:** timezone utilities — isoDateInTz, weekBoundsInTz, monthBoundsInTz, dayInTz ([1849319](https://github.com/iorran/pgt/commit/18493193d57afe348d589acfebf6bbf8931368ab))
+* **web:** aderência BarChart with recharts ([1f94e24](https://github.com/iorran/pgt/commit/1f94e2453ed3a84404c86ac4ca51a3199a16a82e))
+* **web:** ClassesList inline expansion with occurrence chart + roster ([c627c8a](https://github.com/iorran/pgt/commit/c627c8a4ccf01138baea9ef09d2dc88bbde0db6b))
+* **web:** owner dashboard shell + recharts dependency ([5df1449](https://github.com/iorran/pgt/commit/5df14495aaf8c7bc73b2c9132bb82ae3ab6984e2))
+* **web:** owner-only Academy dashboard entry card ([ff2f155](https://github.com/iorran/pgt/commit/ff2f155dcfa7d332910881008a654d8c158c383f))
+* **web:** StudentsList with status chips + history expansion ([a53986a](https://github.com/iorran/pgt/commit/a53986a69111722cd9c2dfc987e928ca40c52749))
+
+
+### Performance Improvements
+
+* **api:** single CTE for aderência baselines (was N+1) ([632139c](https://github.com/iorran/pgt/commit/632139cf83e015d354ec479af963b7ee30419425))
+* **web:** lazy-load /owner/dashboard route (splits recharts out of main bundle) ([4d67cb4](https://github.com/iorran/pgt/commit/4d67cb4641aef779cadb67c800f069b7e886aa29))
+
 # [1.7.0](https://github.com/iorran/pgt/compare/v1.6.0...v1.7.0) (2026-04-23)
 
 
