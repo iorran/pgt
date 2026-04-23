@@ -159,13 +159,14 @@ test.describe('owner dashboard', () => {
       // chip (no count).
       await dash.statusChip(/^(all|todos)\s+\d+/i).click();
 
-      // Students list renders — match the student's name as a row.
-      // Using getByText avoids matching the status chip buttons.
-      await expect(page.getByText('Aderencia Alice', { exact: true })).toBeVisible();
+      // Students list renders — find the row button specifically (the
+      // expanded class roster above also contains Alice's name in a
+      // <li>, so text-based queries collide).
+      const aliceRow = dash.studentRow(/aderencia alice/i);
+      await expect(aliceRow).toBeVisible();
 
-      // Click the student row to expand. The accessible name contains
-      // "Aderencia Alice" — narrower than any chip.
-      await dash.studentRow(/aderencia alice/i).click();
+      // Click the student row to expand.
+      await aliceRow.click();
       // The expansion shows stats — Streak/Sequência and Total/Total.
       await expect(page.getByText(/streak:|sequência:/i)).toBeVisible({
         timeout: 10_000,

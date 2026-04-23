@@ -43,9 +43,10 @@ export class MarketplacePage {
   async goto() {
     await this.page.goto('/marketplace');
     // No <h1> heading — "LOJA" renders as a tab link in TabsNav.
-    // Wait for the tab link to confirm the page has loaded.
+    // Scope to <main> so this doesn't collide with the StaffShell sidebar's
+    // "Loja" link or the StudentShell bottom nav's "Loja" link.
     await expect(
-      this.page.getByRole('link', { name: /^loja$/i }),
+      this.page.getByRole('main').getByRole('link', { name: /^loja$/i }),
     ).toBeVisible({ timeout: 10_000 });
   }
 
