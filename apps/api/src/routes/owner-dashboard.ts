@@ -111,4 +111,61 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
 
     return { period, from: fIso, to: tIso, classes };
   });
+
+  app.get(
+    '/api/owner/classes/:classId/occurrences',
+    { preHandler: requireOwner },
+    async (request, reply) => {
+      const { classId } = request.params as { classId: string };
+      const q = request.query as { from?: string; to?: string };
+      if (!q.from || !q.to) {
+        return reply.status(400).send({ error: 'from and to required' });
+      }
+      const tz = request.academy!.timezone;
+      const from = startOfDayInTz(q.from, tz);
+      const to = startOfDayInTz(q.to, tz);
+
+      // Scope to the academy
+      const [cls] = await db
+        .select({ id: bjjClass.id })
+        .from(bjjClass)
+        .where(and(eq(bjjClass.id, classId), eq(bjjClass.academyId, request.academy!.id)))
+        .limit(1);
+      if (!cls) return reply.status(404).send({ error: 'Class not found' });
+
+      // Inline timezone as SQL literal to avoid 42803 (Drizzle emits distinct
+      // placeholder numbers for `dayInTz(col, tz)` at SELECT/GROUP BY/ORDER BY,
+      // making Postgres treat the expressions as non-identical).
+      const tzSafe = tz.replace(/'/g, "''");
+      const dayBucket = sql.raw(
+        `((checkin.checked_in_at AT TIME ZONE 'UTC' AT TIME ZONE '${tzSafe}')::date)`,
+      );
+
+      const rows = await db
+        .select({
+          date: sql<string>`${dayBucket}::text`.as('date'),
+          checkins: sql<number>`count(*)::int`,
+          uniqueStudents: sql<number>`count(distinct ${checkin.studentId})::int`,
+        })
+        .from(checkin)
+        .where(
+          and(
+            eq(checkin.classId, classId),
+            gte(checkin.checkedInAt, from),
+            lt(checkin.checkedInAt, to),
+          ),
+        )
+        .groupBy(dayBucket)
+        .orderBy(dayBucket);
+
+      return {
+        classId,
+        occurrences: rows.map((r) => ({
+          date: String(r.date),
+          checkins: Number(r.checkins),
+          uniqueStudents: Number(r.uniqueStudents),
+        })),
+      };
+    },
+  );
 }

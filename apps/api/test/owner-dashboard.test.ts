@@ -139,3 +139,70 @@ describe('GET /api/owner/classes/aderencia', () => {
     expect(names).toEqual(['B', 'A']);
   });
 });
+
+describe('GET /api/owner/classes/:classId/occurrences', () => {
+  let app: FastifyInstance;
+
+  beforeAll(async () => { app = await createTestApp(); });
+  afterAll(async () => { await app.close(); });
+  beforeEach(async () => { await cleanDb(); });
+
+  it('returns per-day check-in counts within the range, in academy TZ', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const cls = await createTestClass(academy.id);
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    const s2 = await createTestUser(academy.id, { role: 'student' });
+
+    // 2026-04-20 Mon Lisbon: 2 checkins (UTC 18:00 + 19:00)
+    await testDb.insert(schema.checkin).values([
+      { classId: cls.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-20T18:00:00Z') },
+      { classId: cls.id, studentId: s2.id, source: 'button', checkedInAt: new Date('2026-04-20T19:00:00Z') },
+    ]);
+    // 2026-04-22T23:30Z → Lisbon 2026-04-23: 1 checkin
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-22T23:30:00Z'),
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/owner/classes/${cls.id}/occurrences?from=2026-04-20&to=2026-04-27`,
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.classId).toBe(cls.id);
+    expect(body.occurrences).toEqual([
+      { date: '2026-04-20', checkins: 2, uniqueStudents: 2 },
+      { date: '2026-04-23', checkins: 1, uniqueStudents: 1 },
+    ]);
+  });
+
+  it('returns 404 for a class in another academy', async () => {
+    const a1 = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const a2 = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(a1.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, a1.id));
+    const otherClass = await createTestClass(a2.id);
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/owner/classes/${otherClass.id}/occurrences?from=2026-04-20&to=2026-04-27`,
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('returns 400 if from or to is missing', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const cls = await createTestClass(academy.id);
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/owner/classes/${cls.id}/occurrences?from=2026-04-20`,
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(400);
+  });
+});
