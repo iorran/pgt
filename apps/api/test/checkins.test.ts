@@ -245,4 +245,21 @@ describe('GET /api/checkins/student/:studentId (enriched + TZ-aware)', () => {
     expect(body).toHaveLength(2);
     expect(new Date(body[0].checkedInAt).getTime()).toBeGreaterThan(new Date(body[1].checkedInAt).getTime());
   });
+
+  it('returns 403 when a student tries to read another student history', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const studentA = await createTestUser(academy.id, { role: 'student' });
+    const studentB = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id);
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: studentB.id, source: 'button',
+      checkedInAt: new Date('2026-04-22T18:00:00Z'),
+    });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${studentB.id}`,
+      headers: authHeaders(studentA),
+    });
+    expect(res.statusCode).toBe(403);
+  });
 });

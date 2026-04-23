@@ -254,24 +254,21 @@ export async function checkinRoutes(app: FastifyInstance) {
   });
 
   // Get attendance history for a student (TZ-aware, enriched with class info)
-  app.get('/api/checkins/student/:studentId', { preHandler: requireAuth }, async (request) => {
+  app.get('/api/checkins/student/:studentId', { preHandler: requireAuth }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
 
-    // Resolve the student's academy timezone (fall back to default)
-    let tz = DEFAULT_ACADEMY_TIMEZONE;
-    const [studentRow] = await db
-      .select({ academyId: user.academyId })
-      .from(user)
+    if (request.user.id !== studentId) {
+      return reply.status(403).send({ error: 'Forbidden: can only view your own history' });
+    }
+
+    // Resolve the student's academy timezone via a single join (fall back to default)
+    const [tzRow] = await db
+      .select({ tz: academy.timezone })
+      .from(academy)
+      .innerJoin(user, eq(user.academyId, academy.id))
       .where(eq(user.id, studentId))
       .limit(1);
-    if (studentRow?.academyId) {
-      const [acad] = await db
-        .select({ tz: academy.timezone })
-        .from(academy)
-        .where(eq(academy.id, studentRow.academyId))
-        .limit(1);
-      if (acad?.tz) tz = acad.tz;
-    }
+    const tz = tzRow?.tz ?? DEFAULT_ACADEMY_TIMEZONE;
 
     const rows = await db
       .select({
