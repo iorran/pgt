@@ -185,6 +185,49 @@ describe('POST /api/checkins', () => {
     }
   });
 
+  it('updateStreak uses academy TZ for ISO week boundary', async () => {
+    // 2026-04-26T23:30:00Z is Sunday 23:30 UTC -> Monday 00:30 Lisbon (DST, UTC+1).
+    // ISO week in UTC = 2026-W17 (week of Mon 2026-04-20).
+    // ISO week in Lisbon = 2026-W18 (week of Mon 2026-04-27).
+    const academy = await createTestAcademy({
+      timezone: 'Europe/Lisbon',
+      latitude: '38.7',
+      longitude: '-9.14',
+    });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    // Class running 00:00 -> 02:00 Lisbon on Mondays (dayOfWeek = 1).
+    const cls = await createTestClass(academy.id, {
+      startTime: '00:00',
+      endTime: '02:00',
+      dayOfWeek: 1,
+    });
+
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-04-26T23:30:00Z'));
+    try {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/checkins',
+        headers: authHeaders(student),
+        payload: {
+          classId: cls.id,
+          source: 'button',
+          latitude: 38.7,
+          longitude: -9.14,
+        },
+      });
+      expect(res.statusCode).toBe(201);
+      const [row] = await testDb
+        .select()
+        .from(streak)
+        .where(eq(streak.studentId, student.id));
+      // Lisbon-TZ ISO week (W18), NOT UTC ISO week (W17).
+      expect(row.lastCheckinWeek).toBe('2026-W18');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not change streak on same-week checkin', async () => {
     const { student, cls } = await createClassAndStudent();
 

@@ -8,17 +8,27 @@ import { haversineDistance } from '../utils/haversine.js';
 import { isClassActiveNow } from '../utils/time-window.js';
 import { dayInTz, isoDateInTz, startOfDayInTz, DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
 
-function getISOWeek(date: Date): string {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
-  const yearStart = new Date(d.getFullYear(), 0, 4);
-  const weekNum = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-  return `${d.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+/**
+ * Compute the ISO week label (YYYY-Www) for the given instant as seen in the
+ * academy's IANA timezone. Using the tz-local calendar date ensures a check-in
+ * near week boundaries (e.g. Sunday evening UTC vs Monday morning Lisbon) is
+ * attributed to the right ISO week.
+ */
+function getISOWeekInTz(at: Date, tz: string): string {
+  // Calendar date as seen in tz (YYYY-MM-DD) — tz-independent from here on.
+  const isoDate = isoDateInTz(at, tz);
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  // ISO week: Monday = 1 … Sunday = 7. Shift to Thursday of that ISO week.
+  const dayNum = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((dt.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${dt.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
 }
 
-async function updateStreak(studentId: string, now: Date): Promise<void> {
-  const currentWeek = getISOWeek(now);
+async function updateStreak(studentId: string, now: Date, academyTimezone: string): Promise<void> {
+  const currentWeek = getISOWeekInTz(now, academyTimezone);
   const existing = await db.select().from(streak).where(eq(streak.studentId, studentId)).limit(1);
 
   if (existing.length === 0) {
@@ -33,9 +43,8 @@ async function updateStreak(studentId: string, now: Date): Promise<void> {
     if (s.lastCheckinWeek === currentWeek) {
       // Same week, no streak change
     } else {
-      const lastWeekDate = new Date(now);
-      lastWeekDate.setDate(lastWeekDate.getDate() - 7);
-      const lastWeek = getISOWeek(lastWeekDate);
+      const lastWeekDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const lastWeek = getISOWeekInTz(lastWeekDate, academyTimezone);
 
       const newStreak = s.lastCheckinWeek === lastWeek ? s.currentStreak + 1 : 1;
       const newLongest = Math.max(s.longestStreak, newStreak);
@@ -190,7 +199,7 @@ export async function checkinRoutes(app: FastifyInstance) {
       })
       .returning();
 
-    await updateStreak(studentId, now);
+    await updateStreak(studentId, now, tz);
 
     return reply.status(201).send(created);
   });
