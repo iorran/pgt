@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/iorran/pgt/compare/v1.8.1...v1.9.0) (2026-04-23)
+
+
+### Features
+
+* **web:** make owner dashboard the home panel, translate + polish ([6b18740](https://github.com/iorran/pgt/commit/6b18740da01e5a82f6f11ecc5ea6c9428efd0eff))
+
 ## [1.8.1](https://github.com/iorran/pgt/compare/v1.8.0...v1.8.1) (2026-04-23)
 
 

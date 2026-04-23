@@ -1,6 +1,6 @@
 {
   "name": "pgt",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "private": true,
   "packageManager": "npm@11.11.0",
   "workspaces": [
