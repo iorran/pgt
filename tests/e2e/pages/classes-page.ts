@@ -29,11 +29,12 @@ export class ClassesPage {
   }
 
   /**
-   * Class card renders as <div data-slot="card">
+   * Class events render as .rbc-event blocks inside the react-big-calendar
+   * grid. The event title is the class name (see schedule.ts buildEvent).
    */
-  classCard(name: string) {
+  classEvent(name: string) {
     return this.page
-      .locator('[data-slot="card"]')
+      .locator('.rbc-event')
       .filter({ hasText: new RegExp(name, 'i') });
   }
 
@@ -85,21 +86,20 @@ export class ClassesPage {
   }
 
   /**
-   * Click the edit (pencil) button on a class card.
+   * Click a calendar event to open the edit dialog (instructor view).
+   * InstructorClassesView opens ClassEditDialog on onEventClick.
    */
-  async clickEditOnCard(cardName: string) {
-    const card = this.classCard(cardName);
-    // aria-label = t('classes.editClass') = "Editar Aula"
-    await card.getByRole('button', { name: /editar aula/i }).click();
+  async clickEditOnEvent(name: string) {
+    await this.classEvent(name).first().click();
     await expect(this.page.getByRole('dialog')).toBeVisible({ timeout: 5_000 });
   }
 
   /**
-   * Click the check-in button on a class card (student view).
-   * Button text = t('classes.checkinProximity') = "Check-in"
+   * Click the check-in button rendered inside a calendar event block
+   * (student view, day calendar with inline renderEvent).
    */
-  async clickCheckinOnCard(cardName: string) {
-    const card = this.classCard(cardName);
-    await card.getByRole('button', { name: /^check-in$/i }).click();
+  async clickCheckinOnEvent(name: string) {
+    const event = this.classEvent(name).first();
+    await event.getByRole('button', { name: /^check-in$/i }).click();
   }
 }
