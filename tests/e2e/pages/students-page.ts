@@ -8,9 +8,12 @@ export class StudentsPage {
 
   constructor(page: Page) {
     this.page = page;
-    // TabsNav renders links, not ARIA tabs
-    this.activeTab = page.getByRole('link', { name: /^alunos$/i });
-    this.pendingTab = page.getByRole('link', { name: /^pendentes$/i });
+    // TabsNav renders links, not ARIA tabs. Scope to <main> so these don't
+    // collide with the StaffShell sidebar, which also has an "Alunos" link
+    // pointing at /students.
+    const main = page.getByRole('main');
+    this.activeTab = main.getByRole('link', { name: /^alunos$/i });
+    this.pendingTab = main.getByRole('link', { name: /^pendentes$/i });
     // placeholder is t('common.search') = "Buscar"
     this.searchInput = page.getByPlaceholder(/buscar/i);
   }
@@ -36,9 +39,10 @@ export class PendingStudentsPage {
 
   async goto() {
     await this.page.goto('/pending');
-    // Wait for the page to be ready (tab nav visible)
+    // Wait for the page to be ready (tab nav visible). Scope to <main> so
+    // this doesn't collide with the sidebar's "Alunos" link.
     await expect(
-      this.page.getByRole('link', { name: /^alunos$/i }),
+      this.page.getByRole('main').getByRole('link', { name: /^alunos$/i }),
     ).toBeVisible({ timeout: 10_000 });
   }
 

@@ -154,7 +154,10 @@ test.describe('owner dashboard', () => {
 
       // Default students filter is "Drifting" (en) / "Afastando" (pt-BR).
       // Switch to "All"/"Todos" to surface the active students seeded above.
-      await dash.statusChip(/^(all|todos)\b/i).click();
+      // The students chip label is `<word> <count>` (e.g. "Todos 3") — the
+      // trailing digit disambiguates from the classes type filter's "Todos"
+      // chip (no count).
+      await dash.statusChip(/^(all|todos)\s+\d+/i).click();
 
       // Students list renders — match the student's name as a row.
       // Using getByText avoids matching the status chip buttons.
@@ -203,13 +206,14 @@ test.describe('owner dashboard', () => {
       const page = await context.newPage();
       await page.goto('/');
 
-      // Owner shell renders the owner dashboard inline — chart + heading visible.
-      await expect(page.locator('[data-testid="aderencia-chart"]')).toBeVisible({
-        timeout: 10_000,
-      });
+      // Owner shell renders the owner dashboard inline — the heading is
+      // enough to prove it (the chart hides when there are no check-ins).
       await expect(
         page.getByRole('heading', { name: /academy dashboard|painel da academia/i }),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: 10_000 });
+      // And the instructor StatCard grid from the old dashboard is NOT
+      // rendered — guards against regressing to the link-card flow.
+      await expect(page.getByRole('heading', { name: /^painel$|^dashboard$/i })).toHaveCount(0);
     } finally {
       await context.close();
     }
