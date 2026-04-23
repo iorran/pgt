@@ -126,30 +126,58 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
       .groupBy(bjjClass.id, bjjClass.name, bjjClass.type);
 
     // Baseline: last 4 occurrence dates per class, strictly before `from`.
+    // Single CTE-backed query covers every class at once (was N+1).
     // Inline the timezone as a SQL literal so Postgres recognizes the SELECT
     // and GROUP BY expressions as identical (parameterized placeholders differ
     // at each site and trigger 42803 "must appear in GROUP BY").
     const tzLit = sql.raw(`'${tz.replace(/'/g, "''")}'`);
     const baselineMap = new Map<string, number | null>();
-    for (const row of periodRows) {
-      const prior = await db.execute(sql`
-        SELECT
-          ((${checkin.checkedInAt} AT TIME ZONE 'UTC' AT TIME ZONE ${tzLit})::date)::text AS day,
-          count(*)::int AS count
-        FROM ${checkin}
-        WHERE ${checkin.classId} = ${row.classId}
-          AND ${checkin.checkedInAt} < ${from.toISOString()}
-        GROUP BY ((${checkin.checkedInAt} AT TIME ZONE 'UTC' AT TIME ZONE ${tzLit})::date)
-        ORDER BY ((${checkin.checkedInAt} AT TIME ZONE 'UTC' AT TIME ZONE ${tzLit})::date) DESC
-        LIMIT 4
+    const classIds = periodRows.map((r) => r.classId);
+    if (classIds.length > 0) {
+      // postgres.js doesn't reliably bind a TS array through drizzle's `sql`
+      // template, so expand the ids as individual typed parameters.
+      const idsList = sql.join(
+        classIds.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      );
+      const baselines = await db.execute(sql`
+        WITH class_days AS (
+          SELECT
+            ${checkin.classId} AS class_id,
+            ((${checkin.checkedInAt} AT TIME ZONE 'UTC' AT TIME ZONE ${tzLit})::date) AS day,
+            count(*)::int AS checkins
+          FROM ${checkin}
+          WHERE ${checkin.classId} IN (${idsList})
+            AND ${checkin.checkedInAt} < ${from.toISOString()}
+          GROUP BY ${checkin.classId}, ((${checkin.checkedInAt} AT TIME ZONE 'UTC' AT TIME ZONE ${tzLit})::date)
+        ),
+        ranked AS (
+          SELECT class_id, day, checkins,
+                 row_number() OVER (PARTITION BY class_id ORDER BY day DESC) AS rn
+          FROM class_days
+        )
+        SELECT class_id, avg(checkins)::float AS baseline_avg, count(*)::int AS occ_count
+        FROM ranked
+        WHERE rn <= 4
+        GROUP BY class_id
       `);
-      const priorRows = prior as unknown as Array<{ day: string; count: number }>;
-      if (priorRows.length < 3) {
-        baselineMap.set(row.classId, null);
-        continue;
+      const baselineRows = baselines as unknown as Array<{
+        class_id: string;
+        baseline_avg: number | string;
+        occ_count: number;
+      }>;
+      for (const row of baselineRows) {
+        if (Number(row.occ_count) < 3) {
+          baselineMap.set(row.class_id, null);
+          continue;
+        }
+        const avg = Number(row.baseline_avg);
+        baselineMap.set(row.class_id, avg === 0 ? null : avg);
       }
-      const avg = priorRows.reduce((s, r) => s + Number(r.count), 0) / priorRows.length;
-      baselineMap.set(row.classId, avg === 0 ? null : avg);
+      // Classes with zero prior occurrences won't appear in the result set.
+      for (const cid of classIds) {
+        if (!baselineMap.has(cid)) baselineMap.set(cid, null);
+      }
     }
 
     const classes = periodRows

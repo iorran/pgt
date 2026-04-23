@@ -138,6 +138,44 @@ describe('GET /api/owner/classes/aderencia', () => {
     const names = res.json().classes.map((c: any) => c.name);
     expect(names).toEqual(['B', 'A']);
   });
+
+  it('computes baselines for multiple classes independently in one query', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const clsA = await createTestClass(academy.id, { name: 'A' });
+    const clsB = await createTestClass(academy.id, { name: 'B' });
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    const s2 = await createTestUser(academy.id, { role: 'student' });
+    const s3 = await createTestUser(academy.id, { role: 'student' });
+
+    // A: 1 checkin per prior occurrence (baseline avg = 1)
+    // B: 3 checkins per prior occurrence (baseline avg = 3)
+    const baselineWeeks = ['2026-03-23', '2026-03-30', '2026-04-06', '2026-04-13'];
+    for (const d of baselineWeeks) {
+      await testDb.insert(schema.checkin).values([
+        { classId: clsA.id, studentId: s1.id, source: 'button', checkedInAt: new Date(`${d}T18:00:00Z`) },
+        { classId: clsB.id, studentId: s1.id, source: 'button', checkedInAt: new Date(`${d}T19:00:00Z`) },
+        { classId: clsB.id, studentId: s2.id, source: 'button', checkedInAt: new Date(`${d}T19:00:00Z`) },
+        { classId: clsB.id, studentId: s3.id, source: 'button', checkedInAt: new Date(`${d}T19:00:00Z`) },
+      ]);
+    }
+    // Current week: both classes get 1 checkin
+    await testDb.insert(schema.checkin).values([
+      { classId: clsA.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-20T18:00:00Z') },
+      { classId: clsB.id, studentId: s1.id, source: 'button', checkedInAt: new Date('2026-04-20T19:00:00Z') },
+    ]);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/owner/classes/aderencia?period=week&from=2026-04-20',
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(200);
+    const byName = Object.fromEntries(res.json().classes.map((c: any) => [c.name, c]));
+    expect(byName.A.trend).toBeCloseTo(1.0, 2); // current 1 / baseline 1
+    expect(byName.B.trend).toBeCloseTo(1 / 3, 2); // current 1 / baseline 3
+  });
 });
 
 describe('GET /api/owner/classes/:classId/occurrences', () => {
