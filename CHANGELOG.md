@@ -1,3 +1,32 @@
+# [1.7.0](https://github.com/iorran/pgt/compare/v1.6.0...v1.7.0) (2026-04-23)
+
+
+### Bug Fixes
+
+* **web:** 30-min event cards stay inside their day column ([b3b9b9d](https://github.com/iorran/pgt/commit/b3b9b9d9ff6479f5ee124902ccc80d1500135373))
+* **web:** aggressive RBC CSS overrides to kill white slot lines + yellow flood ([f097ec3](https://github.com/iorran/pgt/commit/f097ec31375e7f3fbfe7a56f9e75d20057c12dcf)), closes [#f7f7f7](https://github.com/iorran/pgt/issues/f7f7f7) [hi#specificity](https://github.com/hi/issues/specificity) [#E5FF00](https://github.com/iorran/pgt/issues/E5FF00)
+* **web:** arena palette for calendar + translated toolbar + dialog race guard ([f19ef96](https://github.com/iorran/pgt/commit/f19ef9654db285c6a2880db4163c07add8b615da))
+* **web:** ClassCalendar picks culture from i18n + documents Calendar cast ([ccab6fb](https://github.com/iorran/pgt/commit/ccab6fb8536bf1dfb3ddbc5f9858c49c568cc03f))
+* **web:** classesToCalendarEvents month range always fills 6 weeks ([6eb9cf8](https://github.com/iorran/pgt/commit/6eb9cf8f918384f934835ba177f038dd94bd3014))
+* **web:** drag preserves class duration — ignore RBC's suggested newEnd ([68afc0e](https://github.com/iorran/pgt/commit/68afc0ece5a8b13fd2ce8760cfb6549c11f646e6))
+* **web:** make events-container transparent so today wash shows through ([d93ab5e](https://github.com/iorran/pgt/commit/d93ab5e69fd2bbf3f75c14cfbf04c86c858ae16b))
+
+
+### Features
+
+* **web:** add Open Totem action card and remove join-code card from dashboard ([5099eba](https://github.com/iorran/pgt/commit/5099eba5b943f640ff08023b857ed2e79e549791))
+* **web:** ClassCalendar renderer wraps react-big-calendar with DnD ([b292d41](https://github.com/iorran/pgt/commit/b292d4190b80c8daf05194a33cd38a3c49667e78))
+* **web:** classesToCalendarEvents helper for day/week/month ranges ([1c95736](https://github.com/iorran/pgt/commit/1c95736d23399106149beafa7f331aa67ff253ce))
+* **web:** edit success toast + guard delete while save is in flight ([1354b95](https://github.com/iorran/pgt/commit/1354b954b92caf4886d9cef7919aeb4db5d6b02c))
+* **web:** extract ClassEditDialog for shared use in calendar and list ([8b3c40f](https://github.com/iorran/pgt/commit/8b3c40fe6ba7362e02f7170e7e4f94f50557a263))
+* **web:** i18n keys for Open Totem action and class move success ([b4f2659](https://github.com/iorran/pgt/commit/b4f2659037babc1d21bfe64c351d2cf1d2ec9906))
+* **web:** instructor classes view with calendar + optimistic move ([9525904](https://github.com/iorran/pgt/commit/952590410ceaf13fde3abbd89dcaa79d98346563))
+* **web:** restore class deletion via confirm-in-dialog flow ([d12f937](https://github.com/iorran/pgt/commit/d12f937f60112ad1a50c7f90dd2bdcdd31d5dce3))
+* **web:** show academy join code in settings (moved from dashboard) ([d1f2139](https://github.com/iorran/pgt/commit/d1f2139db8a6ce4e595f2c0d11e03022d496be46))
+* **web:** singular classes.dayOfWeek label for edit dialog ([c7e6532](https://github.com/iorran/pgt/commit/c7e65320c8401d9d7e6b7b7e81b3c9ff423176d8))
+* **web:** student classes view with today's calendar + in-block check-in ([2501305](https://github.com/iorran/pgt/commit/250130590b74052558d4e373e2f6128395c5c99d))
+* **web:** useClassCalendar hook isolating calendar state and callbacks ([fcbbcf1](https://github.com/iorran/pgt/commit/fcbbcf1966a7f6a7b5380c94224462844f0e1999))
+
 # [1.6.0](https://github.com/iorran/pgt/compare/v1.5.0...v1.6.0) (2026-04-20)
 
 
