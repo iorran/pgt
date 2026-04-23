@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import {
   createTestApp,
   cleanDb,
@@ -133,6 +133,58 @@ describe('POST /api/checkins', () => {
     expect(streaks[0].longestStreak).toBe(1);
   });
 
+  it('rejects same-day duplicate check-ins when academy TZ day differs from UTC day', async () => {
+    const academy = await createTestAcademy({
+      timezone: 'Europe/Lisbon',
+      latitude: '38.7',
+      longitude: '-9.14',
+    });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    // Class that straddles UTC midnight in Lisbon DST (Lisbon = UTC+1 in April):
+    //   Lisbon 00:55 → 01:30 == UTC 23:55 → 00:30 next day.
+    // 2026-04-23 is a Thursday in Lisbon (dayOfWeek = 4).
+    const cls = await createTestClass(academy.id, {
+      startTime: '00:55',
+      endTime: '01:30',
+      dayOfWeek: 4,
+    });
+
+    // Check-in #1 at 23:58 UTC on Apr 22 == 00:58 Lisbon Apr 23
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id,
+      studentId: student.id,
+      source: 'button',
+      checkedInAt: new Date('2026-04-22T23:58:00Z'),
+    });
+
+    // Mock "now" at 00:03 UTC Apr 23 == 01:03 Lisbon Apr 23 (same Lisbon calendar day)
+    // If the duplicate check used server TZ (UTC), it would see "today = Apr 23" and miss
+    // the check-in at 23:58 UTC (which is Apr 22 in UTC). Our fix must correctly
+    // detect it using Lisbon TZ.
+    // Only mock Date/system time — leave setTimeout/setInterval etc. real so the
+    // postgres driver's internal timers keep working.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-04-23T00:03:00Z'));
+    try {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/checkins',
+        headers: authHeaders(student),
+        payload: {
+          classId: cls.id,
+          source: 'button',
+          latitude: 38.7,
+          longitude: -9.14,
+        },
+      });
+      // If the fix works, the handler sees the existing Apr 22 23:58 UTC check-in as "same
+      // Lisbon day" and rejects as duplicate. Expected: 409.
+      expect(res.statusCode).toBe(409);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not change streak on same-week checkin', async () => {
     const { student, cls } = await createClassAndStudent();
 
@@ -163,7 +215,7 @@ describe('POST /api/checkins', () => {
     });
 
     // duplicate block is expected — streak remains unchanged at 1
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(409);
     const streaks = await testDb.select().from(streak).where(eq(streak.studentId, student.id));
     expect(streaks).toHaveLength(1);
     expect(streaks[0].currentStreak).toBe(1);

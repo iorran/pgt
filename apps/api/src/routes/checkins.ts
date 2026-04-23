@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { checkin, streak, bjjClass, academy, checkinToken, user } from '../db/schema/index.js';
-import { eq, and, gte, lte, ne, desc } from 'drizzle-orm';
+import { eq, and, gte, lt, ne, desc } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { haversineDistance } from '../utils/haversine.js';
 import { isClassActiveNow } from '../utils/time-window.js';
-import { dayInTz, isoDateInTz, DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
+import { dayInTz, isoDateInTz, startOfDayInTz, DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
 
 function getISOWeek(date: Date): string {
   const d = new Date(date);
@@ -89,12 +89,13 @@ export async function checkinRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'OUTSIDE_TIME_WINDOW' });
     }
 
-    // 3. No duplicate checkin today
+    // 3. No duplicate checkin today — "today" is evaluated in the academy's TZ so
+    //    the bounds are correct regardless of the server's wall clock.
     const now = new Date();
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(now);
-    endOfDay.setHours(23, 59, 59, 999);
+    const tz = cls.academyTimezone ?? DEFAULT_ACADEMY_TIMEZONE;
+    const todayIso = isoDateInTz(now, tz);
+    const dayStart = startOfDayInTz(todayIso, tz);
+    const nextDay = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
 
     const duplicates = await db
       .select()
@@ -103,17 +104,17 @@ export async function checkinRoutes(app: FastifyInstance) {
         and(
           eq(checkin.classId, classId),
           eq(checkin.studentId, studentId),
-          gte(checkin.checkedInAt, startOfDay),
-          lte(checkin.checkedInAt, endOfDay),
+          gte(checkin.checkedInAt, dayStart),
+          lt(checkin.checkedInAt, nextDay),
         ),
       )
       .limit(1);
 
     if (duplicates.length > 0) {
-      return reply.status(400).send({ error: 'CHECKIN_DUPLICATE' });
+      return reply.status(409).send({ error: 'CHECKIN_DUPLICATE' });
     }
 
-    // 4. No overlap — same student, same day, same startTime in a different class
+    // 4. No overlap — same student, same day (academy TZ), same startTime in a different class
     const overlapping = await db
       .select({ checkinId: checkin.id })
       .from(checkin)
@@ -121,8 +122,8 @@ export async function checkinRoutes(app: FastifyInstance) {
       .where(
         and(
           eq(checkin.studentId, studentId),
-          gte(checkin.checkedInAt, startOfDay),
-          lte(checkin.checkedInAt, endOfDay),
+          gte(checkin.checkedInAt, dayStart),
+          lt(checkin.checkedInAt, nextDay),
           eq(bjjClass.startTime, cls.startTime),
           ne(checkin.classId, classId),
         ),
@@ -130,7 +131,7 @@ export async function checkinRoutes(app: FastifyInstance) {
       .limit(1);
 
     if (overlapping.length > 0) {
-      return reply.status(400).send({ error: 'OVERLAPPING_CLASS' });
+      return reply.status(409).send({ error: 'OVERLAPPING_CLASS' });
     }
 
     // 5. QR source: validate token

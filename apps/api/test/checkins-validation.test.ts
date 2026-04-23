@@ -211,7 +211,7 @@ describe('POST /api/checkins — CHECKIN_DUPLICATE', () => {
       },
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(409);
     expect(res.json().error).toBe('CHECKIN_DUPLICATE');
   });
 });
@@ -346,7 +346,7 @@ describe('POST /api/checkins — OVERLAPPING_CLASS', () => {
       },
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(409);
     expect(res.json().error).toBe('OVERLAPPING_CLASS');
   });
 });
