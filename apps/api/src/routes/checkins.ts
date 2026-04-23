@@ -85,7 +85,7 @@ export async function checkinRoutes(app: FastifyInstance) {
     }
 
     // 2. Time window check (in academy TZ)
-    if (!isClassActiveNow(cls, new Date(), cls.academyTimezone)) {
+    if (!isClassActiveNow(cls, cls.academyTimezone)) {
       return reply.status(400).send({ error: 'OUTSIDE_TIME_WINDOW' });
     }
 
@@ -217,7 +217,7 @@ export async function checkinRoutes(app: FastifyInstance) {
         .where(and(eq(bjjClass.academyId, academyId), eq(bjjClass.active, true)));
 
       // Filter to currently active classes (time window evaluated in academy TZ)
-      const activeClasses = classes.filter((cls) => isClassActiveNow(cls, now, tz));
+      const activeClasses = classes.filter((cls) => isClassActiveNow(cls, tz, now));
 
       const results = [];
 

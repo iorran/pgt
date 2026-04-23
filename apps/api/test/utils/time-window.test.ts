@@ -17,9 +17,9 @@ describe('isClassActiveNow', () => {
         endTime: '20:00',
       };
       const at = new Date('2026-04-23T18:50:00Z');
-      expect(isClassActiveNow(cls, at, 'Europe/Lisbon')).toBe(true);
+      expect(isClassActiveNow(cls, 'Europe/Lisbon', at)).toBe(true);
       // Same instant is 15:50 Sao Paulo -> before 19:00 class -> not active.
-      expect(isClassActiveNow(cls, at, 'America/Sao_Paulo')).toBe(false);
+      expect(isClassActiveNow(cls, 'America/Sao_Paulo', at)).toBe(false);
     });
 
     it('respects the 15-min pre-window and 60-min post-window', () => {
@@ -32,13 +32,13 @@ describe('isClassActiveNow', () => {
       };
       // 18:44 Lisbon -> outside pre-window (15 min before 19:00 = 18:45).
       // Lisbon in April is WEST (UTC+1), so 18:44 Lisbon == 17:44 UTC.
-      expect(isClassActiveNow(cls, new Date('2026-04-23T17:44:00Z'), 'Europe/Lisbon')).toBe(false);
+      expect(isClassActiveNow(cls, 'Europe/Lisbon', new Date('2026-04-23T17:44:00Z'))).toBe(false);
       // 18:46 Lisbon -> inside pre-window
-      expect(isClassActiveNow(cls, new Date('2026-04-23T17:46:00Z'), 'Europe/Lisbon')).toBe(true);
+      expect(isClassActiveNow(cls, 'Europe/Lisbon', new Date('2026-04-23T17:46:00Z'))).toBe(true);
       // 21:00 Lisbon -> exactly 60min past end, inside window
-      expect(isClassActiveNow(cls, new Date('2026-04-23T20:00:00Z'), 'Europe/Lisbon')).toBe(true);
+      expect(isClassActiveNow(cls, 'Europe/Lisbon', new Date('2026-04-23T20:00:00Z'))).toBe(true);
       // 21:01 Lisbon -> just outside
-      expect(isClassActiveNow(cls, new Date('2026-04-23T20:01:00Z'), 'Europe/Lisbon')).toBe(false);
+      expect(isClassActiveNow(cls, 'Europe/Lisbon', new Date('2026-04-23T20:01:00Z'))).toBe(false);
     });
   });
 
@@ -51,7 +51,7 @@ describe('isClassActiveNow', () => {
         date: null,
         startTime: '07:00',
         endTime: '08:30',
-      }, new Date('2026-04-06T06:30:00Z'), 'Europe/Lisbon')).toBe(true);
+      }, 'Europe/Lisbon', new Date('2026-04-06T06:30:00Z'))).toBe(true);
     });
 
     it('returns true 15 minutes before start', () => {
@@ -62,7 +62,7 @@ describe('isClassActiveNow', () => {
         date: null,
         startTime: '07:00',
         endTime: '08:30',
-      }, new Date('2026-04-06T05:45:00Z'), 'Europe/Lisbon')).toBe(true);
+      }, 'Europe/Lisbon', new Date('2026-04-06T05:45:00Z'))).toBe(true);
     });
 
     it('returns true 1 hour after end', () => {
@@ -73,7 +73,7 @@ describe('isClassActiveNow', () => {
         date: null,
         startTime: '07:00',
         endTime: '08:30',
-      }, new Date('2026-04-06T08:29:00Z'), 'Europe/Lisbon')).toBe(true);
+      }, 'Europe/Lisbon', new Date('2026-04-06T08:29:00Z'))).toBe(true);
     });
 
     it('returns false 16 minutes before start', () => {
@@ -84,7 +84,7 @@ describe('isClassActiveNow', () => {
         date: null,
         startTime: '07:00',
         endTime: '08:30',
-      }, new Date('2026-04-06T05:44:00Z'), 'Europe/Lisbon')).toBe(false);
+      }, 'Europe/Lisbon', new Date('2026-04-06T05:44:00Z'))).toBe(false);
     });
 
     it('returns false more than 1 hour after end', () => {
@@ -95,7 +95,7 @@ describe('isClassActiveNow', () => {
         date: null,
         startTime: '07:00',
         endTime: '08:30',
-      }, new Date('2026-04-06T08:31:00Z'), 'Europe/Lisbon')).toBe(false);
+      }, 'Europe/Lisbon', new Date('2026-04-06T08:31:00Z'))).toBe(false);
     });
 
     it('returns false on wrong day of week', () => {
@@ -106,7 +106,7 @@ describe('isClassActiveNow', () => {
         date: null,
         startTime: '07:00',
         endTime: '08:30',
-      }, new Date('2026-04-07T06:30:00Z'), 'Europe/Lisbon')).toBe(false);
+      }, 'Europe/Lisbon', new Date('2026-04-07T06:30:00Z'))).toBe(false);
     });
   });
 
@@ -119,7 +119,7 @@ describe('isClassActiveNow', () => {
         date: '2026-04-10',
         startTime: '09:30',
         endTime: '11:00',
-      }, new Date('2026-04-10T09:00:00Z'), 'Europe/Lisbon')).toBe(true);
+      }, 'Europe/Lisbon', new Date('2026-04-10T09:00:00Z'))).toBe(true);
     });
 
     it('returns false for one-time class on wrong date', () => {
@@ -130,7 +130,7 @@ describe('isClassActiveNow', () => {
         date: '2026-04-10',
         startTime: '09:30',
         endTime: '11:00',
-      }, new Date('2026-04-11T09:00:00Z'), 'Europe/Lisbon')).toBe(false);
+      }, 'Europe/Lisbon', new Date('2026-04-11T09:00:00Z'))).toBe(false);
     });
   });
 });

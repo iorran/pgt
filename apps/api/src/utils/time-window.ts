@@ -15,7 +15,7 @@ const BUFFER_AFTER_MIN = 60;
  * day-of-week in `tz` matches `cls.dayOfWeek`. For one-time classes, checks
  * that the calendar date in `tz` matches `cls.date` (YYYY-MM-DD).
  */
-export function isClassActiveNow(cls: ClassSchedule, at: Date = new Date(), tz: string): boolean {
+export function isClassActiveNow(cls: ClassSchedule, tz: string, at: Date = new Date()): boolean {
   // Derive hour/minute/weekday/calendar-date as seen in `tz`.
   const { hour, minute, weekday, isoDate } = getWallClockInTz(at, tz);
 
