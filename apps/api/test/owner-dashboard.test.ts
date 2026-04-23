@@ -37,7 +37,7 @@ describe('requireOwner middleware (via /api/owner/students stub)', () => {
     expect(res.json()).toEqual({ students: [] });
   });
 
-  it('returns 403 for an owner of a different academy', async () => {
+  it("resolves the academy from the user's academyId, not from request input", async () => {
     const academyA = await createTestAcademy();
     const academyB = await createTestAcademy();
     const ownerOfB = await createTestUser(academyB.id, { role: 'owner' });

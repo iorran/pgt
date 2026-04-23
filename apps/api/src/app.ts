@@ -22,6 +22,7 @@ declare module 'fastify' {
     session: any;
     user: any;
     academyId: string;
+    academy?: { id: string; ownerId: string | null; timezone: string };
   }
 }
 
