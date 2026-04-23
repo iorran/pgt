@@ -144,13 +144,14 @@
 /* Brighter explicit surface so events clear the --card canvas. Shadow does
    the "Efeito de Relevo" — dark diffuse drop + tiny top-edge highlight +
    inset top line for a bezelled feel. No coloured border. */
-/* Layout: flex column anchored at the bottom. Title sits at the bottom
-   with flex-shrink:0 so it is always visible; the time label above can
-   clip off the top when the event slot is too short to fit both lines. */
+/* Layout: flex column anchored at the top. Title sits first (flex-shrink:0)
+   so it is always visible; the smaller time label below can clip off the
+   bottom when the event slot is too short. Events under 1 hour suppress
+   the time label entirely (.cc-event-short — applied via eventPropGetter). */
 .rbc-event {
   display: flex !important;
   flex-direction: column !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
   /* Without min-width:0, flex children with nowrap text inflate the
      event's intrinsic min-content width, making 30-min events spill
      into the neighbouring day column. */
@@ -187,27 +188,10 @@
   background: #2e2e2e !important;
 }
 
-/* Event typography — monospace time label on top (clippable), heading-font
-   title pinned to the bottom (always visible). */
-.rbc-event-label {
-  display: block !important;
-  color: var(--muted-foreground);
-  font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
-  font-size: 0.65rem;
-  font-weight: 400;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  line-height: 1.1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 0 1 auto;
-  min-width: 0; /* allow shrink below intrinsic content width */
-  max-width: 100%;
-  min-height: 0;
-  margin: 0 !important;
-}
+/* Event typography — heading-font title on top (always visible),
+   monospace time label below (clippable, hidden on short events). */
 .rbc-event-content {
+  order: 1;
   font-family: var(--font-heading, inherit);
   font-weight: 600;
   font-size: 0.85rem;
@@ -220,6 +204,30 @@
   flex: 0 0 auto;
   min-width: 0;
   max-width: 100%;
+}
+.rbc-event-label {
+  order: 2;
+  display: block !important;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  margin: 0 !important;
+}
+
+/* Hide the time label on events shorter than 1 hour — title only. */
+.cc-event-short .rbc-event-label {
+  display: none !important;
 }
 
 /* ── Today column — full-height wash + primary underline in header ────── */

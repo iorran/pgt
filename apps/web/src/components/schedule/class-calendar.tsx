@@ -30,6 +30,13 @@ function i18nToCulture(language: string | undefined): 'en-US' | 'pt-BR' {
   return language.toLowerCase().startsWith('en') ? 'en-US' : 'pt-BR';
 }
 
+// Tag events shorter than 1 hour so the CSS can hide their time label
+// — the duration is too tight to read both lines.
+function eventPropGetter(event: CalendarEvent) {
+  const durationMin = (event.end.getTime() - event.start.getTime()) / 60_000;
+  return durationMin < 60 ? { className: 'cc-event-short' } : {};
+}
+
 export interface ClassCalendarProps {
   events: CalendarEvent[];
   view: CalendarRange;
@@ -103,6 +110,7 @@ export function ClassCalendar(props: ClassCalendarProps) {
         onEventDrop(args.event.id, args.start as Date, args.end as Date);
       }}
       onSelectEvent={(e) => onEventClick(e.id)}
+      eventPropGetter={eventPropGetter}
       components={components}
       style={{ height: 600 }}
     />
