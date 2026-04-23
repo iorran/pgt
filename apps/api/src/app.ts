@@ -14,6 +14,7 @@ import { competitionResultRoutes } from './routes/competition-results.js';
 import { gamificationRoutes } from './routes/gamification.js';
 import { tournamentRoutes } from './routes/tournaments.js';
 import { academyRoutes } from './routes/academies.js';
+import { ownerDashboardRoutes } from './routes/owner-dashboard.js';
 import { devRoutes } from './routes/dev.js';
 
 declare module 'fastify' {
@@ -42,6 +43,7 @@ export async function buildApp() {
   await app.register(gamificationRoutes);
   await app.register(tournamentRoutes);
   await app.register(academyRoutes);
+  await app.register(ownerDashboardRoutes);
   await app.register(devRoutes, { prefix: '/api/dev' });
 
   app.get('/health', async () => ({ status: 'ok' }));
