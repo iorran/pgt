@@ -14,10 +14,9 @@ import { TabsNav } from '@/components/tabs-nav';
 
 interface CheckinRecord {
   id: string;
-  classId: string;
-  date: string;
-  className?: string;
-  classType?: string;
+  checkedInAt: string;
+  date: string; // YYYY-MM-DD, TZ-formatted by API
+  class: { id: string; name: string; type: string } | null;
 }
 
 export default function CheckinHistoryPage() {
@@ -55,9 +54,9 @@ export default function CheckinHistoryPage() {
             <TableBody>
               {checkins.map(c => (
                 <TableRow key={c.id}>
-                  <TableCell className="font-mono">{new Date(c.date).toLocaleDateString()}</TableCell>
-                  <TableCell>{c.className || c.classId}</TableCell>
-                  <TableCell>{c.classType || '-'}</TableCell>
+                  <TableCell className="font-mono">{c.date}</TableCell>
+                  <TableCell>{c.class?.name ?? '—'}</TableCell>
+                  <TableCell>{c.class?.type ?? '—'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
