@@ -143,32 +143,34 @@ test.describe('owner dashboard', () => {
       });
       await expect(page.getByText(className).first()).toBeVisible();
 
-      // Students list renders — match the student's name as a row.
-      // Using getByText avoids matching the status chip buttons.
-      await expect(page.getByText('Aderencia Alice', { exact: true })).toBeVisible();
-
       // Click the class row to expand. Its accessible name contains the
       // class name plus the totals/trend — a regex on the class name
       // is unique enough.
       await dash.classRow(new RegExp(className, 'i')).first().click();
-      // Roster heading appears in the expansion.
-      await expect(page.getByText(/roster/i)).toBeVisible({ timeout: 10_000 });
+      // Roster heading appears in the expansion (en: "Roster", pt-BR: "Presentes").
+      await expect(page.getByText(/roster|presentes/i).first()).toBeVisible({
+        timeout: 10_000,
+      });
 
-      // Toggle a status chip — click "Slowing". The All chip is default.
-      // Matching /^slowing/i targets the chip (label starts with "Slowing").
-      await dash.statusChip(/^slowing\b/i).click();
-      // Clicking a filter shouldn't navigate; the students section still
-      // has the "Students" header and the heading stays visible.
-      await expect(dash.heading()).toBeVisible();
+      // Default students filter is "Drifting" (en) / "Afastando" (pt-BR).
+      // Switch to "All"/"Todos" to surface the active students seeded above.
+      // The students chip label is `<word> <count>` (e.g. "Todos 3") — the
+      // trailing digit disambiguates from the classes type filter's "Todos"
+      // chip (no count).
+      await dash.statusChip(/^(all|todos)\s+\d+/i).click();
 
-      // Re-select "All" so Alice is visible again for the next step.
-      await dash.statusChip(/^all\b/i).click();
+      // Students list renders — find the row button specifically (the
+      // expanded class roster above also contains Alice's name in a
+      // <li>, so text-based queries collide).
+      const aliceRow = dash.studentRow(/aderencia alice/i);
+      await expect(aliceRow).toBeVisible();
 
-      // Click the student row to expand. The accessible name contains
-      // "Aderencia Alice" — narrower than any chip.
-      await dash.studentRow(/aderencia alice/i).click();
-      // The expansion shows stats — "Streak:" or "Total:" appears.
-      await expect(page.getByText(/streak:/i)).toBeVisible({ timeout: 10_000 });
+      // Click the student row to expand.
+      await aliceRow.click();
+      // The expansion shows stats — Streak/Sequência and Total/Total.
+      await expect(page.getByText(/streak:|sequência:/i)).toBeVisible({
+        timeout: 10_000,
+      });
       await expect(page.getByText(/total:/i)).toBeVisible();
     } finally {
       await context.close();
@@ -194,9 +196,7 @@ test.describe('owner dashboard', () => {
     }
   });
 
-  test('owner dashboard entry card on /dashboard navigates to /owner/dashboard', async ({
-    browser,
-  }) => {
+  test('owner lands on the owner dashboard at /', async ({ browser }) => {
     const setup = await setupAcademy();
     academy = setup.academy;
     const owner = setup.instructor;
@@ -205,14 +205,16 @@ test.describe('owner dashboard', () => {
     const context = await impersonateAs(browser, owner.email);
     try {
       const page = await context.newPage();
-      await page.goto('/dashboard');
+      await page.goto('/');
 
-      // The entry card renders "Academy dashboard" as its CardTitle.
-      const card = page.getByText(/academy dashboard/i).first();
-      await expect(card).toBeVisible({ timeout: 10_000 });
-
-      await card.click();
-      await expect(page).toHaveURL(/\/owner\/dashboard/, { timeout: 10_000 });
+      // Owner shell renders the owner dashboard inline — the heading is
+      // enough to prove it (the chart hides when there are no check-ins).
+      await expect(
+        page.getByRole('heading', { name: /academy dashboard|painel da academia/i }),
+      ).toBeVisible({ timeout: 10_000 });
+      // And the instructor StatCard grid from the old dashboard is NOT
+      // rendered — guards against regressing to the link-card flow.
+      await expect(page.getByRole('heading', { name: /^painel$|^dashboard$/i })).toHaveCount(0);
     } finally {
       await context.close();
     }

@@ -28,12 +28,15 @@ vi.mock('@/pages/dashboard', () => ({
 vi.mock('@/pages/classes/index', () => ({
   default: () => <div data-testid="classes-page" />,
 }));
+vi.mock('@/pages/owner/dashboard', () => ({
+  default: () => <div data-testid="owner-dashboard-page" />,
+}));
 
 import { useSession } from '@/lib/auth-client';
 
 const mockedUseSession = vi.mocked(useSession);
 
-function setSession(role: 'student' | 'instructor') {
+function setSession(role: 'student' | 'instructor' | 'owner') {
   mockedUseSession.mockReturnValue({
     data: {
       user: {
@@ -81,6 +84,17 @@ describe('App shell selector', () => {
     renderWithProviders(<App />);
     expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
     expect(screen.queryByTestId('classes-page')).not.toBeInTheDocument();
+  });
+
+  it('shows the owner dashboard at / for owners (no indirection)', async () => {
+    setSession('owner');
+    renderWithProviders(<App />);
+    // OwnerDashboardPage is lazy-loaded, so wait for the Suspense boundary
+    // to resolve the chunk.
+    expect(
+      await screen.findByTestId('owner-dashboard-page'),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument();
   });
 
   // Regression guard for the session-refetch flap. Without the

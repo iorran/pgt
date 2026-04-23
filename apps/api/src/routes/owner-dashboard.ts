@@ -109,6 +109,8 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
         classId: bjjClass.id,
         name: bjjClass.name,
         type: bjjClass.type,
+        startTime: bjjClass.startTime,
+        endTime: bjjClass.endTime,
         totalCheckins: sql<number>`count(${checkin.id})::int`,
         uniqueStudents: sql<number>`count(distinct ${checkin.studentId})::int`,
         occurrences: sql<number>`count(distinct ${dayInTz(checkin.checkedInAt, tz)})::int`,
@@ -123,7 +125,7 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
         ),
       )
       .where(and(eq(bjjClass.academyId, academyId), eq(bjjClass.active, true)))
-      .groupBy(bjjClass.id, bjjClass.name, bjjClass.type);
+      .groupBy(bjjClass.id, bjjClass.name, bjjClass.type, bjjClass.startTime, bjjClass.endTime);
 
     // Baseline: last 4 occurrence dates per class, strictly before `from`.
     // Single CTE-backed query covers every class at once (was N+1).
@@ -192,6 +194,8 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
           classId: r.classId,
           name: r.name,
           type: r.type,
+          startTime: r.startTime,
+          endTime: r.endTime,
           totalCheckins,
           uniqueStudents,
           occurrences,

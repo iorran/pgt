@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
 import { useSearchParams } from 'react-router-dom';
 import { useApiQuery } from '@/hooks/use-api';
@@ -18,6 +19,8 @@ interface AderenciaResponse {
     classId: string;
     name: string;
     type: string;
+    startTime?: string | null;
+    endTime?: string | null;
     totalCheckins: number;
     uniqueStudents: number;
     occurrences: number;
@@ -38,6 +41,7 @@ interface StudentsResponse {
 }
 
 export default function OwnerDashboardPage() {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const [params, setParams] = useSearchParams();
@@ -63,7 +67,7 @@ export default function OwnerDashboardPage() {
     return (
       <div className="p-8 text-center">
         <h1 className="text-xl">Forbidden (403)</h1>
-        <p className="text-muted-foreground">Owner access required.</p>
+        <p className="text-muted-foreground">{t('owner.forbidden')}</p>
       </div>
     );
   }
@@ -72,7 +76,7 @@ export default function OwnerDashboardPage() {
   return (
     <div className="p-5 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Academy dashboard</h1>
+        <h1 className="text-2xl font-semibold">{t('owner.title')}</h1>
         <PeriodToggle value={period} onChange={(p) => setParams({ period: p })} />
       </div>
       <Card className="p-4">
