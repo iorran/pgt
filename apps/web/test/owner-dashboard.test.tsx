@@ -119,3 +119,55 @@ describe('ClassesList expansion', () => {
     await waitFor(() => expect(screen.getByText(/↑\s*\+?20%/)).toBeInTheDocument());
   });
 });
+
+describe('StudentsList status filter + expansion', () => {
+  beforeEach(async () => {
+    const { useSession } = await import('@/lib/auth-client');
+    const { api } = await import('@/lib/api');
+    vi.mocked(useSession).mockReturnValue({ data: { user: { id: 'own-1', role: 'owner', academyId: 'aca-1' } } } as any);
+    vi.mocked(api).mockImplementation(async (path: string) => {
+      if (path.startsWith('/owner/classes/aderencia')) {
+        return { period: 'week', from: '2026-04-20', to: '2026-04-27', classes: [] };
+      }
+      if (path === '/owner/students') return { students: [
+        { id: 'stu-1', name: 'João', belt: 'blue', lastCheckinAt: '2026-04-21T18:00:00Z', daysSinceCheckin: 2, status: 'active' },
+        { id: 'stu-2', name: 'Maria', belt: 'white', lastCheckinAt: '2026-04-10T18:00:00Z', daysSinceCheckin: 13, status: 'slowing' },
+      ]};
+      if (path.startsWith('/owner/students/stu-1/history')) return {
+        student: { id: 'stu-1', name: 'João', belt: 'blue' },
+        checkins: [{ date: '2026-04-21', checkedInAt: '2026-04-21T18:00:00Z', class: { id: 'cls-1', name: 'No-Gi', type: 'no-gi' } }],
+        stats: { total: 5, uniqueClasses: 2, currentStreak: 3, longestStreak: 5 },
+      };
+      return {};
+    });
+  });
+
+  it('filters students by status chip', async () => {
+    const { default: OwnerDashboardPage } = await import('@/pages/owner/dashboard');
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={['/owner/dashboard']}><OwnerDashboardPage /></MemoryRouter>
+      </QueryClientProvider>,
+    );
+    await waitFor(() => expect(screen.getByText('João')).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: /^slowing/i }));
+    expect(screen.queryByText('João')).toBeNull();
+    expect(screen.getByText('Maria')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^all/i }));
+    expect(screen.getByText('João')).toBeInTheDocument();
+    expect(screen.getByText('Maria')).toBeInTheDocument();
+  });
+
+  it('expands a student row to show stats and history', async () => {
+    const { default: OwnerDashboardPage } = await import('@/pages/owner/dashboard');
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={['/owner/dashboard']}><OwnerDashboardPage /></MemoryRouter>
+      </QueryClientProvider>,
+    );
+    const row = await screen.findByRole('button', { name: /joão/i });
+    fireEvent.click(row);
+    await waitFor(() => expect(screen.getByText(/Streak: 3/)).toBeInTheDocument());
+    expect(screen.getByText(/Total: 5/)).toBeInTheDocument();
+  });
+});
