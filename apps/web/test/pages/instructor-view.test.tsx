@@ -92,13 +92,26 @@ describe('InstructorClassesView', () => {
     mockUseSession.mockReturnValue(instructorSession);
     // Default: first call resolves with classes (query), subsequent ones resolve OK
     mockApi.mockResolvedValue(mockClasses as any);
+    // Override the global matchMedia stub (returns false) so useClassCalendar
+    // picks 'week' view; otherwise 'day' filters out classes for other days.
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (q: string) => ({
+        matches: true,
+        media: q,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }),
+    });
   });
 
   it('drag fires PUT /classes/:id with correct body', async () => {
     renderWithProviders(<InstructorClassesView />);
 
     // Wait for query to populate the calendar
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
+    await waitFor(() => expect(capturedProps.events?.find((e: any) => e.id === "c1")).toBeDefined());
 
     // Resolve the PUT call as success
     mockApi.mockResolvedValueOnce({} as any);
@@ -122,10 +135,11 @@ describe('InstructorClassesView', () => {
   it('optimistic update flips class in cache before server responds', async () => {
     renderWithProviders(<InstructorClassesView />);
 
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
+    await waitFor(() => expect(capturedProps.events?.find((e: any) => e.id === "c1")).toBeDefined());
 
-    // PUT never resolves (simulates in-flight request)
-    mockApi.mockImplementation(() => new Promise(() => {}));
+    // ONLY the PUT hangs — subsequent api() calls (background refetches
+    // triggered by cancelQueries) fall back to the default mockResolvedValue.
+    mockApi.mockImplementationOnce(() => new Promise(() => {}));
 
     const newStart = new Date(2026, 3, 22, 9, 15); // Wednesday = dayOfWeek 3
     const newEnd = new Date(2026, 3, 22, 10, 45);
@@ -145,7 +159,7 @@ describe('InstructorClassesView', () => {
   it('drag failure rolls back to original classes', async () => {
     renderWithProviders(<InstructorClassesView />);
 
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
+    await waitFor(() => expect(capturedProps.events?.find((e: any) => e.id === "c1")).toBeDefined());
 
     // Capture original events
     const originalC1 = capturedProps.events.find((e: any) => e.id === 'c1');
@@ -177,7 +191,7 @@ describe('InstructorClassesView', () => {
     const user = userEvent.setup();
     renderWithProviders(<InstructorClassesView />);
 
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
+    await waitFor(() => expect(capturedProps.events?.find((e: any) => e.id === "c1")).toBeDefined());
 
     // Find the rendered event button and click it
     const eventButton = await screen.findByTestId('event-c1');
@@ -199,7 +213,7 @@ describe('InstructorClassesView', () => {
     const user = userEvent.setup();
     renderWithProviders(<InstructorClassesView />);
 
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
+    await waitFor(() => expect(capturedProps.events?.find((e: any) => e.id === "c1")).toBeDefined());
 
     // Open dialog via click
     const eventButton = await screen.findByTestId('event-c1');

@@ -151,6 +151,12 @@
   display: flex !important;
   flex-direction: column !important;
   justify-content: flex-end !important;
+  /* Without min-width:0, flex children with nowrap text inflate the
+     event's intrinsic min-content width, making 30-min events spill
+     into the neighbouring day column. */
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   background: #262626 !important;
   color: var(--foreground) !important;
   border: none !important;
@@ -196,6 +202,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 0 1 auto;
+  min-width: 0; /* allow shrink below intrinsic content width */
+  max-width: 100%;
   min-height: 0;
   margin: 0 !important;
 }
@@ -210,6 +218,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 0 0 auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* ── Today column — full-height wash + primary underline in header ────── */
