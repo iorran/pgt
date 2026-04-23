@@ -136,10 +136,8 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
       // Inline timezone as SQL literal to avoid 42803 (Drizzle emits distinct
       // placeholder numbers for `dayInTz(col, tz)` at SELECT/GROUP BY/ORDER BY,
       // making Postgres treat the expressions as non-identical).
-      const tzSafe = tz.replace(/'/g, "''");
-      const dayBucket = sql.raw(
-        `((checkin.checked_in_at AT TIME ZONE 'UTC' AT TIME ZONE '${tzSafe}')::date)`,
-      );
+      const tzLit = sql.raw(`'${tz.replace(/'/g, "''")}'`); // SAFE: server-controlled, single-quote-escaped
+      const dayBucket = sql`((${checkin.checkedInAt} AT TIME ZONE 'UTC' AT TIME ZONE ${tzLit})::date)`;
 
       const rows = await db
         .select({
