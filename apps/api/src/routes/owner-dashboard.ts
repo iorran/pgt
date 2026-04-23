@@ -1,10 +1,11 @@
 import { FastifyInstance } from 'fastify';
-import { and, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, lt, sql } from 'drizzle-orm';
 import { requireOwner } from '../middleware/require-owner.js';
 import { db } from '../db/client.js';
 import { bjjClass } from '../db/schema/class.js';
 import { checkin } from '../db/schema/checkin.js';
 import { user as userTable } from '../db/schema/user.js';
+import { streak } from '../db/schema/gamification.js';
 import {
   weekBoundsInTz,
   monthBoundsInTz,
@@ -266,6 +267,95 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
         .orderBy(checkin.checkedInAt);
 
       return { classId, date, students };
+    },
+  );
+
+  app.get(
+    '/api/owner/students/:studentId/history',
+    { preHandler: requireOwner },
+    async (request, reply) => {
+      const { studentId } = request.params as { studentId: string };
+      const q = request.query as { from?: string; to?: string };
+      if (!q.from || !q.to) {
+        return reply.status(400).send({ error: 'from and to required' });
+      }
+      const tz = request.academy!.timezone;
+      const from = startOfDayInTz(q.from, tz);
+      const to = startOfDayInTz(q.to, tz);
+
+      // Scope check
+      const [student] = await db
+        .select({
+          id: userTable.id,
+          name: userTable.name,
+          belt: userTable.belt,
+          academyId: userTable.academyId,
+        })
+        .from(userTable)
+        .where(eq(userTable.id, studentId))
+        .limit(1);
+      if (!student || student.academyId !== request.academy!.id) {
+        return reply.status(404).send({ error: 'Student not found' });
+      }
+
+      // Day bucket for this TZ (reuse the Task 9/10 pattern)
+      const tzLit = sql.raw(`'${tz.replace(/'/g, "''")}'`);
+      const dayBucket = sql`((${checkin.checkedInAt} AT TIME ZONE 'UTC' AT TIME ZONE ${tzLit})::date)`;
+
+      const rows = await db
+        .select({
+          id: checkin.id,
+          checkedInAt: checkin.checkedInAt,
+          date: sql<string>`${dayBucket}::text`.as('date'),
+          classId: bjjClass.id,
+          className: bjjClass.name,
+          classType: bjjClass.type,
+        })
+        .from(checkin)
+        .leftJoin(bjjClass, eq(bjjClass.id, checkin.classId))
+        .where(
+          and(
+            eq(checkin.studentId, studentId),
+            gte(checkin.checkedInAt, from),
+            lt(checkin.checkedInAt, to),
+          ),
+        )
+        .orderBy(desc(checkin.checkedInAt));
+
+      // All-time stats
+      const [totalRow] = await db
+        .select({ total: sql<number>`count(*)::int` })
+        .from(checkin)
+        .where(eq(checkin.studentId, studentId));
+
+      const [uniqueRow] = await db
+        .select({ uniq: sql<number>`count(distinct ${checkin.classId})::int` })
+        .from(checkin)
+        .where(eq(checkin.studentId, studentId));
+
+      const [streakRow] = await db
+        .select()
+        .from(streak)
+        .where(eq(streak.studentId, studentId))
+        .limit(1);
+
+      return {
+        student: { id: student.id, name: student.name, belt: student.belt },
+        checkins: rows.map((r) => ({
+          date: String(r.date),
+          checkedInAt:
+            r.checkedInAt instanceof Date ? r.checkedInAt.toISOString() : r.checkedInAt,
+          class: r.classId
+            ? { id: r.classId, name: r.className, type: r.classType }
+            : null,
+        })),
+        stats: {
+          total: Number(totalRow?.total ?? 0),
+          uniqueClasses: Number(uniqueRow?.uniq ?? 0),
+          currentStreak: streakRow?.currentStreak ?? 0,
+          longestStreak: streakRow?.longestStreak ?? 0,
+        },
+      };
     },
   );
 }

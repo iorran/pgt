@@ -354,3 +354,83 @@ describe('GET /api/owner/classes/:classId/occurrences/:date/roster', () => {
     expect(res.statusCode).toBe(404);
   });
 });
+
+describe('GET /api/owner/students/:studentId/history', () => {
+  let app: FastifyInstance;
+
+  beforeAll(async () => { app = await createTestApp(); });
+  afterAll(async () => { await app.close(); });
+  beforeEach(async () => { await cleanDb(); });
+
+  it('returns class-enriched check-ins and streak stats', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const cls = await createTestClass(academy.id, { name: 'No-Gi', type: 'no-gi' });
+    const s1 = await createTestUser(academy.id, { role: 'student', name: 'João', belt: 'blue' });
+
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: s1.id, source: 'button',
+      checkedInAt: new Date('2026-04-22T23:30:00Z'),
+    });
+    await testDb.insert(schema.streak).values({
+      studentId: s1.id, currentStreak: 3, longestStreak: 5, lastCheckinWeek: '2026-W17',
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/owner/students/${s1.id}/history?from=2026-04-20&to=2026-04-27`,
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.student).toMatchObject({ id: s1.id, name: 'João', belt: 'blue' });
+    expect(body.checkins).toHaveLength(1);
+    expect(body.checkins[0]).toMatchObject({
+      date: '2026-04-23',
+      class: { id: cls.id, name: 'No-Gi', type: 'no-gi' },
+    });
+    expect(body.stats).toEqual({ total: 1, uniqueClasses: 1, currentStreak: 3, longestStreak: 5 });
+  });
+
+  it('returns zero streaks when no streak row exists', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/owner/students/${s1.id}/history?from=2026-04-20&to=2026-04-27`,
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.stats).toEqual({ total: 0, uniqueClasses: 0, currentStreak: 0, longestStreak: 0 });
+    expect(body.checkins).toEqual([]);
+  });
+
+  it('returns 404 for a student in another academy', async () => {
+    const a1 = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const a2 = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(a1.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, a1.id));
+    const otherStudent = await createTestUser(a2.id, { role: 'student' });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/owner/students/${otherStudent.id}/history?from=2026-04-20&to=2026-04-27`,
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('returns 400 when from/to missing', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    const s1 = await createTestUser(academy.id, { role: 'student' });
+    const res = await app.inject({
+      method: 'GET', url: `/api/owner/students/${s1.id}/history`, headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(400);
+  });
+});
