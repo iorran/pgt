@@ -54,11 +54,18 @@ describe('OwnerDashboardPage', () => {
 
   it('renders the three sections with data when the user is an owner', async () => {
     await renderPage();
+    // Class row includes the totalCheckins count (10) — narrower than the
+    // type filter chip, which only contains "no-gi".
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: /no-gi/i })).toBeInTheDocument(),
+      expect(screen.getByRole('button', { name: /no-gi.*10/i })).toBeInTheDocument(),
     );
+    // Default students filter is "drifting"; João is active, so surface him
+    // by switching to the "all" chip.
+    fireEvent.click(screen.getByRole('button', { name: /^owner\.students\.filters\.all/i }));
     expect(screen.getByText('João')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /week/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /owner\.period\.week/i }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('aderencia-chart-bar-cls-1')).toBeInTheDocument();
   });
 
@@ -66,7 +73,7 @@ describe('OwnerDashboardPage', () => {
     const { useSession } = await import('@/lib/auth-client');
     vi.mocked(useSession).mockReturnValue({ data: { user: { id: 'stu-1', role: 'student' } } } as any);
     await renderPage();
-    expect(screen.getByText(/forbidden|403/i)).toBeInTheDocument();
+    expect(screen.getByText(/forbidden \(403\)/i)).toBeInTheDocument();
   });
 });
 
@@ -101,8 +108,9 @@ describe('ClassesList expansion', () => {
       </QueryClientProvider>,
     );
     // Wait for the classes list to render the row button (not the XAxis tick label, which is
-    // inside an SVG text element, not a button).
-    const row = await screen.findByRole('button', { name: /no-gi/i });
+    // inside an SVG text element, not a button). Match includes the totals
+    // count so it doesn't collide with the type filter chip.
+    const row = await screen.findByRole('button', { name: /no-gi.*10/i });
     fireEvent.click(row);
     await waitFor(() => expect(screen.getByText('João')).toBeInTheDocument());
     expect(screen.getByTestId('occurrence-chart')).toBeInTheDocument();
@@ -142,18 +150,31 @@ describe('StudentsList status filter + expansion', () => {
     });
   });
 
-  it('filters students by status chip', async () => {
+  it('defaults to the drifting filter and switches via status chips', async () => {
     const { default: OwnerDashboardPage } = await import('@/pages/owner/dashboard');
     render(
       <QueryClientProvider client={new QueryClient()}>
         <MemoryRouter initialEntries={['/owner/dashboard']}><OwnerDashboardPage /></MemoryRouter>
       </QueryClientProvider>,
     );
-    await waitFor(() => expect(screen.getByText('João')).toBeInTheDocument());
-    fireEvent.click(screen.getByRole('button', { name: /^slowing/i }));
+    // Default filter hides active + slowing students.
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /owner\.students\.filters\.drifting/i }),
+      ).toBeInTheDocument(),
+    );
+    expect(screen.queryByText('João')).toBeNull();
+    expect(screen.queryByText('Maria')).toBeNull();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /owner\.students\.filters\.slowing/i }),
+    );
     expect(screen.queryByText('João')).toBeNull();
     expect(screen.getByText('Maria')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /^all/i }));
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /owner\.students\.filters\.all/i }),
+    );
     expect(screen.getByText('João')).toBeInTheDocument();
     expect(screen.getByText('Maria')).toBeInTheDocument();
   });
@@ -165,9 +186,20 @@ describe('StudentsList status filter + expansion', () => {
         <MemoryRouter initialEntries={['/owner/dashboard']}><OwnerDashboardPage /></MemoryRouter>
       </QueryClientProvider>,
     );
+    // Default is 'drifting' — switch to 'all' to see active João.
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: /owner\.students\.filters\.all/i }),
+      ).toBeInTheDocument(),
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: /owner\.students\.filters\.all/i }),
+    );
     const row = await screen.findByRole('button', { name: /joão/i });
     fireEvent.click(row);
-    await waitFor(() => expect(screen.getByText(/Streak: 3/)).toBeInTheDocument());
-    expect(screen.getByText(/Total: 5/)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByText(/owner\.students\.streak: 3/i)).toBeInTheDocument(),
+    );
+    expect(screen.getByText(/owner\.students\.total: 5/i)).toBeInTheDocument();
   });
 });

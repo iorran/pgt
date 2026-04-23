@@ -15,7 +15,9 @@ export class OwnerDashboardPage {
   }
 
   heading() {
-    return this.page.getByRole('heading', { name: /academy dashboard/i });
+    return this.page.getByRole('heading', {
+      name: /academy dashboard|painel da academia/i,
+    });
   }
 
   forbiddenNotice() {

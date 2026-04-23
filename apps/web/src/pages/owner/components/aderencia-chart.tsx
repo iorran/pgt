@@ -1,4 +1,5 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 interface ClassRow {
   classId: string;
@@ -11,17 +12,25 @@ interface ClassRow {
   trend: number | null;
 }
 
+const CHART_COLORS = [
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+];
+
 interface BarShapeProps {
   x?: number;
   y?: number;
   width?: number;
   height?: number;
-  fill?: string;
   payload?: ClassRow;
+  index?: number;
 }
 
 function BarShape(props: BarShapeProps) {
-  const { x = 0, y = 0, width = 0, height = 0, payload } = props;
+  const { x = 0, y = 0, width = 0, height = 0, payload, index = 0 } = props;
   if (!payload) {
     return null;
   }
@@ -31,7 +40,7 @@ function BarShape(props: BarShapeProps) {
       y={y}
       width={width}
       height={height}
-      fill="hsl(var(--primary))"
+      fill={CHART_COLORS[index % CHART_COLORS.length]}
       data-testid={`aderencia-chart-bar-${payload.classId}`}
     />
   );
@@ -43,6 +52,7 @@ interface TooltipProps {
 }
 
 function AderenciaTooltip({ active, payload }: TooltipProps) {
+  const { t } = useTranslation();
   if (!active || !payload?.length) {
     return null;
   }
@@ -50,17 +60,20 @@ function AderenciaTooltip({ active, payload }: TooltipProps) {
   return (
     <div className="rounded border bg-background p-2 text-xs shadow">
       <div className="font-medium">{d.name}</div>
-      <div>Total: {d.totalCheckins}</div>
-      <div>Unique students: {d.uniqueStudents}</div>
-      <div>Avg/occurrence: {d.avgPerOccurrence.toFixed(1)}</div>
-      <div>Trend: {d.trend == null ? '—' : `${(d.trend * 100).toFixed(0)}%`}</div>
+      <div>{t('owner.chart.total')}: {d.totalCheckins}</div>
+      <div>{t('owner.chart.uniqueStudents')}: {d.uniqueStudents}</div>
+      <div>{t('owner.chart.avgPerOccurrence')}: {d.avgPerOccurrence.toFixed(1)}</div>
+      <div>
+        {t('owner.chart.trend')}: {d.trend == null ? '—' : `${(d.trend * 100).toFixed(0)}%`}
+      </div>
     </div>
   );
 }
 
 export function AderenciaChart({ data }: { data: ClassRow[] }) {
+  const { t } = useTranslation();
   if (data.length === 0) {
-    return <p className="text-muted-foreground text-sm">No check-ins in this period.</p>;
+    return <p className="text-muted-foreground text-sm">{t('owner.chart.empty')}</p>;
   }
   return (
     <div className="w-full h-72" data-testid="aderencia-chart">

@@ -154,8 +154,17 @@ function AppRoutes() {
 
   // Normal authenticated routes
   const isStudent = (user.role as string) === 'student';
+  const isOwner = (user.role as string) === 'owner';
   const Shell = isStudent ? StudentShell : StaffShell;
   const studentHome = '/classes';
+
+  const staffHome = isOwner ? (
+    <Suspense fallback={<PageLoader />}>
+      <OwnerDashboardPage />
+    </Suspense>
+  ) : (
+    <DashboardPage />
+  );
 
   return (
     <Routes>
@@ -164,7 +173,7 @@ function AppRoutes() {
       <Route element={<Shell />}>
         <Route
           path="/"
-          element={isStudent ? <Navigate to={studentHome} replace /> : <DashboardPage />}
+          element={isStudent ? <Navigate to={studentHome} replace /> : staffHome}
         />
         <Route path="/pending" element={<PendingStudentsPage />} />
         <Route path="/classes" element={<ClassesPage />} />

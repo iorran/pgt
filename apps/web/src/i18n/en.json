@@ -272,6 +272,61 @@
   "dashboard": {
     "greeting": "Hello, {{name}}"
   },
+  "owner": {
+    "title": "Academy Dashboard",
+    "period": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month"
+    },
+    "chart": {
+      "empty": "No check-ins in this period.",
+      "total": "Total",
+      "uniqueStudents": "Unique students",
+      "avgPerOccurrence": "Avg/occurrence",
+      "trend": "Trend"
+    },
+    "classes": {
+      "title": "Classes",
+      "filterType": "Type",
+      "allTypes": "All",
+      "types": {
+        "gi": "Gi",
+        "no-gi": "No-Gi",
+        "open-mat": "Open Mat",
+        "kids": "Kids"
+      },
+      "pagePrev": "Previous",
+      "pageNext": "Next",
+      "pageStatus": "Page {{page}} of {{total}}",
+      "roster": "Roster",
+      "noRoster": "No check-ins yet.",
+      "noClasses": "No classes found."
+    },
+    "students": {
+      "title": "Students",
+      "filters": {
+        "all": "All",
+        "active": "Active",
+        "slowing": "Slowing",
+        "drifting": "Drifting",
+        "inactive": "Inactive"
+      },
+      "statusLabel": {
+        "active": "active",
+        "slowing": "slowing",
+        "drifting": "drifting",
+        "inactive": "inactive"
+      },
+      "loading": "Loading…",
+      "total": "Total",
+      "classes": "Classes",
+      "streak": "Streak",
+      "best": "Best",
+      "noCheckins": "No check-ins in the last 30 days."
+    },
+    "forbidden": "Owner access required."
+  },
   "settings": {
     "geolocationUnavailable": "Geolocation unavailable"
   },

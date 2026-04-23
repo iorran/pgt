@@ -272,6 +272,61 @@
   "dashboard": {
     "greeting": "Olá, {{name}}"
   },
+  "owner": {
+    "title": "Painel da Academia",
+    "period": {
+      "day": "Dia",
+      "week": "Semana",
+      "month": "Mês"
+    },
+    "chart": {
+      "empty": "Sem check-ins neste período.",
+      "total": "Total",
+      "uniqueStudents": "Alunos únicos",
+      "avgPerOccurrence": "Média/aula",
+      "trend": "Tendência"
+    },
+    "classes": {
+      "title": "Aulas",
+      "filterType": "Tipo",
+      "allTypes": "Todos",
+      "types": {
+        "gi": "Gi",
+        "no-gi": "No-Gi",
+        "open-mat": "Open Mat",
+        "kids": "Kids"
+      },
+      "pagePrev": "Anterior",
+      "pageNext": "Próximo",
+      "pageStatus": "Página {{page}} de {{total}}",
+      "roster": "Presentes",
+      "noRoster": "Nenhum check-in ainda.",
+      "noClasses": "Nenhuma aula encontrada."
+    },
+    "students": {
+      "title": "Alunos",
+      "filters": {
+        "all": "Todos",
+        "active": "Ativos",
+        "slowing": "Desacelerando",
+        "drifting": "Afastando",
+        "inactive": "Inativos"
+      },
+      "statusLabel": {
+        "active": "ativo",
+        "slowing": "desacelerando",
+        "drifting": "afastando",
+        "inactive": "inativo"
+      },
+      "loading": "Carregando…",
+      "total": "Total",
+      "classes": "Aulas",
+      "streak": "Sequência",
+      "best": "Melhor",
+      "noCheckins": "Sem check-ins nos últimos 30 dias."
+    },
+    "forbidden": "Acesso restrito ao dono da academia."
+  },
   "settings": {
     "geolocationUnavailable": "Geolocalização indisponível"
   },

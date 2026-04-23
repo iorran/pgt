@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
 
 type Status = 'active' | 'slowing' | 'drifting' | 'inactive';
@@ -11,13 +12,7 @@ interface StudentRow {
   status: Status;
 }
 
-const FILTERS = [
-  { key: 'all', label: 'All' },
-  { key: 'active', label: 'Active' },
-  { key: 'slowing', label: 'Slowing' },
-  { key: 'drifting', label: 'Drifting' },
-  { key: 'inactive', label: 'Inactive' },
-] as const;
+const FILTER_KEYS = ['all', 'active', 'slowing', 'drifting', 'inactive'] as const;
 
 const statusColor: Record<Status, string> = {
   active: 'text-green-600',
@@ -27,14 +22,15 @@ const statusColor: Record<Status, string> = {
 };
 
 export function StudentsList({ students }: { students: StudentRow[] }) {
-  const [filter, setFilter] = useState<'all' | Status>('all');
+  const { t } = useTranslation();
+  const [filter, setFilter] = useState<'all' | Status>('drifting');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const counts = FILTERS.reduce<Record<string, number>>((acc, f) => {
-    acc[f.key] =
-      f.key === 'all'
+  const counts = FILTER_KEYS.reduce<Record<string, number>>((acc, key) => {
+    acc[key] =
+      key === 'all'
         ? students.length
-        : students.filter((s) => s.status === f.key).length;
+        : students.filter((s) => s.status === key).length;
     return acc;
   }, {});
   const visible =
@@ -43,18 +39,20 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
   return (
     <div className="divide-y">
       <div className="flex items-center justify-between px-2 py-2">
-        <span className="text-sm font-medium text-muted-foreground">Students</span>
-        <div className="flex gap-1">
-          {FILTERS.map((f) => (
+        <span className="text-sm font-medium text-muted-foreground">
+          {t('owner.students.title')}
+        </span>
+        <div className="flex gap-1 flex-wrap">
+          {FILTER_KEYS.map((key) => (
             <button
-              key={f.key}
+              key={key}
               type="button"
-              onClick={() => setFilter(f.key as 'all' | Status)}
+              onClick={() => setFilter(key as 'all' | Status)}
               className={`px-2 py-1 rounded text-xs ${
-                filter === f.key ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                filter === key ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}
             >
-              {f.label} {counts[f.key] ?? 0}
+              {t(`owner.students.filters.${key}`)} {counts[key] ?? 0}
             </button>
           ))}
         </div>
@@ -71,7 +69,7 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
               <span className="text-xs text-muted-foreground">· {s.belt}</span>
             </span>
             <span className={`text-sm ${statusColor[s.status]}`}>
-              {s.status}
+              {t(`owner.students.statusLabel.${s.status}`)}
               {s.daysSinceCheckin != null ? ` · ${s.daysSinceCheckin}d` : ''}
             </span>
           </button>
@@ -83,6 +81,7 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
 }
 
 function StudentExpansion({ studentId }: { studentId: string }) {
+  const { t } = useTranslation();
   const from = isoDaysAgo(30);
   const to = isoDaysAgo(-1);
   const { data } = useApiQuery<{
@@ -100,15 +99,19 @@ function StudentExpansion({ studentId }: { studentId: string }) {
     true,
   );
   if (!data) {
-    return <div className="px-4 py-3 bg-muted/30 text-sm">Loading…</div>;
+    return (
+      <div className="px-4 py-3 bg-muted/30 text-sm">
+        {t('owner.students.loading')}
+      </div>
+    );
   }
   return (
     <div className="px-4 py-3 bg-muted/30 space-y-2 text-sm">
       <div className="flex gap-4 text-xs">
-        <span>Total: {data.stats.total}</span>
-        <span>Classes: {data.stats.uniqueClasses}</span>
-        <span>Streak: {data.stats.currentStreak}</span>
-        <span>Best: {data.stats.longestStreak}</span>
+        <span>{t('owner.students.total')}: {data.stats.total}</span>
+        <span>{t('owner.students.classes')}: {data.stats.uniqueClasses}</span>
+        <span>{t('owner.students.streak')}: {data.stats.currentStreak}</span>
+        <span>{t('owner.students.best')}: {data.stats.longestStreak}</span>
       </div>
       <ul>
         {data.checkins.map((c, i) => (
@@ -117,9 +120,7 @@ function StudentExpansion({ studentId }: { studentId: string }) {
           </li>
         ))}
         {data.checkins.length === 0 && (
-          <li className="text-muted-foreground">
-            No check-ins in the last 30 days.
-          </li>
+          <li className="text-muted-foreground">{t('owner.students.noCheckins')}</li>
         )}
       </ul>
     </div>
