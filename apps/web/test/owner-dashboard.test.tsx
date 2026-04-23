@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,6 +10,18 @@ vi.mock('@/lib/auth-client', () => ({
 vi.mock('@/lib/api', () => ({
   api: vi.fn(),
 }));
+vi.mock('recharts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('recharts')>();
+  // jsdom has no layout engine, so ResponsiveContainer reports 0x0 and
+  // BarChart bails out. Replace it with a fixed-size wrapper that also
+  // forces explicit width/height on the underlying chart children so the
+  // SVG actually renders.
+  const ResponsiveContainer = ({ children }: { children: React.ReactElement }) => {
+    const child = React.cloneElement(children, { width: 800, height: 400 });
+    return <div style={{ width: 800, height: 400 }}>{child}</div>;
+  };
+  return { ...actual, ResponsiveContainer };
+});
 
 const renderPage = async () => {
   const { default: OwnerDashboardPage } = await import('@/pages/owner/dashboard');
@@ -44,6 +57,7 @@ describe('OwnerDashboardPage', () => {
     await waitFor(() => expect(screen.getByText('No-Gi')).toBeInTheDocument());
     expect(screen.getByText('João')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /week/i })).toBeInTheDocument();
+    expect(screen.getByTestId('aderencia-chart-bar-cls-1')).toBeInTheDocument();
   });
 
   it('renders a 403 notice for non-owner roles', async () => {
