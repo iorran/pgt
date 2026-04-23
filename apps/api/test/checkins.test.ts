@@ -388,4 +388,53 @@ describe('GET /api/checkins/student/:studentId (enriched + TZ-aware)', () => {
     });
     expect(res.statusCode).toBe(403);
   });
+
+  it('allows a same-academy instructor to read a student history', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const instructor = await createTestInstructor(academy.id);
+    const student = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id);
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: student.id, source: 'button',
+      checkedInAt: new Date('2026-04-22T18:00:00Z'),
+    });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(instructor),
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toHaveLength(1);
+  });
+
+  it('allows a same-academy owner to read a student history', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id);
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: student.id, source: 'button',
+      checkedInAt: new Date('2026-04-22T18:00:00Z'),
+    });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(owner),
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toHaveLength(1);
+  });
+
+  it('returns 403 for a cross-academy instructor', async () => {
+    const academyA = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const academyB = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const instructorB = await createTestInstructor(academyB.id);
+    const studentA = await createTestUser(academyA.id, { role: 'student' });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${studentA.id}`,
+      headers: authHeaders(instructorB),
+    });
+    expect(res.statusCode).toBe(403);
+  });
 });

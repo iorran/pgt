@@ -4,10 +4,11 @@ import { streak, xpEntry, badgeDefinition, studentBadge } from '../db/schema/ind
 import { eq, sql } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
+import { authorizeStudentRead } from '../middleware/student-access.js';
 
 export async function gamificationRoutes(app: FastifyInstance) {
   // Get gamification profile for a student
-  app.get('/api/gamification/profile/:studentId', async (request) => {
+  app.get('/api/gamification/profile/:studentId', { preHandler: authorizeStudentRead('studentId') }, async (request) => {
     const { studentId } = request.params as { studentId: string };
 
     const [studentStreak] = await db.select().from(streak).where(eq(streak.studentId, studentId));
