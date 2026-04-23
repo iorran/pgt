@@ -102,12 +102,15 @@ export async function seedGuide(
     .delete(schema.bjjClass)
     .where(eq(schema.bjjClass.academyId, demoId));
 
-  // 3. Instructor — upsert by email so UUID stays stable across runs.
+  // 3. Instructor (also academy owner) — upsert by email so UUID stays stable
+  // across runs. Role is 'owner' because this user is set as `academy.ownerId`
+  // below, and the owner dashboard gate (`requireOwner`) checks both the FK
+  // and the role enum value.
   const instructorValues = {
     academyId: acad.id,
     email: DEMO_INSTRUCTOR_EMAIL,
     name: 'Professora Demo PGT',
-    role: 'instructor' as const,
+    role: 'owner' as const,
     belt: 'black' as const,
     dateOfBirth: '1985-03-15',
     status: 'active' as const,

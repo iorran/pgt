@@ -130,7 +130,7 @@ describe('seedGuide', () => {
     expect(stillThere.id).toBe(other.id);
   });
 
-  it('creates the instructor with the canonical email and role', async () => {
+  it('creates the demo academy owner with the canonical email and role', async () => {
     await seedGuide({ db: testDb });
 
     const [instructor] = await testDb
@@ -139,7 +139,7 @@ describe('seedGuide', () => {
       .where(
         and(
           eq(user.email, 'instrutor@demo.pgt'),
-          eq(user.role, 'instructor'),
+          eq(user.role, 'owner'),
         ),
       );
     expect(instructor).toBeDefined();

@@ -39,12 +39,13 @@ export async function createTestAcademy(
   overrides: Partial<typeof schema.academy.$inferInsert> = {},
 ) {
   const ts = Date.now();
+  const rand = Math.random().toString(36).slice(2, 8);
   const [result] = await testDb
     .insert(schema.academy)
     .values({
       name: 'Test Academy',
-      slug: `test-academy-${ts}`,
-      joinCode: `TEST-${ts}`,
+      slug: `test-academy-${ts}-${rand}`,
+      joinCode: `TEST-${ts}-${rand}`,
       city: 'Test City',
       ...overrides,
     })
@@ -86,6 +87,34 @@ export async function createTestInstructor(
     name: 'Test Instructor',
     ...overrides,
   });
+}
+
+// Factory: create class (auto-creates an instructor if none provided)
+export async function createTestClass(
+  academyId: string,
+  overrides: Partial<typeof schema.bjjClass.$inferInsert> = {},
+) {
+  let instructorId = overrides.instructorId;
+  if (!instructorId) {
+    const instructor = await createTestInstructor(academyId);
+    instructorId = instructor.id;
+  }
+  const [row] = await testDb
+    .insert(schema.bjjClass)
+    .values({
+      academyId,
+      instructorId,
+      name: 'Test Class',
+      type: 'gi',
+      recurrence: 'weekly',
+      dayOfWeek: 1,
+      startTime: '19:00',
+      endTime: '20:00',
+      active: true,
+      ...overrides,
+    })
+    .returning();
+  return row;
 }
 
 // Helper: inject auth into a request (bypasses BetterAuth)

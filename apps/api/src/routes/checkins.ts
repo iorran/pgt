@@ -1,23 +1,34 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { checkin, streak, bjjClass, academy, checkinToken } from '../db/schema/index.js';
-import { eq, and, gte, lte, ne } from 'drizzle-orm';
+import { checkin, streak, bjjClass, academy, checkinToken, user } from '../db/schema/index.js';
+import { eq, and, gte, lt, ne, desc } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { haversineDistance } from '../utils/haversine.js';
 import { isClassActiveNow } from '../utils/time-window.js';
+import { dayInTz, isoDateInTz, startOfDayInTz, DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
 
-function getISOWeek(date: Date): string {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
-  const yearStart = new Date(d.getFullYear(), 0, 4);
-  const weekNum = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
-  return `${d.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+/**
+ * Compute the ISO week label (YYYY-Www) for the given instant as seen in the
+ * academy's IANA timezone. Using the tz-local calendar date ensures a check-in
+ * near week boundaries (e.g. Sunday evening UTC vs Monday morning Lisbon) is
+ * attributed to the right ISO week.
+ */
+function getISOWeekInTz(at: Date, tz: string): string {
+  // Calendar date as seen in tz (YYYY-MM-DD) — tz-independent from here on.
+  const isoDate = isoDateInTz(at, tz);
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  // ISO week: Monday = 1 … Sunday = 7. Shift to Thursday of that ISO week.
+  const dayNum = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil(((dt.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${dt.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
 }
 
-async function updateStreak(studentId: string, now: Date): Promise<void> {
-  const currentWeek = getISOWeek(now);
+async function updateStreak(studentId: string, now: Date, academyTimezone: string): Promise<void> {
+  const currentWeek = getISOWeekInTz(now, academyTimezone);
   const existing = await db.select().from(streak).where(eq(streak.studentId, studentId)).limit(1);
 
   if (existing.length === 0) {
@@ -32,9 +43,8 @@ async function updateStreak(studentId: string, now: Date): Promise<void> {
     if (s.lastCheckinWeek === currentWeek) {
       // Same week, no streak change
     } else {
-      const lastWeekDate = new Date(now);
-      lastWeekDate.setDate(lastWeekDate.getDate() - 7);
-      const lastWeek = getISOWeek(lastWeekDate);
+      const lastWeekDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const lastWeek = getISOWeekInTz(lastWeekDate, academyTimezone);
 
       const newStreak = s.lastCheckinWeek === lastWeek ? s.currentStreak + 1 : 1;
       const newLongest = Math.max(s.longestStreak, newStreak);
@@ -59,23 +69,42 @@ export async function checkinRoutes(app: FastifyInstance) {
       token?: string;
     };
 
-    // 1. Class exists and active=true
-    const [cls] = await db.select().from(bjjClass).where(eq(bjjClass.id, classId)).limit(1);
+    // 1. Class exists and active=true (join academy to read its timezone)
+    const [cls] = await db
+      .select({
+        id: bjjClass.id,
+        academyId: bjjClass.academyId,
+        instructorId: bjjClass.instructorId,
+        name: bjjClass.name,
+        type: bjjClass.type,
+        recurrence: bjjClass.recurrence,
+        dayOfWeek: bjjClass.dayOfWeek,
+        date: bjjClass.date,
+        startTime: bjjClass.startTime,
+        endTime: bjjClass.endTime,
+        active: bjjClass.active,
+        academyTimezone: academy.timezone,
+      })
+      .from(bjjClass)
+      .innerJoin(academy, eq(academy.id, bjjClass.academyId))
+      .where(eq(bjjClass.id, classId))
+      .limit(1);
     if (!cls || !cls.active) {
       return reply.status(400).send({ error: 'CLASS_NOT_ACTIVE' });
     }
 
-    // 2. Time window check
-    if (!isClassActiveNow(cls)) {
+    // 2. Time window check (in academy TZ)
+    if (!isClassActiveNow(cls, cls.academyTimezone)) {
       return reply.status(400).send({ error: 'OUTSIDE_TIME_WINDOW' });
     }
 
-    // 3. No duplicate checkin today
+    // 3. No duplicate checkin today — "today" is evaluated in the academy's TZ so
+    //    the bounds are correct regardless of the server's wall clock.
     const now = new Date();
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(now);
-    endOfDay.setHours(23, 59, 59, 999);
+    const tz = cls.academyTimezone ?? DEFAULT_ACADEMY_TIMEZONE;
+    const todayIso = isoDateInTz(now, tz);
+    const dayStart = startOfDayInTz(todayIso, tz);
+    const nextDay = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
 
     const duplicates = await db
       .select()
@@ -84,17 +113,17 @@ export async function checkinRoutes(app: FastifyInstance) {
         and(
           eq(checkin.classId, classId),
           eq(checkin.studentId, studentId),
-          gte(checkin.checkedInAt, startOfDay),
-          lte(checkin.checkedInAt, endOfDay),
+          gte(checkin.checkedInAt, dayStart),
+          lt(checkin.checkedInAt, nextDay),
         ),
       )
       .limit(1);
 
     if (duplicates.length > 0) {
-      return reply.status(400).send({ error: 'CHECKIN_DUPLICATE' });
+      return reply.status(409).send({ error: 'CHECKIN_DUPLICATE' });
     }
 
-    // 4. No overlap — same student, same day, same startTime in a different class
+    // 4. No overlap — same student, same day (academy TZ), same startTime in a different class
     const overlapping = await db
       .select({ checkinId: checkin.id })
       .from(checkin)
@@ -102,8 +131,8 @@ export async function checkinRoutes(app: FastifyInstance) {
       .where(
         and(
           eq(checkin.studentId, studentId),
-          gte(checkin.checkedInAt, startOfDay),
-          lte(checkin.checkedInAt, endOfDay),
+          gte(checkin.checkedInAt, dayStart),
+          lt(checkin.checkedInAt, nextDay),
           eq(bjjClass.startTime, cls.startTime),
           ne(checkin.classId, classId),
         ),
@@ -111,7 +140,7 @@ export async function checkinRoutes(app: FastifyInstance) {
       .limit(1);
 
     if (overlapping.length > 0) {
-      return reply.status(400).send({ error: 'OVERLAPPING_CLASS' });
+      return reply.status(409).send({ error: 'OVERLAPPING_CLASS' });
     }
 
     // 5. QR source: validate token
@@ -170,7 +199,7 @@ export async function checkinRoutes(app: FastifyInstance) {
       })
       .returning();
 
-    await updateStreak(studentId, now);
+    await updateStreak(studentId, now, tz);
 
     return reply.status(201).send(created);
   });
@@ -183,14 +212,22 @@ export async function checkinRoutes(app: FastifyInstance) {
       const academyId = request.academyId;
       const now = new Date();
 
+      // Resolve this academy's timezone (falls back to default if missing)
+      const [acad] = await db
+        .select({ timezone: academy.timezone })
+        .from(academy)
+        .where(eq(academy.id, academyId))
+        .limit(1);
+      const tz = acad?.timezone ?? DEFAULT_ACADEMY_TIMEZONE;
+
       // Find all active classes for this academy
       const classes = await db
         .select()
         .from(bjjClass)
         .where(and(eq(bjjClass.academyId, academyId), eq(bjjClass.active, true)));
 
-      // Filter to currently active classes
-      const activeClasses = classes.filter((cls) => isClassActiveNow(cls, now));
+      // Filter to currently active classes (time window evaluated in academy TZ)
+      const activeClasses = classes.filter((cls) => isClassActiveNow(cls, tz, now));
 
       const results = [];
 
@@ -252,9 +289,44 @@ export async function checkinRoutes(app: FastifyInstance) {
     return db.select().from(checkin).where(eq(checkin.classId, classId));
   });
 
-  // Get attendance history for a student
-  app.get('/api/checkins/student/:studentId', async (request) => {
+  // Get attendance history for a student (TZ-aware, enriched with class info)
+  app.get('/api/checkins/student/:studentId', { preHandler: requireAuth }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
-    return db.select().from(checkin).where(eq(checkin.studentId, studentId));
+
+    if (request.user.id !== studentId) {
+      return reply.status(403).send({ error: 'Forbidden: can only view your own history' });
+    }
+
+    // Resolve the student's academy timezone via a single join (fall back to default)
+    const [tzRow] = await db
+      .select({ tz: academy.timezone })
+      .from(academy)
+      .innerJoin(user, eq(user.academyId, academy.id))
+      .where(eq(user.id, studentId))
+      .limit(1);
+    const tz = tzRow?.tz ?? DEFAULT_ACADEMY_TIMEZONE;
+
+    const rows = await db
+      .select({
+        id: checkin.id,
+        checkedInAt: checkin.checkedInAt,
+        date: dayInTz(checkin.checkedInAt, tz).as('date'),
+        classId: bjjClass.id,
+        className: bjjClass.name,
+        classType: bjjClass.type,
+      })
+      .from(checkin)
+      .leftJoin(bjjClass, eq(bjjClass.id, checkin.classId))
+      .where(eq(checkin.studentId, studentId))
+      .orderBy(desc(checkin.checkedInAt));
+
+    return rows.map((r) => ({
+      id: r.id,
+      checkedInAt: r.checkedInAt,
+      date: r.date instanceof Date ? isoDateInTz(r.date, tz) : String(r.date),
+      class: r.classId
+        ? { id: r.classId, name: r.className, type: r.classType }
+        : null,
+    }));
   });
 }

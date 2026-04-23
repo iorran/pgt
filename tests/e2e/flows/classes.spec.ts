@@ -49,9 +49,11 @@ test('16. instructor creates a class', async ({ browser }) => {
 
     await classesPage.saveButton.click();
 
-    // Dialog should close and card should appear in the list
+    // Dialog should close and the new class should appear as a calendar event
     await expect(page.getByRole('dialog')).toBeHidden({ timeout: 10_000 });
-    await expect(classesPage.classCard(className)).toBeVisible({ timeout: 10_000 });
+    await expect(classesPage.classEvent(className).first()).toBeVisible({
+      timeout: 10_000,
+    });
   } finally {
     await context.close();
   }
@@ -76,8 +78,10 @@ test('17. instructor edits a class start time', async ({ browser }) => {
     const classesPage = new ClassesPage(page);
     await classesPage.goto();
 
-    await expect(classesPage.classCard(cls.name)).toBeVisible({ timeout: 10_000 });
-    await classesPage.clickEditOnCard(cls.name);
+    await expect(classesPage.classEvent(cls.name).first()).toBeVisible({
+      timeout: 10_000,
+    });
+    await classesPage.clickEditOnEvent(cls.name);
 
     // Update start time to 08:00
     await classesPage.fillEditForm({ startTime: '08:00', endTime: '09:30' });
@@ -86,10 +90,11 @@ test('17. instructor edits a class start time', async ({ browser }) => {
     // Dialog closes
     await expect(page.getByRole('dialog')).toBeHidden({ timeout: 10_000 });
 
-    // Card now shows the new start time
-    await expect(classesPage.classCard(cls.name).getByText(/08:00/)).toBeVisible({
-      timeout: 10_000,
-    });
+    // The matching calendar event now reflects the new start time. RBC
+    // renders the time range as an .rbc-event-label child, e.g. "08:00 – 09:30".
+    await expect(
+      classesPage.classEvent(cls.name).first().getByText(/08:00/),
+    ).toBeVisible({ timeout: 10_000 });
   } finally {
     await context.close();
   }
@@ -163,12 +168,14 @@ test('18. student taps check-in with mocked geolocation', async ({ browser }) =>
     const classesPage = new ClassesPage(page);
     await classesPage.goto();
 
-    // Class card should be visible
-    await expect(classesPage.classCard(cls.name)).toBeVisible({ timeout: 10_000 });
+    // Class event should be visible on the day calendar
+    await expect(classesPage.classEvent(cls.name).first()).toBeVisible({
+      timeout: 10_000,
+    });
 
-    // The check-in button is only shown when isActiveNow() === true and student
-    // hasn't checked in yet. Click it.
-    await classesPage.clickCheckinOnCard(cls.name);
+    // The check-in button is rendered inside the event block when
+    // isActiveNow() === true and the student hasn't checked in yet.
+    await classesPage.clickCheckinOnEvent(cls.name);
 
     // After a successful check-in, the UI shows t('classes.checkedIn') = "Presente"
     // on the card, or t('classes.checkinSuccess') as a paragraph message
@@ -204,34 +211,22 @@ test('19. instructor views check-in history', async ({ browser }) => {
     checkedInAt: new Date(),
   });
 
-  // Instructor navigates to /checkins/class/:classId — but the UI doesn't have
-  // a dedicated instructor history page in the classes section. The plan says
-  // "instructor views check-in history" which in the app means the instructor
-  // can go to the checkins endpoint. Let's verify via the student's history page
-  // while logged in as the student (who has the pre-inserted checkin), then also
-  // verify the API endpoint works.
-  //
-  // Actually: the plan says instructor views history. The app's /classes/history
-  // route is the STUDENT's checkin history (uses /checkins/student/:id).
-  // For the instructor, the relevant check is the class card's attendance count
-  // or the /checkins/class/:classId API. Since the web app doesn't have a
-  // dedicated instructor history page listed, we test the student's history
-  // page (which the instructor can also visit — it reads their own id).
-  //
-  // We log in as the student to verify the pre-inserted row shows up.
+  // The app's /classes/history route is the STUDENT's checkin history (uses
+  // /checkins/student/:id). The instructor can also visit it to see their own
+  // checkins; here we log in as the student to verify the pre-inserted row
+  // shows up and the table renders the joined class name.
   const context = await impersonateAs(browser, student.email);
   try {
     const page = await context.newPage();
     const classesPage = new ClassesPage(page);
     await classesPage.gotoHistory();
 
-    // The checkin history table shows checkin rows. The API (/checkins/student/:id)
-    // returns raw checkin rows without a className join, so the table renders
-    // c.className || c.classId — meaning the cell shows the classId UUID as a
-    // fallback. Assert by the classId which is guaranteed to be in the table cell.
-    await expect(page.getByRole('cell', { name: cls.id })).toBeVisible({
-      timeout: 10_000,
-    });
+    // The /checkins/student/:id response now includes a nested `class` object
+    // (id, name, type), and CheckinHistoryPage renders c.class?.name. Assert
+    // by the class name in the table cell.
+    await expect(
+      page.getByRole('cell', { name: cls.name }),
+    ).toBeVisible({ timeout: 10_000 });
   } finally {
     await context.close();
   }

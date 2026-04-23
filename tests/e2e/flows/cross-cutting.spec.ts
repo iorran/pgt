@@ -71,10 +71,10 @@ test('27. student with multi-month overdue sees banner and navigates to billing'
   try {
     const page = await context.newPage();
     await page.goto('/');
-    const dashboard = new DashboardPage(page);
-
-    // Wait for sidebar to confirm student is logged in (students see Classes link)
-    await expect(dashboard.sidebarClasses).toBeVisible({ timeout: 10_000 });
+    // Students are redirected from "/" to their home (/classes) by App.tsx;
+    // the overdue banner is rendered in the StudentShell above the outlet so
+    // it's visible on whichever student page they land on.
+    await expect(page).toHaveURL(/\/classes/, { timeout: 10_000 });
 
     // The overdue banner is a plain div (not role=alert) with destructive styles
     const overdueBanner = page.locator('.bg-destructive\\/10').first();

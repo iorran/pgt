@@ -42,7 +42,7 @@ export function StudentClassesView() {
     const today = new Date().toDateString();
     return myCheckins.some(
       (c: any) =>
-        c.classId === classId && new Date(c.checkedInAt).toDateString() === today,
+        c.class?.id === classId && new Date(c.checkedInAt).toDateString() === today,
     );
   }
 

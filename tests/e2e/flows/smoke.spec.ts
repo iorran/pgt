@@ -29,10 +29,13 @@ test.describe('smoke', () => {
       const page = await context.newPage();
       await page.goto('/');
       await expect(page).toHaveURL(/\/$|\/dashboard/);
-      // The dashboard renders the academy name in the main card.
-      await expect(page.getByText(academy.name, { exact: false })).toBeVisible({
-        timeout: 10_000,
-      });
+      // The dashboard renders the greeting "Olá, {name}" for the logged-in
+      // user. The instructor name is deterministic from setupAcademy().
+      // Scope to the dashboard greeting to avoid the sidebar user-card
+      // duplicate; "Olá," is the pt-BR `dashboard.greeting` prefix.
+      await expect(
+        page.getByText(new RegExp(`Olá,\\s*${instructor.name}`, 'i')),
+      ).toBeVisible({ timeout: 10_000 });
     } finally {
       await context.close();
     }

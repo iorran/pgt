@@ -11,5 +11,6 @@ export const academy = pgTable('academy', {
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   ownerId: uuid('owner_id'),
   logoUrl: varchar('logo_url', { length: 500 }),
+  timezone: varchar('timezone', { length: 64 }).notNull().default('Europe/Lisbon'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSession, signOut } from './lib/auth-client';
 import { useTranslation } from 'react-i18next';
@@ -32,10 +33,15 @@ import ResetPasswordPage from './pages/reset-password';
 import TotemPage from './pages/totem';
 import CheckinScanPage from './pages/checkin-scan';
 import SettingsPage from './pages/settings';
+import { PageLoader } from './components/page-loader';
 import { Card, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Toaster } from './components/ui/sonner';
+
+// Lazy-loaded: recharts-heavy owner dashboard ships in its own chunk so it's
+// only fetched when an owner navigates to /owner/dashboard.
+const OwnerDashboardPage = lazy(() => import('./pages/owner/dashboard'));
 
 function RejectedView() {
   const { t } = useTranslation();
@@ -176,6 +182,14 @@ function AppRoutes() {
         <Route path="/gamification/profile" element={<GamificationProfilePage />} />
         <Route path="/tournaments" element={<TournamentsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route
+          path="/owner/dashboard"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <OwnerDashboardPage />
+            </Suspense>
+          }
+        />
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/theme" element={<ThemePage />} />

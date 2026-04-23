@@ -1,14 +1,16 @@
-import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
 import {
   createTestApp,
   cleanDb,
   createTestAcademy,
   createTestUser,
   createTestInstructor,
+  createTestClass,
   authHeaders,
   testDb,
 } from './helpers';
 import { bjjClass, checkin, streak } from '../src/db/schema/index';
+import * as schema from '../src/db/schema/index';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
@@ -29,14 +31,45 @@ const ACADEMY_LNG = '-46.6333';
 const NEAR_LAT = -23.551;
 const NEAR_LNG = -46.634;
 
+// Academy timezone used by the tests — matches the DB default so behavior
+// is deterministic regardless of the server's wall clock.
+const ACADEMY_TZ = 'Europe/Lisbon';
+
+function nowInTz(tz: string): { dayOfWeek: number; hour: number; minute: number } {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tz,
+    hour12: false,
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .formatToParts(new Date())
+    .reduce<Record<string, string>>((acc, p) => {
+      if (p.type !== 'literal') acc[p.type] = p.value;
+      return acc;
+    }, {});
+  const map: Record<string, number> = {
+    Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+  };
+  const hourRaw = Number(parts.hour);
+  return {
+    dayOfWeek: map[parts.weekday] ?? 0,
+    hour: hourRaw === 24 ? 0 : hourRaw,
+    minute: Number(parts.minute),
+  };
+}
+
 async function createClassAndStudent() {
-  const acad = await createTestAcademy({ latitude: ACADEMY_LAT, longitude: ACADEMY_LNG });
+  const acad = await createTestAcademy({
+    latitude: ACADEMY_LAT,
+    longitude: ACADEMY_LNG,
+    timezone: ACADEMY_TZ,
+  });
   const instructor = await createTestInstructor(acad.id);
   const student = await createTestUser(acad.id, { role: 'student' });
 
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const hour = Math.min(now.getHours(), 22);
+  const { dayOfWeek, hour: tzHour } = nowInTz(ACADEMY_TZ);
+  const hour = Math.min(tzHour, 22);
   const startTime = `${String(hour).padStart(2, '0')}:00`;
   const endTime = `${String(hour + 1).padStart(2, '0')}:30`;
 
@@ -100,6 +133,101 @@ describe('POST /api/checkins', () => {
     expect(streaks[0].longestStreak).toBe(1);
   });
 
+  it('rejects same-day duplicate check-ins when academy TZ day differs from UTC day', async () => {
+    const academy = await createTestAcademy({
+      timezone: 'Europe/Lisbon',
+      latitude: '38.7',
+      longitude: '-9.14',
+    });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    // Class that straddles UTC midnight in Lisbon DST (Lisbon = UTC+1 in April):
+    //   Lisbon 00:55 → 01:30 == UTC 23:55 → 00:30 next day.
+    // 2026-04-23 is a Thursday in Lisbon (dayOfWeek = 4).
+    const cls = await createTestClass(academy.id, {
+      startTime: '00:55',
+      endTime: '01:30',
+      dayOfWeek: 4,
+    });
+
+    // Check-in #1 at 23:58 UTC on Apr 22 == 00:58 Lisbon Apr 23
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id,
+      studentId: student.id,
+      source: 'button',
+      checkedInAt: new Date('2026-04-22T23:58:00Z'),
+    });
+
+    // Mock "now" at 00:03 UTC Apr 23 == 01:03 Lisbon Apr 23 (same Lisbon calendar day)
+    // If the duplicate check used server TZ (UTC), it would see "today = Apr 23" and miss
+    // the check-in at 23:58 UTC (which is Apr 22 in UTC). Our fix must correctly
+    // detect it using Lisbon TZ.
+    // Only mock Date/system time — leave setTimeout/setInterval etc. real so the
+    // postgres driver's internal timers keep working.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-04-23T00:03:00Z'));
+    try {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/checkins',
+        headers: authHeaders(student),
+        payload: {
+          classId: cls.id,
+          source: 'button',
+          latitude: 38.7,
+          longitude: -9.14,
+        },
+      });
+      // If the fix works, the handler sees the existing Apr 22 23:58 UTC check-in as "same
+      // Lisbon day" and rejects as duplicate. Expected: 409.
+      expect(res.statusCode).toBe(409);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('updateStreak uses academy TZ for ISO week boundary', async () => {
+    // 2026-04-26T23:30:00Z is Sunday 23:30 UTC -> Monday 00:30 Lisbon (DST, UTC+1).
+    // ISO week in UTC = 2026-W17 (week of Mon 2026-04-20).
+    // ISO week in Lisbon = 2026-W18 (week of Mon 2026-04-27).
+    const academy = await createTestAcademy({
+      timezone: 'Europe/Lisbon',
+      latitude: '38.7',
+      longitude: '-9.14',
+    });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    // Class running 00:00 -> 02:00 Lisbon on Mondays (dayOfWeek = 1).
+    const cls = await createTestClass(academy.id, {
+      startTime: '00:00',
+      endTime: '02:00',
+      dayOfWeek: 1,
+    });
+
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-04-26T23:30:00Z'));
+    try {
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/checkins',
+        headers: authHeaders(student),
+        payload: {
+          classId: cls.id,
+          source: 'button',
+          latitude: 38.7,
+          longitude: -9.14,
+        },
+      });
+      expect(res.statusCode).toBe(201);
+      const [row] = await testDb
+        .select()
+        .from(streak)
+        .where(eq(streak.studentId, student.id));
+      // Lisbon-TZ ISO week (W18), NOT UTC ISO week (W17).
+      expect(row.lastCheckinWeek).toBe('2026-W18');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not change streak on same-week checkin', async () => {
     const { student, cls } = await createClassAndStudent();
 
@@ -130,7 +258,7 @@ describe('POST /api/checkins', () => {
     });
 
     // duplicate block is expected — streak remains unchanged at 1
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(409);
     const streaks = await testDb.select().from(streak).where(eq(streak.studentId, student.id));
     expect(streaks).toHaveLength(1);
     expect(streaks[0].currentStreak).toBe(1);
@@ -176,12 +304,13 @@ describe('GET /api/checkins/student/:studentId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
     });
 
     expect(res.statusCode).toBe(200);
     const body = res.json();
     expect(body).toHaveLength(1);
-    expect(body[0].studentId).toBe(student.id);
+    expect(body[0].class.id).toBe(cls.id);
   });
 
   it('returns empty array for student with no checkins', async () => {
@@ -190,9 +319,73 @@ describe('GET /api/checkins/student/:studentId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
     });
 
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
+  });
+});
+
+describe('GET /api/checkins/student/:studentId (enriched + TZ-aware)', () => {
+  it('returns rows with class.name, class.type, and date in academy TZ', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id, { name: 'No-Gi Mon 19:00', type: 'no-gi' });
+    // 2026-04-22T23:30:00Z -> 2026-04-23 in Lisbon (DST, UTC+1)
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id,
+      studentId: student.id,
+      source: 'button',
+      checkedInAt: new Date('2026-04-22T23:30:00Z'),
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body).toHaveLength(1);
+    expect(body[0].date).toBe('2026-04-23');
+    expect(body[0].class).toEqual({ id: cls.id, name: 'No-Gi Mon 19:00', type: 'no-gi' });
+    expect(body[0].checkedInAt).toBeDefined();
+    expect(body[0].id).toBeDefined();
+  });
+
+  it('orders rows by checkedInAt desc', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const student = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id);
+    await testDb.insert(schema.checkin).values([
+      { classId: cls.id, studentId: student.id, source: 'button', checkedInAt: new Date('2026-04-20T18:00:00Z') },
+      { classId: cls.id, studentId: student.id, source: 'button', checkedInAt: new Date('2026-04-22T18:00:00Z') },
+    ]);
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${student.id}`,
+      headers: authHeaders(student),
+    });
+    const body = res.json();
+    expect(body).toHaveLength(2);
+    expect(new Date(body[0].checkedInAt).getTime()).toBeGreaterThan(new Date(body[1].checkedInAt).getTime());
+  });
+
+  it('returns 403 when a student tries to read another student history', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const studentA = await createTestUser(academy.id, { role: 'student' });
+    const studentB = await createTestUser(academy.id, { role: 'student' });
+    const cls = await createTestClass(academy.id);
+    await testDb.insert(schema.checkin).values({
+      classId: cls.id, studentId: studentB.id, source: 'button',
+      checkedInAt: new Date('2026-04-22T18:00:00Z'),
+    });
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/checkins/student/${studentB.id}`,
+      headers: authHeaders(studentA),
+    });
+    expect(res.statusCode).toBe(403);
   });
 });

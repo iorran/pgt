@@ -335,6 +335,43 @@ const SHOTS = [
     login: INSTRUCTOR,
     // prep: none — class cards with pencil (edit) and trash (delete) icon buttons
   },
+
+  // ── Owner dashboard ─────────────────────────────────────────────────────────
+  // The demo instructor (instrutor@demo.pgt) is seeded as the academy owner
+  // with role='owner' (see apps/api/src/db/seed-guide.ts), so these shots
+  // reuse the same login and impersonation path.
+  {
+    slug: 'owner-dashboard-overview',
+    role: 'instructor',
+    path: '/owner/dashboard',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    // prep: none — full page shows period toggle, aderencia chart, classes list, students list
+  },
+  {
+    slug: 'owner-aderencia-chart',
+    role: 'instructor',
+    path: '/owner/dashboard?period=month',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    // prep: Scroll to / frame the BarChart section; month period gives the richest view
+  },
+  {
+    slug: 'owner-classes-expanded',
+    role: 'instructor',
+    path: '/owner/dashboard',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    // prep: Click one class row in the ClassesList to reveal the inline mini-chart + roster
+  },
+  {
+    slug: 'owner-students-list',
+    role: 'instructor',
+    path: '/owner/dashboard',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    // prep: Scroll to the Students section; optionally click a status chip to demo filtering
+  },
 ];
 
 async function impersonate(context, email) {
