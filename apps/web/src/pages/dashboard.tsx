@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useSession } from '@/lib/auth-client';
 import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,6 +34,7 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const isInstructor = user?.role === 'instructor';
+  const isOwner = user?.role === 'owner';
 
   const { data: students = [], isLoading: studentsLoading } = useApiQuery<any[]>(
     ['students', user?.academyId],
@@ -106,6 +108,23 @@ export default function DashboardPage() {
             </Button>
           </CardContent>
         </Card>
+      )}
+
+      {isOwner && (
+        <Link to="/owner/dashboard" className="block">
+          <Card className="bg-card border-border hover:bg-muted/50 transition-colors cursor-pointer">
+            <CardHeader>
+              <CardTitle className="font-heading text-xl uppercase">
+                Academy dashboard
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Aderência, classes, students.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
