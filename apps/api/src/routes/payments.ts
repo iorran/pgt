@@ -4,6 +4,7 @@ import { payment, user, studentMembership, membershipPlan, academy } from '../db
 import { eq, and, sql } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
+import { authorizeStudentRead } from '../middleware/student-access.js';
 import { emailService } from '../email/index.js';
 
 export async function paymentRoutes(app: FastifyInstance) {
@@ -84,7 +85,7 @@ export async function paymentRoutes(app: FastifyInstance) {
   });
 
   // Payment history for a student
-  app.get('/api/payments/student/:studentId', async (request) => {
+  app.get('/api/payments/student/:studentId', { preHandler: authorizeStudentRead('studentId') }, async (request) => {
     const { studentId } = request.params as { studentId: string };
     return db.select().from(payment).where(eq(payment.studentId, studentId));
   });

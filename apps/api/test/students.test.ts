@@ -63,8 +63,9 @@ describe('GET /api/students', () => {
 });
 
 describe('GET /api/students/:id', () => {
-  it('returns single student with membership info', async () => {
+  it('returns single student with membership info for same-academy instructor', async () => {
     const academy = await createTestAcademy();
+    const instructor = await createTestInstructor(academy.id);
     const student = await createTestUser(academy.id, { name: 'Carlos' });
     const [plan] = await testDb.insert(schema.membershipPlan).values({
       academyId: academy.id, name: 'Premium', price: '200.00', frequency: 'monthly',
@@ -76,6 +77,7 @@ describe('GET /api/students/:id', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/students/${student.id}`,
+      headers: authHeaders(instructor),
     });
 
     expect(res.statusCode).toBe(200);
@@ -89,17 +91,89 @@ describe('GET /api/students/:id', () => {
 
   it('returns student without membership', async () => {
     const academy = await createTestAcademy();
+    const instructor = await createTestInstructor(academy.id);
     const student = await createTestUser(academy.id, { name: 'New Student' });
 
     const res = await app.inject({
       method: 'GET',
       url: `/api/students/${student.id}`,
+      headers: authHeaders(instructor),
     });
 
     expect(res.statusCode).toBe(200);
     const body = res.json();
     expect(body.name).toBe('New Student');
     expect(body.planName).toBeNull();
+  });
+
+  it('allows same-academy owner to read a student profile', async () => {
+    const academy = await createTestAcademy();
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    const student = await createTestUser(academy.id, { name: 'Owned Student' });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/students/${student.id}`,
+      headers: authHeaders(owner),
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json().name).toBe('Owned Student');
+  });
+
+  it('allows the student themselves to read their own profile', async () => {
+    const academy = await createTestAcademy();
+    const student = await createTestUser(academy.id, { name: 'Self' });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/students/${student.id}`,
+      headers: authHeaders(student),
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json().name).toBe('Self');
+  });
+
+  it('returns 401 when unauthenticated', async () => {
+    const academy = await createTestAcademy();
+    const student = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/students/${student.id}`,
+    });
+
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('returns 403 for a student reading another student', async () => {
+    const academy = await createTestAcademy();
+    const a = await createTestUser(academy.id);
+    const b = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/students/${b.id}`,
+      headers: authHeaders(a),
+    });
+
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('returns 403 for a cross-academy instructor', async () => {
+    const academyA = await createTestAcademy();
+    const academyB = await createTestAcademy();
+    const instructorB = await createTestInstructor(academyB.id);
+    const studentA = await createTestUser(academyA.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/students/${studentA.id}`,
+      headers: authHeaders(instructorB),
+    });
+
+    expect(res.statusCode).toBe(403);
   });
 });
 

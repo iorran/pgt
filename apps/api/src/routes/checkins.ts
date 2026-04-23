@@ -4,6 +4,7 @@ import { checkin, streak, bjjClass, academy, checkinToken, user } from '../db/sc
 import { eq, and, gte, lt, ne, desc } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
+import { authorizeStudentRead } from '../middleware/student-access.js';
 import { haversineDistance } from '../utils/haversine.js';
 import { isClassActiveNow } from '../utils/time-window.js';
 import { dayInTz, isoDateInTz, startOfDayInTz, DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
@@ -290,12 +291,8 @@ export async function checkinRoutes(app: FastifyInstance) {
   });
 
   // Get attendance history for a student (TZ-aware, enriched with class info)
-  app.get('/api/checkins/student/:studentId', { preHandler: requireAuth }, async (request, reply) => {
+  app.get('/api/checkins/student/:studentId', { preHandler: authorizeStudentRead('studentId') }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
-
-    if (request.user.id !== studentId) {
-      return reply.status(403).send({ error: 'Forbidden: can only view your own history' });
-    }
 
     // Resolve the student's academy timezone via a single join (fall back to default)
     const [tzRow] = await db

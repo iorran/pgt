@@ -4,6 +4,7 @@ import { user, studentMembership, membershipPlan } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireInstructor } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
+import { authorizeStudentRead } from '../middleware/student-access.js';
 
 export async function studentRoutes(app: FastifyInstance) {
   // List students with their active membership plan name
@@ -31,7 +32,7 @@ export async function studentRoutes(app: FastifyInstance) {
   });
 
   // Single student profile with membership info
-  app.get('/api/students/:id', async (request) => {
+  app.get('/api/students/:id', { preHandler: authorizeStudentRead('id') }, async (request) => {
     const { id } = request.params as { id: string };
     const [row] = await db
       .select({

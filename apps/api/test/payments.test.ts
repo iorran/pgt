@@ -87,7 +87,7 @@ describe('GET /api/payments', () => {
 });
 
 describe('GET /api/payments/student/:studentId', () => {
-  it('returns payment history for a student', async () => {
+  it('returns payment history for a student (same-academy instructor)', async () => {
     const academy = await createTestAcademy();
     const instructor = await createTestInstructor(academy.id);
     const student = await createTestUser(academy.id);
@@ -101,13 +101,42 @@ describe('GET /api/payments/student/:studentId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments/student/${student.id}`,
+      headers: authHeaders(instructor),
     });
 
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(3);
   });
 
-  it('returns empty array for student with no payments', async () => {
+  it('returns empty array for student with no payments (self read)', async () => {
+    const academy = await createTestAcademy();
+    const student = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/payments/student/${student.id}`,
+      headers: authHeaders(student),
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toHaveLength(0);
+  });
+
+  it('allows same-academy owner to read payment history', async () => {
+    const academy = await createTestAcademy();
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    const student = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/payments/student/${student.id}`,
+      headers: authHeaders(owner),
+    });
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('returns 401 when unauthenticated', async () => {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id);
 
@@ -116,8 +145,36 @@ describe('GET /api/payments/student/:studentId', () => {
       url: `/api/payments/student/${student.id}`,
     });
 
-    expect(res.statusCode).toBe(200);
-    expect(res.json()).toHaveLength(0);
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('returns 403 for a cross-academy instructor', async () => {
+    const academyA = await createTestAcademy();
+    const academyB = await createTestAcademy();
+    const instructorB = await createTestInstructor(academyB.id);
+    const studentA = await createTestUser(academyA.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/payments/student/${studentA.id}`,
+      headers: authHeaders(instructorB),
+    });
+
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('returns 403 for a student reading another student', async () => {
+    const academy = await createTestAcademy();
+    const a = await createTestUser(academy.id);
+    const b = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/payments/student/${b.id}`,
+      headers: authHeaders(a),
+    });
+
+    expect(res.statusCode).toBe(403);
   });
 });
 

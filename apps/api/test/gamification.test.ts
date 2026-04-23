@@ -21,13 +21,14 @@ beforeEach(async () => {
 });
 
 describe('GET /api/gamification/profile/:studentId', () => {
-  it('returns empty profile for a student with no activity', async () => {
+  it('returns empty profile for a student with no activity (self read)', async () => {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id);
 
     const res = await app.inject({
       method: 'GET',
       url: `/api/gamification/profile/${student.id}`,
+      headers: authHeaders(student),
     });
 
     expect(res.statusCode).toBe(200);
@@ -37,8 +38,9 @@ describe('GET /api/gamification/profile/:studentId', () => {
     expect(body.badges).toHaveLength(0);
   });
 
-  it('returns XP, streak, and badges when data exists', async () => {
+  it('returns XP, streak, and badges when data exists (same-academy instructor)', async () => {
     const academy = await createTestAcademy();
+    const instructor = await createTestInstructor(academy.id);
     const student = await createTestUser(academy.id);
 
     // Insert XP entries
@@ -83,6 +85,7 @@ describe('GET /api/gamification/profile/:studentId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/gamification/profile/${student.id}`,
+      headers: authHeaders(instructor),
     });
 
     expect(res.statusCode).toBe(200);
@@ -95,6 +98,61 @@ describe('GET /api/gamification/profile/:studentId', () => {
     expect(body.badges[0].description).toBe('Train 30 days in a row');
     expect(body.badges[0].icon).toBe('fire');
     expect(body.badges[0].earnedAt).toBeDefined();
+  });
+
+  it('allows same-academy owner to read a student profile', async () => {
+    const academy = await createTestAcademy();
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    const student = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/gamification/profile/${student.id}`,
+      headers: authHeaders(owner),
+    });
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('returns 401 when unauthenticated', async () => {
+    const academy = await createTestAcademy();
+    const student = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/gamification/profile/${student.id}`,
+    });
+
+    expect(res.statusCode).toBe(401);
+  });
+
+  it('returns 403 for a cross-academy instructor', async () => {
+    const academyA = await createTestAcademy();
+    const academyB = await createTestAcademy();
+    const instructorB = await createTestInstructor(academyB.id);
+    const studentA = await createTestUser(academyA.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/gamification/profile/${studentA.id}`,
+      headers: authHeaders(instructorB),
+    });
+
+    expect(res.statusCode).toBe(403);
+  });
+
+  it('returns 403 for a student reading another student', async () => {
+    const academy = await createTestAcademy();
+    const a = await createTestUser(academy.id);
+    const b = await createTestUser(academy.id);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/gamification/profile/${b.id}`,
+      headers: authHeaders(a),
+    });
+
+    expect(res.statusCode).toBe(403);
   });
 });
 
@@ -242,6 +300,7 @@ describe('POST /api/gamification/badges/:badgeId/award/:studentId', () => {
     const profileRes = await app.inject({
       method: 'GET',
       url: `/api/gamification/profile/${student.id}`,
+      headers: authHeaders(instructor),
     });
 
     const profile = profileRes.json();
