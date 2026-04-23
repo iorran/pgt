@@ -1,4 +1,4 @@
-import { sql, type SQL } from 'drizzle-orm';
+import { sql, type SQL, type AnyColumn } from 'drizzle-orm';
 
 export const DEFAULT_ACADEMY_TIMEZONE = 'Europe/Lisbon';
 
@@ -15,12 +15,13 @@ export function isoDateInTz(ts: Date, tz: string): string {
 
 /** UTC timestamp corresponding to 00:00:00 on `isoDate` (YYYY-MM-DD) in `tz`. */
 export function startOfDayInTz(isoDate: string, tz: string): Date {
-  // Interpret isoDate as a wall-clock moment in tz, convert to UTC via offset math.
   const [y, m, d] = isoDate.split('-').map(Number);
-  // Provisional UTC-midnight for that date; adjust by tz offset at that instant.
   const asUtcMidnight = Date.UTC(y, m - 1, d);
-  const tzOffsetMin = tzOffsetMinutes(new Date(asUtcMidnight), tz);
-  return new Date(asUtcMidnight - tzOffsetMin * 60_000);
+  const offset1 = tzOffsetMinutes(new Date(asUtcMidnight), tz);
+  const guess = new Date(asUtcMidnight - offset1 * 60_000);
+  // Second pass: if the offset at `guess` differs (e.g., we crossed DST), correct.
+  const offset2 = tzOffsetMinutes(guess, tz);
+  return offset2 === offset1 ? guess : new Date(guess.getTime() - (offset2 - offset1) * 60_000);
 }
 
 /** Offset (minutes east of UTC) for the given instant in the given tz. */
@@ -69,6 +70,6 @@ function addDays(y: number, mIdx: number, d: number, delta: number): string {
 }
 
 /** SQL fragment: day-bucket a timestamp column in the given IANA timezone, returning a `date`. */
-export function dayInTz(col: SQL | any, tz: string): SQL {
+export function dayInTz(col: AnyColumn | SQL, tz: string): SQL {
   return sql`((${col} AT TIME ZONE 'UTC' AT TIME ZONE ${tz})::date)`;
 }
