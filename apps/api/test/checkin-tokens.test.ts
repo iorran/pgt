@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -61,7 +61,7 @@ async function setupActiveClass() {
     longitude: ACADEMY_LNG,
     timezone: ACADEMY_TZ,
   });
-  const instructor = await createTestInstructor(acad.id);
+  const instructor = await createTestOwner(acad.id);
   const student = await createTestUser(acad.id, { role: 'student' });
 
   const { dayOfWeek, hour: tzHour } = nowInTz(ACADEMY_TZ);
@@ -133,7 +133,7 @@ describe('GET /api/checkins/tokens — active classes', () => {
 
   it('returns empty array when no classes are currently active', async () => {
     const acad = await createTestAcademy({ latitude: ACADEMY_LAT, longitude: ACADEMY_LNG });
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
 
     // Class at 03:00 — outside window right now
     await testDb.insert(bjjClass).values({

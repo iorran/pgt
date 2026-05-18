@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor, authHeaders, testDb } from './helpers';
+import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import * as schema from '../src/db/schema/index';
 import type { FastifyInstance } from 'fastify';
 
@@ -41,7 +41,7 @@ describe('GET /api/products', () => {
 describe('POST /api/products', () => {
   it('instructor creates a product', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const res = await app.inject({
       method: 'POST',
@@ -83,7 +83,7 @@ describe('POST /api/products', () => {
 describe('PUT /api/products/:id', () => {
   it('instructor updates a product', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy.id, name: 'Belt', price: '60.00', stock: 5,
     }).returning();
@@ -105,7 +105,7 @@ describe('PUT /api/products/:id', () => {
   it('instructor cannot update product from another academy', async () => {
     const academy1 = await createTestAcademy({ slug: 'a1', joinCode: 'A1' });
     const academy2 = await createTestAcademy({ slug: 'a2', joinCode: 'A2' });
-    const instructor = await createTestInstructor(academy1.id);
+    const instructor = await createTestOwner(academy1.id);
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy2.id, name: 'Other Product', price: '100.00', stock: 5,
     }).returning();
@@ -124,7 +124,7 @@ describe('PUT /api/products/:id', () => {
 describe('DELETE /api/products/:id', () => {
   it('soft-deletes a product (sets active=false)', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy.id, name: 'To Remove', price: '30.00', stock: 2,
     }).returning();

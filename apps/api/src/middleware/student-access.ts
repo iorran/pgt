@@ -6,8 +6,8 @@ import { requireAuth } from './auth.js';
 
 /**
  * Authorize a read on a student-scoped resource. Allows the student to read
- * their own data, or an instructor/owner in the same academy to read any
- * student of that academy. Returns 401/403/404 otherwise.
+ * their own data, or an owner in the same academy to read any student of
+ * that academy. Returns 401/403/404 otherwise.
  *
  * @param paramName Name of the route param holding the student id
  *                  (e.g. 'studentId' or 'id').
@@ -23,7 +23,7 @@ export function authorizeStudentRead(paramName: string) {
     if (request.user.id === studentId) return;
 
     const role = request.user.role;
-    if (role !== 'instructor' && role !== 'owner') {
+    if (role !== 'owner') {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 

@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   createTestClass,
   authHeaders,
   testDb,
@@ -65,7 +65,7 @@ async function createClassAndStudent() {
     longitude: ACADEMY_LNG,
     timezone: ACADEMY_TZ,
   });
-  const instructor = await createTestInstructor(acad.id);
+  const instructor = await createTestOwner(acad.id);
   const student = await createTestUser(acad.id, { role: 'student' });
 
   const { dayOfWeek, hour: tzHour } = nowInTz(ACADEMY_TZ);
@@ -391,7 +391,7 @@ describe('GET /api/checkins/student/:studentId (enriched + TZ-aware)', () => {
 
   it('allows a same-academy instructor to read a student history', async () => {
     const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id, { role: 'student' });
     const cls = await createTestClass(academy.id);
     await testDb.insert(schema.checkin).values({
@@ -428,7 +428,7 @@ describe('GET /api/checkins/student/:studentId (enriched + TZ-aware)', () => {
   it('returns 403 for a cross-academy instructor', async () => {
     const academyA = await createTestAcademy({ timezone: 'Europe/Lisbon' });
     const academyB = await createTestAcademy({ timezone: 'Europe/Lisbon' });
-    const instructorB = await createTestInstructor(academyB.id);
+    const instructorB = await createTestOwner(academyB.id);
     const studentA = await createTestUser(academyA.id, { role: 'student' });
     const res = await app.inject({
       method: 'GET',

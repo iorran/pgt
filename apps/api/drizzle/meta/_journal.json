@@ -57,6 +57,13 @@
       "when": 1776942307009,
       "tag": "0007_mysterious_lake",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779121121982,
+      "tag": "0008_fluffy_maximus",
+      "breakpoints": true
     }
   ]
 }

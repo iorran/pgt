@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -69,7 +69,7 @@ async function setupClassToday(opts: { withLocation?: boolean } = {}) {
       ? { latitude: ACADEMY_LAT, longitude: ACADEMY_LNG, timezone: ACADEMY_TZ }
       : { timezone: ACADEMY_TZ },
   );
-  const instructor = await createTestInstructor(acad.id);
+  const instructor = await createTestOwner(acad.id);
   const student = await createTestUser(acad.id, { role: 'student' });
 
   const { dayOfWeek, hour: tzHour } = nowInTz(ACADEMY_TZ);
@@ -116,7 +116,7 @@ describe('POST /api/checkins — CLASS_NOT_ACTIVE', () => {
     );
     // Re-fetch and confirm by inserting a new inactive class
     const acad2 = await createTestAcademy({ latitude: ACADEMY_LAT, longitude: ACADEMY_LNG });
-    const inst2 = await createTestInstructor(acad2.id);
+    const inst2 = await createTestOwner(acad2.id);
     const now = new Date();
     const [inactiveCls] = await testDb
       .insert(bjjClass)
@@ -153,7 +153,7 @@ describe('POST /api/checkins — CLASS_NOT_ACTIVE', () => {
 describe('POST /api/checkins — OUTSIDE_TIME_WINDOW', () => {
   it('rejects checkin outside time window (class at 03:00-04:00)', async () => {
     const acad = await createTestAcademy({ latitude: ACADEMY_LAT, longitude: ACADEMY_LNG });
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { role: 'student' });
 
     // Class at 03:00 – almost certainly outside the window right now

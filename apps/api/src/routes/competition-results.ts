@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { competitionResult, season, xpEntry, user } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 
 export async function competitionResultRoutes(app: FastifyInstance) {
   // Submit a competition result
@@ -49,8 +49,8 @@ export async function competitionResultRoutes(app: FastifyInstance) {
     return rows;
   });
 
-  // Approve a competition result (instructor only)
-  app.put('/api/competition-results/:id/approve', { preHandler: [requireInstructor] }, async (request) => {
+  // Approve a competition result (owner only)
+  app.put('/api/competition-results/:id/approve', { preHandler: [requireOwner] }, async (request) => {
     const { id } = request.params as { id: string };
 
     // 1. Fetch the result
@@ -86,8 +86,8 @@ export async function competitionResultRoutes(app: FastifyInstance) {
     return updated;
   });
 
-  // Reject a competition result (instructor only)
-  app.put('/api/competition-results/:id/reject', { preHandler: [requireInstructor] }, async (request) => {
+  // Reject a competition result (owner only)
+  app.put('/api/competition-results/:id/reject', { preHandler: [requireOwner] }, async (request) => {
     const { id } = request.params as { id: string };
     const [updated] = await db.update(competitionResult)
       .set({

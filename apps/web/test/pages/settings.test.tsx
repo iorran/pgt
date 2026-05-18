@@ -29,7 +29,7 @@ const academy = {
 };
 
 const instructorSession = {
-  data: { user: { id: 'u1', role: 'instructor', academyId: 'a1', status: 'active' } },
+  data: { user: { id: 'u1', role: 'owner', academyId: 'a1', status: 'active' } },
   isPending: false,
 } as any;
 

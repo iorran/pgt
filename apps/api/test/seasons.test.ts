@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -84,7 +84,7 @@ describe('GET /api/seasons/:id', () => {
 describe('POST /api/seasons', () => {
   it('instructor creates a season with pointsConfig', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const res = await app.inject({
       method: 'POST',
@@ -111,7 +111,7 @@ describe('POST /api/seasons', () => {
 describe('PUT /api/seasons/:id', () => {
   it('instructor updates a season', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const [created] = await testDb
       .insert(schema.season)
       .values({

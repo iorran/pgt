@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { order, product, user } from '../db/schema/index.js';
 import { eq } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function orderRoutes(app: FastifyInstance) {
@@ -17,8 +17,8 @@ export async function orderRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // List all orders for academy (instructor only)
-  app.get('/api/orders', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // List all orders for academy (owner only)
+  app.get('/api/orders', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { academyId } = request.query as { academyId: string };
     return db
       .select({
@@ -57,8 +57,8 @@ export async function orderRoutes(app: FastifyInstance) {
       .where(eq(order.studentId, studentId));
   });
 
-  // Update order status (instructor only)
-  app.put('/api/orders/:id/status', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // Update order status (owner only)
+  app.put('/api/orders/:id/status', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const body = request.body as { status: string };
     const [updated] = await db.update(order)

@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -40,7 +40,7 @@ describe('GET /api/gamification/profile/:studentId', () => {
 
   it('returns XP, streak, and badges when data exists (same-academy instructor)', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
 
     // Insert XP entries
@@ -129,7 +129,7 @@ describe('GET /api/gamification/profile/:studentId', () => {
   it('returns 403 for a cross-academy instructor', async () => {
     const academyA = await createTestAcademy();
     const academyB = await createTestAcademy();
-    const instructorB = await createTestInstructor(academyB.id);
+    const instructorB = await createTestOwner(academyB.id);
     const studentA = await createTestUser(academyA.id);
 
     const res = await app.inject({
@@ -205,7 +205,7 @@ describe('GET /api/gamification/badges', () => {
 describe('POST /api/gamification/badges', () => {
   it('instructor creates a badge definition', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const res = await app.inject({
       method: 'POST',
@@ -234,7 +234,7 @@ describe('POST /api/gamification/badges', () => {
 describe('POST /api/gamification/badges/:badgeId/award/:studentId', () => {
   it('manually awards a badge and creates XP entry', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id, { name: 'Top Student' });
 
     const [badge] = await testDb
@@ -274,7 +274,7 @@ describe('POST /api/gamification/badges/:badgeId/award/:studentId', () => {
 
   it('badge award is visible in gamification profile', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
 
     const [badge] = await testDb

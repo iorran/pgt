@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { season, competitionResult, user } from '../db/schema/index.js';
 import { eq, and, sql } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function seasonRoutes(app: FastifyInstance) {
@@ -19,8 +19,8 @@ export async function seasonRoutes(app: FastifyInstance) {
     return found;
   });
 
-  // Create season (instructor only)
-  app.post('/api/seasons', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Create season (owner only)
+  app.post('/api/seasons', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const body = request.body as any;
     const [created] = await db.insert(season).values({
       academyId: request.academyId,
@@ -33,8 +33,8 @@ export async function seasonRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // Update season (instructor only)
-  app.put('/api/seasons/:id', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // Update season (owner only)
+  app.put('/api/seasons/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(season)

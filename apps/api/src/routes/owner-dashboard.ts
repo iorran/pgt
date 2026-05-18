@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { and, desc, eq, gte, lt, sql } from 'drizzle-orm';
-import { requireOwner } from '../middleware/require-owner.js';
+import { requireAcademyOwner } from '../middleware/require-owner.js';
 import { db } from '../db/client.js';
 import { bjjClass } from '../db/schema/class.js';
 import { checkin } from '../db/schema/checkin.js';
@@ -29,7 +29,7 @@ function periodBounds(period: 'day' | 'week' | 'month', fromIso: string, tz: str
 }
 
 export async function ownerDashboardRoutes(app: FastifyInstance) {
-  app.get('/api/owner/students', { preHandler: requireOwner }, async (request) => {
+  app.get('/api/owner/students', { preHandler: requireAcademyOwner }, async (request) => {
     const q = request.query as { status?: string };
     const tz = request.academy!.timezone;
     const academyId = request.academy!.id;
@@ -95,7 +95,7 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
     return { students: filtered };
   });
 
-  app.get('/api/owner/classes/aderencia', { preHandler: requireOwner }, async (request) => {
+  app.get('/api/owner/classes/aderencia', { preHandler: requireAcademyOwner }, async (request) => {
     const q = request.query as { period?: string; from?: string };
     const period: 'day' | 'week' | 'month' =
       q.period === 'day' || q.period === 'month' ? q.period : 'week';
@@ -210,7 +210,7 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
 
   app.get(
     '/api/owner/classes/:classId/occurrences',
-    { preHandler: requireOwner },
+    { preHandler: requireAcademyOwner },
     async (request, reply) => {
       const { classId } = request.params as { classId: string };
       const q = request.query as { from?: string; to?: string };
@@ -265,7 +265,7 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
 
   app.get(
     '/api/owner/classes/:classId/occurrences/:date/roster',
-    { preHandler: requireOwner },
+    { preHandler: requireAcademyOwner },
     async (request, reply) => {
       const { classId, date } = request.params as { classId: string; date: string };
       const tz = request.academy!.timezone;
@@ -304,7 +304,7 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
 
   app.get(
     '/api/owner/students/:studentId/history',
-    { preHandler: requireOwner },
+    { preHandler: requireAcademyOwner },
     async (request, reply) => {
       const { studentId } = request.params as { studentId: string };
       const q = request.query as { from?: string; to?: string };

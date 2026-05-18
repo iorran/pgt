@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { streak, xpEntry, badgeDefinition, studentBadge } from '../db/schema/index.js';
 import { eq, sql } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
 
@@ -40,8 +40,8 @@ export async function gamificationRoutes(app: FastifyInstance) {
     return db.select().from(badgeDefinition).where(eq(badgeDefinition.academyId, academyId));
   });
 
-  // Create badge definition (instructor only)
-  app.post('/api/gamification/badges', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Create badge definition (owner only)
+  app.post('/api/gamification/badges', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const body = request.body as any;
     const [created] = await db.insert(badgeDefinition).values({
       academyId: request.academyId,
@@ -54,8 +54,8 @@ export async function gamificationRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // Manually award a badge to a student (instructor only)
-  app.post('/api/gamification/badges/:badgeId/award/:studentId', { preHandler: [requireInstructor] }, async (request, reply) => {
+  // Manually award a badge to a student (owner only)
+  app.post('/api/gamification/badges/:badgeId/award/:studentId', { preHandler: [requireOwner] }, async (request, reply) => {
     const { badgeId, studentId } = request.params as { badgeId: string; studentId: string };
 
     // Insert student badge

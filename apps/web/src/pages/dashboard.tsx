@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
+import { isOwner } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ export default function DashboardPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const isInstructor = user?.role === 'instructor';
+  const isOwnerUser = isOwner(user);
 
   const { data: students = [], isLoading: studentsLoading } = useApiQuery<any[]>(
     ['students', user?.academyId],
@@ -58,7 +59,7 @@ export default function DashboardPage() {
     status: string;
     daysOverdue?: number;
     daysUntilDue?: number;
-  }>(['my-payment-status'], '/payments/my-status', !!user?.id && !isInstructor);
+  }>(['my-payment-status'], '/payments/my-status', !!user?.id && !isOwnerUser);
 
   function handleOpenTotem() {
     window.open('/totem', '_blank', 'noopener');
@@ -74,7 +75,7 @@ export default function DashboardPage() {
         {t('dashboard.greeting', { name: user?.name })}
       </p>
 
-      {!isInstructor && paymentStatus?.status === 'overdue' && (
+      {!isOwnerUser && paymentStatus?.status === 'overdue' && (
         <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
           <p className="text-destructive font-medium text-sm">
             {t('billing.yourPaymentOverdue', { days: paymentStatus.daysOverdue })}
@@ -82,7 +83,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!isInstructor && paymentStatus?.status === 'upcoming' && (
+      {!isOwnerUser && paymentStatus?.status === 'upcoming' && (
         <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
           <p className="text-primary font-medium text-sm">
             {t('billing.paymentDueSoon', { days: paymentStatus.daysUntilDue })}
@@ -90,7 +91,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {isInstructor && (
+      {isOwnerUser && (
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="font-heading text-xl uppercase">

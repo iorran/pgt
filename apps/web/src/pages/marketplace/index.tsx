@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
+import { isOwner, isStudent } from '@/lib/roles';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -97,7 +98,7 @@ export default function MarketplacePage() {
         { to: '/marketplace/orders', label: t('marketplace.ordersPageTitle') },
       ]} />
       <div className="flex items-center justify-between">
-        {user?.role === 'instructor' && (
+        {isOwner(user) && (
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { form.reset(); } }}>
             <DialogTrigger render={<Button />}>
               {t('marketplace.addProduct')}
@@ -200,7 +201,7 @@ export default function MarketplacePage() {
                     {t('marketplace.stock')}: {p.stock}
                   </Badge>
                 </div>
-                {user?.role === 'student' && (
+                {isStudent(user) && (
                   <Button
                     variant="outline"
                     className="w-full h-11 hover:arena-glow"

@@ -40,7 +40,7 @@ describe('i18n completeness', () => {
     });
 
     it('onboarding.haveCodeDesc has correct accent', () => {
-      expect((ptBR as any).onboarding.haveCodeDesc).toBe('Sou aluno e recebi um código do meu instrutor');
+      expect((ptBR as any).onboarding.haveCodeDesc).toBe('Sou aluno e recebi um código da minha academia');
     });
 
     it('onboarding.enterCode has correct accent', () => {

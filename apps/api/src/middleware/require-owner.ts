@@ -4,7 +4,7 @@ import { db } from '../db/client.js';
 import { academy } from '../db/schema/academy.js';
 import { requireAuth } from './auth.js';
 
-export async function requireOwner(request: FastifyRequest, reply: FastifyReply) {
+export async function requireAcademyOwner(request: FastifyRequest, reply: FastifyReply) {
   await requireAuth(request, reply);
   if (reply.sent) return;
 

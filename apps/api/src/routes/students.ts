@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { user, studentMembership, membershipPlan } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
 
@@ -59,8 +59,8 @@ export async function studentRoutes(app: FastifyInstance) {
     return row;
   });
 
-  // Assign a plan to a student (instructor only)
-  app.post('/api/students/:id/membership', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Assign a plan to a student (owner only)
+  app.post('/api/students/:id/membership', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = request.body as { planId: string; startDate: string; dueDay: number };
 
@@ -78,8 +78,8 @@ export async function studentRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // Update active membership (instructor only)
-  app.put('/api/students/:id/membership', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // Update active membership (owner only)
+  app.put('/api/students/:id/membership', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(studentMembership)
@@ -89,8 +89,8 @@ export async function studentRoutes(app: FastifyInstance) {
     return updated;
   });
 
-  // Toggle notification muting for a student (instructor only)
-  app.put('/api/students/:id/notifications', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Toggle notification muting for a student (owner only)
+  app.put('/api/students/:id/notifications', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { muted } = request.body as { muted: boolean };
     const [updated] = await db.update(studentMembership)

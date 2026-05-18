@@ -2,6 +2,26 @@ import 'dotenv/config';
 import { eq } from 'drizzle-orm';
 import { db } from './client.js';
 import { academy, user, bjjClass, membershipPlan, badgeDefinition, season } from './schema/index.js';
+import { auth } from '../auth/index.js';
+
+// Creates a login-capable user (better-auth credential account + hashed password),
+// then patches academy/role/status/belt which sign-up does not set.
+// Password is exactly the email (request: "password exact as the user is").
+async function createTestUser(opts: {
+  email: string;
+  name: string;
+  academyId: string;
+  role: 'owner' | 'student';
+  belt: 'white' | 'blue' | 'purple' | 'brown' | 'black';
+}) {
+  await auth.api.signUpEmail({ body: { email: opts.email, password: opts.email, name: opts.name } });
+  const [u] = await db
+    .update(user)
+    .set({ academyId: opts.academyId, role: opts.role, status: 'active', belt: opts.belt })
+    .where(eq(user.email, opts.email))
+    .returning();
+  return u;
+}
 
 async function seed() {
   console.log('Seeding database...');
@@ -14,19 +34,27 @@ async function seed() {
     city: 'São Paulo',
   }).returning();
 
-  // Instructor
+  // Owner (also teaches classes via bjjClass.instructorId)
   const [instructor] = await db.insert(user).values({
     academyId: acad.id,
     email: 'professor@alliance.com',
     name: 'Professor Silva',
-    role: 'instructor',
+    role: 'owner',
     belt: 'black',
     dateOfBirth: '1985-03-15',
     status: 'active',
   }).returning();
 
-  // Set academy owner to instructor
-  await db.update(academy).set({ ownerId: instructor.id }).where(eq(academy.id, acad.id));
+  // Login-capable test users (request: admin@admin.com + aluno@aluno.com)
+  const admin = await createTestUser({
+    email: 'admin@admin.com', name: 'Admin', academyId: acad.id, role: 'owner', belt: 'black',
+  });
+  await createTestUser({
+    email: 'aluno@aluno.com', name: 'Aluno', academyId: acad.id, role: 'student', belt: 'white',
+  });
+
+  // Academy owner = admin test user
+  await db.update(academy).set({ ownerId: admin.id }).where(eq(academy.id, acad.id));
 
   // Students
   const students = await db.insert(user).values([

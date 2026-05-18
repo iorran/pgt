@@ -3,7 +3,7 @@ import {
   createTestApp,
   cleanDb,
   createTestAcademy,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
 } from './helpers';
 
@@ -22,7 +22,7 @@ describe('Test infrastructure', () => {
   it('can create test data and make authenticated requests', async () => {
     const app = await createTestApp();
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const res = await app.inject({
       method: 'GET',

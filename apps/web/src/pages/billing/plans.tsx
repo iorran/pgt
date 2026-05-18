@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
+import { isOwner } from '@/lib/roles';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -104,7 +105,7 @@ export default function PlansPage() {
         { to: '/billing/payments', label: t('billing.paymentsTitle') },
       ]} />
       <div className="flex items-center justify-between">
-        {user?.role === 'instructor' && (
+        {isOwner(user) && (
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { form.reset(); } }}>
             <DialogTrigger render={<Button />} onClick={openCreate}>
               {t('billing.createPlan')}
@@ -203,7 +204,7 @@ export default function PlansPage() {
                   <span>{p.frequency}</span>
                   <span>{p.classesPerWeek}x / {t('billing.week')}</span>
                 </div>
-                {user?.role === 'instructor' && (
+                {isOwner(user) && (
                   <Button variant="outline" className="w-full mt-2" onClick={() => startEdit(p)}>
                     {t('common.edit')}
                   </Button>

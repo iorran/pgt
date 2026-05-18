@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -159,7 +159,7 @@ describe('PUT /api/competition-results/:id/approve', () => {
   it('approves a result, calculates points from season config, and creates XP entry', async () => {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id, { name: 'Competitor' });
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const pointsConfig = { 1: 15, 2: 10, 3: 7 };
     const [seasonRecord] = await testDb
@@ -214,7 +214,7 @@ describe('PUT /api/competition-results/:id/approve', () => {
   it('awards 0 points for a position not in the config', async () => {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id);
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const [seasonRecord] = await testDb
       .insert(schema.season)
@@ -258,7 +258,7 @@ describe('PUT /api/competition-results/:id/reject', () => {
   it('rejects a result, sets status to rejected and no points', async () => {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id);
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const [seasonRecord] = await testDb
       .insert(schema.season)
@@ -310,7 +310,7 @@ describe('end-to-end: submit -> approve -> verify', () => {
   it('full approval flow creates points and XP', async () => {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id, { name: 'Champion' });
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const [seasonRecord] = await testDb
       .insert(schema.season)

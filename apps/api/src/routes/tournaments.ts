@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { tournament, tournamentSignup, user } from '../db/schema/index.js';
 import { eq } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function tournamentRoutes(app: FastifyInstance) {
@@ -12,8 +12,8 @@ export async function tournamentRoutes(app: FastifyInstance) {
     return db.select().from(tournament).where(eq(tournament.academyId, academyId));
   });
 
-  // Create tournament (instructor only)
-  app.post('/api/tournaments', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Create tournament (owner only)
+  app.post('/api/tournaments', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const body = request.body as any;
     const [created] = await db.insert(tournament).values({
       academyId: request.academyId,

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
+import { isStudent } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/use-api';
 
 /**
@@ -14,15 +15,15 @@ export function StudentPaymentBanner() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as { id?: string; role?: string } | undefined;
-  const isStudent = user?.role === 'student';
+  const isStudentUser = isStudent(user ?? null);
 
   const { data: paymentStatus } = useApiQuery<{
     status: string;
     daysOverdue?: number;
     daysUntilDue?: number;
-  }>(['my-payment-status'], '/payments/my-status', !!user?.id && isStudent);
+  }>(['my-payment-status'], '/payments/my-status', !!user?.id && isStudentUser);
 
-  if (!isStudent || !paymentStatus) return null;
+  if (!isStudentUser || !paymentStatus) return null;
 
   if (paymentStatus.status === 'overdue') {
     return (

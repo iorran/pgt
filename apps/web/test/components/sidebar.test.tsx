@@ -1,33 +1,53 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { renderWithProviders } from '../render';
+
+const sessionMock = vi.fn();
+vi.mock('@/lib/auth-client', () => ({ useSession: () => sessionMock(), signOut: vi.fn() }));
+
 import { Sidebar } from '@/components/layout/sidebar';
 
-vi.mock('@/lib/auth-client', () => ({
-  useSession: vi.fn(),
-  signOut: vi.fn(),
-}));
+function renderSidebar() {
+  return render(<MemoryRouter><Sidebar /></MemoryRouter>);
+}
 
-import { useSession } from '@/lib/auth-client';
+describe('Sidebar role gating', () => {
+  beforeEach(() => sessionMock.mockReset());
 
-const mockedUseSession = vi.mocked(useSession);
+  it('shows students/billing/settings for owner', () => {
+    sessionMock.mockReturnValue({ data: { user: { role: 'owner' } } });
+    renderSidebar();
+    expect(screen.getByText('nav.students')).toBeInTheDocument();
+    expect(screen.getByText('nav.billing')).toBeInTheDocument();
+    expect(screen.getByText('nav.settings')).toBeInTheDocument();
+  });
+
+  it('hides them for student', () => {
+    sessionMock.mockReturnValue({ data: { user: { role: 'student' } } });
+    renderSidebar();
+    expect(screen.queryByText('nav.students')).not.toBeInTheDocument();
+    expect(screen.queryByText('nav.billing')).not.toBeInTheDocument();
+    expect(screen.queryByText('nav.settings')).not.toBeInTheDocument();
+  });
+});
 
 describe('Sidebar', () => {
   beforeEach(() => {
-    mockedUseSession.mockReturnValue({
-      data: { user: { name: 'Test User', role: 'instructor' } },
+    sessionMock.mockReturnValue({
+      data: { user: { name: 'Test User', role: 'owner' } },
       isPending: false,
-    } as any);
+    });
   });
 
   it('renders PGT branding', () => {
-    renderWithProviders(<Sidebar />);
+    renderSidebar();
     expect(screen.getByText('PGT')).toBeInTheDocument();
     expect(screen.getByText('app.tagline')).toBeInTheDocument();
   });
 
-  it('shows all nav items for instructor', () => {
-    renderWithProviders(<Sidebar />);
+  it('shows all nav items for owner', () => {
+    renderSidebar();
     expect(screen.getByText('nav.dashboard')).toBeInTheDocument();
     expect(screen.getByText('nav.classes')).toBeInTheDocument();
     expect(screen.getByText('nav.students')).toBeInTheDocument();
@@ -38,13 +58,13 @@ describe('Sidebar', () => {
     expect(screen.getByText('nav.tournaments')).toBeInTheDocument();
   });
 
-  it('hides instructor-only items for students', () => {
-    mockedUseSession.mockReturnValue({
+  it('hides owner-only items for students', () => {
+    sessionMock.mockReturnValue({
       data: { user: { name: 'Student', role: 'student' } },
       isPending: false,
-    } as any);
+    });
 
-    renderWithProviders(<Sidebar />);
+    renderSidebar();
     expect(screen.getByText('nav.dashboard')).toBeInTheDocument();
     expect(screen.getByText('nav.classes')).toBeInTheDocument();
     expect(screen.queryByText('nav.students')).not.toBeInTheDocument();
@@ -56,8 +76,7 @@ describe('Sidebar', () => {
   });
 
   it('highlights active link based on current route', () => {
-    // BrowserRouter defaults to "/" so dashboard should be active
-    renderWithProviders(<Sidebar />);
+    renderSidebar();
     const dashboardLink = screen.getByText('nav.dashboard');
     expect(dashboardLink.className).toContain('text-primary');
     expect(dashboardLink.className).toContain('border-primary');

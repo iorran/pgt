@@ -36,7 +36,7 @@ import { useSession } from '@/lib/auth-client';
 
 const mockedUseSession = vi.mocked(useSession);
 
-function setSession(role: 'student' | 'instructor' | 'owner') {
+function setSession(role: 'student' | 'owner') {
   mockedUseSession.mockReturnValue({
     data: {
       user: {
@@ -65,8 +65,8 @@ describe('App shell selector', () => {
     expect(screen.queryByTestId('staff-shell')).not.toBeInTheDocument();
   });
 
-  it('mounts StaffShell for role=instructor', () => {
-    setSession('instructor');
+  it('mounts StaffShell for role=owner', () => {
+    setSession('owner');
     renderWithProviders(<App />);
     expect(screen.getByTestId('staff-shell')).toBeInTheDocument();
     expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
@@ -77,13 +77,6 @@ describe('App shell selector', () => {
     renderWithProviders(<App />);
     expect(screen.getByTestId('classes-page')).toBeInTheDocument();
     expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument();
-  });
-
-  it('shows the dashboard at / for instructors', () => {
-    setSession('instructor');
-    renderWithProviders(<App />);
-    expect(screen.getByTestId('dashboard-page')).toBeInTheDocument();
-    expect(screen.queryByTestId('classes-page')).not.toBeInTheDocument();
   });
 
   it('shows the owner dashboard at / for owners (no indirection)', async () => {

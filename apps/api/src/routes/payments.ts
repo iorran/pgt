@@ -2,14 +2,14 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { payment, user, studentMembership, membershipPlan, academy } from '../db/schema/index.js';
 import { eq, and, sql } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
 import { emailService } from '../email/index.js';
 
 export async function paymentRoutes(app: FastifyInstance) {
-  // Record a manual payment (instructor only)
-  app.post('/api/payments', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Record a manual payment (owner only)
+  app.post('/api/payments', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const body = request.body as {
       studentId: string;
       amount: string;
@@ -187,8 +187,8 @@ export async function paymentRoutes(app: FastifyInstance) {
     return overdue;
   });
 
-  // Quick payment for the current month (instructor only)
-  app.post('/api/payments/quick/:studentId', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Quick payment for the current month (owner only)
+  app.post('/api/payments/quick/:studentId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
 
     // Get the student's active membership and plan price
@@ -221,8 +221,8 @@ export async function paymentRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // Send overdue payment email notification (instructor only)
-  app.post('/api/payments/overdue/:studentId/notify', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Send overdue payment email notification (owner only)
+  app.post('/api/payments/overdue/:studentId/notify', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
     const [student] = await db.select({ email: user.email, name: user.name })
       .from(user).where(eq(user.id, studentId));
