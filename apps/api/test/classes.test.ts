@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -36,7 +36,7 @@ describe('GET /api/classes', () => {
 
   it('returns classes for the academy', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
 
     await testDb.insert(bjjClass).values({
       academyId: acad.id,
@@ -64,7 +64,7 @@ describe('GET /api/classes', () => {
 describe('POST /api/classes', () => {
   it('instructor creates a class', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
 
     const res = await app.inject({
       method: 'POST',
@@ -113,7 +113,7 @@ describe('POST /api/classes', () => {
 describe('PUT /api/classes/:id', () => {
   it('instructor updates a class', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
 
     const [cls] = await testDb.insert(bjjClass).values({
       academyId: acad.id,
@@ -139,7 +139,7 @@ describe('PUT /api/classes/:id', () => {
 
   it('student cannot update a class (403)', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { role: 'student' });
 
     const [cls] = await testDb.insert(bjjClass).values({
@@ -167,7 +167,7 @@ describe('PUT /api/classes/:id', () => {
 describe('DELETE /api/classes/:id', () => {
   it('soft-deletes a class by setting active to false', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
 
     const [cls] = await testDb.insert(bjjClass).values({
       academyId: acad.id,
@@ -192,7 +192,7 @@ describe('DELETE /api/classes/:id', () => {
 
   it('student cannot delete a class (403)', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { role: 'student' });
 
     const [cls] = await testDb.insert(bjjClass).values({

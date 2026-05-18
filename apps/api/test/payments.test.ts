@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor, authHeaders, testDb } from './helpers';
+import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import * as schema from '../src/db/schema/index';
 import type { FastifyInstance } from 'fastify';
 
@@ -10,7 +10,7 @@ beforeEach(async () => { await cleanDb(); });
 describe('POST /api/payments', () => {
   it('instructor records a payment', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
 
     const res = await app.inject({
@@ -57,7 +57,7 @@ describe('POST /api/payments', () => {
 describe('GET /api/payments', () => {
   it('lists all payments for an academy', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student1 = await createTestUser(academy.id, { name: 'Student 1' });
     const student2 = await createTestUser(academy.id, { name: 'Student 2' });
 
@@ -89,7 +89,7 @@ describe('GET /api/payments', () => {
 describe('GET /api/payments/student/:studentId', () => {
   it('returns payment history for a student', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
 
     await testDb.insert(schema.payment).values([
@@ -124,7 +124,7 @@ describe('GET /api/payments/student/:studentId', () => {
 describe('GET /api/payments/overdue', () => {
   it('returns students who have not paid and are past due day', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const paidStudent = await createTestUser(academy.id, { name: 'Paid Student' });
     const unpaidStudent = await createTestUser(academy.id, { name: 'Unpaid Student' });
@@ -173,7 +173,7 @@ describe('GET /api/payments/overdue', () => {
 
   it('returns empty when all students have paid', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
 
     const [plan] = await testDb.insert(schema.membershipPlan).values({

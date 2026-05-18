@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor, authHeaders, testDb } from './helpers';
+import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import * as schema from '../src/db/schema/index';
 import type { FastifyInstance } from 'fastify';
 
@@ -32,7 +32,7 @@ describe('POST /api/orders', () => {
 
   it('instructor can also place an order', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy.id, name: 'Rashguard', price: '120.00', stock: 10,
     }).returning();
@@ -51,7 +51,7 @@ describe('POST /api/orders', () => {
 describe('GET /api/orders', () => {
   it('instructor lists all orders for academy', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id, { name: 'OrderStudent' });
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy.id, name: 'Belt', price: '60.00', stock: 20,
@@ -135,7 +135,7 @@ describe('GET /api/orders/student/:studentId', () => {
 describe('PUT /api/orders/:id/status', () => {
   it('instructor updates order status to confirmed', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy.id, name: 'Gi', price: '300.00', stock: 3,
@@ -157,7 +157,7 @@ describe('PUT /api/orders/:id/status', () => {
 
   it('instructor updates order status to delivered', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy.id, name: 'Gi', price: '300.00', stock: 3,
@@ -179,7 +179,7 @@ describe('PUT /api/orders/:id/status', () => {
 
   it('instructor cancels an order', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
     const [prod] = await testDb.insert(schema.product).values({
       academyId: academy.id, name: 'Gi', price: '300.00', stock: 3,

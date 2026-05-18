@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -98,7 +98,7 @@ describe('POST /api/academies/:id/join', () => {
 describe('GET /api/academies/:id/pending', () => {
   it('lists pending students for the academy', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     await createTestUser(acad.id, { status: 'pending', name: 'Pending Student' });
     await createTestUser(acad.id, { status: 'active', name: 'Active Student' });
 
@@ -118,7 +118,7 @@ describe('GET /api/academies/:id/pending', () => {
 describe('POST /api/academies/:id/approve/:userId', () => {
   it('approves a pending student', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { status: 'pending' });
 
     const res = await app.inject({
@@ -133,7 +133,7 @@ describe('POST /api/academies/:id/approve/:userId', () => {
 
   it('returns 404 when student is not pending', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { status: 'active' });
 
     const res = await app.inject({
@@ -149,7 +149,7 @@ describe('POST /api/academies/:id/approve/:userId', () => {
 describe('POST /api/academies/:id/reject/:userId', () => {
   it('rejects a pending student', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { status: 'pending' });
 
     const res = await app.inject({
@@ -164,7 +164,7 @@ describe('POST /api/academies/:id/reject/:userId', () => {
 
   it('returns 404 when student is not pending', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { status: 'active' });
 
     const res = await app.inject({
@@ -180,7 +180,7 @@ describe('POST /api/academies/:id/reject/:userId', () => {
 describe('GET /api/academies/mine', () => {
   it('returns the academy for the authenticated user', async () => {
     const acad = await createTestAcademy({ name: 'My Academy' });
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
 
     const res = await app.inject({
       method: 'GET',
@@ -221,7 +221,7 @@ describe('PUT /api/academies/:id/location', () => {
 
   it('updates academy location', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
 
     const res = await app.inject({
       method: 'PUT',

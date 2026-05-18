@@ -76,8 +76,8 @@ export async function createTestUser(
   return result;
 }
 
-// Factory: create instructor
-export async function createTestInstructor(
+// Factory: create owner
+export async function createTestOwner(
   academyId: string,
   overrides: Partial<typeof schema.user.$inferInsert> = {},
 ) {
@@ -89,14 +89,14 @@ export async function createTestInstructor(
   });
 }
 
-// Factory: create class (auto-creates an instructor if none provided)
+// Factory: create class (auto-creates an owner if none provided)
 export async function createTestClass(
   academyId: string,
   overrides: Partial<typeof schema.bjjClass.$inferInsert> = {},
 ) {
   let instructorId = overrides.instructorId;
   if (!instructorId) {
-    const instructor = await createTestInstructor(academyId);
+    const instructor = await createTestOwner(academyId);
     instructorId = instructor.id;
   }
   const [row] = await testDb

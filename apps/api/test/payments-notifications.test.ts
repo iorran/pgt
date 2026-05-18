@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor, authHeaders, testDb } from './helpers';
+import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import { membershipPlan, studentMembership, payment } from '../src/db/schema/index';
 import type { FastifyInstance } from 'fastify';
 
@@ -14,7 +14,7 @@ function currentMonthStart(): string {
 
 async function setupOverdueStudent() {
   const acad = await createTestAcademy();
-  const instructor = await createTestInstructor(acad.id);
+  const instructor = await createTestOwner(acad.id);
   const student = await createTestUser(acad.id, { role: 'student', phone: '5511999999999' });
   const [plan] = await testDb.insert(membershipPlan).values({
     academyId: acad.id, name: 'Monthly', price: '150.00', frequency: 'monthly',
@@ -179,7 +179,7 @@ describe('PUT /api/students/:id/notifications', () => {
 
   it('returns 404 when student has no active membership', async () => {
     const acad = await createTestAcademy();
-    const instructor = await createTestInstructor(acad.id);
+    const instructor = await createTestOwner(acad.id);
     const student = await createTestUser(acad.id, { role: 'student' });
 
     const res = await app.inject({

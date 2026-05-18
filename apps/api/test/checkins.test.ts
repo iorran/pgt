@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   createTestClass,
   authHeaders,
   testDb,
@@ -65,7 +65,7 @@ async function createClassAndStudent() {
     longitude: ACADEMY_LNG,
     timezone: ACADEMY_TZ,
   });
-  const instructor = await createTestInstructor(acad.id);
+  const instructor = await createTestOwner(acad.id);
   const student = await createTestUser(acad.id, { role: 'student' });
 
   const { dayOfWeek, hour: tzHour } = nowInTz(ACADEMY_TZ);

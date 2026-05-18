@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor, authHeaders, testDb } from './helpers';
+import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import * as schema from '../src/db/schema/index';
 import type { FastifyInstance } from 'fastify';
 
@@ -49,7 +49,7 @@ describe('GET /api/students', () => {
   it('does not list instructors', async () => {
     const academy = await createTestAcademy();
     await createTestUser(academy.id, { name: 'Student' });
-    await createTestInstructor(academy.id, { name: 'Instructor' });
+    await createTestOwner(academy.id, { name: 'Instructor' });
 
     const res = await app.inject({
       method: 'GET',
@@ -106,7 +106,7 @@ describe('GET /api/students/:id', () => {
 describe('POST /api/students/:id/membership', () => {
   it('instructor assigns membership to student', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
     const [plan] = await testDb.insert(schema.membershipPlan).values({
       academyId: academy.id, name: 'Basic', price: '99.00', frequency: 'monthly',
@@ -146,7 +146,7 @@ describe('POST /api/students/:id/membership', () => {
 
   it('deactivates previous active membership when assigning a new one', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
     const [plan1] = await testDb.insert(schema.membershipPlan).values({
       academyId: academy.id, name: 'Basic', price: '99.00', frequency: 'monthly',
@@ -196,7 +196,7 @@ describe('POST /api/students/:id/membership', () => {
 describe('PUT /api/students/:id/membership', () => {
   it('instructor updates active membership', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
     const [plan1] = await testDb.insert(schema.membershipPlan).values({
       academyId: academy.id, name: 'Basic', price: '99.00', frequency: 'monthly',

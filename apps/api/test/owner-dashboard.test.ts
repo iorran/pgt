@@ -3,7 +3,7 @@ import { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import * as schema from '../src/db/schema/index.js';
 import {
-  createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor,
+  createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner,
   createTestClass, authHeaders, testDb,
 } from './helpers.js';
 
@@ -23,7 +23,7 @@ describe('requireOwner middleware (via /api/owner/students stub)', () => {
 
   it('returns 403 for an owner who is not the academy owner', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const res = await app.inject({ method: 'GET', url: '/api/owner/students', headers: authHeaders(instructor) });
     expect(res.statusCode).toBe(403);
   });

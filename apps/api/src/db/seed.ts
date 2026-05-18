@@ -11,7 +11,7 @@ async function createTestUser(opts: {
   email: string;
   name: string;
   academyId: string;
-  role: 'owner' | 'instructor' | 'student';
+  role: 'owner' | 'student';
   belt: 'white' | 'blue' | 'purple' | 'brown' | 'black';
 }) {
   await auth.api.signUpEmail({ body: { email: opts.email, password: opts.email, name: opts.name } });
@@ -34,12 +34,12 @@ async function seed() {
     city: 'São Paulo',
   }).returning();
 
-  // Instructor
+  // Owner (also teaches classes via bjjClass.instructorId)
   const [instructor] = await db.insert(user).values({
     academyId: acad.id,
     email: 'professor@alliance.com',
     name: 'Professor Silva',
-    role: 'instructor',
+    role: 'owner',
     belt: 'black',
     dateOfBirth: '1985-03-15',
     status: 'active',
@@ -47,7 +47,7 @@ async function seed() {
 
   // Login-capable test users (request: admin@admin.com + aluno@aluno.com)
   const admin = await createTestUser({
-    email: 'admin@admin.com', name: 'Admin', academyId: acad.id, role: 'instructor', belt: 'black',
+    email: 'admin@admin.com', name: 'Admin', academyId: acad.id, role: 'owner', belt: 'black',
   });
   await createTestUser({
     email: 'aluno@aluno.com', name: 'Aluno', academyId: acad.id, role: 'student', belt: 'white',

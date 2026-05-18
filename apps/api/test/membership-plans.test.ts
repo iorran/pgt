@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
-import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestInstructor, authHeaders, testDb } from './helpers';
+import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import * as schema from '../src/db/schema/index';
 import type { FastifyInstance } from 'fastify';
 
@@ -56,7 +56,7 @@ describe('GET /api/membership-plans', () => {
 describe('POST /api/membership-plans', () => {
   it('instructor creates a plan', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const res = await app.inject({
       method: 'POST',
@@ -92,7 +92,7 @@ describe('POST /api/membership-plans', () => {
 describe('PUT /api/membership-plans/:id', () => {
   it('instructor updates a plan', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const [plan] = await testDb.insert(schema.membershipPlan).values({
       academyId: academy.id, name: 'Old Name', price: '100.00', frequency: 'monthly',
     }).returning();
@@ -113,7 +113,7 @@ describe('PUT /api/membership-plans/:id', () => {
   it('instructor cannot update plan from another academy', async () => {
     const academy1 = await createTestAcademy({ slug: 'a1', joinCode: 'A1' });
     const academy2 = await createTestAcademy({ slug: 'a2', joinCode: 'A2' });
-    const instructor = await createTestInstructor(academy1.id);
+    const instructor = await createTestOwner(academy1.id);
     const [plan] = await testDb.insert(schema.membershipPlan).values({
       academyId: academy2.id, name: 'Other Plan', price: '100.00', frequency: 'monthly',
     }).returning();
@@ -133,7 +133,7 @@ describe('PUT /api/membership-plans/:id', () => {
 describe('DELETE /api/membership-plans/:id', () => {
   it('soft-deletes a plan (sets active=false)', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const [plan] = await testDb.insert(schema.membershipPlan).values({
       academyId: academy.id, name: 'To Delete', price: '80.00', frequency: 'monthly',
     }).returning();

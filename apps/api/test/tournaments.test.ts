@@ -4,7 +4,7 @@ import {
   cleanDb,
   createTestAcademy,
   createTestUser,
-  createTestInstructor,
+  createTestOwner,
   authHeaders,
   testDb,
 } from './helpers';
@@ -59,7 +59,7 @@ describe('GET /api/tournaments', () => {
 describe('POST /api/tournaments', () => {
   it('instructor creates a tournament', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
 
     const res = await app.inject({
       method: 'POST',
@@ -191,7 +191,7 @@ describe('GET /api/tournaments/:id/roster', () => {
 
   it('full flow: create tournament, signup, view roster', async () => {
     const academy = await createTestAcademy();
-    const instructor = await createTestInstructor(academy.id);
+    const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id, {
       name: 'Carlos',
       belt: 'brown',
