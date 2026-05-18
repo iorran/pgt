@@ -2,7 +2,7 @@ import { pgTable, uuid, varchar, date, timestamp, boolean, pgEnum } from 'drizzl
 import { academy } from './academy';
 
 export const beltEnum = pgEnum('belt', ['white', 'blue', 'purple', 'brown', 'black']);
-export const userRoleEnum = pgEnum('user_role', ['instructor', 'student', 'owner']);
+export const userRoleEnum = pgEnum('user_role', ['student', 'owner']);
 export const userStatusEnum = pgEnum('user_status', ['pending', 'active', 'rejected']);
 
 export const user = pgTable('user', {
