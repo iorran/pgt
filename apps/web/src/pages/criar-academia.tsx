@@ -36,7 +36,7 @@ export default function CriarAcademiaPage() {
             name: value.name,
             email: value.email,
             password: value.password,
-            role: 'instructor',
+            role: 'owner',
           } as any);
           if (error) {
             setError(error.message ?? 'Signup failed');

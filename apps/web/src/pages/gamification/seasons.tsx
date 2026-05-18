@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
+import { isOwner } from '@/lib/roles';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -97,7 +98,7 @@ export default function SeasonsPage() {
         { to: '/gamification/profile', label: t('gamification.profileTitle') },
       ]} />
       <div className="flex items-center justify-between">
-        {user?.role === 'instructor' && (
+        {isOwner(user) && (
           <Dialog
             open={dialogOpen}
             onOpenChange={(open) => {

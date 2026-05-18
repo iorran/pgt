@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
+import { isOwner } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/use-api';
 import { api } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -28,7 +29,7 @@ export function NotificationBell() {
   const { data: overdueStudents = [] } = useApiQuery<OverdueStudent[]>(
     ['overdue', user?.academyId],
     `/payments/overdue?academyId=${user?.academyId}`,
-    !!user?.academyId && user?.role === 'instructor',
+    !!user?.academyId && isOwner(user),
   );
 
   const unmutedCount = overdueStudents.filter(s => !s.notificationsMuted).length;
@@ -63,7 +64,7 @@ export function NotificationBell() {
     window.open(`https://wa.me/${student.phone}?text=${encodeURIComponent(message)}`, '_blank');
   }
 
-  if (user?.role !== 'instructor') {
+  if (!isOwner(user)) {
     return null;
   }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
+import { isOwner, isStudent } from '@/lib/roles';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -137,7 +138,7 @@ export default function TournamentsPage() {
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-xl md:text-3xl uppercase tracking-tight">{t('tournaments.pageTitle')}</h1>
 
-        {user?.role === 'instructor' && (
+        {isOwner(user) && (
           <Dialog open={createDialogOpen} onOpenChange={(open) => { setCreateDialogOpen(open); if (!open) { createForm.reset(); } }}>
             <DialogTrigger render={<Button />}>
               {t('tournaments.createTournament')}
@@ -227,7 +228,7 @@ export default function TournamentsPage() {
                     {tr.federation && (
                       <Badge variant="outline">{tr.federation}</Badge>
                     )}
-                    {user?.role === 'student' && (
+                    {isStudent(user) && (
                       <Dialog open={signupTournamentId === tr.id} onOpenChange={(open) => {
                         setSignupTournamentId(open ? tr.id : null);
                         if (!open) { signupForm.reset(); }
@@ -264,7 +265,7 @@ export default function TournamentsPage() {
                         </DialogContent>
                       </Dialog>
                     )}
-                    {user?.role === 'instructor' && (
+                    {isOwner(user) && (
                       <Button size="sm" variant="outline" className="h-11" onClick={() => viewRoster(tr.id)}>
                         {t('tournaments.viewRoster')}
                       </Button>

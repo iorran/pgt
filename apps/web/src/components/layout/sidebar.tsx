@@ -2,22 +2,24 @@ import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
 import { useSession } from '@/lib/auth-client';
 import { Separator } from '@/components/ui/separator';
+import { isOwner } from '@/lib/roles';
 
 export function Sidebar() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const location = useLocation();
-  const isInstructor = (session?.user as any)?.role === 'instructor';
+  const user = session?.user as any;
+  const showStaff = isOwner(user);
 
   const navItems = [
     { to: '/', label: t('nav.dashboard'), show: true },
     { to: '/classes', label: t('nav.classes'), show: true },
-    { to: '/students', label: t('nav.students'), show: isInstructor },
-    { to: '/billing', label: t('nav.billing'), show: isInstructor },
+    { to: '/students', label: t('nav.students'), show: showStaff },
+    { to: '/billing', label: t('nav.billing'), show: showStaff },
     { to: '/marketplace', label: t('nav.marketplace'), show: true },
     { to: '/gamification', label: t('nav.gamification'), show: true },
     { to: '/tournaments', label: t('nav.tournaments'), show: true },
-    { to: '/settings', label: t('nav.settings'), show: isInstructor },
+    { to: '/settings', label: t('nav.settings'), show: showStaff },
   ];
 
   return (

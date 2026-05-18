@@ -13,7 +13,7 @@ const mockUseSession = vi.mocked(useSession);
 const mockApi = vi.mocked(api);
 
 const instructorSession = {
-  data: { user: { id: 'u1', name: 'Instructor', role: 'instructor', academyId: 'a1', status: 'active' } },
+  data: { user: { id: 'u1', name: 'Instructor', role: 'owner', academyId: 'a1', status: 'active' } },
   isPending: false,
 } as any;
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
+import { isOwner } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/use-api';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -22,7 +23,7 @@ export default function SettingsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
-  const isInstructor = user?.role === 'instructor';
+  const isOwnerUser = isOwner(user);
   const queryClient = useQueryClient();
   const [locationMsg, setLocationMsg] = useState('');
   const [copied, setCopied] = useState(false);
@@ -73,7 +74,7 @@ export default function SettingsPage() {
         {t('nav.settings')}
       </h1>
 
-      {isInstructor && academy && (
+      {isOwnerUser && academy && (
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="font-heading text-lg uppercase">
@@ -101,7 +102,7 @@ export default function SettingsPage() {
         </Card>
       )}
 
-      {isInstructor && academy && (
+      {isOwnerUser && academy && (
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="font-heading text-lg uppercase flex items-center gap-2">

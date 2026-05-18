@@ -1,4 +1,5 @@
 import { useSession } from '@/lib/auth-client';
+import { isOwner } from '@/lib/roles';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -38,11 +39,11 @@ export default function OrdersPage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
 
-  const orderUrl = user?.role === 'instructor'
+  const orderUrl = isOwner(user)
     ? `/orders?academyId=${user?.academyId}`
     : `/orders/student/${user?.id}`;
 
-  const orderKey = user?.role === 'instructor'
+  const orderKey = isOwner(user)
     ? ['orders', user?.academyId]
     : ['orders', 'student', user?.id];
 
@@ -80,13 +81,13 @@ export default function OrdersPage() {
             <TableHeader>
               <TableRow className="border-border">
                 <TableHead>{t('marketplace.productName')}</TableHead>
-                {user?.role === 'instructor' && (
+                {isOwner(user) && (
                   <TableHead>{t('students.name')}</TableHead>
                 )}
                 <TableHead>{t('marketplace.quantity')}</TableHead>
                 <TableHead>{t('marketplace.status')}</TableHead>
                 <TableHead>{t('billing.date')}</TableHead>
-                {user?.role === 'instructor' && (
+                {isOwner(user) && (
                   <TableHead>{t('marketplace.actions')}</TableHead>
                 )}
               </TableRow>
@@ -95,7 +96,7 @@ export default function OrdersPage() {
               {orders.map(o => (
                 <TableRow key={o.id} className="border-border">
                   <TableCell>{o.productName || '-'}</TableCell>
-                  {user?.role === 'instructor' && (
+                  {isOwner(user) && (
                     <TableCell>{o.studentName || '-'}</TableCell>
                   )}
                   <TableCell className="font-mono">{o.quantity}</TableCell>
@@ -107,7 +108,7 @@ export default function OrdersPage() {
                   <TableCell className="font-mono text-muted-foreground">
                     {new Date(o.createdAt).toLocaleDateString()}
                   </TableCell>
-                  {user?.role === 'instructor' && (
+                  {isOwner(user) && (
                     <TableCell>
                       <div className="flex gap-2">
                         {o.status === 'requested' && (

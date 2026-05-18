@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSession } from '@/lib/auth-client';
+import { isOwner } from '@/lib/roles';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -195,7 +196,7 @@ export default function StudentDetailPage() {
           <CardTitle className="font-heading uppercase tracking-wider text-base">
             {t('students.plan')}
           </CardTitle>
-          {user?.role === 'instructor' && (
+          {isOwner(user) && (
             <Dialog
               open={dialogOpen}
               onOpenChange={(open) => {
@@ -292,7 +293,7 @@ export default function StudentDetailPage() {
           ) : (
             <p className="text-muted-foreground">-</p>
           )}
-          {user?.role === 'instructor' && student.planName && (
+          {isOwner(user) && student.planName && (
             <Button
               variant="outline"
               className="w-full"

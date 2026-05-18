@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
+import { isOwner, isStudent } from '@/lib/roles';
 import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -60,7 +61,7 @@ export default function ResultsPage() {
   const { data: results = [] } = useApiQuery<CompetitionResult[]>(
     ['competition-results', effectiveSeasonId, 'pending'],
     `/competition-results?seasonId=${effectiveSeasonId}&status=pending`,
-    !!effectiveSeasonId && user?.role === 'instructor',
+    !!effectiveSeasonId && isOwner(user),
   );
 
   const submitMutation = useMutation({
@@ -119,7 +120,7 @@ export default function ResultsPage() {
         { to: '/gamification/profile', label: t('gamification.profileTitle') },
       ]} />
 
-      {user?.role === 'student' && (
+      {isStudent(user) && (
         <Tabs defaultValue="submit">
           <TabsList>
             <TabsTrigger value="submit">{t('gamification.submitResult')}</TabsTrigger>
@@ -214,7 +215,7 @@ export default function ResultsPage() {
         </Tabs>
       )}
 
-      {user?.role === 'instructor' && (
+      {isOwner(user) && (
         <Tabs defaultValue="pending">
           <TabsList>
             <TabsTrigger value="pending">{t('gamification.pendingResults')}</TabsTrigger>

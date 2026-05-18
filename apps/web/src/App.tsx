@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSession, signOut } from './lib/auth-client';
+import { isOwner } from './lib/roles';
 import { useTranslation } from 'react-i18next';
 import LoginPage from './pages/login';
 import SignupPage from './pages/signup';
@@ -153,8 +154,8 @@ function AppRoutes() {
   console.log('[App] Routing → authenticated (dashboard)');
 
   // Normal authenticated routes
-  const isStudent = (user.role as string) === 'student';
-  const Shell = isStudent ? StudentShell : StaffShell;
+  const owner = isOwner(user);
+  const Shell = owner ? StaffShell : StudentShell;
   const studentHome = '/classes';
 
   return (
@@ -164,7 +165,7 @@ function AppRoutes() {
       <Route element={<Shell />}>
         <Route
           path="/"
-          element={isStudent ? <Navigate to={studentHome} replace /> : <DashboardPage />}
+          element={owner ? <DashboardPage /> : <Navigate to={studentHome} replace />}
         />
         <Route path="/pending" element={<PendingStudentsPage />} />
         <Route path="/classes" element={<ClassesPage />} />
@@ -194,7 +195,7 @@ function AppRoutes() {
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/theme" element={<ThemePage />} />
       </Route>
-      <Route path="*" element={<Navigate to={isStudent ? studentHome : '/'} replace />} />
+      <Route path="*" element={<Navigate to={owner ? '/' : studentHome} replace />} />
     </Routes>
   );
 }
