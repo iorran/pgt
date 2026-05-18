@@ -21,7 +21,7 @@ describe('requireOwner middleware (via /api/owner/students stub)', () => {
     expect(res.statusCode).toBe(403);
   });
 
-  it('returns 403 for instructors who are not the academy owner', async () => {
+  it('returns 403 for an owner who is not the academy owner', async () => {
     const academy = await createTestAcademy();
     const instructor = await createTestInstructor(academy.id);
     const res = await app.inject({ method: 'GET', url: '/api/owner/students', headers: authHeaders(instructor) });

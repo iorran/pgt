@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { membershipPlan } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function membershipPlanRoutes(app: FastifyInstance) {
@@ -14,8 +14,8 @@ export async function membershipPlanRoutes(app: FastifyInstance) {
     );
   });
 
-  // Create plan (instructor only)
-  app.post('/api/membership-plans', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Create plan (owner only)
+  app.post('/api/membership-plans', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const body = request.body as any;
     const [created] = await db.insert(membershipPlan).values({
       academyId: request.academyId,
@@ -27,8 +27,8 @@ export async function membershipPlanRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // Update plan (instructor only)
-  app.put('/api/membership-plans/:id', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // Update plan (owner only)
+  app.put('/api/membership-plans/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(membershipPlan)
@@ -38,8 +38,8 @@ export async function membershipPlanRoutes(app: FastifyInstance) {
     return updated;
   });
 
-  // Soft-delete plan (instructor only)
-  app.delete('/api/membership-plans/:id', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // Soft-delete plan (owner only)
+  app.delete('/api/membership-plans/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const [updated] = await db.update(membershipPlan)
       .set({ active: false })

@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { academy, user } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { generateJoinCode } from '../utils/join-code.js';
 
@@ -39,9 +39,9 @@ export async function academyRoutes(app: FastifyInstance) {
       }
     }
 
-    // Update user to instructor with this academy
+    // Update user to owner with this academy
     await db.update(user)
-      .set({ academyId: created!.id, role: 'instructor', status: 'active' })
+      .set({ academyId: created!.id, role: 'owner', status: 'active' })
       .where(eq(user.id, userId));
 
     return reply.status(201).send(created);
@@ -86,8 +86,8 @@ export async function academyRoutes(app: FastifyInstance) {
     return found;
   });
 
-  // List pending students (instructor only)
-  app.get('/api/academies/:id/pending', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // List pending students (owner only)
+  app.get('/api/academies/:id/pending', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     return db.select({
       id: user.id,
@@ -99,7 +99,7 @@ export async function academyRoutes(app: FastifyInstance) {
   });
 
   // Approve student
-  app.post('/api/academies/:id/approve/:userId', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  app.post('/api/academies/:id/approve/:userId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id, userId } = request.params as { id: string; userId: string };
     const [updated] = await db.update(user)
       .set({ status: 'active' })
@@ -110,7 +110,7 @@ export async function academyRoutes(app: FastifyInstance) {
   });
 
   // Reject student
-  app.post('/api/academies/:id/reject/:userId', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  app.post('/api/academies/:id/reject/:userId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id, userId } = request.params as { id: string; userId: string };
     const [updated] = await db.update(user)
       .set({ status: 'rejected' })
@@ -120,8 +120,8 @@ export async function academyRoutes(app: FastifyInstance) {
     return updated;
   });
 
-  // Update academy location (instructor only)
-  app.put('/api/academies/:id/location', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Update academy location (owner only)
+  app.put('/api/academies/:id/location', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { latitude, longitude, address } = request.body as {
       latitude: number;

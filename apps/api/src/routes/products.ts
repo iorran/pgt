@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { product } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function productRoutes(app: FastifyInstance) {
@@ -12,8 +12,8 @@ export async function productRoutes(app: FastifyInstance) {
     return db.select().from(product).where(and(eq(product.academyId, academyId), eq(product.active, true)));
   });
 
-  // Create product (instructor only)
-  app.post('/api/products', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Create product (owner only)
+  app.post('/api/products', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const body = request.body as any;
     const [created] = await db.insert(product).values({
       academyId: request.academyId,
@@ -26,8 +26,8 @@ export async function productRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // Update product (instructor only)
-  app.put('/api/products/:id', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // Update product (owner only)
+  app.put('/api/products/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(product)
@@ -37,8 +37,8 @@ export async function productRoutes(app: FastifyInstance) {
     return updated;
   });
 
-  // Soft-delete product (instructor only)
-  app.delete('/api/products/:id', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  // Soft-delete product (owner only)
+  app.delete('/api/products/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const [updated] = await db.update(product)
       .set({ active: false })

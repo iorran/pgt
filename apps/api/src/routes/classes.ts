@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { bjjClass } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function classRoutes(app: FastifyInstance) {
@@ -12,8 +12,8 @@ export async function classRoutes(app: FastifyInstance) {
     return db.select().from(bjjClass).where(eq(bjjClass.academyId, academyId));
   });
 
-  // Create class (instructor only)
-  app.post('/api/classes', { preHandler: [requireInstructor, injectAcademyId] }, async (request, reply) => {
+  // Create class (owner only)
+  app.post('/api/classes', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const body = request.body as any;
     const [created] = await db.insert(bjjClass).values({
       academyId: request.academyId,
@@ -30,7 +30,7 @@ export async function classRoutes(app: FastifyInstance) {
   });
 
   // Update class
-  app.put('/api/classes/:id', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  app.put('/api/classes/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(bjjClass)
@@ -41,7 +41,7 @@ export async function classRoutes(app: FastifyInstance) {
   });
 
   // Delete (deactivate) class
-  app.delete('/api/classes/:id', { preHandler: [requireInstructor, injectAcademyId] }, async (request) => {
+  app.delete('/api/classes/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const [updated] = await db.update(bjjClass)
       .set({ active: false })

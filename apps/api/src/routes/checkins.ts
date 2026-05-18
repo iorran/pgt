@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { checkin, streak, bjjClass, academy, checkinToken, user } from '../db/schema/index.js';
 import { eq, and, gte, lt, ne, desc } from 'drizzle-orm';
-import { requireAuth, requireInstructor } from '../middleware/auth.js';
+import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { haversineDistance } from '../utils/haversine.js';
 import { isClassActiveNow } from '../utils/time-window.js';
@@ -204,10 +204,10 @@ export async function checkinRoutes(app: FastifyInstance) {
     return reply.status(201).send(created);
   });
 
-  // GET /api/checkins/tokens — instructor: return tokens for active classes
+  // GET /api/checkins/tokens — owner: return tokens for active classes
   app.get(
     '/api/checkins/tokens',
-    { preHandler: [requireInstructor, injectAcademyId] },
+    { preHandler: [requireOwner, injectAcademyId] },
     async (request, reply) => {
       const academyId = request.academyId;
       const now = new Date();

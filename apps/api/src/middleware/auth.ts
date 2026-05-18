@@ -26,10 +26,10 @@ export async function requireAuth(request: FastifyRequest, reply: FastifyReply) 
   request.user = session.user;
 }
 
-export async function requireInstructor(request: FastifyRequest, reply: FastifyReply) {
+export async function requireOwner(request: FastifyRequest, reply: FastifyReply) {
   await requireAuth(request, reply);
   if (reply.sent) return;
-  if (request.user.role !== 'instructor') {
-    return reply.status(403).send({ error: 'Forbidden: instructor only' });
+  if (request.user.role !== 'owner') {
+    return reply.status(403).send({ error: 'Forbidden: owner only' });
   }
 }

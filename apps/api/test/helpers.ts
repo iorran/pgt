@@ -82,9 +82,9 @@ export async function createTestInstructor(
   overrides: Partial<typeof schema.user.$inferInsert> = {},
 ) {
   return createTestUser(academyId, {
-    role: 'instructor',
+    role: 'owner',
     belt: 'black',
-    name: 'Test Instructor',
+    name: 'Test Owner',
     ...overrides,
   });
 }
