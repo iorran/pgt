@@ -1,3 +1,19 @@
+# [1.10.0](https://github.com/iorran/pgt/compare/v1.9.0...v1.10.0) (2026-05-19)
+
+
+### Bug Fixes
+
+* **api:** make migration 0008 single-transaction-safe; revert custom migrate runner ([272650e](https://github.com/iorran/pgt/commit/272650e38f52c02766816f12ca51772ef2ef1654))
+* **api:** replace drizzle-kit migrate with per-migration autocommit script ([3e04096](https://github.com/iorran/pgt/commit/3e04096c9cf88445e8eb3917dcd54ff08d542207))
+
+
+### Features
+
+* **api:** migration 0008 — remove instructor from user_role enum ([98d67ab](https://github.com/iorran/pgt/commit/98d67ab63801fc069a1786e14d9becb6c96bdb9e))
+* **api:** owner is the admin role; requireOwner + requireAcademyOwner ([a3db7c0](https://github.com/iorran/pgt/commit/a3db7c01c736fc706286698c1c7ea7ea32cf8c00))
+* **web:** add isOwner/isStudent role helper ([890c61b](https://github.com/iorran/pgt/commit/890c61b7f8c3b392a3576db93060f5123c765fef))
+* **web:** owner-based shell/sidebar/route gating via isOwner ([311a95f](https://github.com/iorran/pgt/commit/311a95f60ac92974f6fd3295c020143aaa2c2af6))
+
 # [1.9.0](https://github.com/iorran/pgt/compare/v1.8.1...v1.9.0) (2026-04-23)
 
 
