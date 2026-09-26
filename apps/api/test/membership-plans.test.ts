@@ -19,6 +19,7 @@ describe('GET /api/membership-plans', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/membership-plans?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -32,6 +33,7 @@ describe('GET /api/membership-plans', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/membership-plans?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
@@ -47,6 +49,7 @@ describe('GET /api/membership-plans', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/membership-plans?academyId=${academy2.id}`,
+      headers: authHeaders(await createTestOwner(academy2.id)),
     });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
@@ -151,6 +154,7 @@ describe('DELETE /api/membership-plans/:id', () => {
     const listRes = await app.inject({
       method: 'GET',
       url: `/api/membership-plans?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
     expect(listRes.json()).toHaveLength(0);
   });

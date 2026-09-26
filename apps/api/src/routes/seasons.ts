@@ -7,15 +7,18 @@ import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function seasonRoutes(app: FastifyInstance) {
   // List seasons for academy
-  app.get('/api/seasons', async (request) => {
-    const { academyId } = request.query as { academyId: string };
-    return db.select().from(season).where(eq(season.academyId, academyId));
+  app.get('/api/seasons', { preHandler: [requireAuth, injectAcademyId] }, async (request) => {
+    return db.select().from(season).where(eq(season.academyId, request.academyId));
   });
 
   // Get single season
-  app.get('/api/seasons/:id', async (request) => {
+  app.get('/api/seasons/:id', { preHandler: [requireAuth, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const [found] = await db.select().from(season).where(eq(season.id, id));
+    const [found] = await db.select().from(season)
+      .where(and(eq(season.id, id), eq(season.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Season not found' });
+    }
     return found;
   });
 
@@ -38,16 +41,22 @@ export async function seasonRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(season)
-      .set(body)
+      .set({ ...body, id, academyId: request.academyId })
       .where(and(eq(season.id, id), eq(season.academyId, request.academyId)))
       .returning();
     return updated;
   });
 
   // Leaderboard for a season
-  app.get('/api/seasons/:id/leaderboard', async (request) => {
+  app.get('/api/seasons/:id/leaderboard', { preHandler: [requireAuth, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { category, belt } = request.query as { category?: string; belt?: string };
+
+    const [found] = await db.select({ id: season.id }).from(season)
+      .where(and(eq(season.id, id), eq(season.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Season not found' });
+    }
 
     const results = await db.select({
       studentId: user.id,

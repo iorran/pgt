@@ -6,6 +6,7 @@ import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
 import { emailService } from '../email/index.js';
+import { isAcademyStudent } from './students.js';
 import { loadStudentBilling } from '../billing/load.js';
 import { daysOverdue, familyBilling, fromCents, monthKey, monthlyFee, owedMonths, toCents } from '../billing/rules.js';
 
@@ -18,6 +19,9 @@ export async function paymentRoutes(app: FastifyInstance) {
       paymentDate: string;
       referenceMonth: string;
     };
+    if (!(await isAcademyStudent(body.studentId, request.academyId))) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
     const [created] = await db.insert(payment).values({
       studentId: body.studentId,
       academyId: request.academyId,
@@ -170,7 +174,7 @@ export async function paymentRoutes(app: FastifyInstance) {
   app.post('/api/payments/overdue/:studentId/notify', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
     const [student] = await db.select({ email: user.email, name: user.name })
-      .from(user).where(eq(user.id, studentId));
+      .from(user).where(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
     if (!student) return reply.status(404).send({ error: 'Student not found' });
 
     const [acad] = await db.select({ name: academy.name })

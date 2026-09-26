@@ -7,9 +7,8 @@ import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function productRoutes(app: FastifyInstance) {
   // List active products for academy
-  app.get('/api/products', async (request) => {
-    const { academyId } = request.query as { academyId: string };
-    return db.select().from(product).where(and(eq(product.academyId, academyId), eq(product.active, true)));
+  app.get('/api/products', { preHandler: [requireAuth, injectAcademyId] }, async (request) => {
+    return db.select().from(product).where(and(eq(product.academyId, request.academyId), eq(product.active, true)));
   });
 
   // Create product (owner only)
@@ -31,7 +30,7 @@ export async function productRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(product)
-      .set(body)
+      .set({ ...body, id, academyId: request.academyId })
       .where(and(eq(product.id, id), eq(product.academyId, request.academyId)))
       .returning();
     return updated;

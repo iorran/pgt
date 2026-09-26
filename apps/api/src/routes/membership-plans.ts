@@ -7,10 +7,9 @@ import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function membershipPlanRoutes(app: FastifyInstance) {
   // List active plans for an academy
-  app.get('/api/membership-plans', async (request) => {
-    const { academyId } = request.query as { academyId: string };
+  app.get('/api/membership-plans', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     return db.select().from(membershipPlan).where(
-      and(eq(membershipPlan.academyId, academyId), eq(membershipPlan.active, true))
+      and(eq(membershipPlan.academyId, request.academyId), eq(membershipPlan.active, true))
     );
   });
 
@@ -32,7 +31,7 @@ export async function membershipPlanRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(membershipPlan)
-      .set(body)
+      .set({ ...body, id, academyId: request.academyId })
       .where(and(eq(membershipPlan.id, id), eq(membershipPlan.academyId, request.academyId)))
       .returning();
     return updated;

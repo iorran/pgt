@@ -17,7 +17,7 @@ function withMonthlyFee<T extends { planPrice: string | null; agreedPrice: strin
   return { ...row, monthlyFee: row.planPrice === null ? null : monthlyFee(row.planPrice, row.agreedPrice) };
 }
 
-async function isAcademyStudent(id: string, academyId: string) {
+export async function isAcademyStudent(id: string, academyId: string) {
   const [row] = await db
     .select({ id: user.id })
     .from(user)
@@ -88,6 +88,14 @@ export async function studentRoutes(app: FastifyInstance) {
   app.post('/api/students/:id/membership', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = request.body as { planId: string; startDate: string; dueDay: number };
+    if (!(await isAcademyStudent(id, request.academyId))) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
+    const [plan] = await db.select({ id: membershipPlan.id }).from(membershipPlan)
+      .where(and(eq(membershipPlan.id, body.planId), eq(membershipPlan.academyId, request.academyId)));
+    if (!plan) {
+      return reply.status(404).send({ error: 'Plan not found' });
+    }
 
     // Deactivate any existing active membership first
     await db.update(studentMembership)
@@ -186,6 +194,9 @@ export async function studentRoutes(app: FastifyInstance) {
   app.put('/api/students/:id/notifications', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { muted } = request.body as { muted: boolean };
+    if (!(await isAcademyStudent(id, request.academyId))) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
     const [updated] = await db.update(studentMembership)
       .set({ notificationsMuted: muted })
       .where(and(eq(studentMembership.studentId, id), eq(studentMembership.active, true)))

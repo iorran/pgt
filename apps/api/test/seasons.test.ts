@@ -33,6 +33,7 @@ describe('GET /api/seasons', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/seasons?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -47,6 +48,7 @@ describe('GET /api/seasons', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/seasons?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -71,6 +73,7 @@ describe('GET /api/seasons/:id', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/seasons/${created.id}`,
+      headers: authHeaders(await createTestOwner(created.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -157,6 +160,7 @@ describe('GET /api/seasons/:id/leaderboard', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/seasons/${seasonRecord.id}/leaderboard`,
+      headers: authHeaders(await createTestOwner(seasonRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -226,6 +230,7 @@ describe('GET /api/seasons/:id/leaderboard', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/seasons/${seasonRecord.id}/leaderboard`,
+      headers: authHeaders(await createTestOwner(seasonRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -287,6 +292,7 @@ describe('GET /api/seasons/:id/leaderboard', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/seasons/${seasonRecord.id}/leaderboard?category=kids`,
+      headers: authHeaders(await createTestOwner(seasonRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -345,6 +351,7 @@ describe('GET /api/seasons/:id/leaderboard', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/seasons/${seasonRecord.id}/leaderboard?category=adults&belt=blue`,
+      headers: authHeaders(await createTestOwner(seasonRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);

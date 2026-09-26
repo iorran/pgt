@@ -181,6 +181,7 @@ describe('GET /api/gamification/badges', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/gamification/badges?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -195,6 +196,7 @@ describe('GET /api/gamification/badges', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/gamification/badges?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);

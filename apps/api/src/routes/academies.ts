@@ -87,8 +87,11 @@ export async function academyRoutes(app: FastifyInstance) {
   });
 
   // List pending students (owner only)
-  app.get('/api/academies/:id/pending', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
+  app.get('/api/academies/:id/pending', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
+    if (id !== request.academyId) {
+      return reply.status(404).send({ error: 'Academy not found' });
+    }
     return db.select({
       id: user.id,
       name: user.name,
@@ -101,6 +104,9 @@ export async function academyRoutes(app: FastifyInstance) {
   // Approve student
   app.post('/api/academies/:id/approve/:userId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id, userId } = request.params as { id: string; userId: string };
+    if (id !== request.academyId) {
+      return reply.status(404).send({ error: 'Academy not found' });
+    }
     const [updated] = await db.update(user)
       .set({ status: 'active' })
       .where(and(eq(user.id, userId), eq(user.academyId, id), eq(user.status, 'pending')))
@@ -112,6 +118,9 @@ export async function academyRoutes(app: FastifyInstance) {
   // Reject student
   app.post('/api/academies/:id/reject/:userId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id, userId } = request.params as { id: string; userId: string };
+    if (id !== request.academyId) {
+      return reply.status(404).send({ error: 'Academy not found' });
+    }
     const [updated] = await db.update(user)
       .set({ status: 'rejected' })
       .where(and(eq(user.id, userId), eq(user.academyId, id), eq(user.status, 'pending')))

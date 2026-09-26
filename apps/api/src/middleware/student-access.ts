@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { db } from '../db/client.js';
 import { user } from '../db/schema/index.js';
 import { requireAuth } from './auth.js';
@@ -38,4 +38,33 @@ export function authorizeStudentRead(paramName: string) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
   };
+}
+
+/**
+ * Authorize a write on behalf of `studentId` (usually from the request body):
+ * the caller themself, or an owner acting for a user of their own academy.
+ * Sends 403/404 and returns false otherwise.
+ */
+export async function canActForStudent(request: FastifyRequest, reply: FastifyReply, studentId: unknown) {
+  if (studentId === request.user.id) {
+    return true;
+  }
+  if (request.user.role !== 'owner') {
+    reply.status(403).send({ error: 'Forbidden' });
+    return false;
+  }
+  if (typeof studentId !== 'string' || !request.user.academyId) {
+    reply.status(404).send({ error: 'Student not found' });
+    return false;
+  }
+  const [target] = await db
+    .select({ id: user.id })
+    .from(user)
+    .where(and(eq(user.id, studentId), eq(user.academyId, request.user.academyId)))
+    .limit(1);
+  if (!target) {
+    reply.status(404).send({ error: 'Student not found' });
+    return false;
+  }
+  return true;
 }

@@ -19,6 +19,7 @@ describe('GET /api/products', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/products?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -32,6 +33,7 @@ describe('GET /api/products', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/products?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
@@ -142,6 +144,7 @@ describe('DELETE /api/products/:id', () => {
     const listRes = await app.inject({
       method: 'GET',
       url: `/api/products?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
     expect(listRes.json()).toHaveLength(0);
   });
