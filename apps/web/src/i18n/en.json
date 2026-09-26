@@ -15,7 +15,9 @@
     "progress": "Progress",
     "shop": "Shop",
     "me": "Me",
-    "checkin": "Check-in"
+    "checkin": "Check-in",
+    "totem": "Kiosk",
+    "menu": "Menu"
   },
   "auth": {
     "login": "Log In",
@@ -214,7 +216,7 @@
     "profileTitle": "Gamification Profile",
     "totalXp": "Total XP",
     "currentStreak": "Current Streak",
-    "currentStreakFire": "Current Streak \ud83d\udd25",
+    "currentStreakFire": "Current Streak 🔥",
     "longestStreak": "Longest Streak",
     "badges": "Badges",
     "noBadges": "No badges earned yet"
@@ -362,5 +364,12 @@
     "mute": "Mute",
     "unmute": "Unmute",
     "overdueMessage": "Hi {{name}}, your academy payment is {{days}} days overdue. Please settle it as soon as possible."
+  },
+  "belts": {
+    "white": "White",
+    "blue": "Blue",
+    "purple": "Purple",
+    "brown": "Brown",
+    "black": "Black"
   }
 }

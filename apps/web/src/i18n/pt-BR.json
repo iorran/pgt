@@ -15,7 +15,9 @@
     "progress": "Progresso",
     "shop": "Loja",
     "me": "Perfil",
-    "checkin": "Check-in"
+    "checkin": "Check-in",
+    "totem": "Totem",
+    "menu": "Menu"
   },
   "auth": {
     "login": "Entrar",
@@ -214,7 +216,7 @@
     "profileTitle": "Perfil de Gamificação",
     "totalXp": "XP Total",
     "currentStreak": "Sequência Atual",
-    "currentStreakFire": "Sequência Atual \ud83d\udd25",
+    "currentStreakFire": "Sequência Atual 🔥",
     "longestStreak": "Maior Sequência",
     "badges": "Conquistas",
     "noBadges": "Nenhuma conquista ainda"
@@ -362,5 +364,12 @@
     "mute": "Silenciar",
     "unmute": "Ativar notificações",
     "overdueMessage": "Olá {{name}}, seu pagamento na academia está {{days}} dias atrasado. Por favor, regularize o quanto antes."
+  },
+  "belts": {
+    "white": "Branca",
+    "blue": "Azul",
+    "purple": "Roxa",
+    "brown": "Marrom",
+    "black": "Preta"
   }
 }

@@ -22,9 +22,6 @@ vi.mock('@/components/layout/staff-shell', () => ({
     </div>
   ),
 }));
-vi.mock('@/pages/dashboard', () => ({
-  default: () => <div data-testid="dashboard-page" />,
-}));
 vi.mock('@/pages/classes/index', () => ({
   default: () => <div data-testid="classes-page" />,
 }));
@@ -76,7 +73,14 @@ describe('App shell selector', () => {
     setSession('student');
     renderWithProviders(<App />);
     expect(screen.getByTestId('classes-page')).toBeInTheDocument();
-    expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument();
+  });
+
+  it('redirects /owner/dashboard to / for owners', async () => {
+    setSession('owner');
+    window.history.replaceState({}, '', '/owner/dashboard');
+    renderWithProviders(<App />);
+    expect(await screen.findByTestId('owner-dashboard-page')).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/');
   });
 
   it('shows the owner dashboard at / for owners (no indirection)', async () => {
@@ -87,7 +91,6 @@ describe('App shell selector', () => {
     expect(
       await screen.findByTestId('owner-dashboard-page'),
     ).toBeInTheDocument();
-    expect(screen.queryByTestId('dashboard-page')).not.toBeInTheDocument();
   });
 
   // Regression guard for the session-refetch flap. Without the
