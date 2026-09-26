@@ -21,21 +21,20 @@ test.describe('smoke', () => {
     if (academy) await cleanAcademy(academy.id);
   });
 
-  test('impersonates an instructor and loads the dashboard', async ({
+  test('impersonates the owner and loads the academy dashboard', async ({
     browser,
   }) => {
     const context = await impersonateAs(browser, instructor.email);
     try {
       const page = await context.newPage();
       await page.goto('/');
-      await expect(page).toHaveURL(/\/$|\/dashboard/);
-      // The dashboard renders the greeting "Olá, {name}" for the logged-in
-      // user. The instructor name is deterministic from setupAcademy().
-      // Scope to the dashboard greeting to avoid the sidebar user-card
-      // duplicate; "Olá," is the pt-BR `dashboard.greeting` prefix.
+      await expect(page).toHaveURL(/\/$/);
+      // Owners land on "Painel da Academia" (the owner dashboard).
       await expect(
-        page.getByText(new RegExp(`Olá,\\s*${instructor.name}`, 'i')),
+        page.getByRole('heading', { name: /painel da academia/i }),
       ).toBeVisible({ timeout: 10_000 });
+      // The header shows the logged-in owner's name.
+      await expect(page.getByRole('banner')).toContainText(instructor.name);
     } finally {
       await context.close();
     }

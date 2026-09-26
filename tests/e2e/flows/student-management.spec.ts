@@ -95,12 +95,12 @@ test('10. instructor uses "Pagar Mês Atual" quick-pay', async ({ browser }) => 
 
     await expect(detail.payCurrentMonthButton).toBeVisible({ timeout: 10_000 });
 
-    await detail.payCurrentMonthButton.click();
+    await detail.payCurrentMonth();
 
-    // After quick-pay, a new row should appear in the payment history table body
-    // (the "Pagar Mês Atual" button disappears once the current month is paid)
-    // Wait for the payment table to render with at least one data row
+    // After quick-pay, the payment history shows one row at the student's
+    // Monthly Fee (assignMembership sets 180.00).
     await expect(page.locator('tbody tr')).toHaveCount(1, { timeout: 10_000 });
+    await expect(page.locator('tbody tr')).toContainText(/180,00\s*€/);
   } finally {
     await context.close();
   }

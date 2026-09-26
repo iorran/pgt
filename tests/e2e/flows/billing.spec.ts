@@ -54,21 +54,21 @@ test('15. instructor records a manual payment', async ({ browser }) => {
     const payments = new PaymentsPage(page);
     await payments.goto();
 
-    // Select student from native <select>
-    await payments.studentSelect.selectOption({ label: student.name });
+    // Pick the student by name; the amount is prefilled from their fee.
+    await payments.studentInput.fill(student.name);
+    await expect(payments.amountInput).toHaveValue('180');
 
-    await payments.amountInput.fill('180.00');
     const today = new Date().toISOString().slice(0, 10);
     await payments.dateInput.fill(today);
     await payments.referenceMonthInput.fill(today.slice(0, 7));
     await payments.recordButton.click();
 
-    // After save, the payment table should show a row with the amount
-    // The GET /payments endpoint does not join user names, so studentName
-    // renders as "-". Assert by the amount value instead.
-    await expect(
-      page.getByRole('cell', { name: /180/ }),
-    ).toBeVisible({ timeout: 10_000 });
+    // After save, the recent payments table shows the student and the
+    // Portugal-style formatted amount.
+    const row = page.getByRole('row').filter({ hasText: student.name });
+    await expect(row.getByRole('cell', { name: /180,00\s*€/ })).toBeVisible({
+      timeout: 10_000,
+    });
   } finally {
     await context.close();
   }

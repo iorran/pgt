@@ -140,9 +140,9 @@ test('25. student submits a result and instructor approves it', async ({
   try {
     const page = await studentContext.newPage();
     await page.goto('/gamification/results');
-    // Wait for the tab nav to confirm the page loaded
+    // Wait for the page heading to confirm the page loaded
     await expect(
-      page.getByRole('link', { name: /resultados de competição/i }),
+      page.getByRole('heading', { name: /resultados de competição/i }),
     ).toBeVisible({ timeout: 10_000 });
 
     // t('gamification.competitionName') = "Nome da Competição"

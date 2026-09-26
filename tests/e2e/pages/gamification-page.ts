@@ -9,9 +9,10 @@ export class GamificationResultsPage {
 
   async goto() {
     await this.page.goto('/gamification/results');
-    // t('gamification.resultsTitle') = "Resultados de Competição"
+    // t('gamification.resultsTitle') = "Resultados de Competição" — the page
+    // heading (the tab link is owner-only and labelled "Resultados").
     await expect(
-      this.page.getByRole('link', { name: /resultados de competição/i }),
+      this.page.getByRole('heading', { name: /resultados de competição/i }),
     ).toBeVisible({ timeout: 10_000 });
   }
 

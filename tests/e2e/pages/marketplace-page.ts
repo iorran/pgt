@@ -12,8 +12,12 @@ export class MarketplacePage {
   constructor(page: Page) {
     this.page = page;
     // t('marketplace.addProduct') = "Adicionar Produto"
+    // The page header renders this as the create-dialog trigger
+    // (aria-expanded); the empty state repeats the same CTA as a plain button.
+    // expanded:false picks the header trigger only.
     this.addProductButton = page.getByRole('button', {
       name: /adicionar produto/i,
+      expanded: false,
     });
     // Labels have no htmlFor — target input by proximity to label text
     // t('marketplace.productName') = "Nome do Produto"

@@ -13,7 +13,13 @@ export class ClassesPage {
     this.classesTab = page.getByRole('link', { name: /quadro de aulas/i });
     this.historyTab = page.getByRole('link', { name: /histórico de presença/i });
     // t('classes.createClass') = "Criar Aula"
-    this.createClassButton = page.getByRole('button', { name: /criar aula/i });
+    // The page header renders this as the create-dialog trigger
+    // (aria-expanded); the empty state repeats the same CTA as a plain button.
+    // expanded:false picks the header trigger only.
+    this.createClassButton = page.getByRole('button', {
+      name: /criar aula/i,
+      expanded: false,
+    });
     // t('common.save') = "Salvar"
     this.saveButton = page.getByRole('button', { name: /^salvar$/i });
   }

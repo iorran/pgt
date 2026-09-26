@@ -20,11 +20,6 @@ export class OwnerDashboardPage {
     });
   }
 
-  forbiddenNotice() {
-    // The page renders "Forbidden (403)" when a non-owner hits the route.
-    return this.page.getByText(/forbidden|403/i);
-  }
-
   /**
    * A class row is rendered as a <button> whose accessible name includes
    * the class name. Regex is safer than exact match because the rendered
