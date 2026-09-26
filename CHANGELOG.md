@@ -1,3 +1,22 @@
+# [1.11.0](https://github.com/iorran/pgt/compare/v1.10.0...v1.11.0) (2026-09-26)
+
+
+### Bug Fixes
+
+* **api:** require auth and academy scoping on all data routes ([d0e93d4](https://github.com/iorran/pgt/commit/d0e93d47eceb397773b02eac11760755a1be0b2e))
+* **web:** dashboard class filters only for existing class types ([396b36f](https://github.com/iorran/pgt/commit/396b36fda84166fecdf7756e0028b17ff631d053))
+* **web:** format money and dates Portugal-style in Portuguese ([e69a3cc](https://github.com/iorran/pgt/commit/e69a3cc6c072c8156133120766db3f687e270060))
+
+
+### Features
+
+* **api:** families schema and migration 0009, API contract ([3185656](https://github.com/iorran/pgt/commit/31856563eecb0b0692b6f2b5bd1fc43fe40f811a))
+* **api:** seed PGT Pontinha roster from CSV, add db:reset ([ae1a68e](https://github.com/iorran/pgt/commit/ae1a68ec4a0c45bbdd386f62272e2ae3bc55f4b6))
+* apply UI/UX review fixes across all pages ([019ef17](https://github.com/iorran/pgt/commit/019ef17e43d7ceb79c04dcecd00dae5f650fe543))
+* families — pay together, agreed prices, waived months ([b282c5d](https://github.com/iorran/pgt/commit/b282c5d30fb7fb95f0d0a4f63d1baf628ee96c1e))
+* no plans — per-student Monthly Fee, modalities and training note ([7650f4b](https://github.com/iorran/pgt/commit/7650f4b3a5c1b6217ba4a1859b4880f52a72d552))
+* **web:** mobile owner navigation and shared UX foundations ([e585dd8](https://github.com/iorran/pgt/commit/e585dd807ab543b2f335260265e31db8e1b06bf6))
+
 # [1.10.0](https://github.com/iorran/pgt/compare/v1.9.0...v1.10.0) (2026-05-19)
 
 
