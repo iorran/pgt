@@ -10,6 +10,9 @@ import { ClassCreateDialog } from '@/components/schedule/class-create-dialog';
 import { ClassEditDialog } from '@/components/schedule/class-edit-dialog';
 import { PageLoader } from '@/components/page-loader';
 import { TabsNav } from '@/components/tabs-nav';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/lib/toast';
+import { CalendarPlus } from 'lucide-react';
 import type { ClassItem } from '@/lib/schedule';
 
 export function InstructorClassesView() {
@@ -109,42 +112,59 @@ export function InstructorClassesView() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="space-y-6">
       <TabsNav
+        title={t('nav.classes')}
         items={[
           { to: '/classes', label: t('classes.title') },
           { to: '/classes/history', label: t('classes.checkinHistory') },
         ]}
       />
       <div className="flex items-center justify-between">
-        <span className="arena-stat text-primary text-xl md:text-2xl">
-          {classes.length}
+        <span className="text-muted-foreground">
+          {t('classes.classCount', { count: classes.length })}
         </span>
         <ClassCreateDialog
           open={createOpen}
           onOpenChange={setCreateOpen}
           onSubmit={async (values) => {
-            for (const day of values.daysOfWeek) {
-              await api('/classes', {
-                method: 'POST',
-                body: JSON.stringify({
-                  name: values.name,
-                  type: values.type,
-                  recurrence: values.recurrence,
-                  dayOfWeek: day,
-                  startTime: values.startTime,
-                  endTime: values.endTime,
-                  academyId: user.academyId,
-                }),
+            // ponytail: sequential POSTs; a mid-way failure leaves earlier days created (shown after refetch).
+            try {
+              for (const day of values.daysOfWeek) {
+                await api('/classes', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    name: values.name,
+                    type: values.type,
+                    recurrence: values.recurrence,
+                    dayOfWeek: day,
+                    startTime: values.startTime,
+                    endTime: values.endTime,
+                    academyId: user.academyId,
+                  }),
+                });
+              }
+            } catch (err) {
+              toast.error((err as Error).message);
+              throw err;
+            } finally {
+              queryClient.invalidateQueries({
+                queryKey: ['classes', user.academyId],
               });
             }
-            queryClient.invalidateQueries({
-              queryKey: ['classes', user.academyId],
-            });
+            toast.success(t('classes.classesCreated'));
             setCreateOpen(false);
           }}
         />
       </div>
+
+      {classes.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-3">
+          <CalendarPlus className="size-12" />
+          <p className="text-lg font-heading">{t('classes.noClasses')}</p>
+          <Button onClick={() => setCreateOpen(true)}>{t('classes.createClass')}</Button>
+        </div>
+      )}
 
       <ClassCalendar
         events={calendar.events}

@@ -81,8 +81,34 @@ describe('LoginPage', () => {
     await user.click(screen.getByRole('button', { name: 'auth.login' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toHaveTextContent('auth.loginError');
     });
+    expect(screen.queryByText('Invalid credentials')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('auth.email')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText('auth.password')).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('sets autocomplete hints on email and password', () => {
+    renderWithProviders(<LoginPage />);
+    const email = screen.getByLabelText('auth.email');
+    expect(email).toHaveAttribute('autocomplete', 'email');
+    expect(email).toHaveAttribute('inputmode', 'email');
+    expect(screen.getByLabelText('auth.password')).toHaveAttribute('autocomplete', 'current-password');
+  });
+
+  it('does not log credentials or session to the console', async () => {
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    mockedSignInEmail.mockResolvedValue({ error: null } as any);
+    const user = userEvent.setup();
+    renderAt('/login');
+
+    await user.type(screen.getByLabelText('auth.email'), 'a@b.com');
+    await user.type(screen.getByLabelText('auth.password'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'auth.login' }));
+
+    await waitFor(() => expect(screen.getByTestId('home')).toBeInTheDocument());
+    expect(logSpy).not.toHaveBeenCalled();
+    logSpy.mockRestore();
   });
 
   it('navigates to redirect param when it is a safe relative path', async () => {

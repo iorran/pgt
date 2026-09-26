@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
 export default function SignupPage() {
@@ -27,7 +28,7 @@ export default function SignupPage() {
       </p>
 
       <div className="flex flex-col md:flex-row gap-6 w-full max-w-2xl">
-        <Card className="flex-1 bg-card border-border">
+        <Card className="flex-1 order-2 md:order-1 bg-card border-border">
           <CardHeader>
             <CardTitle className="font-heading text-xl uppercase">
               {t('onboarding.createAcademy')}
@@ -36,14 +37,14 @@ export default function SignupPage() {
               {t('onboarding.createAcademyDesc')}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="mt-auto">
             <Button className="w-full" onClick={() => navigate('/criar-academia')}>
               {t('onboarding.createAcademy')}
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="flex-1 bg-card border-border">
+        <Card className="flex-1 order-1 md:order-2 bg-card border-border">
           <CardHeader>
             <CardTitle className="font-heading text-xl uppercase">
               {t('onboarding.haveCode')}
@@ -52,12 +53,18 @@ export default function SignupPage() {
               {t('onboarding.haveCodeDesc')}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Input
-              placeholder={t('onboarding.enterCode')}
-              value={code}
-              onChange={e => setCode(e.target.value)}
-            />
+          <CardContent className="mt-auto space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="academyCode">{t('onboarding.joinCode')}</Label>
+              <Input
+                id="academyCode"
+                autoCapitalize="characters"
+                autoComplete="off"
+                placeholder={t('onboarding.enterCode')}
+                value={code}
+                onChange={e => setCode(e.target.value)}
+              />
+            </div>
             <Button
               className="w-full"
               disabled={!code.trim()}
@@ -72,7 +79,7 @@ export default function SignupPage() {
       <p className="mt-8 text-center text-sm">
         <Link
           to="/login"
-          className="text-muted-foreground hover:text-primary transition-colors no-underline"
+          className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline"
         >
           {t('auth.login')}
         </Link>

@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { formatMoney } from '@/lib/format';
 import { renderWithProviders } from '../render';
 import PlansPage from '@/pages/billing/plans';
 
@@ -53,6 +55,27 @@ describe('PlansPage', () => {
   it('shows empty state', async () => {
     mockApi.mockResolvedValue([] as any);
     renderWithProviders(<PlansPage />);
-    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+    expect(await screen.findByText('billing.noPlans')).toBeInTheDocument();
+  });
+
+  it('formats string prices as money and translates frequency', async () => {
+    mockApi.mockResolvedValue([
+      { id: 'p3', name: 'Bolsa', price: '0.00', frequency: 'monthly', classesPerWeek: null },
+    ] as any);
+    renderWithProviders(<PlansPage />);
+    expect(await screen.findByText(formatMoney('0.00', 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
+    expect(screen.getByText('billing.monthly')).toBeInTheDocument();
+    expect(screen.queryByText('monthly')).toBeNull();
+    expect(screen.getByText('billing.unlimitedClasses')).toBeInTheDocument();
+  });
+
+  it('associates form labels with inputs', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<PlansPage />);
+    await user.click(await screen.findByRole('button', { name: 'billing.createPlan' }));
+    expect(await screen.findByLabelText('billing.planName')).toBeInTheDocument();
+    expect(screen.getByLabelText('billing.price')).toBeInTheDocument();
+    expect(screen.getByLabelText('billing.frequency')).toBeInTheDocument();
+    expect(screen.getByLabelText('billing.classesPerWeek')).toBeInTheDocument();
   });
 });

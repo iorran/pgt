@@ -19,6 +19,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
 } from '@/components/ui/dialog';
 import {
   Table,
@@ -28,6 +31,8 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { beltClasses, beltKey } from '@/lib/belts';
+import { formatDate, formatMoney } from '@/lib/format';
 
 interface Student {
   id: string;
@@ -42,32 +47,21 @@ interface Student {
 
 interface Payment {
   id: string;
-  amount: number;
+  amount: number | string;
   paymentDate: string;
   referenceMonth: string;
   status?: string;
 }
 
-const BELT_CLASSES: Record<string, string> = {
-  white: 'bg-gray-200 text-gray-800',
-  blue: 'bg-belt-blue text-white',
-  purple: 'bg-belt-purple text-white',
-  brown: 'bg-belt-brown text-white',
-  black: 'bg-belt-black text-white',
-};
-
-function getBeltClasses(belt: string) {
-  return BELT_CLASSES[belt?.toLowerCase()] || 'bg-gray-200 text-gray-800';
-}
-
 export default function StudentDetailPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [payConfirmOpen, setPayConfirmOpen] = useState(false);
 
   const { data: student, isLoading: studentLoading } = useApiQuery<Student>(
     ['student', id!],
@@ -121,7 +115,9 @@ export default function StudentDetailPage() {
   const quickPayMutation = useMutation({
     mutationFn: () =>
       api(`/payments/quick/${id}`, { method: 'POST' }),
+    meta: { successMessage: t('students.paySuccess') },
     onSuccess: () => {
+      setPayConfirmOpen(false);
       queryClient.invalidateQueries({ queryKey: ['payments', 'student', id] });
       queryClient.invalidateQueries({ queryKey: ['overdue'] });
       queryClient.invalidateQueries({ queryKey: ['my-payment-status'] });
@@ -139,15 +135,11 @@ export default function StudentDetailPage() {
     },
   });
 
-  function formatCurrency(value: number) {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  }
-
   if (isLoading) return <PageLoader />;
-  if (!student) return <div className="p-5 text-muted-foreground">{t('common.noResults')}</div>;
+  if (!student) return <div className="text-muted-foreground">{t('common.noResults')}</div>;
 
   return (
-    <div className="p-5 space-y-6">
+    <div className="space-y-6">
       <Button variant="outline" onClick={() => navigate('/students')}>
         {t('common.back')}
       </Button>
@@ -156,10 +148,11 @@ export default function StudentDetailPage() {
       <div className="space-y-2">
         <div className="flex items-center gap-3">
           <h1 className="font-heading text-2xl uppercase tracking-wider">{student.name}</h1>
-          <Badge className={getBeltClasses(student.belt)}>{student.belt}</Badge>
+          <Badge className={beltClasses(student.belt)}>{t(beltKey(student.belt))}</Badge>
         </div>
         <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-          <span>{student.email}</span>
+          {/* Spreadsheet-imported students get placeholder *.local emails. */}
+          {!student.email?.endsWith('.local') && <span>{student.email}</span>}
           {student.phone && <span>{student.phone}</span>}
         </div>
       </div>
@@ -235,7 +228,7 @@ export default function StudentDetailPage() {
                           <option value="">--</option>
                           {plans.map((p: any) => (
                             <option key={p.id} value={p.id}>
-                              {p.name} — {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                              {p.name} — {formatMoney(p.price, i18n.language)}
                             </option>
                           ))}
                         </select>
@@ -294,14 +287,23 @@ export default function StudentDetailPage() {
             <p className="text-muted-foreground">-</p>
           )}
           {isOwner(user) && student.planName && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => quickPayMutation.mutate()}
-              loading={quickPayMutation.isPending}
-            >
-              {t('students.payCurrentMonth')}
-            </Button>
+            <Dialog open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
+              <DialogTrigger render={<Button variant="outline" className="w-full sm:w-auto" />}>
+                {t('students.payCurrentMonth')}
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t('students.payCurrentMonth')}</DialogTitle>
+                  <DialogDescription>{t('students.payConfirm', { name: student.name })}</DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <DialogClose render={<Button variant="outline" />}>{t('common.cancel')}</DialogClose>
+                  <Button onClick={() => quickPayMutation.mutate()} loading={quickPayMutation.isPending}>
+                    {t('common.confirm')}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           )}
         </CardContent>
       </Card>
@@ -324,8 +326,8 @@ export default function StudentDetailPage() {
               <TableBody>
                 {payments.map((p) => (
                   <TableRow key={p.id}>
-                    <TableCell className="font-mono">{new Date(p.paymentDate).toLocaleDateString()}</TableCell>
-                    <TableCell className="arena-stat">{formatCurrency(p.amount)}</TableCell>
+                    <TableCell className="font-mono">{formatDate(p.paymentDate, i18n.language)}</TableCell>
+                    <TableCell className="arena-stat">{formatMoney(p.amount, i18n.language)}</TableCell>
                     <TableCell>{p.referenceMonth}</TableCell>
                   </TableRow>
                 ))}

@@ -14,6 +14,7 @@ import { StudentShell } from './components/layout/student-shell';
 import MePage from './pages/me';
 import BillingStatusPage from './pages/me/billing-status';
 import ThemePage from './pages/me/theme';
+import LanguagePage from './pages/me/language';
 import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
 import StudentsPage from './pages/students/index';
@@ -78,7 +79,7 @@ function App() {
   return (
     <>
       <AppRoutes />
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-center" offset={{ top: 64 }} mobileOffset={{ top: 64 }} />
     </>
   );
 }
@@ -192,6 +193,7 @@ function AppRoutes() {
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/theme" element={<ThemePage />} />
+        <Route path="/me/language" element={<LanguagePage />} />
       </Route>
       <Route path="*" element={<Navigate to={owner ? '/' : studentHome} replace />} />
     </Routes>

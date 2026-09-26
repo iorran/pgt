@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { CalendarCheck } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
@@ -11,6 +13,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
+import { buttonVariants } from '@/components/ui/button';
 
 interface CheckinRecord {
   id: string;
@@ -33,14 +36,20 @@ export default function CheckinHistoryPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-5 space-y-6">
-      <TabsNav items={[
+    <div className="space-y-6">
+      <TabsNav title={t('nav.classes')} items={[
         { to: '/classes', label: t('classes.title') },
         { to: '/classes/history', label: t('classes.checkinHistory') },
       ]} />
 
       {checkins.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
+          <CalendarCheck className="size-12" />
+          <p className="text-lg font-heading">{t('classes.noCheckins')}</p>
+          <Link to="/classes" className={buttonVariants({ variant: 'outline' })}>
+            {t('classes.viewSchedule')}
+          </Link>
+        </div>
       ) : (
         <div className="rounded-sm border border-border">
           <Table>

@@ -294,3 +294,34 @@ describe('GET /api/payments/overdue', () => {
     expect(body[0].daysOverdue).toBeGreaterThan(30);
   });
 });
+
+describe('free plans (price 0)', () => {
+  async function setupFreeMember() {
+    const academy = await createTestAcademy();
+    const student = await createTestUser(academy.id, { name: 'Free Student' });
+    const [plan] = await testDb.insert(schema.membershipPlan).values({
+      academyId: academy.id, name: 'Bolsa', price: '0.00', frequency: 'monthly',
+    }).returning();
+    const now = new Date();
+    const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    const startDate = `${twoMonthsAgo.getFullYear()}-${String(twoMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`;
+    await testDb.insert(schema.studentMembership).values({
+      studentId: student.id, planId: plan.id, startDate, dueDay: 1,
+    });
+    return { academy, student };
+  }
+
+  it('overdue list skips members on a free plan', async () => {
+    const { academy } = await setupFreeMember();
+    const res = await app.inject({ method: 'GET', url: `/api/payments/overdue?academyId=${academy.id}` });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toHaveLength(0);
+  });
+
+  it('my-status is ok for a member on a free plan', async () => {
+    const { student } = await setupFreeMember();
+    const res = await app.inject({ method: 'GET', url: '/api/payments/my-status', headers: authHeaders(student) });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().status).toBe('ok');
+  });
+});

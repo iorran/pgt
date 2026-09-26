@@ -60,4 +60,14 @@ describe('TotemPage', () => {
     expect(screen.getByText('Kids BJJ')).toBeInTheDocument();
     expect(screen.getAllByTestId('qr-code')).toHaveLength(2);
   });
+
+  it('shows the academy name, a way back and a hint when empty', async () => {
+    mockApi.mockImplementation(async (path: string) =>
+      path === '/academies/mine' ? ({ id: 'a1', name: 'PGT Pontinha' } as any) : ([] as any),
+    );
+    renderWithProviders(<TotemPage />);
+    expect(await screen.findByText('PGT Pontinha')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /common\.back/ })).toHaveAttribute('href', '/');
+    expect(screen.getByText('totem.noClassesHint')).toBeInTheDocument();
+  });
 });

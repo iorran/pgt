@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import CheckinHistoryPage from '@/pages/classes/checkin';
+import { api } from '@/lib/api';
 
 vi.mock('@/lib/auth-client', () => ({
   useSession: () => ({ data: { user: { id: 'stu-1', role: 'student' } } }),
@@ -27,5 +28,16 @@ describe('CheckinHistoryPage', () => {
     expect(screen.getByText('2026-04-23')).toBeInTheDocument();
     expect(screen.queryByText('cls-1')).toBeNull();
     expect(screen.queryByText('Invalid Date')).toBeNull();
+  });
+
+  it('shows a contextual empty state linking to the class schedule', async () => {
+    vi.mocked(api).mockResolvedValueOnce([]);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter><CheckinHistoryPage /></MemoryRouter>
+      </QueryClientProvider>,
+    );
+    expect(await screen.findByText('classes.noCheckins')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'classes.viewSchedule' })).toHaveAttribute('href', '/classes');
   });
 });

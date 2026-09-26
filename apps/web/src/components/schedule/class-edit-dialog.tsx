@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
 import type { ClassItem } from '@/lib/schedule';
 
 const DAY_KEYS = [
@@ -101,8 +102,9 @@ export function ClassEditDialog({
           <form.Field name="name">
             {(field) => (
               <div className="space-y-2">
-                <Label>{t('classes.className')}</Label>
+                <Label htmlFor="class-edit-name">{t('classes.className')}</Label>
                 <Input
+                  id="class-edit-name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -114,12 +116,13 @@ export function ClassEditDialog({
           <form.Field name="type">
             {(field) => (
               <div className="space-y-2">
-                <Label>{t('classes.classType')}</Label>
+                <Label htmlFor="class-edit-type">{t('classes.classType')}</Label>
                 <select
+                  id="class-edit-type"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
                 >
                   <option value="">--</option>
                   <option value="gi">Gi</option>
@@ -133,19 +136,21 @@ export function ClassEditDialog({
           <form.Field name="dayOfWeek">
             {(field) => (
               <div className="space-y-2">
-                <Label>{t('classes.dayOfWeek')}</Label>
-                <div className="flex flex-wrap gap-2">
+                <Label id="class-edit-days">{t('classes.dayOfWeek')}</Label>
+                <div role="group" aria-labelledby="class-edit-days" className="flex flex-wrap gap-2">
                   {DAY_KEYS.map((k, i) => (
                     <button
                       key={i}
                       type="button"
+                      aria-pressed={field.state.value === i}
                       onClick={() => field.handleChange(i)}
-                      className={`px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
+                      className={`inline-flex items-center justify-center gap-1 min-h-11 min-w-11 px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
                         field.state.value === i
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'bg-card border-border text-muted-foreground hover:border-primary hover:text-foreground'
                       }`}
                     >
+                      {field.state.value === i && <Check className="size-3.5" aria-hidden="true" />}
                       {t(k)}
                     </button>
                   ))}
@@ -157,8 +162,9 @@ export function ClassEditDialog({
             <form.Field name="startTime">
               {(field) => (
                 <div className="space-y-2">
-                  <Label>{t('classes.startTime')}</Label>
+                  <Label htmlFor="class-edit-startTime">{t('classes.startTime')}</Label>
                   <Input
+                    id="class-edit-startTime"
                     type="time"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -170,8 +176,9 @@ export function ClassEditDialog({
             <form.Field name="endTime">
               {(field) => (
                 <div className="space-y-2">
-                  <Label>{t('classes.endTime')}</Label>
+                  <Label htmlFor="class-edit-endTime">{t('classes.endTime')}</Label>
                   <Input
+                    id="class-edit-endTime"
                     type="time"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}

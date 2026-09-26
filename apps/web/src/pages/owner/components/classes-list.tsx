@@ -78,13 +78,14 @@ export function ClassesList({
         <span className="text-sm font-medium text-muted-foreground">
           {t('owner.classes.title')}
         </span>
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           {TYPE_FILTERS.map((f) => (
             <button
               key={f}
               type="button"
+              aria-pressed={typeFilter === f}
               onClick={() => handleTypeChange(f)}
-              className={`px-2 py-1 rounded text-xs ${
+              className={`min-h-11 px-3 rounded text-xs ${
                 typeFilter === f ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}
             >

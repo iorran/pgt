@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { payment, user, studentMembership, membershipPlan, academy } from '../db/schema/index.js';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and, gt, sql } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
@@ -39,7 +39,9 @@ export async function paymentRoutes(app: FastifyInstance) {
     const [membership] = await db
       .select({ dueDay: studentMembership.dueDay, startDate: studentMembership.startDate })
       .from(studentMembership)
-      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
+      .innerJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
+      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true), gt(membershipPlan.price, '0')));
+    // No active membership, or a free plan: nothing to pay.
     if (!membership) return { status: 'ok' };
 
     const now = new Date();
@@ -118,7 +120,8 @@ export async function paymentRoutes(app: FastifyInstance) {
         eq(studentMembership.active, true),
       ))
       .innerJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
-      .where(and(eq(user.academyId, academyId), eq(user.role, 'student')));
+      // Free plans (price 0) never go overdue.
+      .where(and(eq(user.academyId, academyId), eq(user.role, 'student'), gt(membershipPlan.price, '0')));
 
     // Get all payments for this academy grouped by student + reference month
     const allPayments = await db

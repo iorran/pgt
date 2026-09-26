@@ -19,17 +19,18 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { TabsNav } from '@/components/tabs-nav';
+import { formatMoney } from '@/lib/format';
 
 interface Plan {
   id: string;
   name: string;
-  price: number;
+  price: string | number;
   frequency: string;
-  classesPerWeek: number;
+  classesPerWeek: number | null;
 }
 
 export default function PlansPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
@@ -47,7 +48,8 @@ export default function PlansPage() {
       const body = {
         ...value,
         price: Number(value.price),
-        classesPerWeek: Number(value.classesPerWeek),
+        // Empty = unlimited ("Livre").
+        classesPerWeek: value.classesPerWeek ? Number(value.classesPerWeek) : null,
         academyId: user.academyId,
       };
       await saveMutation.mutateAsync({ editId, body });
@@ -81,7 +83,7 @@ export default function PlansPage() {
     form.setFieldValue('name', plan.name);
     form.setFieldValue('price', String(plan.price));
     form.setFieldValue('frequency', plan.frequency);
-    form.setFieldValue('classesPerWeek', String(plan.classesPerWeek));
+    form.setFieldValue('classesPerWeek', plan.classesPerWeek ? String(plan.classesPerWeek) : '');
     setDialogOpen(true);
   }
 
@@ -91,15 +93,11 @@ export default function PlansPage() {
     setDialogOpen(true);
   }
 
-  function formatPrice(value: number) {
-    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  }
-
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-5 space-y-6">
-      <TabsNav items={[
+    <div className="space-y-6">
+      <TabsNav title={t('nav.billing')} items={[
         { to: '/billing', label: t('billing.overdueTitle') },
         { to: '/billing/plans', label: t('billing.plansTitle') },
         { to: '/billing/payments', label: t('billing.paymentsTitle') },
@@ -126,8 +124,9 @@ export default function PlansPage() {
                 <form.Field name="name">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('billing.planName')}</Label>
+                      <Label htmlFor="plan-name">{t('billing.planName')}</Label>
                       <Input
+                        id="plan-name"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
@@ -139,8 +138,9 @@ export default function PlansPage() {
                 <form.Field name="price">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('billing.price')}</Label>
+                      <Label htmlFor="plan-price">{t('billing.price')}</Label>
                       <Input
+                        id="plan-price"
                         type="number"
                         step="0.01"
                         value={field.state.value}
@@ -154,12 +154,13 @@ export default function PlansPage() {
                 <form.Field name="frequency">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('billing.frequency')}</Label>
+                      <Label htmlFor="plan-frequency">{t('billing.frequency')}</Label>
                       <select
+                        id="plan-frequency"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
-                        className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                        className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
                       >
                         <option value="monthly">{t('billing.monthly')}</option>
                         <option value="quarterly">{t('billing.quarterly')}</option>
@@ -171,13 +172,15 @@ export default function PlansPage() {
                 <form.Field name="classesPerWeek">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('billing.classesPerWeek')}</Label>
+                      <Label htmlFor="plan-classesPerWeek">{t('billing.classesPerWeek')}</Label>
                       <Input
+                        id="plan-classesPerWeek"
                         type="number"
+                        min="1"
+                        placeholder={t('billing.unlimitedClasses')}
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
-                        required
                       />
                     </div>
                   )}
@@ -190,7 +193,7 @@ export default function PlansPage() {
       </div>
 
       {plans.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
+        <p className="text-muted-foreground text-center py-8">{t('billing.noPlans')}</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {plans.map(p => (
@@ -199,10 +202,12 @@ export default function PlansPage() {
                 <CardTitle className="font-heading text-lg uppercase">{p.name}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="arena-stat text-3xl text-primary">{formatPrice(p.price)}</p>
+                <p className="arena-stat text-3xl text-primary">{formatMoney(p.price, i18n.language)}</p>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>{p.frequency}</span>
-                  <span>{p.classesPerWeek}x / {t('billing.week')}</span>
+                  <span>{t(`billing.${p.frequency}`)}</span>
+                  <span>
+                    {p.classesPerWeek ? `${p.classesPerWeek}x / ${t('billing.week')}` : t('billing.unlimitedClasses')}
+                  </span>
                 </div>
                 {isOwner(user) && (
                   <Button variant="outline" className="w-full mt-2" onClick={() => startEdit(p)}>

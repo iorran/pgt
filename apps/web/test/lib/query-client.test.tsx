@@ -9,6 +9,7 @@ import {
 import React from 'react';
 import { createQueryClient } from '@/lib/query-client';
 import { toast } from '@/lib/toast';
+import i18next from 'i18next';
 
 const toastError = toast.error as unknown as ReturnType<typeof vi.fn>;
 const toastSuccess = toast.success as unknown as ReturnType<typeof vi.fn>;
@@ -20,8 +21,9 @@ function makeWrapper(client: QueryClient) {
 }
 
 describe('createQueryClient', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    await i18next.init({ lng: 'cimode' });
   });
 
   it('dispatches error toast on failed mutation', async () => {
@@ -77,7 +79,8 @@ describe('createQueryClient', () => {
         }),
       { wrapper: makeWrapper(client) },
     );
-    await waitFor(() => expect(toastError).toHaveBeenCalledWith('boom'));
+    // Raw (often English) API messages are replaced by a translated generic one.
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith('common.genericError'));
   });
 
   it('suppresses error toast when query meta.silent', async () => {

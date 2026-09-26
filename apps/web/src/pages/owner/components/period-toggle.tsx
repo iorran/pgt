@@ -11,8 +11,9 @@ export function PeriodToggle({ value, onChange }: { value: Period; onChange: (p:
         <button
           key={o}
           type="button"
+          aria-pressed={value === o}
           onClick={() => onChange(o)}
-          className={`px-3 py-1 rounded text-sm ${value === o ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
+          className={`min-h-11 px-3 rounded text-sm ${value === o ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}
         >
           {t(`owner.period.${o}`)}
         </button>

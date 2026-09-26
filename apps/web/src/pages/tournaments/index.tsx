@@ -27,7 +27,9 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { MapPin, Calendar } from 'lucide-react';
+import { MapPin, Calendar, Trophy } from 'lucide-react';
+import { beltKey } from '@/lib/belts';
+import { formatDate } from '@/lib/format';
 
 interface Tournament {
   id: string;
@@ -45,7 +47,7 @@ interface RosterEntry {
 }
 
 export default function TournamentsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
@@ -134,7 +136,7 @@ export default function TournamentsPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-xl md:text-3xl uppercase tracking-tight">{t('tournaments.pageTitle')}</h1>
 
@@ -157,8 +159,9 @@ export default function TournamentsPage() {
                 <createForm.Field name="name">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('tournaments.tournamentName')}</Label>
+                      <Label htmlFor="tournament-name">{t('tournaments.tournamentName')}</Label>
                       <Input
+                        id="tournament-name"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
@@ -170,8 +173,9 @@ export default function TournamentsPage() {
                 <createForm.Field name="date">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('classes.date')}</Label>
+                      <Label htmlFor="tournament-date">{t('classes.date')}</Label>
                       <Input
+                        id="tournament-date"
                         type="date"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -184,8 +188,9 @@ export default function TournamentsPage() {
                 <createForm.Field name="location">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('tournaments.location')}</Label>
+                      <Label htmlFor="tournament-location">{t('tournaments.location')}</Label>
                       <Input
+                        id="tournament-location"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
@@ -197,8 +202,9 @@ export default function TournamentsPage() {
                 <createForm.Field name="federation">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('tournaments.federation')}</Label>
+                      <Label htmlFor="tournament-federation">{t('tournaments.federation')}</Label>
                       <Input
+                        id="tournament-federation"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
@@ -216,13 +222,19 @@ export default function TournamentsPage() {
       {msg && <p className="text-sm font-bold text-primary">{msg}</p>}
 
       {tournaments.length === 0 ? (
-        <p className="text-muted-foreground">{t('common.noResults')}</p>
+        <div className="text-center py-12 space-y-3">
+          <Trophy className="size-12 text-muted-foreground mx-auto" aria-hidden />
+          <p className="text-muted-foreground font-heading">{t('tournaments.empty')}</p>
+          {isOwner(user) && (
+            <Button onClick={() => setCreateDialogOpen(true)}>{t('tournaments.createTournament')}</Button>
+          )}
+        </div>
       ) : (
         <div className="space-y-4">
           {tournaments.map(tr => (
             <Card key={tr.id} className="rounded-sm">
               <CardHeader className="pb-2">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                   <CardTitle className="font-heading text-xl">{tr.name}</CardTitle>
                   <div className="flex items-center gap-2 shrink-0">
                     {tr.federation && (
@@ -250,8 +262,9 @@ export default function TournamentsPage() {
                             <signupForm.Field name="weightClass">
                               {(field) => (
                                 <div className="space-y-2">
-                                  <Label>{t('tournaments.weightClass')}</Label>
+                                  <Label htmlFor="signup-weight">{t('tournaments.weightClass')}</Label>
                                   <Input
+                                    id="signup-weight"
                                     value={field.state.value}
                                     onChange={(e) => field.handleChange(e.target.value)}
                                     onBlur={field.handleBlur}
@@ -274,13 +287,13 @@ export default function TournamentsPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <Calendar className="size-3.5" />
-                    <span className="font-mono">{new Date(tr.date).toLocaleDateString()}</span>
+                    <Calendar className="size-3.5" aria-hidden />
+                    <span className="font-mono">{formatDate(tr.date, i18n.language)}</span>
                   </span>
                   <span className="flex items-center gap-1">
-                    <MapPin className="size-3.5" />
+                    <MapPin className="size-3.5" aria-hidden />
                     {tr.location}
                   </span>
                 </div>
@@ -306,7 +319,7 @@ export default function TournamentsPage() {
                               <TableRow key={r.id} className="border-border">
                                 <TableCell>{r.studentName}</TableCell>
                                 <TableCell>
-                                  <Badge variant="outline" className="text-xs uppercase">{r.belt}</Badge>
+                                  <Badge variant="outline" className="text-xs uppercase">{t(beltKey(r.belt))}</Badge>
                                 </TableCell>
                                 <TableCell className="font-mono">{r.weightClass}</TableCell>
                               </TableRow>

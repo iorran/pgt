@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import { renderWithProviders } from '../render';
 import PendingStudentsPage from '@/pages/pending-students';
 
@@ -55,5 +55,32 @@ describe('PendingStudentsPage', () => {
     mockApi.mockResolvedValue([] as any);
     renderWithProviders(<PendingStudentsPage />);
     expect(await screen.findByText('onboarding.noPending')).toBeInTheDocument();
+  });
+
+  it('renders a page heading', async () => {
+    renderWithProviders(<PendingStudentsPage />);
+    await screen.findByText('Carlos Silva');
+    expect(screen.getByRole('heading', { level: 1, name: 'nav.students' })).toBeInTheDocument();
+  });
+
+  it('only shows loading on the row being approved', async () => {
+    renderWithProviders(<PendingStudentsPage />);
+    await screen.findByText('Carlos Silva');
+    mockApi.mockReturnValue(new Promise(() => {}) as any);
+    const [approveCarlos, approveAna] = screen.getAllByRole('button', { name: 'onboarding.approve' });
+    fireEvent.click(approveCarlos);
+    await waitFor(() => expect(approveCarlos).toBeDisabled());
+    expect(approveAna).not.toBeDisabled();
+  });
+
+  it('asks for confirmation before rejecting', async () => {
+    renderWithProviders(<PendingStudentsPage />);
+    await screen.findByText('Carlos Silva');
+    fireEvent.click(screen.getAllByRole('button', { name: 'onboarding.reject' })[0]);
+    expect(mockApi).not.toHaveBeenCalledWith('/academies/a1/reject/s1', expect.anything());
+    fireEvent.click(await screen.findByRole('button', { name: 'common.confirm' }));
+    await waitFor(() =>
+      expect(mockApi).toHaveBeenCalledWith('/academies/a1/reject/s1', { method: 'POST' }),
+    );
   });
 });

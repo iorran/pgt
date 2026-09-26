@@ -69,7 +69,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <h1 className="font-heading text-2xl uppercase tracking-wide">
         {t('nav.settings')}
       </h1>
@@ -93,9 +93,12 @@ export default function SettingsPage() {
                 <Button variant="outline" onClick={handleCopy}>
                   {copied ? t('onboarding.copied') : t('onboarding.copyCode')}
                 </Button>
+                <span role="status" aria-live="polite" className="sr-only">
+                  {copied ? t('onboarding.copied') : ''}
+                </span>
               </div>
             </div>
-            <Button variant="outline" className="w-full" onClick={handleShareWhatsApp}>
+            <Button className="w-full sm:w-auto" onClick={handleShareWhatsApp}>
               {t('onboarding.shareWhatsApp')}
             </Button>
           </CardContent>
@@ -125,7 +128,7 @@ export default function SettingsPage() {
                 {t('onboarding.locationNotSet')}
               </p>
             )}
-            <Button variant="outline" className="w-full" onClick={handleSetLocation}>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={handleSetLocation}>
               {t('onboarding.useMyLocation')}
             </Button>
             {locationMsg && <p className="text-primary text-sm">{locationMsg}</p>}

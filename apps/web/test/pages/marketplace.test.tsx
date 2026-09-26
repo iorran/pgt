@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { formatMoney } from '@/lib/format';
 import { renderWithProviders } from '../render';
 import MarketplacePage from '@/pages/marketplace/index';
 
@@ -43,9 +45,8 @@ describe('MarketplacePage', () => {
     renderWithProviders(<MarketplacePage />);
     expect(await screen.findByText('Gi Kimono')).toBeInTheDocument();
     expect(screen.getByText('Rashguard')).toBeInTheDocument();
-    // Price displayed as R$ 350,00
-    expect(screen.getByText('R$ 350,00')).toBeInTheDocument();
-    expect(screen.getByText('R$ 120,00')).toBeInTheDocument();
+    expect(screen.getByText(formatMoney(350, 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
+    expect(screen.getByText(formatMoney(120, 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
   });
 
   it('shows request button for students', async () => {
@@ -65,6 +66,58 @@ describe('MarketplacePage', () => {
   it('shows empty state', async () => {
     mockApi.mockResolvedValue([] as any);
     renderWithProviders(<MarketplacePage />);
-    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+    expect(await screen.findByText('marketplace.noProducts')).toBeInTheDocument();
+    // owner gets a CTA in the empty state as well as the header button
+    expect(screen.getAllByRole('button', { name: 'marketplace.addProduct' })).toHaveLength(2);
+  });
+
+  it('associates form labels with inputs', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<MarketplacePage />);
+    await screen.findByText('Gi Kimono');
+    await user.click(screen.getAllByRole('button', { name: 'marketplace.addProduct' })[0]);
+    expect(await screen.findByLabelText('marketplace.productName')).toBeInTheDocument();
+    expect(screen.getByLabelText('marketplace.description')).toBeInTheDocument();
+    expect(screen.getByLabelText('marketplace.price')).toBeInTheDocument();
+    expect(screen.getByLabelText('marketplace.stock')).toBeInTheDocument();
+  });
+
+  it('owner edits a product via PUT', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<MarketplacePage />);
+    await screen.findByText('Gi Kimono');
+    await user.click(screen.getAllByRole('button', { name: 'common.edit' })[0]);
+    const name = await screen.findByLabelText('marketplace.productName');
+    expect(name).toHaveValue('Gi Kimono');
+    await user.clear(name);
+    await user.type(name, 'Gi A3');
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+    await waitFor(() => {
+      expect(mockApi).toHaveBeenCalledWith(
+        '/products/pr1',
+        expect.objectContaining({ method: 'PUT', body: expect.stringContaining('"name":"Gi A3"') }),
+      );
+    });
+  });
+
+  it('owner deletes a product after confirming', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<MarketplacePage />);
+    await screen.findByText('Gi Kimono');
+    await user.click(screen.getAllByRole('button', { name: 'common.delete' })[0]);
+    const dialog = await screen.findByRole('dialog');
+    expect(mockApi).not.toHaveBeenCalledWith('/products/pr1', expect.objectContaining({ method: 'DELETE' }));
+    await user.click(within(dialog).getByRole('button', { name: 'common.delete' }));
+    await waitFor(() => {
+      expect(mockApi).toHaveBeenCalledWith('/products/pr1', expect.objectContaining({ method: 'DELETE' }));
+    });
+  });
+
+  it('students do not see edit/delete', async () => {
+    mockUseSession.mockReturnValue(studentSession);
+    renderWithProviders(<MarketplacePage />);
+    await screen.findByText('Gi Kimono');
+    expect(screen.queryByRole('button', { name: 'common.edit' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'common.delete' })).toBeNull();
   });
 });

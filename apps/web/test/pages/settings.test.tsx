@@ -122,4 +122,15 @@ describe('SettingsPage', () => {
     );
     openSpy.mockRestore();
   });
+
+  it('announces the copied state politely', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
+    renderWithProviders(<SettingsPage />);
+    await user.click(await screen.findByRole('button', { name: 'onboarding.copyCode' }));
+    const status = screen.getByRole('status');
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    expect(status).toHaveTextContent('onboarding.copied');
+    writeText.mockRestore();
+  });
 });

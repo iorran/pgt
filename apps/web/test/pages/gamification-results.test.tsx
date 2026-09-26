@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import ResultsPage from '@/pages/gamification/results';
 
@@ -74,5 +75,46 @@ describe('ResultsPage', () => {
     const rejectButtons = screen.getAllByText('gamification.reject');
     expect(approveButtons.length).toBe(2);
     expect(rejectButtons.length).toBe(2);
+  });
+
+  it('shows an empty state linking to seasons when the owner has none', async () => {
+    mockUseSession.mockReturnValue(instructorSession);
+    mockApi.mockResolvedValueOnce([] as any);
+    renderWithProviders(<ResultsPage />);
+    expect(await screen.findByText('gamification.noSeasons')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'gamification.createSeason' })).toHaveAttribute('href', '/gamification/seasons');
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+  });
+
+  it('labels the owner season select and translates positions', async () => {
+    mockUseSession.mockReturnValue(instructorSession);
+    mockApi
+      .mockResolvedValueOnce(mockSeasons as any)
+      .mockResolvedValueOnce(mockPendingResults as any);
+    renderWithProviders(<ResultsPage />);
+    await screen.findByText('Carlos');
+    expect(screen.getByRole('combobox', { name: 'gamification.season' })).toBeInTheDocument();
+    expect(screen.getByText('gamification.first')).toBeInTheDocument();
+    expect(screen.getByText('gamification.third')).toBeInTheDocument();
+    expect(screen.queryByText('1st')).not.toBeInTheDocument();
+  });
+
+  it('only the clicked row shows a pending approval', async () => {
+    const user = userEvent.setup();
+    mockUseSession.mockReturnValue(instructorSession);
+    mockApi
+      .mockResolvedValueOnce(mockSeasons as any)
+      .mockResolvedValueOnce(mockPendingResults as any)
+      .mockReturnValueOnce(new Promise(() => {}));
+    renderWithProviders(<ResultsPage />);
+    const carlosCard = (await screen.findByText('Carlos')).closest('[data-slot="card"]') as HTMLElement;
+    const anaCard = screen.getByText('Ana').closest('[data-slot="card"]') as HTMLElement;
+    await user.click(within(carlosCard).getByRole('button', { name: 'gamification.approve' }));
+    await waitFor(() => {
+      expect(within(carlosCard).getByRole('button', { name: 'gamification.approve' })).toBeDisabled();
+    });
+    expect(within(anaCard).getByRole('button', { name: 'gamification.approve' })).not.toBeDisabled();
+    expect(within(anaCard).getByRole('button', { name: 'gamification.reject' })).not.toBeDisabled();
   });
 });

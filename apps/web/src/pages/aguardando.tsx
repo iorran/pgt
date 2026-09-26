@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Hourglass } from 'lucide-react';
 import { signOut } from '@/lib/auth-client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ export default function AguardandoPage() {
           </h1>
           <div className="h-1 w-12 bg-primary mx-auto rounded-sm" />
 
-          <p className="font-mono text-4xl text-muted-foreground">&#9203;</p>
+          <Hourglass className="size-10 mx-auto text-muted-foreground" aria-hidden="true" />
 
           <h2 className="font-heading text-2xl text-foreground uppercase">
             {t('onboarding.waitingTitle')}
@@ -43,7 +44,6 @@ export default function AguardandoPage() {
 
             <Button
               variant="outline"
-              size="sm"
               className="w-full"
               onClick={handleSignOut}
             >

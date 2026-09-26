@@ -70,9 +70,11 @@ export function NotificationBell() {
 
   return (
     <div className="relative">
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={() => setOpen(!open)}
-        className="relative p-2 text-muted-foreground hover:text-foreground transition-colors"
+        className="relative text-muted-foreground hover:text-foreground"
         aria-label={t('notifications.title')}
       >
         <Bell size={20} />
@@ -81,7 +83,7 @@ export function NotificationBell() {
             {unmutedCount}
           </span>
         )}
-      </button>
+      </Button>
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">

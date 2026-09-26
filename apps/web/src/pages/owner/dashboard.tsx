@@ -74,8 +74,8 @@ export default function OwnerDashboardPage() {
   if (loadingA || loadingS) return <PageLoader />;
 
   return (
-    <div className="p-5 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">{t('owner.title')}</h1>
         <PeriodToggle value={period} onChange={(p) => setParams({ period: p })} />
       </div>

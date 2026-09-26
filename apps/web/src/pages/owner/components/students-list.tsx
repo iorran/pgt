@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
+import { beltKey } from '@/lib/belts';
 
 type Status = 'active' | 'slowing' | 'drifting' | 'inactive';
 interface StudentRow {
@@ -23,7 +24,7 @@ const statusColor: Record<Status, string> = {
 
 export function StudentsList({ students }: { students: StudentRow[] }) {
   const { t } = useTranslation();
-  const [filter, setFilter] = useState<'all' | Status>('drifting');
+  const [filter, setFilter] = useState<'all' | Status>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const counts = FILTER_KEYS.reduce<Record<string, number>>((acc, key) => {
@@ -38,17 +39,18 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
 
   return (
     <div className="divide-y">
-      <div className="flex items-center justify-between px-2 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-2 py-2">
         <span className="text-sm font-medium text-muted-foreground">
           {t('owner.students.title')}
         </span>
-        <div className="flex gap-1 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           {FILTER_KEYS.map((key) => (
             <button
               key={key}
               type="button"
+              aria-pressed={filter === key}
               onClick={() => setFilter(key as 'all' | Status)}
-              className={`px-2 py-1 rounded text-xs ${
+              className={`min-h-11 px-3 rounded text-xs ${
                 filter === key ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}
             >
@@ -57,6 +59,11 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
           ))}
         </div>
       </div>
+      {visible.length === 0 && (
+        <div className="px-2 py-6 text-sm text-muted-foreground text-center">
+          {t('owner.students.empty')}
+        </div>
+      )}
       {visible.map((s) => (
         <div key={s.id}>
           <button
@@ -66,7 +73,7 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
           >
             <span>
               <span>{s.name}</span>{' '}
-              <span className="text-xs text-muted-foreground">· {s.belt}</span>
+              <span className="text-xs text-muted-foreground">· {t(beltKey(s.belt))}</span>
             </span>
             <span className={`text-sm ${statusColor[s.status]}`}>
               {t(`owner.students.statusLabel.${s.status}`)}

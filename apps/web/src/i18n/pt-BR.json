@@ -38,7 +38,10 @@
     "resetPasswordError": "Link inválido ou expirado.",
     "resetPasswordMismatch": "As senhas não coincidem.",
     "requestNewReset": "Solicitar novo link",
-    "backToLogin": "Voltar ao Login"
+    "backToLogin": "Voltar ao Login",
+    "loginError": "E-mail ou senha inválidos.",
+    "passwordHint": "Mínimo de 8 caracteres",
+    "haveAccount": "Já tenho conta"
   },
   "common": {
     "save": "Salvar",
@@ -50,7 +53,8 @@
     "loading": "Carregando...",
     "noResults": "Nenhum resultado",
     "confirm": "Confirmar",
-    "back": "Voltar"
+    "back": "Voltar",
+    "genericError": "Algo deu errado. Tente novamente."
   },
   "calendar": {
     "today": "Hoje",
@@ -74,7 +78,9 @@
     "cameraDenied": "Permissão da câmera negada. Habilite nas configurações do navegador.",
     "cameraUnavailable": "Câmera não disponível neste dispositivo",
     "noCameraFound": "Nenhuma câmera encontrada neste dispositivo",
-    "insecureContext": "A câmera só funciona via HTTPS. Use o app instalado na tela inicial, ou acesse por https://."
+    "insecureContext": "A câmera só funciona via HTTPS. Use o app instalado na tela inicial, ou acesse por https://.",
+    "cameraDeniedHelp": "Toque no ícone de cadeado na barra de endereço, permita a câmera e tente novamente.",
+    "retry": "Tentar novamente"
   },
   "classes": {
     "title": "Quadro de Aulas",
@@ -106,6 +112,12 @@
     "checkinInvalidToken": "QR Code inválido ou expirado",
     "scanQR": "Escanear QR Code",
     "scanning": "Escaneando...",
+    "classCount_one": "{{count}} aula",
+    "classCount_other": "{{count}} aulas",
+    "noClasses": "Nenhuma aula cadastrada ainda",
+    "classesCreated": "Aulas criadas",
+    "noCheckins": "Você ainda não tem presenças registradas",
+    "viewSchedule": "Ver quadro de aulas",
     "moveSuccess": "Aula reagendada",
     "days": {
       "sun": "Domingo",
@@ -131,7 +143,12 @@
     "paymentHistory": "Histórico de Pagamentos",
     "totalClasses": "Total de Aulas",
     "currentStreak": "Sequência Atual",
-    "payCurrentMonth": "Pagar Mês Atual"
+    "payCurrentMonth": "Pagar Mês Atual",
+    "payConfirm": "Registrar o pagamento do mês atual de {{name}}?",
+    "paySuccess": "Pagamento registrado",
+    "showMore": "Mostrar mais",
+    "count_one": "{{count}} aluno",
+    "count_other": "{{count}} alunos"
   },
   "billing": {
     "overdueTitle": "Inadimplentes",
@@ -154,6 +171,14 @@
     "referenceMonth": "Mês Referência",
     "recentPayments": "Pagamentos Recentes",
     "yourPaymentOverdue": "Seu pagamento está {{days}} dias atrasado",
+    "overdueCount_one": "{{count}} inadimplente",
+    "overdueCount_other": "{{count}} inadimplentes",
+    "missedMonths_one": "{{count}} mês em aberto",
+    "missedMonths_other": "{{count}} meses em aberto",
+    "paymentRecorded": "Pagamento registrado",
+    "noPayments": "Nenhum pagamento registrado ainda",
+    "noPlans": "Nenhum plano cadastrado ainda",
+    "unlimitedClasses": "Livre",
     "paymentDueSoon": "Seu pagamento vence em {{days}} dias",
     "week": "semana"
   },
@@ -174,8 +199,15 @@
     "quantity": "Quantidade",
     "status": "Status",
     "actions": "Ações",
+    "noProducts": "Nenhum produto na loja ainda",
+    "confirmDelete": "Excluir \"{{name}}\" da loja?",
+    "noOrders": "Nenhum pedido ainda",
+    "browseProducts": "Ver produtos",
+    "cancelOrder": "Cancelar pedido",
+    "confirmCancelOrder": "Tem certeza que deseja cancelar este pedido?",
     "deliver": "Entregar",
     "orderStatus": {
+      "requested": "Solicitado",
       "pending": "Pendente",
       "confirmed": "Confirmado",
       "delivered": "Entregue",
@@ -216,10 +248,14 @@
     "profileTitle": "Perfil de Gamificação",
     "totalXp": "XP Total",
     "currentStreak": "Sequência Atual",
-    "currentStreakFire": "Sequência Atual 🔥",
     "longestStreak": "Maior Sequência",
     "badges": "Conquistas",
-    "noBadges": "Nenhuma conquista ainda"
+    "noBadges": "Nenhuma conquista ainda",
+    "season": "Temporada",
+    "resultsShort": "Resultados",
+    "profileShort": "Perfil",
+    "pointsShort": "pts",
+    "positionN": "{{position}}º lugar"
   },
   "tournaments": {
     "title": "Campeonatos",
@@ -233,7 +269,8 @@
     "signupError": "Erro ao realizar inscrição",
     "weightClass": "Categoria de Peso",
     "viewRoster": "Ver Inscritos",
-    "roster": "Lista de Inscritos"
+    "roster": "Lista de Inscritos",
+    "empty": "Nenhum campeonato cadastrado"
   },
   "onboarding": {
     "chooseRole": "Como deseja começar?",
@@ -257,6 +294,7 @@
     "approve": "Aprovar",
     "reject": "Rejeitar",
     "noPending": "Nenhum aluno pendente",
+    "rejectConfirm": "Rejeitar o cadastro de {{name}}?",
     "joinCode": "Código de Acesso",
     "shareWhatsApp": "Compartilhar no WhatsApp",
     "copyCode": "Copiar",
@@ -325,7 +363,8 @@
       "classes": "Aulas",
       "streak": "Sequência",
       "best": "Melhor",
-      "noCheckins": "Sem check-ins nos últimos 30 dias."
+      "noCheckins": "Sem check-ins nos últimos 30 dias.",
+      "empty": "Nenhum aluno neste filtro."
     },
     "forbidden": "Acesso restrito ao dono da academia."
   },
@@ -335,6 +374,7 @@
   "totem": {
     "title": "Totem de Check-in",
     "noClasses": "Nenhuma aula no momento",
+    "noClassesHint": "Os QR codes aparecem aqui durante o horário de cada aula.",
     "nextClass": "Próxima aula",
     "scanToCheckin": "Escaneie para fazer check-in",
     "openTotem": "Abrir Totem",
@@ -352,7 +392,10 @@
     "themeDark": "Escuro",
     "themeSystem": "Sistema",
     "settings": "Configurações",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "billingError": "Não foi possível carregar sua mensalidade. Tente novamente.",
+    "languagePortuguese": "Português",
+    "languageEnglish": "English"
   },
   "notifications": {
     "title": "Notificações",

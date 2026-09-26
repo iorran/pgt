@@ -38,7 +38,10 @@
     "resetPasswordError": "Invalid or expired link.",
     "resetPasswordMismatch": "Passwords do not match.",
     "requestNewReset": "Request new link",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "loginError": "Invalid email or password.",
+    "passwordHint": "At least 8 characters",
+    "haveAccount": "I already have an account"
   },
   "common": {
     "save": "Save",
@@ -50,7 +53,8 @@
     "loading": "Loading...",
     "noResults": "No results",
     "confirm": "Confirm",
-    "back": "Back"
+    "back": "Back",
+    "genericError": "Something went wrong. Please try again."
   },
   "calendar": {
     "today": "Today",
@@ -74,7 +78,9 @@
     "cameraDenied": "Camera permission denied. Enable it in your browser settings.",
     "cameraUnavailable": "Camera not available on this device",
     "noCameraFound": "No camera found on this device",
-    "insecureContext": "The camera only works over HTTPS. Install the app to your home screen, or open the site over https://."
+    "insecureContext": "The camera only works over HTTPS. Install the app to your home screen, or open the site over https://.",
+    "cameraDeniedHelp": "Tap the lock icon in the address bar, allow the camera, then try again.",
+    "retry": "Try again"
   },
   "classes": {
     "title": "Class Schedule",
@@ -106,6 +112,12 @@
     "checkinInvalidToken": "Invalid or expired QR Code",
     "scanQR": "Scan QR Code",
     "scanning": "Scanning...",
+    "classCount_one": "{{count}} class",
+    "classCount_other": "{{count}} classes",
+    "noClasses": "No classes yet",
+    "classesCreated": "Classes created",
+    "noCheckins": "You have no check-ins yet",
+    "viewSchedule": "View class schedule",
     "moveSuccess": "Class rescheduled",
     "days": {
       "sun": "Sunday",
@@ -131,7 +143,12 @@
     "paymentHistory": "Payment History",
     "totalClasses": "Total Classes",
     "currentStreak": "Current Streak",
-    "payCurrentMonth": "Pay Current Month"
+    "payCurrentMonth": "Pay Current Month",
+    "payConfirm": "Record this month's payment for {{name}}?",
+    "paySuccess": "Payment recorded",
+    "showMore": "Show more",
+    "count_one": "{{count}} student",
+    "count_other": "{{count}} students"
   },
   "billing": {
     "overdueTitle": "Overdue Payments",
@@ -154,6 +171,14 @@
     "referenceMonth": "Reference Month",
     "recentPayments": "Recent Payments",
     "yourPaymentOverdue": "Your payment is {{days}} days overdue",
+    "overdueCount_one": "{{count}} overdue",
+    "overdueCount_other": "{{count}} overdue",
+    "missedMonths_one": "{{count}} unpaid month",
+    "missedMonths_other": "{{count}} unpaid months",
+    "paymentRecorded": "Payment recorded",
+    "noPayments": "No payments recorded yet",
+    "noPlans": "No plans yet",
+    "unlimitedClasses": "Unlimited",
     "paymentDueSoon": "Your payment is due in {{days}} days",
     "week": "week"
   },
@@ -174,8 +199,15 @@
     "quantity": "Quantity",
     "status": "Status",
     "actions": "Actions",
+    "noProducts": "No products in the shop yet",
+    "confirmDelete": "Remove \"{{name}}\" from the shop?",
+    "noOrders": "No orders yet",
+    "browseProducts": "Browse products",
+    "cancelOrder": "Cancel order",
+    "confirmCancelOrder": "Are you sure you want to cancel this order?",
     "deliver": "Deliver",
     "orderStatus": {
+      "requested": "Requested",
       "pending": "Pending",
       "confirmed": "Confirmed",
       "delivered": "Delivered",
@@ -216,10 +248,14 @@
     "profileTitle": "Gamification Profile",
     "totalXp": "Total XP",
     "currentStreak": "Current Streak",
-    "currentStreakFire": "Current Streak 🔥",
     "longestStreak": "Longest Streak",
     "badges": "Badges",
-    "noBadges": "No badges earned yet"
+    "noBadges": "No badges earned yet",
+    "season": "Season",
+    "resultsShort": "Results",
+    "profileShort": "Profile",
+    "pointsShort": "pts",
+    "positionN": "Place {{position}}"
   },
   "tournaments": {
     "title": "Tournaments",
@@ -233,7 +269,8 @@
     "signupError": "Sign up failed",
     "weightClass": "Weight Class",
     "viewRoster": "View Roster",
-    "roster": "Roster"
+    "roster": "Roster",
+    "empty": "No tournaments yet"
   },
   "onboarding": {
     "chooseRole": "How would you like to start?",
@@ -257,6 +294,7 @@
     "approve": "Approve",
     "reject": "Reject",
     "noPending": "No pending students",
+    "rejectConfirm": "Reject {{name}}'s sign-up?",
     "joinCode": "Access Code",
     "shareWhatsApp": "Share on WhatsApp",
     "copyCode": "Copy",
@@ -325,7 +363,8 @@
       "classes": "Classes",
       "streak": "Streak",
       "best": "Best",
-      "noCheckins": "No check-ins in the last 30 days."
+      "noCheckins": "No check-ins in the last 30 days.",
+      "empty": "No students in this filter."
     },
     "forbidden": "Owner access required."
   },
@@ -335,6 +374,7 @@
   "totem": {
     "title": "Check-in Totem",
     "noClasses": "No classes right now",
+    "noClassesHint": "QR codes appear here during each class time.",
     "nextClass": "Next class",
     "scanToCheckin": "Scan to check in",
     "openTotem": "Open Totem",
@@ -352,7 +392,10 @@
     "themeDark": "Dark",
     "themeSystem": "System",
     "settings": "Settings",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "billingError": "Couldn't load your membership status. Please try again.",
+    "languagePortuguese": "Português",
+    "languageEnglish": "English"
   },
   "notifications": {
     "title": "Notifications",

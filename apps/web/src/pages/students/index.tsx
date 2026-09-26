@@ -15,32 +15,25 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
+import { Button } from '@/components/ui/button';
+import { beltClasses, beltKey } from '@/lib/belts';
 
 interface Student {
   id: string;
   name: string;
   belt: string;
-  plan?: string;
-  dueDay?: number;
+  planName?: string | null;
+  dueDay?: number | null;
 }
 
-const BELT_CLASSES: Record<string, string> = {
-  white: 'bg-gray-200 text-gray-800',
-  blue: 'bg-belt-blue text-white',
-  purple: 'bg-belt-purple text-white',
-  brown: 'bg-belt-brown text-white',
-  black: 'bg-belt-black text-white',
-};
-
-function getBeltClasses(belt: string) {
-  return BELT_CLASSES[belt?.toLowerCase()] || 'bg-gray-200 text-gray-800';
-}
+const PAGE_SIZE = 50;
 
 export default function StudentsPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const [search, setSearch] = useState('');
+  const [limit, setLimit] = useState(PAGE_SIZE);
 
   const { data: students = [], isLoading } = useApiQuery<Student[]>(
     ['students', user?.academyId],
@@ -48,23 +41,27 @@ export default function StudentsPage() {
     !!user?.academyId,
   );
 
-  const filtered = students.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = students
+    .filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt'));
+  const visible = filtered.slice(0, limit);
 
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-5 space-y-6">
-      <TabsNav items={[
-        { to: '/students', label: t('nav.students') },
-        { to: '/pending', label: t('onboarding.pendingStudents') },
-      ]} />
-      <div className="flex items-center gap-3">
-        <Badge variant="outline">{students.length}</Badge>
-      </div>
+    <div className="space-y-6">
+      <TabsNav
+        title={t('nav.students')}
+        items={[
+          { to: '/students', label: t('nav.students') },
+          { to: '/pending', label: t('onboarding.pendingStudents') },
+        ]}
+      />
+      <p className="text-sm text-muted-foreground">{t('students.count', { count: students.length })}</p>
 
       <Input
+        type="search"
+        aria-label={t('common.search')}
         placeholder={t('common.search')}
         value={search}
         onChange={e => setSearch(e.target.value)}
@@ -74,34 +71,63 @@ export default function StudentsPage() {
       {filtered.length === 0 ? (
         <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
       ) : (
-        <div className="rounded-sm border border-border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('students.name')}</TableHead>
-                <TableHead>{t('students.belt')}</TableHead>
-                <TableHead>{t('students.plan')}</TableHead>
-                <TableHead>{t('students.dueDay')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map(s => (
-                <TableRow key={s.id} className="cursor-pointer hover:bg-card/80">
-                  <TableCell>
-                    <Link to={`/students/${s.id}`} className="hover:text-primary">
-                      {s.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getBeltClasses(s.belt)}>{s.belt}</Badge>
-                  </TableCell>
-                  <TableCell>{s.plan || '-'}</TableCell>
-                  <TableCell className="font-mono">{s.dueDay ?? '-'}</TableCell>
+        <>
+          <ul aria-label={t('nav.students')} className="md:hidden divide-y divide-border rounded-sm border border-border">
+            {visible.map(s => (
+              <li key={s.id} className="relative flex items-center justify-between gap-3 p-3 hover:bg-card/80">
+                <div className="min-w-0 space-y-1">
+                  <Link
+                    to={`/students/${s.id}`}
+                    className="block truncate font-medium after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring"
+                  >
+                    {s.name}
+                  </Link>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {s.planName || '-'}
+                    {s.dueDay != null && ` · ${t('students.dueDay')} ${s.dueDay}`}
+                  </p>
+                </div>
+                <Badge className={beltClasses(s.belt)}>{t(beltKey(s.belt))}</Badge>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden md:block rounded-sm border border-border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('students.name')}</TableHead>
+                  <TableHead>{t('students.belt')}</TableHead>
+                  <TableHead>{t('students.plan')}</TableHead>
+                  <TableHead>{t('students.dueDay')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {visible.map(s => (
+                  <TableRow key={s.id} className="relative cursor-pointer hover:bg-card/80">
+                    <TableCell>
+                      <Link
+                        to={`/students/${s.id}`}
+                        className="hover:text-primary after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring"
+                      >
+                        {s.name}
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={beltClasses(s.belt)}>{t(beltKey(s.belt))}</Badge>
+                    </TableCell>
+                    <TableCell>{s.planName || '-'}</TableCell>
+                    <TableCell className="font-mono">{s.dueDay ?? '-'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          {filtered.length > limit && (
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setLimit(l => l + PAGE_SIZE)}>
+              {t('students.showMore')}
+            </Button>
+          )}
+        </>
       )}
     </div>
   );

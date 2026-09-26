@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
 
 const DAY_KEYS = [
   'classes.days.sun',
@@ -51,8 +52,12 @@ export function ClassCreateDialog({
       endTime: '',
     },
     onSubmit: async ({ value }) => {
-      await onSubmit(value);
-      form.reset();
+      try {
+        await onSubmit(value);
+        form.reset();
+      } catch {
+        // Parent already reported the error; keep the values for a retry.
+      }
     },
   });
 
@@ -77,8 +82,9 @@ export function ClassCreateDialog({
           <form.Field name="name">
             {(field) => (
               <div className="space-y-2">
-                <Label>{t('classes.className')}</Label>
+                <Label htmlFor="class-create-name">{t('classes.className')}</Label>
                 <Input
+                  id="class-create-name"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -90,12 +96,13 @@ export function ClassCreateDialog({
           <form.Field name="type">
             {(field) => (
               <div className="space-y-2">
-                <Label>{t('classes.classType')}</Label>
+                <Label htmlFor="class-create-type">{t('classes.classType')}</Label>
                 <select
+                  id="class-create-type"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   required
-                  className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
                 >
                   <option value="">--</option>
                   <option value="gi">Gi</option>
@@ -109,12 +116,13 @@ export function ClassCreateDialog({
           <form.Field name="daysOfWeek">
             {(field) => (
               <div className="space-y-2">
-                <Label>{t('classes.daysOfWeek')}</Label>
-                <div className="flex flex-wrap gap-2">
+                <Label id="class-create-days">{t('classes.daysOfWeek')}</Label>
+                <div role="group" aria-labelledby="class-create-days" className="flex flex-wrap gap-2">
                   {DAY_KEYS.map((k, i) => (
                     <button
                       key={i}
                       type="button"
+                      aria-pressed={field.state.value.includes(i)}
                       onClick={() => {
                         const current = field.state.value;
                         field.handleChange(
@@ -123,12 +131,13 @@ export function ClassCreateDialog({
                             : [...current, i],
                         );
                       }}
-                      className={`px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
+                      className={`inline-flex items-center justify-center gap-1 min-h-11 min-w-11 px-3 py-1.5 rounded-sm text-sm font-heading uppercase tracking-wide border transition-colors ${
                         field.state.value.includes(i)
                           ? 'bg-primary text-primary-foreground border-primary'
                           : 'bg-card border-border text-muted-foreground hover:border-primary hover:text-foreground'
                       }`}
                     >
+                      {field.state.value.includes(i) && <Check className="size-3.5" aria-hidden="true" />}
                       {t(k)}
                     </button>
                   ))}
@@ -140,8 +149,9 @@ export function ClassCreateDialog({
             <form.Field name="startTime">
               {(field) => (
                 <div className="space-y-2">
-                  <Label>{t('classes.startTime')}</Label>
+                  <Label htmlFor="class-create-startTime">{t('classes.startTime')}</Label>
                   <Input
+                    id="class-create-startTime"
                     type="time"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -154,8 +164,9 @@ export function ClassCreateDialog({
             <form.Field name="endTime">
               {(field) => (
                 <div className="space-y-2">
-                  <Label>{t('classes.endTime')}</Label>
+                  <Label htmlFor="class-create-endTime">{t('classes.endTime')}</Label>
                   <Input
+                    id="class-create-endTime"
                     type="time"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}

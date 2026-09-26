@@ -23,6 +23,13 @@ describe('ForgotPasswordPage', () => {
     expect(screen.getByRole('button', { name: 'auth.forgotPasswordSubmit' })).toBeInTheDocument();
   });
 
+  it('sets email autocomplete hints', () => {
+    renderWithProviders(<ForgotPasswordPage />);
+    const email = screen.getByLabelText('auth.email');
+    expect(email).toHaveAttribute('autocomplete', 'email');
+    expect(email).toHaveAttribute('inputmode', 'email');
+  });
+
   it('renders the PGT branding', () => {
     renderWithProviders(<ForgotPasswordPage />);
     expect(screen.getByText('PGT')).toBeInTheDocument();
