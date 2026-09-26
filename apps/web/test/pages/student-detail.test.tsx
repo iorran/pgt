@@ -48,7 +48,7 @@ describe('StudentDetailPage', () => {
     renderPage();
     expect(await screen.findByText('belts.blue')).toBeInTheDocument();
     expect(screen.queryByText('ana@import.local')).toBeNull();
-    expect(screen.getByText(/€\s*45,00/)).toBeInTheDocument();
+    expect(screen.getByText(/45,00\s€/)).toBeInTheDocument();
   });
 
   it('asks for confirmation before paying the current month and toasts on success', async () => {

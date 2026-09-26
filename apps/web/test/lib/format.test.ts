@@ -6,6 +6,10 @@ describe('formatMoney', () => {
     expect(formatMoney('45.00', 'pt-PT')).toMatch(/45,00\s€/);
     expect(formatMoney('1234.5', 'en')).toBe('€1,234.50');
   });
+
+  it('uses Portugal style when the app is in Portuguese', () => {
+    expect(formatMoney('30', 'pt-BR')).toMatch(/^30,00\s€$/);
+  });
 });
 
 describe('formatDate', () => {
