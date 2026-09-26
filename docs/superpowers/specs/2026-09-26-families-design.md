@@ -1,7 +1,7 @@
 # Families: paying together
 
 Date: 2026-09-26
-Status: Design agreed in grilling session (pending implementation plan)
+Status: Implemented (families); revised same day — no plans, see [[0002-no-plans-monthly-fee-per-student|ADR 0002]]
 Glossary: [[CONTEXT|Glossary]] · Decision: [[0001-family-payments-as-per-member-rows|ADR 0001]]
 
 ## Problem
@@ -17,9 +17,9 @@ The Owner can group Students into a **Family** that pays together, record one **
 | # | Decision |
 |---|---|
 | 1 | No instructor access; Owner is the only staff role. |
-| 2 | Every Student keeps their own **Plan** (what they train + list price). Families never replace Plans. |
-| 3 | **Agreed Price**: optional per-Student monthly price replacing the Plan's list price. This is how individual and sibling discounts are given. |
-| 4 | **Monthly Fee** = Agreed Price if set, else Plan list price. |
+| 2 | ~~Plans~~ — **revised (ADR 0002):** there are no plans. Every Student has their own **Monthly Fee**, typed by the Owner; the usual amounts (45 / 65 / 60 / 35 €) are one-tap suggestions only. What a Student trains is recorded as **Modalities** (owner-maintained list) plus a free **Training Note**; informational only. |
+| 3 | ~~Agreed Price~~ — **revised:** removed; discounts are simply a lower Monthly Fee. |
+| 4 | **Monthly Fee** = the amount set on the Student. No fee → not billed. Existing students keep their current price (plan price, or agreed price if set). |
 | 5 | **Family Agreed Price**: optional fixed monthly total for a Family, replacing the sum of members' Monthly Fees. When membership changes while one is set, the app flags "membros mudaram, rever o preço acordado"; it never recalculates it silently. |
 | 6 | **Family Fee** = Family Agreed Price if set, else sum of members' Monthly Fees (excluding Waived Months). |
 | 7 | A Family has no payer entity. Optional **Family Contact** = a member the Owner prefers to message; otherwise any member. Contact phones live on Students (a kid's phone is usually the parent's). |
@@ -80,7 +80,7 @@ The Owner can group Students into a **Family** that pays together, record one **
 
 ## Open items
 
-- **Real plan list** from the client (modalities + list prices). Current seed has 10 plans named by price; to be replaced by ~6–8 modality plans, with differing students moved to an Agreed Price.
+- ~~Real plan list from the client~~ — resolved: client wants no plans (ADR 0002). His price list (45 / 65 / 60 / 35 €) becomes fee suggestions.
 - Prod data: the current seed/CSV is likely not the final prod import; families are built via Possíveis famílias either way.
 
 ## Non-goals
@@ -95,7 +95,7 @@ The Owner can group Students into a **Family** that pays together, record one **
 Money is a decimal string with 2 places (`"45.00"`). Months are `YYYY-MM`. All routes are owner-only and academy-scoped unless noted. `404` for another academy's ids.
 
 ### Billing rules (shared)
-- **Monthly Fee** = `student_membership.agreed_price ?? plan.price` (active membership). No active membership → not billed.
+- **Monthly Fee** = the Student's fee (active membership). No active membership / no fee → not billed. *(Revised: was `agreed_price ?? plan.price`.)*
 - A month is **owed** by a Student when: it's between membership start and the current month, the due day has passed (current month) or it's past, it is not a Waived Month, the Monthly Fee > 0, and there's no payment row for it.
 - **Family Fee (month)** = `family.agreed_price ?? Σ Monthly Fee of members not waived that month`.
 - **Family Payment split** (ADR 0001): the total is divided across the selected months in proportion to what each month charges (sum of the charged members' Monthly Fees; remainder cents on the last month), so paying exactly what is owed gives every member exactly their Monthly Fee. Within a month, the month's amount is split across members not waived that month, weighted by Monthly Fee (equal weights if all fees are 0); remainder cents on the last member. Rows always sum exactly to the total.
@@ -125,3 +125,12 @@ Money is a decimal string with 2 places (`"45.00"`). Months are `YYYY-MM`. All r
   - `{ kind: 'family', familyId, familyName, members: { studentId, name }[], phone: string|null /* contact's, else first member with one */, daysOverdue, missedMonths, amountDue: string }`
 - `GET /api/payments/my-status` (student): Waived Months are not owed; otherwise unchanged.
 - `POST /api/payments/quick/:studentId`: amount = Monthly Fee (agreed price aware).
+
+## Revision: no plans, modalities (2026-09-26)
+
+Client feedback after implementation: no plans in the app; the Owner sets each Student's price and records what they train. See [[0002-no-plans-monthly-fee-per-student|ADR 0002]].
+
+- **Data:** `student_membership.monthly_fee` (decimal, required for billing) replaces `plan_id` + `agreed_price`; `membership_plan` is dropped after copying each student's effective price. `modality` (academy_id, name, unique per academy) and `student_modality` (student_id, modality_id); `user.training_note` (text).
+- **API:** `GET /api/students` / `/:id` return `monthlyFee`, `modalities: {id,name}[]`, `trainingNote` (drop `planName`, `planId`, `planPrice`, `agreedPrice`). `PUT /api/students/:id/membership` accepts `{ monthlyFee, dueDay?, startDate? }` and creates the membership if missing. `PUT /api/students/:id/training` `{ modalityIds, trainingNote }`. `GET/POST/PUT/DELETE /api/modalities` (owner; delete only when unused, else 409). Membership-plan routes removed. Overdue/family items drop `planName`.
+- **Web:** Planos tab removed; student detail: Monthly Fee field with suggestion chips (45/65/60/35 €), Modalities multi-select + Training Note; students list shows modalities and allows filtering by modality; Settings: manage Modalities; payments form pre-fills the student's Monthly Fee.
+- **Seed:** default modalities Jiu-Jitsu, MMA, Kids, Funcional, Feminino; roster import sets Monthly Fee from the sheet and tags modalities from the "TURMA // MODALIDAD" column (best effort), putting the raw text in the Training Note.

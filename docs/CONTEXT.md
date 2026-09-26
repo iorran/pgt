@@ -27,19 +27,19 @@ _Avoid_: Aluno (in code/specs), member, athlete
 A group of Students of the same household whose monthly fees are paid together. A Student belongs to at most one Family.
 _Avoid_: Household, group, account
 
+**Modality**:
+A discipline the academy teaches (e.g. Jiu-Jitsu, MMA, Kids, Funcional, Feminino), from a short list the Owner maintains. A Student is tagged with the Modalities they train; this is informational and never sets the price or restricts check-in.
+_Avoid_: Plan, class type, turma, category
+
+**Training Note**:
+Free text on a Student for what Modalities don't capture (e.g. "trânsito livre", "turma das 7h").
+_Avoid_: Observations, comments
+
 ### Billing
 
-**Plan**:
-What a Student trains (a modality or combination, e.g. jiu-jitsu, kids, jiu-jitsu + MMA) and its list price per month. Every Student keeps their own Plan, in a Family or not.
-_Avoid_: Package, subscription, membership (for the price)
-
-**Agreed Price**:
-A monthly price the Owner set for one Student that replaces their Plan's list price; the way individual and family discounts are given.
-_Avoid_: Discount, custom plan, special price
-
 **Monthly Fee**:
-What a Student owes per month: their Agreed Price if set, otherwise their Plan's list price.
-_Avoid_: Mensalidade (in code/specs), dues
+The amount the Owner set for a Student to pay per month. There are no plans: the Owner types each Student's fee (the academy's usual amounts are only suggestions). A Student without a Monthly Fee is not billed.
+_Avoid_: Plan, agreed price, mensalidade (in code/specs), dues, package
 
 **Family Contact**:
 The member of a Family the Owner prefers to reach about its payments. Optional; a Family has no payer of its own, and any member can be contacted.
