@@ -52,6 +52,7 @@ Parent:: [[BJJ Academy App]]
 | Payment Alerts | Notify students when payment is due or overdue |
 | Overdue Dashboard | Instructor sees at a glance who hasn't paid and how long overdue |
 | Membership Plans | Define plan types (monthly unlimited, 2x/week, drop-in) with pricing |
+| Families | Group students of a household who pay together; one payment settles the month for everyone. See [[2026-09-26-families-design|Families design]] |
 
 ### 8.3. Marketplace — Sell Gear
 

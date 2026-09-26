@@ -34,3 +34,10 @@ Discovered while writing [[2026-04-09-user-guide-audit-design|the user guide aud
 - **Hardcoded English error string in Settings**: `apps/web/src/pages/settings.tsx` renders `"Geolocation unavailable"` as a literal string instead of using `t()`.
 - **Accent omissions in `pt-BR.json`**: Several onboarding strings are missing accents — "comecar" (começar), "codigo" (código), "nao" (não), "Aprovacao" (Aprovação), "ira" (irá). Users see the unaccented versions.
 - **Dashboard greeting bug**: Greeting renders as "Carregando, [name]" because of a `t('common.loading').replace('...', '')` call where the intended greeting key is wrong. Likely meant `t('common.hello')` or similar.
+
+## Families
+
+From [[2026-09-26-families-design|Families design]]:
+
+- **Get the real plan list from the client** (modalities + list prices) to replace the 10 price-named seed plans; move students with a different price to an Agreed Price.
+- Implementation plan for Families (pending).

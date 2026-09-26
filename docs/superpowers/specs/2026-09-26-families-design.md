@@ -1,0 +1,91 @@
+# Families: paying together
+
+Date: 2026-09-26
+Status: Design agreed in grilling session (pending implementation plan)
+Glossary: [[CONTEXT|Glossary]] · Decision: [[0001-family-payments-as-per-member-rows|ADR 0001]]
+
+## Problem
+
+Parents and their kids often train at the academy, but the parents pay for everyone. Today every Student is billed and tracked alone: the overdue list shows each kid separately, and recording one household's transfer means paying each member one by one. Discounts are given informally (the spreadsheet has 18 adults on 35 € instead of 45 €, siblings on reduced prices), and months a student didn't train are tracked in free-text notes.
+
+## Goal
+
+The Owner can group Students into a **Family** that pays together, record one **Family Payment** that settles whole months for every member, and see one card per Family on the overdue list. Pricing stays per Student, with overrides where the Owner wants them.
+
+## Decisions (from the grilling session)
+
+| # | Decision |
+|---|---|
+| 1 | No instructor access; Owner is the only staff role. |
+| 2 | Every Student keeps their own **Plan** (what they train + list price). Families never replace Plans. |
+| 3 | **Agreed Price**: optional per-Student monthly price replacing the Plan's list price. This is how individual and sibling discounts are given. |
+| 4 | **Monthly Fee** = Agreed Price if set, else Plan list price. |
+| 5 | **Family Agreed Price**: optional fixed monthly total for a Family, replacing the sum of members' Monthly Fees. When membership changes while one is set, the app flags "membros mudaram, rever o preço acordado"; it never recalculates it silently. |
+| 6 | **Family Fee** = Family Agreed Price if set, else sum of members' Monthly Fees (excluding Waived Months). |
+| 7 | A Family has no payer entity. Optional **Family Contact** = a member the Owner prefers to message; otherwise any member. Contact phones live on Students (a kid's phone is usually the parent's). |
+| 8 | **Family Payment** settles whole months for every member (never partial by amount). Owner picks months (pre-selected: oldest unpaid) and amount (pre-filled: Family Fee × months), both editable. |
+| 9 | Paying one member alone stays possible (individual payment); the Family then shows that month as partly paid. |
+| 10 | **Waived Month**: Owner marks a month a Student does not owe (didn't train, injury, holidays). Works for any Student. Default is that everyone owes every month. A waived member drops out of the Family Fee sum; a Family Agreed Price is not recalculated (Owner edits the amount at payment time if wanted). |
+| 11 | A Student belongs to **at most one** Family. Shared custody: Student sits in one Family; the other parent paying is recorded as an individual payment. |
+| 12 | Overdue list shows **one card per Family** (members not repeated), with months owed, total, "Registrar pagamento da família" and WhatsApp (Family Contact, else first member with a phone). A Family is listed while any member owes a non-waived month. |
+| 13 | Owner names the Family (surnames differ; not derived). |
+| 14 | Management: new **Famílias** tab under Alunos (Alunos · Pendentes · Famílias) + a "Família" line on each student's page. Removing a member or deleting a Family never touches payment history. |
+| 15 | Students see nothing new; notifications and the student's own overdue banner are unchanged (a Family Payment clears them for all members). |
+| 16 | Existing families are not auto-created. The Famílias tab shows **Possíveis famílias**: Students sharing a phone number, each one tap to review/create or dismiss. |
+| 17 | Storage: per-member payment rows linked to a family-payment record ([[0001-family-payments-as-per-member-rows|ADR 0001]]). |
+
+## Scenarios (acceptance)
+
+1. **Silva family** (Bia 35 €, Leo 35 €; no agreed price) owes Aug + Sep. Overdue list: one card "Família Silva · 2 meses · 140 €". Owner records a Family Payment for Aug + Sep of 140 € → both kids paid for both months, card disappears, both kids' banners clear.
+2. **Family Agreed Price** 100 € for Carlos (45) + 2 kids (35, 35). Family Payment for Sep of 100 € → rows 39.13 / 30.43 / 30.44, family total exact.
+3. **Waived Month**: Owner waives Oct for Leo. Silva Family Fee for Oct = 35 € (Bia only); Leo is not overdue for Oct.
+4. **Individual payment inside a Family**: Carlos pays only his own Sep. Family card shows Sep as 1 of 3 paid; remaining members still owed.
+5. **Member leaves**: Leo removed from Silva family with a Family Agreed Price set → warning to review the agreed price; Leo's past payments unchanged; Leo appears as his own card if he later owes.
+6. **Possible families**: two Students share phone 934 232 146 → suggestion listed; Owner creates "Família Stefan" or dismisses; nothing is created automatically.
+7. **Second family blocked**: adding Leo to another Family is refused while he belongs to one.
+
+## Design sketch
+
+### Data (new migration)
+
+- `family` — id, academy_id, name, contact_student_id (nullable), agreed_price (nullable decimal), members_changed_at (for the review warning), created_at.
+- `user.family_id` (nullable FK) — enforces "at most one Family" by construction.
+- `student_membership.agreed_price` (nullable decimal) — the Student's Agreed Price.
+- `waived_month` — student_id, reference_month (YYYY-MM), reason (optional text), created_by; unique (student_id, reference_month).
+- `family_payment` — id, family_id, total_amount, payment_date, months (YYYY-MM[]), recorded_by, created_at.
+- `payment.family_payment_id` (nullable FK) — per-member rows created by a Family Payment.
+- Dismissed family suggestions: stored per academy (phone number dismissed), so dismissals persist.
+
+### API
+
+- CRUD `/api/families` (owner): create with name + member ids (+ optional contact, agreed price), add/remove member, delete.
+- `POST /api/families/:id/payments` — months + amount → family_payment + per-member payment rows (share split per ADR 0001), skipping members with a Waived Month for that month.
+- `GET /api/families/suggestions` + `POST .../suggestions/dismiss`.
+- `PUT /api/students/:id/membership` accepts `agreedPrice`.
+- `POST/DELETE /api/students/:id/waived-months/:month`.
+- Overdue computation: skip Waived Months; use Monthly Fee (agreed price aware); group family members into one record.
+- `/api/payments/my-status`: skip Waived Months (student view otherwise unchanged).
+
+### Web
+
+- Alunos → **Famílias** tab: list, create/edit dialog (name, member search limited to Students without a Family, contact, agreed price), Possíveis famílias section.
+- Student detail: "Família" line; Agreed Price field on the membership; waive/unwaive month action.
+- Financeiro → Inadimplentes: family cards + Family Payment dialog (months pre-selected, amount pre-filled, both editable).
+- Planos: unchanged UI; plans become real modality plans once the client's list is known (see open items).
+
+## Testing (TDD — tests first)
+
+- API: Family Fee (sum, waived member excluded, agreed price wins); Family Payment creates correct rows and shares summing exactly to the total; waived months excluded from overdue and my-status; overdue groups family members into one record; at-most-one-family enforced; suggestions by shared phone, dismissal persists.
+- Web: Famílias tab create/edit; overdue family card and payment dialog pre-fills; student detail family line, agreed price, waive month; review warning after membership change.
+
+## Open items
+
+- **Real plan list** from the client (modalities + list prices). Current seed has 10 plans named by price; to be replaced by ~6–8 modality plans, with differing students moved to an Agreed Price.
+- Prod data: the current seed/CSV is likely not the final prod import; families are built via Possíveis famílias either way.
+
+## Non-goals
+
+- Instructor access / multi-staff roles.
+- Parent logins or a family-facing billing view (Family Contact is a member, not an account).
+- In-app payments.
+- Automatic family creation.
