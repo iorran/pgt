@@ -180,7 +180,23 @@
     "noPlans": "No plans yet",
     "unlimitedClasses": "Unlimited",
     "paymentDueSoon": "Your payment is due in {{days}} days",
-    "week": "week"
+    "week": "week",
+    "family": {
+      "badge": "Family",
+      "recordPayment": "Record family payment",
+      "dialogTitle": "Family payment",
+      "months": "Months to pay",
+      "partlyPaid": "{{paid}} of {{total}} paid",
+      "status": {
+        "owed": "owed",
+        "paid": "paid",
+        "waived": "waived",
+        "not-billed": "no plan"
+      },
+      "submit": "Record payment",
+      "paymentRecorded": "Family payment recorded",
+      "paymentError": "Could not record the payment. Please try again."
+    }
   },
   "marketplace": {
     "title": "Marketplace",
@@ -407,6 +423,46 @@
     "mute": "Mute",
     "unmute": "Unmute",
     "overdueMessage": "Hi {{name}}, your academy payment is {{days}} days overdue. Please settle it as soon as possible."
+  },
+  "families": {
+    "title": "Families",
+    "family": "Family",
+    "new": "New family",
+    "empty": "No families yet",
+    "name": "Family name",
+    "members": "Members",
+    "searchMembers": "Search students without a family",
+    "searchResults": "Matching students",
+    "removeMember": "Remove from family",
+    "remove": "Remove",
+    "contact": "Family contact",
+    "noContact": "None (any member)",
+    "agreedPrice": "Agreed price",
+    "familyAgreedPrice": "Family agreed price",
+    "agreedPricePlaceholder": "Empty = no agreed price",
+    "priceReviewNeeded": "Members changed, review the agreed price",
+    "saved": "Saved",
+    "deleted": "Family deleted",
+    "deleteTitle": "Delete family",
+    "deleteConfirm": "Students leave the family. Payment history is kept.",
+    "suggestions": "Possible families",
+    "createFamily": "Create family",
+    "dismiss": "Dismiss",
+    "addToFamily": "Add to a family",
+    "existingFamily": "Existing family",
+    "add": "Add",
+    "listPrice": "Plan price",
+    "monthlyFee": "Monthly fee",
+    "saveAgreedPrice": "Save agreed price",
+    "waivedMonths": "Waived months",
+    "noWaivedMonths": "No waived months",
+    "waiveMonth": "Waive month",
+    "unwaive": "Remove waiver for",
+    "month": "Month",
+    "reason": "Reason (optional)",
+    "errors": {
+      "studentInFamily": "One of the students already belongs to a family"
+    }
   },
   "belts": {
     "white": "White",

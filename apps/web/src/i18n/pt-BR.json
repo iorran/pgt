@@ -180,7 +180,23 @@
     "noPlans": "Nenhum plano cadastrado ainda",
     "unlimitedClasses": "Livre",
     "paymentDueSoon": "Seu pagamento vence em {{days}} dias",
-    "week": "semana"
+    "week": "semana",
+    "family": {
+      "badge": "Família",
+      "recordPayment": "Registrar pagamento da família",
+      "dialogTitle": "Pagamento da família",
+      "months": "Meses a pagar",
+      "partlyPaid": "{{paid}} de {{total}} pagos",
+      "status": {
+        "owed": "em aberto",
+        "paid": "pago",
+        "waived": "isento",
+        "not-billed": "sem plano"
+      },
+      "submit": "Registrar pagamento",
+      "paymentRecorded": "Pagamento da família registrado",
+      "paymentError": "Não foi possível registrar o pagamento. Tente novamente."
+    }
   },
   "marketplace": {
     "title": "Loja",
@@ -407,6 +423,46 @@
     "mute": "Silenciar",
     "unmute": "Ativar notificações",
     "overdueMessage": "Olá {{name}}, seu pagamento na academia está {{days}} dias atrasado. Por favor, regularize o quanto antes."
+  },
+  "families": {
+    "title": "Famílias",
+    "family": "Família",
+    "new": "Nova família",
+    "empty": "Nenhuma família cadastrada",
+    "name": "Nome da família",
+    "members": "Membros",
+    "searchMembers": "Buscar alunos sem família",
+    "searchResults": "Alunos encontrados",
+    "removeMember": "Remover da família",
+    "remove": "Remover",
+    "contact": "Contato da família",
+    "noContact": "Nenhum (qualquer membro)",
+    "agreedPrice": "Preço acordado",
+    "familyAgreedPrice": "Preço acordado da família",
+    "agreedPricePlaceholder": "Vazio = sem preço acordado",
+    "priceReviewNeeded": "Membros mudaram, rever o preço acordado",
+    "saved": "Salvo",
+    "deleted": "Família excluída",
+    "deleteTitle": "Excluir família",
+    "deleteConfirm": "Os alunos saem da família. O histórico de pagamentos é mantido.",
+    "suggestions": "Possíveis famílias",
+    "createFamily": "Criar família",
+    "dismiss": "Dispensar",
+    "addToFamily": "Adicionar a uma família",
+    "existingFamily": "Família existente",
+    "add": "Adicionar",
+    "listPrice": "Preço do plano",
+    "monthlyFee": "Mensalidade",
+    "saveAgreedPrice": "Salvar preço acordado",
+    "waivedMonths": "Meses isentos",
+    "noWaivedMonths": "Nenhum mês isento",
+    "waiveMonth": "Isentar mês",
+    "unwaive": "Remover isenção de",
+    "month": "Mês",
+    "reason": "Motivo (opcional)",
+    "errors": {
+      "studentInFamily": "Um dos alunos já pertence a uma família"
+    }
   },
   "belts": {
     "white": "Branca",

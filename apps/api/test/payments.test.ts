@@ -69,6 +69,7 @@ describe('GET /api/payments', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -80,6 +81,7 @@ describe('GET /api/payments', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
@@ -212,6 +214,7 @@ describe('GET /api/payments/overdue', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments/overdue?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -256,6 +259,7 @@ describe('GET /api/payments/overdue', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments/overdue?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -282,6 +286,7 @@ describe('GET /api/payments/overdue', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments/overdue?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -313,7 +318,7 @@ describe('free plans (price 0)', () => {
 
   it('overdue list skips members on a free plan', async () => {
     const { academy } = await setupFreeMember();
-    const res = await app.inject({ method: 'GET', url: `/api/payments/overdue?academyId=${academy.id}` });
+    const res = await app.inject({ method: 'GET', url: `/api/payments/overdue?academyId=${academy.id}`, headers: authHeaders(await createTestOwner(academy.id)) });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
   });

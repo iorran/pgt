@@ -21,6 +21,7 @@ describe('GET /api/students', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/students?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -38,6 +39,7 @@ describe('GET /api/students', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/students?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -54,6 +56,7 @@ describe('GET /api/students', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/students?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     const body = res.json();
@@ -260,6 +263,7 @@ describe('POST /api/students/:id/membership', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/students?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
     const body = res.json();
     expect(body).toHaveLength(1);

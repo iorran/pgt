@@ -130,6 +130,7 @@ describe('GET /api/payments/overdue (extended fields)', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments/overdue?academyId=${acad.id}`,
+      headers: authHeaders(await createTestOwner(acad.id)),
     });
 
     expect(res.statusCode).toBe(200);

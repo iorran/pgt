@@ -7,6 +7,7 @@ import { checkinRoutes } from './routes/checkins.js';
 import { membershipPlanRoutes } from './routes/membership-plans.js';
 import { studentRoutes } from './routes/students.js';
 import { paymentRoutes } from './routes/payments.js';
+import { familyRoutes } from './routes/families.js';
 import { productRoutes } from './routes/products.js';
 import { orderRoutes } from './routes/orders.js';
 import { seasonRoutes } from './routes/seasons.js';
@@ -37,6 +38,7 @@ export async function buildApp() {
   await app.register(membershipPlanRoutes);
   await app.register(studentRoutes);
   await app.register(paymentRoutes);
+  await app.register(familyRoutes);
   await app.register(productRoutes);
   await app.register(orderRoutes);
   await app.register(seasonRoutes);

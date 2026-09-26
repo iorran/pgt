@@ -19,6 +19,7 @@ import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
 import StudentsPage from './pages/students/index';
 import StudentDetailPage from './pages/students/detail';
+import FamiliesPage from './pages/students/families';
 import BillingOverduePage from './pages/billing/index';
 import PlansPage from './pages/billing/plans';
 import PaymentsPage from './pages/billing/payments';
@@ -177,6 +178,7 @@ function AppRoutes() {
         <Route path="/classes" element={<ClassesPage />} />
         <Route path="/classes/history" element={<CheckinHistoryPage />} />
         <Route path="/students" element={<StudentsPage />} />
+        <Route path="/students/families" element={<FamiliesPage />} />
         <Route path="/students/:id" element={<StudentDetailPage />} />
         <Route path="/billing" element={<BillingOverduePage />} />
         <Route path="/billing/plans" element={<PlansPage />} />

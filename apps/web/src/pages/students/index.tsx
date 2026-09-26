@@ -17,6 +17,7 @@ import {
 import { TabsNav } from '@/components/tabs-nav';
 import { Button } from '@/components/ui/button';
 import { beltClasses, beltKey } from '@/lib/belts';
+import { studentTabs } from './families';
 
 interface Student {
   id: string;
@@ -24,6 +25,7 @@ interface Student {
   belt: string;
   planName?: string | null;
   dueDay?: number | null;
+  familyName?: string | null;
 }
 
 const PAGE_SIZE = 50;
@@ -52,10 +54,7 @@ export default function StudentsPage() {
     <div className="space-y-6">
       <TabsNav
         title={t('nav.students')}
-        items={[
-          { to: '/students', label: t('nav.students') },
-          { to: '/pending', label: t('onboarding.pendingStudents') },
-        ]}
+        items={studentTabs(t)}
       />
       <p className="text-sm text-muted-foreground">{t('students.count', { count: students.length })}</p>
 
@@ -82,6 +81,7 @@ export default function StudentsPage() {
                   >
                     {s.name}
                   </Link>
+                  {s.familyName && <p className="text-xs text-muted-foreground truncate">{s.familyName}</p>}
                   <p className="text-sm text-muted-foreground truncate">
                     {s.planName || '-'}
                     {s.dueDay != null && ` · ${t('students.dueDay')} ${s.dueDay}`}
@@ -111,6 +111,7 @@ export default function StudentsPage() {
                       >
                         {s.name}
                       </Link>
+                      {s.familyName && <span className="ml-2 text-xs text-muted-foreground">{s.familyName}</span>}
                     </TableCell>
                     <TableCell>
                       <Badge className={beltClasses(s.belt)}>{t(beltKey(s.belt))}</Badge>

@@ -98,7 +98,7 @@ Money is a decimal string with 2 places (`"45.00"`). Months are `YYYY-MM`. All r
 - **Monthly Fee** = `student_membership.agreed_price ?? plan.price` (active membership). No active membership → not billed.
 - A month is **owed** by a Student when: it's between membership start and the current month, the due day has passed (current month) or it's past, it is not a Waived Month, the Monthly Fee > 0, and there's no payment row for it.
 - **Family Fee (month)** = `family.agreed_price ?? Σ Monthly Fee of members not waived that month`.
-- **Family Payment split** (ADR 0001): the total is divided equally across the selected months (remainder cents on the last month). Within a month, the month's amount is split across members not waived that month, weighted by Monthly Fee (equal weights if all fees are 0); remainder cents on the last member. Rows always sum exactly to the total.
+- **Family Payment split** (ADR 0001): the total is divided across the selected months in proportion to what each month charges (sum of the charged members' Monthly Fees; remainder cents on the last month), so paying exactly what is owed gives every member exactly their Monthly Fee. Within a month, the month's amount is split across members not waived that month, weighted by Monthly Fee (equal weights if all fees are 0); remainder cents on the last member. Rows always sum exactly to the total.
 
 ### Families
 - `GET /api/families` → `Family[]` (excludes deleted)

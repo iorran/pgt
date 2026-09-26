@@ -19,7 +19,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
-import { formatDate, formatMoney } from '@/lib/format';
+import { formatDate, formatMoney, todayYmd as today } from '@/lib/format';
 
 interface Payment {
   id: string;
@@ -38,12 +38,6 @@ interface Student {
 interface Plan {
   name: string;
   price: string | number;
-}
-
-// Local (not UTC) YYYY-MM-DD, so late-evening entries don't land on tomorrow.
-function today() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 export default function PaymentsPage() {

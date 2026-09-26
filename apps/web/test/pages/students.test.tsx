@@ -21,7 +21,7 @@ describe('StudentsPage', () => {
     vi.clearAllMocks();
     vi.mocked(useSession).mockReturnValue(session);
     vi.mocked(api).mockResolvedValue([
-      { id: 's2', name: 'Zé', belt: 'white', planName: 'Mensal', dueDay: 5 },
+      { id: 's2', name: 'Zé', belt: 'white', planName: 'Mensal', dueDay: 5, familyName: 'Família Silva' },
       { id: 's1', name: 'Ana', belt: 'blue', planName: null, dueDay: null },
     ] as any);
   });
@@ -60,5 +60,14 @@ describe('StudentsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'students.showMore' }));
     expect(within(table()).getAllByRole('row')).toHaveLength(61);
     expect(screen.queryByRole('button', { name: 'students.showMore' })).toBeNull();
+  });
+
+  it('shows the family name next to students that have one and links the Famílias tab', async () => {
+    renderWithProviders(<StudentsPage />);
+    await screen.findByRole('table');
+    const rows = within(table()).getAllByRole('row').slice(1);
+    expect(rows[1]).toHaveTextContent('Família Silva');
+    expect(rows[0]).not.toHaveTextContent('Família');
+    expect(screen.getByRole('link', { name: 'families.title' })).toHaveAttribute('href', '/students/families');
   });
 });

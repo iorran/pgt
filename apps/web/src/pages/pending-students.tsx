@@ -19,6 +19,7 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { beltKey } from '@/lib/belts';
+import { studentTabs } from '@/pages/students/families';
 
 interface PendingStudent {
   id: string;
@@ -65,10 +66,7 @@ export default function PendingStudentsPage() {
     <div className="space-y-6">
       <TabsNav
         title={t('nav.students')}
-        items={[
-          { to: '/students', label: t('nav.students') },
-          { to: '/pending', label: t('onboarding.pendingStudents') },
-        ]}
+        items={studentTabs(t)}
       />
 
       {students.length === 0 ? (
