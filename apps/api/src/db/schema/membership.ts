@@ -20,6 +20,8 @@ export const studentMembership = pgTable('student_membership', {
   planId: uuid('plan_id').notNull().references(() => membershipPlan.id),
   startDate: date('start_date').notNull(),
   dueDay: integer('due_day').notNull(),
+  // Replaces the plan's list price for this student when set.
+  agreedPrice: decimal('agreed_price', { precision: 10, scale: 2 }),
   active: boolean('active').default(true).notNull(),
   notificationsMuted: boolean('notifications_muted').default(false).notNull(),
   lastOverdueEmailSentAt: timestamp('last_overdue_email_sent_at'),

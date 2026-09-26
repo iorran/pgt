@@ -1,6 +1,7 @@
 import { pgTable, uuid, decimal, date, varchar, timestamp, index } from 'drizzle-orm/pg-core';
 import { user } from './user';
 import { academy } from './academy';
+import { familyPayment } from './family';
 
 export const payment = pgTable('payment', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -9,6 +10,7 @@ export const payment = pgTable('payment', {
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   paymentDate: date('payment_date').notNull(),
   referenceMonth: varchar('reference_month', { length: 7 }).notNull(),
+  familyPaymentId: uuid('family_payment_id').references(() => familyPayment.id),
   recordedBy: uuid('recorded_by').notNull().references(() => user.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => [

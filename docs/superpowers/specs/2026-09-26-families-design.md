@@ -89,3 +89,39 @@ The Owner can group Students into a **Family** that pays together, record one **
 - Parent logins or a family-facing billing view (Family Contact is a member, not an account).
 - In-app payments.
 - Automatic family creation.
+
+## API contract (implementation)
+
+Money is a decimal string with 2 places (`"45.00"`). Months are `YYYY-MM`. All routes are owner-only and academy-scoped unless noted. `404` for another academy's ids.
+
+### Billing rules (shared)
+- **Monthly Fee** = `student_membership.agreed_price ?? plan.price` (active membership). No active membership → not billed.
+- A month is **owed** by a Student when: it's between membership start and the current month, the due day has passed (current month) or it's past, it is not a Waived Month, the Monthly Fee > 0, and there's no payment row for it.
+- **Family Fee (month)** = `family.agreed_price ?? Σ Monthly Fee of members not waived that month`.
+- **Family Payment split** (ADR 0001): the total is divided equally across the selected months (remainder cents on the last month). Within a month, the month's amount is split across members not waived that month, weighted by Monthly Fee (equal weights if all fees are 0); remainder cents on the last member. Rows always sum exactly to the total.
+
+### Families
+- `GET /api/families` → `Family[]` (excludes deleted)
+  `Family = { id, name, contactStudentId: string|null, agreedPrice: string|null, priceReviewNeeded: boolean, familyFee: string /* current month */, members: { id, name, phone: string|null, belt, monthlyFee: string|null }[] }`
+- `GET /api/families/:id` → `Family`
+- `POST /api/families` `{ name, memberIds: string[] (≥1), contactStudentId?, agreedPrice?: string|null }` → `201 Family`. `409 { error: 'STUDENT_IN_FAMILY', studentIds }` if any member already belongs to a Family. `400` if contact is not a member.
+- `PUT /api/families/:id` `{ name?, contactStudentId?: string|null, agreedPrice?: string|null }` → `Family`. Sending `agreedPrice` (even unchanged) clears `priceReviewNeeded`.
+- `POST /api/families/:id/members` `{ studentId }` → `Family` (`409 STUDENT_IN_FAMILY`). `DELETE /api/families/:id/members/:studentId` → `Family` (clears contact if it was them). Either sets `priceReviewNeeded` when `agreedPrice` is set.
+- `DELETE /api/families/:id` → `204`; soft delete (`deleted_at`), members' `family_id` cleared, payments untouched.
+- `GET /api/families/:id/billing` → `{ owedMonths: { month, fee: string, members: { studentId, status: 'owed'|'paid'|'waived'|'not-billed' }[] }[], suggestedMonths: string[] /* all owed, oldest first */, suggestedAmount: string /* Σ fee of suggestedMonths */ }`. A month appears when any member owes it.
+- `POST /api/families/:id/payments` `{ months: string[] (≥1), amount: string, paymentDate?: 'YYYY-MM-DD' (default today) }` → `201 { familyPayment, payments: Payment[] }`. `400` if a month has no billable member.
+- `GET /api/families/suggestions` → `{ phone, students: { id, name }[] }[]` — Students of the academy without a Family sharing the same phone (digits only, ≥2 students), excluding dismissed phones.
+- `POST /api/families/suggestions/dismiss` `{ phone }` → `204`.
+
+### Students
+- `GET /api/students` and `GET /api/students/:id` rows gain `familyId: string|null`, `familyName: string|null`, `agreedPrice: string|null`, `planPrice: string|null`, `monthlyFee: string|null`.
+- `PUT /api/students/:id/membership` accepts only `{ planId?, dueDay?, startDate?, agreedPrice?: string|null }` (whitelisted).
+- `GET /api/students/:id/waived-months` → `{ referenceMonth, reason: string|null }[]`
+- `POST /api/students/:id/waived-months` `{ month, reason? }` → `201` (idempotent). `DELETE /api/students/:id/waived-months/:month` → `204`.
+
+### Payments
+- `GET /api/payments/overdue` → `OverdueItem[]`, sorted by `daysOverdue` desc. Family members never appear as student items.
+  - `{ kind: 'student', studentId, studentName, email, belt, phone, notificationsMuted, planName, dueDay, daysOverdue, missedMonths, referenceMonth, amountDue: string }`
+  - `{ kind: 'family', familyId, familyName, members: { studentId, name }[], phone: string|null /* contact's, else first member with one */, daysOverdue, missedMonths, amountDue: string }`
+- `GET /api/payments/my-status` (student): Waived Months are not owed; otherwise unchanged.
+- `POST /api/payments/quick/:studentId`: amount = Monthly Fee (agreed price aware).
