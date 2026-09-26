@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { payment, user, studentMembership, membershipPlan, academy, family } from '../db/schema/index.js';
+import { payment, user, studentMembership, academy, family } from '../db/schema/index.js';
 import { eq, and, isNull } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
@@ -8,7 +8,7 @@ import { authorizeStudentRead } from '../middleware/student-access.js';
 import { emailService } from '../email/index.js';
 import { isAcademyStudent } from './students.js';
 import { loadStudentBilling } from '../billing/load.js';
-import { daysOverdue, familyBilling, fromCents, monthKey, monthlyFee, owedMonths, toCents } from '../billing/rules.js';
+import { daysOverdue, familyBilling, fromCents, monthKey, owedMonths, toCents } from '../billing/rules.js';
 
 export async function paymentRoutes(app: FastifyInstance) {
   // Record a manual payment (owner only)
@@ -96,7 +96,6 @@ export async function paymentRoutes(app: FastifyInstance) {
         belt: s.belt,
         phone: s.phone,
         notificationsMuted: s.notificationsMuted,
-        planName: s.planName,
         dueDay: s.dueDay,
         daysOverdue: daysOverdue(owed[0], s.membership!.dueDay, now),
         missedMonths: owed,
@@ -135,14 +134,10 @@ export async function paymentRoutes(app: FastifyInstance) {
   app.post('/api/payments/quick/:studentId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
 
-    // Get the student's active membership and plan price
+    // Get the student's active membership and Monthly Fee
     const [membership] = await db
-      .select({
-        price: membershipPlan.price,
-        agreedPrice: studentMembership.agreedPrice,
-      })
+      .select({ monthlyFee: studentMembership.monthlyFee })
       .from(studentMembership)
-      .innerJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
       .innerJoin(user, eq(user.id, studentMembership.studentId))
       .where(and(
         eq(studentMembership.studentId, studentId),
@@ -161,7 +156,7 @@ export async function paymentRoutes(app: FastifyInstance) {
     const [created] = await db.insert(payment).values({
       studentId,
       academyId: request.academyId,
-      amount: monthlyFee(membership.price, membership.agreedPrice),
+      amount: membership.monthlyFee,
       paymentDate,
       referenceMonth,
       recordedBy: request.user.id,

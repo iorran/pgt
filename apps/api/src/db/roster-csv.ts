@@ -1,3 +1,5 @@
+import { DEFAULT_MODALITIES } from './schema/modality.js';
+
 // Parses the academy's student spreadsheet export (Google Sheets CSV).
 // Columns: _, nº, nome, turma/modalidade, mensalidade, telefone, início, notes...
 
@@ -46,6 +48,25 @@ export interface RosterStudent {
   phone: string | null;
   price: string;
   joinMonth: number;
+  modalityText: string | null; // raw "TURMA // MODALIDAD" cell, kept as the Training Note
+  modalities: string[];
+}
+
+export { DEFAULT_MODALITIES };
+
+// Best-effort tags from the free-text cell (JIU-JITSU, JIUJITSU, JIU-JISU, "jiu jiutsu"...).
+// Kids classes are Jiu-Jitsu too, but are tagged Kids only.
+export function parseModalities(text: string): string[] {
+  const t = text.toUpperCase();
+  const kids = t.includes('KIDS');
+  const tags: Record<string, boolean> = {
+    'Jiu-Jitsu': !kids && /JIU|JISU/.test(t),
+    MMA: t.includes('MMA'),
+    Kids: kids,
+    Funcional: t.includes('FUNCIONAL'),
+    Feminino: t.includes('FEMININO'),
+  };
+  return DEFAULT_MODALITIES.filter((m) => tags[m]);
 }
 
 // Spanish/Portuguese month prefixes as typed in the sheet (ENERO, FEVREIRO, MARCO, MAIO...).
@@ -80,6 +101,8 @@ export function parseRoster(text: string): RosterStudent[] {
       phone: digits.length >= 9 ? digits : null,
       price: (Number.isFinite(amount) ? amount : 0).toFixed(2),
       joinMonth: month ? MONTHS[month] : 1,
+      modalityText: (r[3] ?? '').trim() || null,
+      modalities: parseModalities(r[3] ?? ''),
     });
   }
   return out;

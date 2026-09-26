@@ -1,7 +1,7 @@
 # Families: paying together
 
 Date: 2026-09-26
-Status: Implemented (families); revised same day — no plans, see [[0002-no-plans-monthly-fee-per-student|ADR 0002]]
+Status: Implemented — families + no plans / modalities ([[0002-no-plans-monthly-fee-per-student|ADR 0002]])
 Glossary: [[CONTEXT|Glossary]] · Decision: [[0001-family-payments-as-per-member-rows|ADR 0001]]
 
 ## Problem
@@ -134,3 +134,17 @@ Client feedback after implementation: no plans in the app; the Owner sets each S
 - **API:** `GET /api/students` / `/:id` return `monthlyFee`, `modalities: {id,name}[]`, `trainingNote` (drop `planName`, `planId`, `planPrice`, `agreedPrice`). `PUT /api/students/:id/membership` accepts `{ monthlyFee, dueDay?, startDate? }` and creates the membership if missing. `PUT /api/students/:id/training` `{ modalityIds, trainingNote }`. `GET/POST/PUT/DELETE /api/modalities` (owner; delete only when unused, else 409). Membership-plan routes removed. Overdue/family items drop `planName`.
 - **Web:** Planos tab removed; student detail: Monthly Fee field with suggestion chips (45/65/60/35 €), Modalities multi-select + Training Note; students list shows modalities and allows filtering by modality; Settings: manage Modalities; payments form pre-fills the student's Monthly Fee.
 - **Seed:** default modalities Jiu-Jitsu, MMA, Kids, Funcional, Feminino; roster import sets Monthly Fee from the sheet and tags modalities from the "TURMA // MODALIDAD" column (best effort), putting the raw text in the Training Note.
+
+### Revised API contract (binding for implementation)
+Migrations 0010 (adds `student_membership.monthly_fee` backfilled from agreed/plan price, `modality`, `student_modality`, `user.training_note`, default modalities per academy) and 0011 (drops `membership_plan`, `plan_id`, `agreed_price`, `plan_frequency`) are written and applied locally.
+
+- `GET /api/modalities` (any member of the academy) → `{ id, name, studentCount: number }[]` sorted by name.
+- `POST /api/modalities` (owner) `{ name }` → `201 { id, name, studentCount: 0 }`; `409 { error: 'MODALITY_EXISTS' }` (case-insensitive, trimmed).
+- `PUT /api/modalities/:id` (owner) `{ name }` → `{ id, name, studentCount }`; `409 MODALITY_EXISTS`.
+- `DELETE /api/modalities/:id` (owner) → `204`; `409 { error: 'MODALITY_IN_USE', studentCount }` when any student has it.
+- `GET /api/students` rows: `{ id, name, email, belt, phone, dateOfBirth, dueDay: number|null, monthlyFee: string|null, modalities: { id, name }[], trainingNote: string|null, familyId, familyName }`. Optional query `?modalityId=` filters.
+- `GET /api/students/:id`: same fields plus `image, createdAt, membershipStartDate: string|null`.
+- `PUT /api/students/:id/membership` (owner) `{ monthlyFee: string (≥ 0), dueDay?: 1–28, startDate?: YYYY-MM-DD }` → membership. Creates the active membership if none (defaults: dueDay 8, startDate = first day of next month). `400` on invalid fee.
+- `PUT /api/students/:id/training` (owner) `{ modalityIds: string[], trainingNote: string|null }` → `{ modalities, trainingNote }`; `404` if a modality belongs to another academy.
+- Removed: `/api/membership-plans*`, `POST /api/students/:id/membership`, fields `planName`, `planId`, `planPrice`, `agreedPrice` everywhere (students, overdue items, families members keep `monthlyFee`).
+- Payments form / quick pay / family billing use `monthlyFee`.

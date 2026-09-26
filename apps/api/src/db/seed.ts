@@ -2,9 +2,9 @@ import 'dotenv/config';
 import { existsSync, readFileSync } from 'node:fs';
 import { eq } from 'drizzle-orm';
 import { db } from './client.js';
-import { academy, user, membershipPlan, studentMembership, badgeDefinition } from './schema/index.js';
+import { academy, user, studentMembership, badgeDefinition, modality, studentModality } from './schema/index.js';
 import { auth } from '../auth/index.js';
-import { parseRoster, normalizeName } from './roster-csv.js';
+import { parseRoster, normalizeName, DEFAULT_MODALITIES } from './roster-csv.js';
 
 // Student roster export. Contains personal data (phones, minors) and the repo is
 // public, so it lives in the gitignored seed-data/ folder, never in git.
@@ -56,18 +56,17 @@ async function seed() {
   const now = new Date();
   const billingStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString().slice(0, 10);
 
+  const modalities = await db.insert(modality)
+    .values(DEFAULT_MODALITIES.map((name) => ({ academyId: acad.id, name })))
+    .returning();
+  const modalityByName = new Map(modalities.map((m) => [m.name, m.id]));
+
+  if (aluno) {
+    await db.insert(studentMembership).values({ studentId: aluno.id, monthlyFee: '45.00', startDate: billingStart, dueDay: 8 });
+  }
+
   if (existsSync(ROSTER_CSV)) {
     const roster = parseRoster(readFileSync(ROSTER_CSV, 'utf8'));
-
-    // One monthly plan per distinct fee in the sheet.
-    const prices = [...new Set(roster.map((s) => s.price))].sort((a, b) => Number(a) - Number(b));
-    const plans = await db.insert(membershipPlan).values(prices.map((price) => ({
-      academyId: acad.id,
-      name: Number(price) === 0 ? 'Isento' : `Mensalidade ${Number(price)} €`,
-      price,
-      frequency: 'monthly' as const,
-    }))).returning();
-    const planByPrice = new Map(plans.map((p) => [p.price, p.id]));
 
     // No emails in the sheet: placeholder addresses, no login. Owner replaces them later.
     const usedEmails = new Set<string>();
@@ -83,6 +82,7 @@ async function seed() {
         email,
         name: s.name,
         phone: s.phone,
+        trainingNote: s.modalityText,
         role: 'student' as const,
         status: 'active' as const,
         createdAt: new Date(Date.UTC(2026, s.joinMonth - 1, 1)),
@@ -92,17 +92,17 @@ async function seed() {
     // Muted because placeholder emails can't receive overdue notices.
     await db.insert(studentMembership).values(roster.map((s, i) => ({
       studentId: students[i].id,
-      planId: planByPrice.get(s.price)!,
+      monthlyFee: s.price,
       startDate: billingStart,
       dueDay: 8,
       notificationsMuted: true,
     })));
-    if (aluno) {
-      await db.insert(studentMembership).values({
-        studentId: aluno.id, planId: planByPrice.get('45.00') ?? plans[0].id, startDate: billingStart, dueDay: 8,
-      });
+    const tags = roster.flatMap((s, i) => s.modalities.map((name) => ({ studentId: students[i].id, modalityId: modalityByName.get(name)! })));
+    if (tags.length > 0) {
+      await db.insert(studentModality).values(tags);
     }
-    console.log(`Imported ${roster.length} students, ${plans.length} plans from ${ROSTER_CSV}`);
+    const tagCounts = DEFAULT_MODALITIES.map((name) => `${name} ${roster.filter((s) => s.modalities.includes(name)).length}`);
+    console.log(`Imported ${roster.length} students from ${ROSTER_CSV}; modalities: ${tagCounts.join(', ')}`);
   } else {
     console.warn(`No roster at ${ROSTER_CSV}; seeded academy + owner only`);
   }

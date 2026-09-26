@@ -188,16 +188,13 @@ describe('GET /api/payments/overdue', () => {
     const paidStudent = await createTestUser(academy.id, { name: 'Paid Student' });
     const unpaidStudent = await createTestUser(academy.id, { name: 'Unpaid Student' });
 
-    const [plan] = await testDb.insert(schema.membershipPlan).values({
-      academyId: academy.id, name: 'Standard', price: '100.00', frequency: 'monthly',
-    }).returning();
 
     // Both students start this month with dueDay=1 so current day > dueDay means overdue
     const now = new Date();
     const currentMonthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     await testDb.insert(schema.studentMembership).values([
-      { studentId: paidStudent.id, planId: plan.id, startDate: currentMonthStart, dueDay: 1 },
-      { studentId: unpaidStudent.id, planId: plan.id, startDate: currentMonthStart, dueDay: 1 },
+      { studentId: paidStudent.id, monthlyFee: '100.00', startDate: currentMonthStart, dueDay: 1 },
+      { studentId: unpaidStudent.id, monthlyFee: '100.00', startDate: currentMonthStart, dueDay: 1 },
     ]);
 
     // Record payment for paidStudent for current month
@@ -236,14 +233,11 @@ describe('GET /api/payments/overdue', () => {
     const instructor = await createTestOwner(academy.id);
     const student = await createTestUser(academy.id);
 
-    const [plan] = await testDb.insert(schema.membershipPlan).values({
-      academyId: academy.id, name: 'Plan', price: '100.00', frequency: 'monthly',
-    }).returning();
 
     const now = new Date();
     const currentMonthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     await testDb.insert(schema.studentMembership).values({
-      studentId: student.id, planId: plan.id, startDate: currentMonthStart, dueDay: 1,
+      studentId: student.id, monthlyFee: '100.00', startDate: currentMonthStart, dueDay: 1,
     });
 
     const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -270,9 +264,6 @@ describe('GET /api/payments/overdue', () => {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id, { name: 'Behind Student' });
 
-    const [plan] = await testDb.insert(schema.membershipPlan).values({
-      academyId: academy.id, name: 'Plan', price: '100.00', frequency: 'monthly',
-    }).returning();
 
     // Membership started 2 months ago, never paid
     const now = new Date();
@@ -280,7 +271,7 @@ describe('GET /api/payments/overdue', () => {
     const startDate = `${twoMonthsAgo.getFullYear()}-${String(twoMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`;
 
     await testDb.insert(schema.studentMembership).values({
-      studentId: student.id, planId: plan.id, startDate, dueDay: 5,
+      studentId: student.id, monthlyFee: '100.00', startDate, dueDay: 5,
     });
 
     const res = await app.inject({
@@ -300,30 +291,27 @@ describe('GET /api/payments/overdue', () => {
   });
 });
 
-describe('free plans (price 0)', () => {
+describe('free Monthly Fee (0)', () => {
   async function setupFreeMember() {
     const academy = await createTestAcademy();
     const student = await createTestUser(academy.id, { name: 'Free Student' });
-    const [plan] = await testDb.insert(schema.membershipPlan).values({
-      academyId: academy.id, name: 'Bolsa', price: '0.00', frequency: 'monthly',
-    }).returning();
     const now = new Date();
     const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
     const startDate = `${twoMonthsAgo.getFullYear()}-${String(twoMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`;
     await testDb.insert(schema.studentMembership).values({
-      studentId: student.id, planId: plan.id, startDate, dueDay: 1,
+      studentId: student.id, monthlyFee: '0.00', startDate, dueDay: 1,
     });
     return { academy, student };
   }
 
-  it('overdue list skips members on a free plan', async () => {
+  it('overdue list skips members with a free Monthly Fee', async () => {
     const { academy } = await setupFreeMember();
     const res = await app.inject({ method: 'GET', url: `/api/payments/overdue?academyId=${academy.id}`, headers: authHeaders(await createTestOwner(academy.id)) });
     expect(res.statusCode).toBe(200);
     expect(res.json()).toHaveLength(0);
   });
 
-  it('my-status is ok for a member on a free plan', async () => {
+  it('my-status is ok for a member with a free Monthly Fee', async () => {
     const { student } = await setupFreeMember();
     const res = await app.inject({ method: 'GET', url: '/api/payments/my-status', headers: authHeaders(student) });
     expect(res.statusCode).toBe(200);

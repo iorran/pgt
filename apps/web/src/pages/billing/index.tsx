@@ -20,7 +20,6 @@ interface StudentOverdue {
   studentName: string;
   belt: string;
   phone: string | null;
-  planName: string;
   daysOverdue: number;
   missedMonths: string[];
   amountDue: string;
@@ -85,7 +84,6 @@ export default function BillingOverduePage() {
     <div className="space-y-6">
       <TabsNav title={t('nav.billing')} items={[
         { to: '/billing', label: t('billing.overdueTitle') },
-        { to: '/billing/plans', label: t('billing.plansTitle') },
         { to: '/billing/payments', label: t('billing.paymentsTitle') },
       ]} />
       {records.length > 0 && (
@@ -134,7 +132,6 @@ export default function BillingOverduePage() {
                   <div className="space-y-1">
                     <p className="font-bold">{r.studentName}</p>
                     <Badge variant="outline">{t(beltKey(r.belt))}</Badge>
-                    <p className="text-sm text-muted-foreground">{r.planName}</p>
                     <p className="text-sm text-muted-foreground">
                       {t('billing.missedMonths', { count: r.missedMonths?.length ?? 0 })}
                     </p>

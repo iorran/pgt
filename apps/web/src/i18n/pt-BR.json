@@ -133,12 +133,9 @@
     "title": "Alunos",
     "name": "Nome",
     "belt": "Faixa",
-    "plan": "Plano",
     "dueDay": "Dia Vencimento",
     "email": "E-mail",
     "phone": "Telefone",
-    "assignMembership": "Atribuir Plano",
-    "planId": "Plano",
     "startDate": "Data de Início",
     "paymentHistory": "Histórico de Pagamentos",
     "totalClasses": "Total de Aulas",
@@ -148,21 +145,29 @@
     "paySuccess": "Pagamento registrado",
     "showMore": "Mostrar mais",
     "count_one": "{{count}} aluno",
-    "count_other": "{{count}} alunos"
+    "count_other": "{{count}} alunos",
+    "fee": {
+      "title": "Mensalidade",
+      "amount": "Mensalidade (€)",
+      "suggestions": "Valores sugeridos",
+      "none": "Sem mensalidade — não é cobrado",
+      "save": "Salvar mensalidade",
+      "saved": "Mensalidade salva"
+    },
+    "training": {
+      "title": "Treino",
+      "modalities": "Modalidades",
+      "allModalities": "Todas",
+      "note": "Observação de treino",
+      "save": "Salvar treino",
+      "saved": "Treino salvo"
+    },
+    "countFiltered": "{{shown}} de {{count}} alunos"
   },
   "billing": {
     "overdueTitle": "Inadimplentes",
     "noOverdue": "Nenhum inadimplente",
     "daysOverdue": "dias em atraso",
-    "plansTitle": "Planos",
-    "createPlan": "Criar Plano",
-    "planName": "Nome do Plano",
-    "price": "Preço",
-    "frequency": "Frequência",
-    "classesPerWeek": "Aulas/Semana",
-    "monthly": "Mensal",
-    "quarterly": "Trimestral",
-    "yearly": "Anual",
     "paymentsTitle": "Pagamentos",
     "recordPayment": "Registrar Pagamento",
     "selectStudent": "Selecione um aluno",
@@ -177,10 +182,7 @@
     "missedMonths_other": "{{count}} meses em aberto",
     "paymentRecorded": "Pagamento registrado",
     "noPayments": "Nenhum pagamento registrado ainda",
-    "noPlans": "Nenhum plano cadastrado ainda",
-    "unlimitedClasses": "Livre",
     "paymentDueSoon": "Seu pagamento vence em {{days}} dias",
-    "week": "semana",
     "family": {
       "badge": "Família",
       "recordPayment": "Registrar pagamento da família",
@@ -191,7 +193,7 @@
         "owed": "em aberto",
         "paid": "pago",
         "waived": "isento",
-        "not-billed": "sem plano"
+        "not-billed": "sem mensalidade"
       },
       "submit": "Registrar pagamento",
       "paymentRecorded": "Pagamento da família registrado",
@@ -385,7 +387,26 @@
     "forbidden": "Acesso restrito ao dono da academia."
   },
   "settings": {
-    "geolocationUnavailable": "Geolocalização indisponível"
+    "geolocationUnavailable": "Geolocalização indisponível",
+    "modalities": {
+      "title": "Modalidades",
+      "name": "Nome da modalidade",
+      "newName": "Nova modalidade",
+      "add": "Adicionar",
+      "rename": "Renomear",
+      "delete": "Excluir modalidade",
+      "confirmDelete": "Excluir a modalidade {{name}}?",
+      "studentCount_one": "{{count}} aluno",
+      "studentCount_other": "{{count}} alunos",
+      "added": "Modalidade adicionada",
+      "saved": "Modalidade salva",
+      "deleted": "Modalidade excluída",
+      "errors": {
+        "exists": "Já existe uma modalidade com esse nome",
+        "inUse_one": "Em uso por {{count}} aluno — remova dos alunos antes",
+        "inUse_other": "Em uso por {{count}} alunos — remova dos alunos antes"
+      }
+    }
   },
   "totem": {
     "title": "Totem de Check-in",
@@ -451,7 +472,6 @@
     "addToFamily": "Adicionar a uma família",
     "existingFamily": "Família existente",
     "add": "Adicionar",
-    "listPrice": "Preço do plano",
     "monthlyFee": "Mensalidade",
     "saveAgreedPrice": "Salvar preço acordado",
     "waivedMonths": "Meses isentos",

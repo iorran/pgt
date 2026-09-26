@@ -21,7 +21,6 @@ import StudentsPage from './pages/students/index';
 import StudentDetailPage from './pages/students/detail';
 import FamiliesPage from './pages/students/families';
 import BillingOverduePage from './pages/billing/index';
-import PlansPage from './pages/billing/plans';
 import PaymentsPage from './pages/billing/payments';
 import MarketplacePage from './pages/marketplace/index';
 import OrdersPage from './pages/marketplace/orders';
@@ -181,7 +180,6 @@ function AppRoutes() {
         <Route path="/students/families" element={<FamiliesPage />} />
         <Route path="/students/:id" element={<StudentDetailPage />} />
         <Route path="/billing" element={<BillingOverduePage />} />
-        <Route path="/billing/plans" element={<PlansPage />} />
         <Route path="/billing/payments" element={<PaymentsPage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/orders" element={<OrdersPage />} />

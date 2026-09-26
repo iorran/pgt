@@ -133,12 +133,9 @@
     "title": "Students",
     "name": "Name",
     "belt": "Belt",
-    "plan": "Plan",
     "dueDay": "Due Day",
     "email": "Email",
     "phone": "Phone",
-    "assignMembership": "Assign Membership",
-    "planId": "Plan",
     "startDate": "Start Date",
     "paymentHistory": "Payment History",
     "totalClasses": "Total Classes",
@@ -148,21 +145,29 @@
     "paySuccess": "Payment recorded",
     "showMore": "Show more",
     "count_one": "{{count}} student",
-    "count_other": "{{count}} students"
+    "count_other": "{{count}} students",
+    "fee": {
+      "title": "Monthly fee",
+      "amount": "Monthly fee (€)",
+      "suggestions": "Suggested amounts",
+      "none": "No monthly fee — not billed",
+      "save": "Save monthly fee",
+      "saved": "Monthly fee saved"
+    },
+    "training": {
+      "title": "Training",
+      "modalities": "Modalities",
+      "allModalities": "All",
+      "note": "Training note",
+      "save": "Save training",
+      "saved": "Training saved"
+    },
+    "countFiltered": "{{shown}} of {{count}} students"
   },
   "billing": {
     "overdueTitle": "Overdue Payments",
     "noOverdue": "No overdue payments",
     "daysOverdue": "days overdue",
-    "plansTitle": "Membership Plans",
-    "createPlan": "Create Plan",
-    "planName": "Plan Name",
-    "price": "Price",
-    "frequency": "Frequency",
-    "classesPerWeek": "Classes/Week",
-    "monthly": "Monthly",
-    "quarterly": "Quarterly",
-    "yearly": "Yearly",
     "paymentsTitle": "Payments",
     "recordPayment": "Record Payment",
     "selectStudent": "Select a student",
@@ -177,10 +182,7 @@
     "missedMonths_other": "{{count}} unpaid months",
     "paymentRecorded": "Payment recorded",
     "noPayments": "No payments recorded yet",
-    "noPlans": "No plans yet",
-    "unlimitedClasses": "Unlimited",
     "paymentDueSoon": "Your payment is due in {{days}} days",
-    "week": "week",
     "family": {
       "badge": "Family",
       "recordPayment": "Record family payment",
@@ -191,7 +193,7 @@
         "owed": "owed",
         "paid": "paid",
         "waived": "waived",
-        "not-billed": "no plan"
+        "not-billed": "no monthly fee"
       },
       "submit": "Record payment",
       "paymentRecorded": "Family payment recorded",
@@ -385,7 +387,26 @@
     "forbidden": "Owner access required."
   },
   "settings": {
-    "geolocationUnavailable": "Geolocation unavailable"
+    "geolocationUnavailable": "Geolocation unavailable",
+    "modalities": {
+      "title": "Modalities",
+      "name": "Modality name",
+      "newName": "New modality",
+      "add": "Add",
+      "rename": "Rename",
+      "delete": "Delete modality",
+      "confirmDelete": "Delete the modality {{name}}?",
+      "studentCount_one": "{{count}} student",
+      "studentCount_other": "{{count}} students",
+      "added": "Modality added",
+      "saved": "Modality saved",
+      "deleted": "Modality deleted",
+      "errors": {
+        "exists": "A modality with this name already exists",
+        "inUse_one": "In use by {{count}} student — remove it from students first",
+        "inUse_other": "In use by {{count}} students — remove it from students first"
+      }
+    }
   },
   "totem": {
     "title": "Check-in Totem",
@@ -451,7 +472,6 @@
     "addToFamily": "Add to a family",
     "existingFamily": "Existing family",
     "add": "Add",
-    "listPrice": "Plan price",
     "monthlyFee": "Monthly fee",
     "saveAgreedPrice": "Save agreed price",
     "waivedMonths": "Waived months",

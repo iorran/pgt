@@ -21,8 +21,8 @@ describe('staff navigation', () => {
     expect(screen.getByRole('link', { name: 'nav.dashboard' })).not.toHaveAttribute('aria-current');
   });
 
-  it('marks billing active on /billing/plans', () => {
-    at('/billing/plans', <Sidebar />);
+  it('marks billing active on /billing/payments', () => {
+    at('/billing/payments', <Sidebar />);
     expect(screen.getByRole('link', { name: 'nav.billing' })).toHaveAttribute('aria-current', 'page');
   });
 

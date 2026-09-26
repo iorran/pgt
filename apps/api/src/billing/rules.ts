@@ -38,10 +38,6 @@ function nextMonth(month: string): string {
   return monthKey(new Date(y, m, 1));
 }
 
-export function monthlyFee(planPrice: string, agreedPrice: string | null): string {
-  return agreedPrice ?? planPrice;
-}
-
 // Months the student owes, oldest first: from membership start up to today, due day passed, not paid/waived, fee > 0.
 export function owedMonths(member: MemberBilling, today: Date): string[] {
   const ms = member.membership;

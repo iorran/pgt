@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { academy, user } from '../db/schema/index.js';
+import { academy, user, modality, DEFAULT_MODALITIES } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
@@ -38,6 +38,8 @@ export async function academyRoutes(app: FastifyInstance) {
         throw e;
       }
     }
+
+    await db.insert(modality).values(DEFAULT_MODALITIES.map((name) => ({ academyId: created!.id, name })));
 
     // Update user to owner with this academy
     await db.update(user)

@@ -18,17 +18,14 @@ beforeEach(async () => { await cleanDb(); });
 async function setup() {
   const academy = await createTestAcademy();
   const owner = await createTestOwner(academy.id);
-  const [plan] = await testDb.insert(schema.membershipPlan).values({
-    academyId: academy.id, name: 'Adults', price: '45.00', frequency: 'monthly',
-  }).returning();
   const student = await createTestUser(academy.id, { name: 'Ana', phone: '912' });
   await testDb.insert(schema.studentMembership).values({
-    studentId: student.id, planId: plan.id, startDate: '2026-08-01', dueDay: 10, agreedPrice: '35.00',
+    studentId: student.id, startDate: '2026-08-01', dueDay: 10, monthlyFee: '35.00',
   });
   function api(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, payload?: object) {
     return app.inject({ method, url, headers: authHeaders(owner), payload });
   }
-  return { academy, owner, plan, student, api };
+  return { academy, owner, student, api };
 }
 
 describe('academy scoping of list endpoints', () => {
@@ -51,10 +48,10 @@ describe('academy scoping of list endpoints', () => {
 });
 
 describe('student rows gain family and fee fields', () => {
-  it('list and detail include familyId, familyName, agreedPrice, planPrice, monthlyFee', async () => {
+  it('list and detail include familyId, familyName, monthlyFee', async () => {
     const { student, api } = await setup();
     const fam = (await api('POST', '/api/families', { name: 'Família Ana', memberIds: [student.id] })).json();
-    const expected = { familyId: fam.id, familyName: 'Família Ana', agreedPrice: '35.00', planPrice: '45.00', monthlyFee: '35.00' };
+    const expected = { familyId: fam.id, familyName: 'Família Ana', monthlyFee: '35.00' };
 
     const list = (await api('GET', '/api/students')).json();
     expect(list[0]).toMatchObject(expected);
@@ -66,28 +63,7 @@ describe('student rows gain family and fee fields', () => {
     const { academy, api } = await setup();
     const bare = await createTestUser(academy.id, { name: 'Bare' });
     const one = (await api('GET', `/api/students/${bare.id}`)).json();
-    expect(one).toMatchObject({ familyId: null, familyName: null, agreedPrice: null, planPrice: null, monthlyFee: null });
-  });
-});
-
-describe('PUT /api/students/:id/membership whitelist', () => {
-  it('updates allowed fields incl. agreedPrice and ignores others', async () => {
-    const { student, api } = await setup();
-    const res = await api('PUT', `/api/students/${student.id}/membership`, {
-      agreedPrice: '30.00', dueDay: 5, active: false, notificationsMuted: true, studentId: 'x',
-    });
-    expect(res.statusCode).toBe(200);
-    expect(res.json()).toMatchObject({ agreedPrice: '30.00', dueDay: 5, active: true, notificationsMuted: false, studentId: student.id });
-
-    const cleared = await api('PUT', `/api/students/${student.id}/membership`, { agreedPrice: null });
-    expect(cleared.json().agreedPrice).toBeNull();
-  });
-
-  it('rejects an invalid agreedPrice and another academy student', async () => {
-    const a = await setup();
-    const b = await setup();
-    expect((await a.api('PUT', `/api/students/${a.student.id}/membership`, { agreedPrice: '-1' })).statusCode).toBe(400);
-    expect((await a.api('PUT', `/api/students/${b.student.id}/membership`, { dueDay: 3 })).statusCode).toBe(404);
+    expect(one).toMatchObject({ familyId: null, familyName: null, monthlyFee: null });
   });
 });
 
@@ -124,16 +100,16 @@ describe('waived months', () => {
 });
 
 describe('payments use Monthly Fee and Waived Months', () => {
-  it('overdue student item has kind and amountDue from the agreed price', async () => {
+  it('overdue student item has kind and amountDue from the Monthly Fee', async () => {
     const { student, api } = await setup();
     const overdue = (await api('GET', '/api/payments/overdue')).json();
     expect(overdue).toHaveLength(1);
+    expect(overdue[0]).not.toHaveProperty('planName');
     expect(overdue[0]).toMatchObject({
       kind: 'student',
       studentId: student.id,
       studentName: 'Ana',
       phone: '912',
-      planName: 'Adults',
       dueDay: 10,
       missedMonths: ['2026-08', '2026-09'],
       referenceMonth: '2026-09',
@@ -142,16 +118,16 @@ describe('payments use Monthly Fee and Waived Months', () => {
     });
   });
 
-  it('agreed price 0 is free: not overdue', async () => {
+  it('Monthly Fee 0 is free: not overdue', async () => {
     const { student, api } = await setup();
-    await api('PUT', `/api/students/${student.id}/membership`, { agreedPrice: '0.00' });
+    await api('PUT', `/api/students/${student.id}/membership`, { monthlyFee: '0.00' });
     expect((await api('GET', '/api/payments/overdue')).json()).toHaveLength(0);
   });
 
   it('overdue is sorted by daysOverdue desc', async () => {
-    const { academy, plan, api } = await setup();
+    const { academy, api } = await setup();
     const older = await createTestUser(academy.id, { name: 'Older' });
-    await testDb.insert(schema.studentMembership).values({ studentId: older.id, planId: plan.id, startDate: '2026-06-01', dueDay: 10 });
+    await testDb.insert(schema.studentMembership).values({ studentId: older.id, monthlyFee: '45.00', startDate: '2026-06-01', dueDay: 10 });
     const overdue = (await api('GET', '/api/payments/overdue')).json();
     expect(overdue.map((o: any) => o.studentName)).toEqual(['Older', 'Ana']);
   });
@@ -171,7 +147,7 @@ describe('payments use Monthly Fee and Waived Months', () => {
     expect(status.json()).toEqual({ status: 'overdue', daysOverdue: 47 });
   });
 
-  it('quick pay uses the agreed price', async () => {
+  it('quick pay uses the Monthly Fee', async () => {
     const { student, api } = await setup();
     const res = await api('POST', `/api/payments/quick/${student.id}`);
     expect(res.statusCode).toBe(201);

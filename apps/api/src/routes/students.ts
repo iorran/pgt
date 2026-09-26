@@ -1,20 +1,41 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { user, studentMembership, membershipPlan, family, waivedMonth } from '../db/schema/index.js';
-import { eq, and } from 'drizzle-orm';
-import { monthlyFee } from '../billing/rules.js';
-import { MONEY, MONTH } from './families.js';
+import { user, studentMembership, family, waivedMonth, modality, studentModality } from '../db/schema/index.js';
+import { eq, and, asc, inArray } from 'drizzle-orm';
+import { dateKey } from '../billing/rules.js';
+import { DATE, MONEY, MONTH, UUID } from './families.js';
 
-// Family and Monthly Fee fields shared by the list and detail rows.
-const feeColumns = {
+// Columns shared by the list and detail rows.
+const studentColumns = {
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  belt: user.belt,
+  phone: user.phone,
+  dateOfBirth: user.dateOfBirth,
+  dueDay: studentMembership.dueDay,
+  monthlyFee: studentMembership.monthlyFee,
+  trainingNote: user.trainingNote,
   familyId: user.familyId,
   familyName: family.name,
-  agreedPrice: studentMembership.agreedPrice,
-  planPrice: membershipPlan.price,
 };
 
-function withMonthlyFee<T extends { planPrice: string | null; agreedPrice: string | null }>(row: T) {
-  return { ...row, monthlyFee: row.planPrice === null ? null : monthlyFee(row.planPrice, row.agreedPrice) };
+// Modalities of each student, sorted by name.
+async function modalitiesOf(studentIds: string[]) {
+  const byStudent = new Map<string, { id: string; name: string }[]>(studentIds.map((id) => [id, []]));
+  if (studentIds.length === 0) {
+    return byStudent;
+  }
+  const rows = await db
+    .select({ studentId: studentModality.studentId, id: modality.id, name: modality.name })
+    .from(studentModality)
+    .innerJoin(modality, eq(modality.id, studentModality.modalityId))
+    .where(inArray(studentModality.studentId, studentIds))
+    .orderBy(asc(modality.name));
+  for (const r of rows) {
+    byStudent.get(r.studentId)!.push({ id: r.id, name: r.name });
+  }
+  return byStudent;
 }
 
 export async function isAcademyStudent(id: string, academyId: string) {
@@ -29,29 +50,29 @@ import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
 
 export async function studentRoutes(app: FastifyInstance) {
-  // List students with their active membership plan name
+  // List students with Monthly Fee, modalities and family; ?modalityId= keeps only those who train it.
   app.get('/api/students', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
+    const { modalityId } = request.query as { modalityId?: string };
+    if (modalityId !== undefined && !UUID.test(modalityId)) {
+      return [];
+    }
     const rows = await db
-      .select({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        belt: user.belt,
-        phone: user.phone,
-        dateOfBirth: user.dateOfBirth,
-        planName: membershipPlan.name,
-        dueDay: studentMembership.dueDay,
-        ...feeColumns,
-      })
+      .select(studentColumns)
       .from(user)
       .leftJoin(studentMembership, and(
         eq(studentMembership.studentId, user.id),
         eq(studentMembership.active, true),
       ))
-      .leftJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
       .leftJoin(family, eq(family.id, user.familyId))
-      .where(and(eq(user.role, 'student'), eq(user.academyId, request.academyId)));
-    return rows.map(withMonthlyFee);
+      .where(and(
+        eq(user.role, 'student'),
+        eq(user.academyId, request.academyId),
+        modalityId === undefined
+          ? undefined
+          : inArray(user.id, db.select({ id: studentModality.studentId }).from(studentModality).where(eq(studentModality.modalityId, modalityId))),
+      ));
+    const modalities = await modalitiesOf(rows.map((r) => r.id));
+    return rows.map((r) => ({ ...r, modalities: modalities.get(r.id)! }));
   });
 
   // Single student profile with membership info
@@ -59,93 +80,90 @@ export async function studentRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const [row] = await db
       .select({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        belt: user.belt,
-        phone: user.phone,
-        dateOfBirth: user.dateOfBirth,
+        ...studentColumns,
         image: user.image,
         createdAt: user.createdAt,
-        planName: membershipPlan.name,
-        planId: studentMembership.planId,
-        dueDay: studentMembership.dueDay,
         membershipStartDate: studentMembership.startDate,
-        ...feeColumns,
       })
       .from(user)
       .leftJoin(studentMembership, and(
         eq(studentMembership.studentId, user.id),
         eq(studentMembership.active, true),
       ))
-      .leftJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
       .leftJoin(family, eq(family.id, user.familyId))
       .where(eq(user.id, id));
-    return row && withMonthlyFee(row);
+    return row && { ...row, modalities: (await modalitiesOf([id])).get(id)! };
   });
 
-  // Assign a plan to a student (owner only)
-  app.post('/api/students/:id/membership', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
-    const { id } = request.params as { id: string };
-    const body = request.body as { planId: string; startDate: string; dueDay: number };
-    if (!(await isAcademyStudent(id, request.academyId))) {
-      return reply.status(404).send({ error: 'Student not found' });
-    }
-    const [plan] = await db.select({ id: membershipPlan.id }).from(membershipPlan)
-      .where(and(eq(membershipPlan.id, body.planId), eq(membershipPlan.academyId, request.academyId)));
-    if (!plan) {
-      return reply.status(404).send({ error: 'Plan not found' });
-    }
-
-    // Deactivate any existing active membership first
-    await db.update(studentMembership)
-      .set({ active: false })
-      .where(and(eq(studentMembership.studentId, id), eq(studentMembership.active, true)));
-
-    const [created] = await db.insert(studentMembership).values({
-      studentId: id,
-      planId: body.planId,
-      startDate: body.startDate,
-      dueDay: body.dueDay,
-    }).returning();
-    return reply.status(201).send(created);
-  });
-
-  // Update active membership (owner only)
+  // Set the Monthly Fee (owner only); creates the active membership if the student has none.
   app.put('/api/students/:id/membership', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const body = (request.body ?? {}) as { planId?: string; dueDay?: number; startDate?: string; agreedPrice?: string | null };
+    const { monthlyFee, dueDay, startDate } = (request.body ?? {}) as { monthlyFee?: unknown; dueDay?: unknown; startDate?: unknown };
+    if (typeof monthlyFee !== 'string' || !MONEY.test(monthlyFee)) {
+      return reply.status(400).send({ error: 'Invalid monthlyFee' });
+    }
+    if (dueDay !== undefined && !(Number.isInteger(dueDay) && (dueDay as number) >= 1 && (dueDay as number) <= 28)) {
+      return reply.status(400).send({ error: 'dueDay must be 1-28' });
+    }
+    if (startDate !== undefined && (typeof startDate !== 'string' || !DATE.test(startDate))) {
+      return reply.status(400).send({ error: 'startDate must be YYYY-MM-DD' });
+    }
     if (!(await isAcademyStudent(id, request.academyId))) {
       return reply.status(404).send({ error: 'Student not found' });
     }
     // Whitelist: only these fields may change.
-    const changes: Partial<typeof studentMembership.$inferInsert> = {};
-    if (body.planId !== undefined) {
-      changes.planId = body.planId;
-    }
-    if (body.dueDay !== undefined) {
-      changes.dueDay = body.dueDay;
-    }
-    if (body.startDate !== undefined) {
-      changes.startDate = body.startDate;
-    }
-    if (body.agreedPrice !== undefined) {
-      if (body.agreedPrice !== null && !MONEY.test(body.agreedPrice)) {
-        return reply.status(400).send({ error: 'Invalid agreedPrice' });
-      }
-      changes.agreedPrice = body.agreedPrice;
-    }
-    if (Object.keys(changes).length === 0) {
-      return reply.status(400).send({ error: 'Nothing to update' });
-    }
+    const changes = {
+      monthlyFee,
+      ...(dueDay !== undefined && { dueDay: dueDay as number }),
+      ...(startDate !== undefined && { startDate }),
+    };
     const [updated] = await db.update(studentMembership)
       .set(changes)
       .where(and(eq(studentMembership.studentId, id), eq(studentMembership.active, true)))
       .returning();
-    if (!updated) {
-      return reply.status(404).send({ error: 'Active membership not found' });
+    if (updated) {
+      return updated;
     }
-    return updated;
+    const now = new Date();
+    const [created] = await db.insert(studentMembership).values({
+      studentId: id,
+      dueDay: 8,
+      startDate: dateKey(new Date(now.getFullYear(), now.getMonth() + 1, 1)),
+      ...changes,
+    }).returning();
+    return created;
+  });
+
+  // What the student trains: Modalities (replaced as a whole) and the Training Note (owner only).
+  app.put('/api/students/:id/training', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { modalityIds, trainingNote } = (request.body ?? {}) as { modalityIds?: unknown; trainingNote?: unknown };
+    if (!Array.isArray(modalityIds) || !modalityIds.every((m) => typeof m === 'string')) {
+      return reply.status(400).send({ error: 'modalityIds must be an array of ids' });
+    }
+    if (trainingNote !== null && typeof trainingNote !== 'string') {
+      return reply.status(400).send({ error: 'trainingNote must be a string or null' });
+    }
+    if (!(await isAcademyStudent(id, request.academyId))) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
+    const ids = [...new Set(modalityIds as string[])];
+    const found = ids.length > 0 && ids.every((m) => UUID.test(m))
+      ? await db.select({ id: modality.id }).from(modality)
+        .where(and(inArray(modality.id, ids), eq(modality.academyId, request.academyId)))
+      : [];
+    if (found.length !== ids.length) {
+      return reply.status(404).send({ error: 'Modality not found' });
+    }
+    const note = trainingNote?.trim() || null;
+    await db.transaction(async (tx) => {
+      await tx.delete(studentModality).where(eq(studentModality.studentId, id));
+      if (ids.length > 0) {
+        await tx.insert(studentModality).values(ids.map((modalityId) => ({ studentId: id, modalityId })));
+      }
+      await tx.update(user).set({ trainingNote: note }).where(eq(user.id, id));
+    });
+    return { modalities: (await modalitiesOf([id])).get(id)!, trainingNote: note };
   });
 
   // Waived Months: months a student does not owe (owner only)

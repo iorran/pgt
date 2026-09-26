@@ -32,12 +32,7 @@ interface Payment {
 interface Student {
   id: string;
   name: string;
-  planName?: string | null;
-}
-
-interface Plan {
-  name: string;
-  price: string | number;
+  monthlyFee?: string | null;
 }
 
 export default function PaymentsPage() {
@@ -77,12 +72,6 @@ export default function PaymentsPage() {
     !!user?.academyId,
   );
 
-  const { data: plans = [] } = useApiQuery<Plan[]>(
-    ['plans', user?.academyId],
-    `/membership-plans?academyId=${user?.academyId}`,
-    !!user?.academyId,
-  );
-
   const studentNames = new Map(students.map((s) => [s.id, s.name]));
 
   // ponytail: exact-name match; duplicate names resolve to the first student.
@@ -91,9 +80,8 @@ export default function PaymentsPage() {
     const match = students.find((s) => s.name === input.value);
     input.setCustomValidity(match ? '' : t('billing.selectStudent'));
     form.setFieldValue('studentId', match?.id ?? '');
-    const plan = match && plans.find((p) => p.name === match.planName);
-    if (plan) {
-      form.setFieldValue('amount', String(Number(plan.price)));
+    if (match?.monthlyFee != null) {
+      form.setFieldValue('amount', String(Number(match.monthlyFee)));
     }
   }
 
@@ -116,7 +104,6 @@ export default function PaymentsPage() {
     <div className="space-y-6">
       <TabsNav title={t('nav.billing')} items={[
         { to: '/billing', label: t('billing.overdueTitle') },
-        { to: '/billing/plans', label: t('billing.plansTitle') },
         { to: '/billing/payments', label: t('billing.paymentsTitle') },
       ]} />
 

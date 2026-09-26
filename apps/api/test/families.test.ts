@@ -19,25 +19,18 @@ beforeEach(async () => { await cleanDb(); });
 async function setup() {
   const academy = await createTestAcademy();
   const owner = await createTestOwner(academy.id);
-  const [plan35] = await testDb.insert(schema.membershipPlan).values({
-    academyId: academy.id, name: 'Kids', price: '35.00', frequency: 'monthly',
-  }).returning();
-  const [plan45] = await testDb.insert(schema.membershipPlan).values({
-    academyId: academy.id, name: 'Adults', price: '45.00', frequency: 'monthly',
-  }).returning();
 
   async function student(
     name: string,
-    planId: string,
-    opts: { phone?: string; agreedPrice?: string; startDate?: string; dueDay?: number } = {},
+    monthlyFee: string,
+    opts: { phone?: string; startDate?: string; dueDay?: number } = {},
   ) {
     const s = await createTestUser(academy.id, { name, phone: opts.phone ?? null });
     await testDb.insert(schema.studentMembership).values({
       studentId: s.id,
-      planId,
+      monthlyFee,
       startDate: opts.startDate ?? '2026-08-01',
       dueDay: opts.dueDay ?? 10,
-      agreedPrice: opts.agreedPrice ?? null,
     });
     return s;
   }
@@ -46,7 +39,7 @@ async function setup() {
     return app.inject({ method, url, headers: authHeaders(owner), payload });
   }
 
-  return { academy, owner, plan35, plan45, student, api };
+  return { academy, owner, student, api };
 }
 
 async function paymentsOf(studentId: string) {
@@ -55,9 +48,9 @@ async function paymentsOf(studentId: string) {
 
 describe('families CRUD', () => {
   it('creates a family and returns it with members, fees and familyFee', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id, { phone: '911' });
-    const leo = await student('Leo', plan35.id, { agreedPrice: '30.00' });
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00', { phone: '911' });
+    const leo = await student('Leo', '30.00');
 
     const res = await api('POST', '/api/families', { name: 'Família Silva', memberIds: [bia.id, leo.id], contactStudentId: leo.id });
     expect(res.statusCode).toBe(201);
@@ -95,9 +88,9 @@ describe('families CRUD', () => {
   });
 
   it('validates the payload', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
-    const leo = await student('Leo', plan35.id);
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
+    const leo = await student('Leo', '35.00');
     expect((await api('POST', '/api/families', { name: 'F', memberIds: [] })).statusCode).toBe(400);
     expect((await api('POST', '/api/families', { memberIds: [bia.id] })).statusCode).toBe(400);
     // Contact must be a member
@@ -106,9 +99,9 @@ describe('families CRUD', () => {
   });
 
   it('updates name, contact and agreed price', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
-    const leo = await student('Leo', plan35.id);
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
+    const leo = await student('Leo', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id, leo.id] })).json();
 
     const res = await api('PUT', `/api/families/${fam.id}`, { name: 'Família Silva', contactStudentId: bia.id, agreedPrice: '60.00' });
@@ -118,14 +111,14 @@ describe('families CRUD', () => {
     const cleared = await api('PUT', `/api/families/${fam.id}`, { contactStudentId: null, agreedPrice: null });
     expect(cleared.json()).toMatchObject({ name: 'Família Silva', contactStudentId: null, agreedPrice: null, familyFee: '70.00' });
 
-    const outsider = await student('Out', plan35.id);
+    const outsider = await student('Out', '35.00');
     expect((await api('PUT', `/api/families/${fam.id}`, { contactStudentId: outsider.id })).statusCode).toBe(400);
   });
 
   it('adds and removes members; removing the contact clears it', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
-    const leo = await student('Leo', plan35.id);
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
+    const leo = await student('Leo', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id], contactStudentId: bia.id })).json();
 
     const added = await api('POST', `/api/families/${fam.id}/members`, { studentId: leo.id });
@@ -143,8 +136,8 @@ describe('families CRUD', () => {
   });
 
   it('soft deletes a family: members freed, payments untouched', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id] })).json();
     await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-08'], amount: '35.00' });
 
@@ -163,9 +156,9 @@ describe('families CRUD', () => {
   it('is scoped to the academy (404 for another academy ids)', async () => {
     const a = await setup();
     const b = await setup();
-    const bStudent = await b.student('B', b.plan35.id);
+    const bStudent = await b.student('B', '35.00');
     const bFam = (await b.api('POST', '/api/families', { name: 'B', memberIds: [bStudent.id] })).json();
-    const aStudent = await a.student('A', a.plan35.id);
+    const aStudent = await a.student('A', '35.00');
 
     expect((await a.api('GET', `/api/families/${bFam.id}`)).statusCode).toBe(404);
     expect((await a.api('PUT', `/api/families/${bFam.id}`, { name: 'x' })).statusCode).toBe(404);
@@ -189,9 +182,9 @@ describe('families CRUD', () => {
 
 describe('family billing and payments', () => {
   it('billing lists owed months with fee, statuses and suggestions', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
-    const leo = await student('Leo', plan35.id, { startDate: '2026-09-01' });
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
+    const leo = await student('Leo', '35.00', { startDate: '2026-09-01' });
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id, leo.id] })).json();
 
     const res = await api('GET', `/api/families/${fam.id}/billing`);
@@ -207,8 +200,8 @@ describe('family billing and payments', () => {
   });
 
   it('rejects a payment for a month with no billable member', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id] })).json();
     // Before membership start
     expect((await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-07'], amount: '35.00' })).statusCode).toBe(400);
@@ -219,8 +212,8 @@ describe('family billing and payments', () => {
   });
 
   it('defaults paymentDate to today and accepts an explicit one', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id] })).json();
     const r1 = await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-08'], amount: '35.00' });
     expect(r1.json().familyPayment.paymentDate).toBe('2026-09-26');
@@ -231,9 +224,9 @@ describe('family billing and payments', () => {
 
 describe('spec scenarios', () => {
   it('1. Silva family: one overdue card, a Family Payment settles both kids for both months', async () => {
-    const { academy, owner, plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id, { phone: '911111111' });
-    const leo = await student('Leo', plan35.id);
+    const { academy, owner, student, api } = await setup();
+    const bia = await student('Bia', '35.00', { phone: '911111111' });
+    const leo = await student('Leo', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'Família Silva', memberIds: [bia.id, leo.id] })).json();
 
     const overdue = (await api('GET', `/api/payments/overdue?academyId=${academy.id}`)).json();
@@ -268,10 +261,10 @@ describe('spec scenarios', () => {
   });
 
   it('2. Family Agreed Price 100 for 45/35/35 splits 39.13 / 30.43 / 30.44', async () => {
-    const { plan35, plan45, student, api } = await setup();
-    const carlos = await student('Carlos', plan45.id);
-    const k1 = await student('K1', plan35.id);
-    const k2 = await student('K2', plan35.id);
+    const { student, api } = await setup();
+    const carlos = await student('Carlos', '45.00');
+    const k1 = await student('K1', '35.00');
+    const k2 = await student('K2', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [carlos.id, k1.id, k2.id], agreedPrice: '100.00' })).json();
     expect(fam.familyFee).toBe('100.00');
 
@@ -284,10 +277,10 @@ describe('spec scenarios', () => {
   });
 
   it('3. Waived Month: waived member drops out of the Family Fee and is not overdue', async () => {
-    const { academy, plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
-    const leo = await student('Leo', plan35.id);
-    const solo = await student('Solo', plan35.id, { startDate: '2026-09-01' });
+    const { academy, student, api } = await setup();
+    const bia = await student('Bia', '35.00');
+    const leo = await student('Leo', '35.00');
+    const solo = await student('Solo', '35.00', { startDate: '2026-09-01' });
     const fam = (await api('POST', '/api/families', { name: 'Família Silva', memberIds: [bia.id, leo.id] })).json();
 
     expect((await api('POST', `/api/students/${leo.id}/waived-months`, { month: '2026-09' })).statusCode).toBe(201);
@@ -310,10 +303,10 @@ describe('spec scenarios', () => {
   });
 
   it('4. Individual payment inside a Family: month shows partly paid, others still owed', async () => {
-    const { academy, owner, plan35, plan45, student, api } = await setup();
-    const carlos = await student('Carlos', plan45.id, { startDate: '2026-09-01' });
-    const k1 = await student('K1', plan35.id, { startDate: '2026-09-01' });
-    const k2 = await student('K2', plan35.id, { startDate: '2026-09-01' });
+    const { academy, owner, student, api } = await setup();
+    const carlos = await student('Carlos', '45.00', { startDate: '2026-09-01' });
+    const k1 = await student('K1', '35.00', { startDate: '2026-09-01' });
+    const k2 = await student('K2', '35.00', { startDate: '2026-09-01' });
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [carlos.id, k1.id, k2.id] })).json();
 
     await app.inject({
@@ -339,9 +332,9 @@ describe('spec scenarios', () => {
   });
 
   it('5. Member leaves: review warning, history kept, appears as own card', async () => {
-    const { academy, plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
-    const leo = await student('Leo', plan35.id);
+    const { academy, student, api } = await setup();
+    const bia = await student('Bia', '35.00');
+    const leo = await student('Leo', '35.00');
     const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id, leo.id], agreedPrice: '60.00' })).json();
     await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-08'], amount: '60.00' });
 
@@ -369,12 +362,12 @@ describe('spec scenarios', () => {
   });
 
   it('6. Possible families: shared phone suggested, create or dismiss', async () => {
-    const { plan35, student, api } = await setup();
-    const a = await student('Stefan A', plan35.id, { phone: '934 232 146' });
-    const b = await student('Stefan B', plan35.id, { phone: '934232146' });
-    await student('Other C', plan35.id, { phone: '+351 900 000 001' });
-    await student('Other D', plan35.id, { phone: '351900000001' });
-    await student('Alone', plan35.id, { phone: '911' });
+    const { student, api } = await setup();
+    const a = await student('Stefan A', '35.00', { phone: '934 232 146' });
+    const b = await student('Stefan B', '35.00', { phone: '934232146' });
+    await student('Other C', '35.00', { phone: '+351 900 000 001' });
+    await student('Other D', '35.00', { phone: '351900000001' });
+    await student('Alone', '35.00', { phone: '911' });
 
     const res = await api('GET', '/api/families/suggestions');
     expect(res.statusCode).toBe(200);
@@ -396,10 +389,10 @@ describe('spec scenarios', () => {
   });
 
   it('7. Second family blocked', async () => {
-    const { plan35, student, api } = await setup();
-    const bia = await student('Bia', plan35.id);
-    const leo = await student('Leo', plan35.id);
-    const x = await student('X', plan35.id);
+    const { student, api } = await setup();
+    const bia = await student('Bia', '35.00');
+    const leo = await student('Leo', '35.00');
+    const x = await student('X', '35.00');
     await api('POST', '/api/families', { name: 'Silva', memberIds: [bia.id, leo.id] });
 
     const res = await api('POST', '/api/families', { name: 'Other', memberIds: [x.id, leo.id] });

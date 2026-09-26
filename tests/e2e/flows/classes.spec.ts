@@ -3,7 +3,6 @@ import {
   setupAcademy,
   cleanAcademy,
   createStudent,
-  createPlan,
   assignMembership,
   createClass,
   e2eDb,
@@ -106,7 +105,7 @@ test('18. student taps check-in with mocked geolocation', async ({ browser }) =>
   const ACADEMY_LAT = -23.5505;
   const ACADEMY_LON = -46.6333;
 
-  // Setup: academy with location, a plan, a student with membership, and a
+  // Setup: academy with location, a student with membership, and a
   // class that is active "now" (covers the full day with 15-min buffer logic)
   const setup = await setupAcademy({
     latitude: String(ACADEMY_LAT),
@@ -126,9 +125,8 @@ test('18. student taps check-in with mocked geolocation', async ({ browser }) =>
       ),
     );
 
-  const plan = await createPlan(setup.academy.id);
   const student = await createStudent(setup.academy.id);
-  await assignMembership(student.id, plan.id);
+  await assignMembership(student.id);
 
   // Class active all day: dayOfWeek = today, startTime 00:15 so window opens
   // at 00:00 (startTime - 15min buffer), endTime 23:59 so window closes at

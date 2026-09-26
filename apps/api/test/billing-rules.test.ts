@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  monthlyFee,
   owedMonths,
   daysOverdue,
   memberStatus,
@@ -24,15 +23,6 @@ function member(
     waived: new Set(opts.waived ?? []),
   };
 }
-
-describe('monthlyFee', () => {
-  it('uses the agreed price when set', () => {
-    expect(monthlyFee('45.00', '35.00')).toBe('35.00');
-  });
-  it('falls back to the plan price', () => {
-    expect(monthlyFee('45.00', null)).toBe('45.00');
-  });
-});
 
 describe('owedMonths', () => {
   it('lists unpaid months from start to current once the due day has passed', () => {

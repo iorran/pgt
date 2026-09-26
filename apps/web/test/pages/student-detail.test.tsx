@@ -23,13 +23,12 @@ const baseStudent = {
   name: 'Ana',
   email: 'ana@import.local',
   belt: 'blue',
-  planName: 'Mensal',
   dueDay: 5,
   familyId: null,
   familyName: null,
-  agreedPrice: '35.00',
-  planPrice: '45.00',
   monthlyFee: '35.00',
+  modalities: [{ id: 'm1', name: 'Jiu-Jitsu' }],
+  trainingNote: 'turma das 7h',
 };
 
 const renderPage = () =>
@@ -51,6 +50,12 @@ describe('StudentDetailPage', () => {
       }
       if (path === '/students/s1/waived-months') {
         return [{ referenceMonth: '2026-08', reason: 'Lesão' }];
+      }
+      if (path === '/modalities') {
+        return [
+          { id: 'm1', name: 'Jiu-Jitsu', studentCount: 3 },
+          { id: 'm2', name: 'MMA', studentCount: 1 },
+        ];
       }
       if (path === '/families') {
         return [{ id: 'f1', name: 'Família Silva', members: [] }];
@@ -117,28 +122,80 @@ describe('StudentDetailPage', () => {
     );
   });
 
-  it('shows list price and monthly fee and saves the agreed price (empty = none)', async () => {
+  it('shows the monthly fee and saves it with the due day via one-tap suggestions', async () => {
     const user = userEvent.setup();
     renderPage();
-    expect(await screen.findByText(/families\.listPrice/)).toHaveTextContent(/45,00\s€/);
-    expect(screen.getByText(/families\.monthlyFee/)).toHaveTextContent(/35,00\s€/);
-    const input = screen.getByLabelText('families.agreedPrice');
+    const input = await screen.findByLabelText('students.fee.amount');
     expect(input).toHaveValue(35);
-    await user.clear(input);
-    await user.type(input, '30');
-    await user.click(screen.getByRole('button', { name: 'families.saveAgreedPrice' }));
+    expect(screen.getByRole('button', { name: /^35,00\s€/ })).toHaveAttribute('aria-pressed', 'true');
+    const chip45 = screen.getByRole('button', { name: /^45,00\s€/ });
+    expect(chip45).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: /^65,00\s€/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^60,00\s€/ })).toBeInTheDocument();
+    await user.click(chip45);
+    expect(input).toHaveValue(45);
+    expect(chip45).toHaveAttribute('aria-pressed', 'true');
+    const dueDay = screen.getByLabelText('students.dueDay');
+    expect(dueDay).toHaveValue(5);
+    expect(dueDay).toHaveAttribute('min', '1');
+    expect(dueDay).toHaveAttribute('max', '28');
+    await user.clear(dueDay);
+    await user.type(dueDay, '10');
+    await user.click(screen.getByRole('button', { name: 'students.fee.save' }));
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/students/s1/membership', {
         method: 'PUT',
-        body: JSON.stringify({ agreedPrice: '30' }),
+        body: JSON.stringify({ monthlyFee: '45', dueDay: 10 }),
       }),
     );
-    await user.clear(input);
-    await user.click(screen.getByRole('button', { name: 'families.saveAgreedPrice' }));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('students.fee.saved'));
+  });
+
+  it('shows "not billed" for a student without a monthly fee and can set one', async () => {
+    const user = userEvent.setup();
+    student = { ...baseStudent, monthlyFee: null, dueDay: null };
+    renderPage();
+    expect(await screen.findByText('students.fee.none')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'students.payCurrentMonth' })).toBeNull();
+    expect(screen.getByLabelText('students.fee.amount')).toHaveValue(null);
+    expect(screen.getByLabelText('students.dueDay')).toHaveValue(8);
+    await user.type(screen.getByLabelText('students.fee.amount'), '60');
+    await user.click(screen.getByRole('button', { name: 'students.fee.save' }));
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/students/s1/membership', {
         method: 'PUT',
-        body: JSON.stringify({ agreedPrice: null }),
+        body: JSON.stringify({ monthlyFee: '60', dueDay: 8 }),
+      }),
+    );
+  });
+
+  it('saves modalities and the training note', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const jj = await screen.findByRole('checkbox', { name: 'Jiu-Jitsu' });
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: 'MMA' })).toBeInTheDocument());
+    expect(jj).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'MMA' })).not.toBeChecked();
+    const note = screen.getByLabelText('students.training.note');
+    expect(note).toHaveValue('turma das 7h');
+    await user.click(screen.getByRole('checkbox', { name: 'MMA' }));
+    await user.click(jj);
+    await user.clear(note);
+    await user.type(note, 'trânsito livre');
+    await user.click(screen.getByRole('button', { name: 'students.training.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/students/s1/training', {
+        method: 'PUT',
+        body: JSON.stringify({ modalityIds: ['m2'], trainingNote: 'trânsito livre' }),
+      }),
+    );
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('students.training.saved'));
+    await user.clear(note);
+    await user.click(screen.getByRole('button', { name: 'students.training.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/students/s1/training', {
+        method: 'PUT',
+        body: JSON.stringify({ modalityIds: ['m2'], trainingNote: null }),
       }),
     );
   });

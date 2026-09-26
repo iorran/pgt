@@ -27,7 +27,8 @@ export async function cleanDb() {
       competition_result, season,
       "order", product,
       family_suggestion_dismissal, waived_month,
-      payment, family_payment, student_membership, membership_plan,
+      payment, family_payment, student_membership,
+      student_modality, modality,
       checkin_token, checkin, class,
       session, account, verification,
       "user", family, academy

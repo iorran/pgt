@@ -37,9 +37,9 @@ async function seedTwoAcademies() {
   const classB = await createTestClass(b.id, { instructorId: ownerB.id, name: 'Class B' });
   await testDb.insert(schema.checkin).values({ studentId: studentB.id, classId: classB.id, source: 'button' });
 
-  const [planA, planB] = await testDb.insert(schema.membershipPlan).values([
-    { academyId: a.id, name: 'Plan A', price: '50.00', frequency: 'monthly' },
-    { academyId: b.id, name: 'Plan B', price: '60.00', frequency: 'monthly' },
+  const [modalityA, modalityB] = await testDb.insert(schema.modality).values([
+    { academyId: a.id, name: 'Modality A' },
+    { academyId: b.id, name: 'Modality B' },
   ]).returning();
   const [badgeA, badgeB] = await testDb.insert(schema.badgeDefinition).values([
     { academyId: a.id, name: 'Badge A', description: 'a', icon: 'x', criteriaType: 'manual', criteriaValue: 1 },
@@ -51,7 +51,7 @@ async function seedTwoAcademies() {
   ]).returning();
   const [orderB] = await testDb.insert(schema.order).values({ productId: productB.id, studentId: studentB.id, quantity: 1 }).returning();
   const pendingB = await createTestUser(b.id, { status: 'pending' });
-  await testDb.insert(schema.studentMembership).values({ studentId: studentB.id, planId: planB.id, startDate: '2026-01-01', dueDay: 5 });
+  await testDb.insert(schema.studentMembership).values({ studentId: studentB.id, monthlyFee: '60.00', startDate: '2026-01-01', dueDay: 5 });
 
   const seasonValues = { startDate: '2026-01-01', endDate: '2026-12-31', pointsConfig: { 1: 10 } };
   const [seasonA] = await testDb.insert(schema.season).values({ academyId: a.id, name: 'Season A', ...seasonValues }).returning();
@@ -73,7 +73,7 @@ async function seedTwoAcademies() {
 
   return {
     a, b, ownerA, studentA, ownerB, studentB, pendingB, classA, classB, seasonA, seasonB, resultB,
-    tournamentA, tournamentB, planA, planB, badgeA, badgeB, productA, productB, orderB,
+    tournamentA, tournamentB, modalityA, modalityB, badgeA, badgeB, productA, productB, orderB,
   };
 }
 
@@ -84,7 +84,7 @@ describe('unauthenticated reads are rejected', () => {
       `/api/classes?academyId=${s.b.id}`,
       `/api/checkins/class/${s.classB.id}`,
       `/api/competition-results?seasonId=${s.seasonB.id}`,
-      `/api/membership-plans?academyId=${s.b.id}`,
+      `/api/modalities?academyId=${s.b.id}`,
       `/api/gamification/badges?academyId=${s.b.id}`,
       `/api/products?academyId=${s.b.id}`,
       `/api/seasons?academyId=${s.b.id}`,
@@ -107,7 +107,7 @@ describe('list endpoints ignore ?academyId and use the session academy', () => {
     ['/api/products', 'Product A', 'student'],
     ['/api/seasons', 'Season A', 'student'],
     ['/api/tournaments', 'Tournament A', 'student'],
-    ['/api/membership-plans', 'Plan A', 'owner'],
+    ['/api/modalities', 'Modality A', 'student'],
   ];
   for (const [path, expectedName, as] of cases) {
     it(`${path} returns only academy A to a member of A asking for B`, async () => {
@@ -181,12 +181,11 @@ describe(':id endpoints return 404 for another academy records', () => {
 });
 
 describe('owner-only reads', () => {
-  it('students get 403 on class check-ins, competition results and plans', async () => {
+  it('students get 403 on class check-ins and competition results', async () => {
     const s = await seedTwoAcademies();
     const urls = [
       `/api/checkins/class/${s.classA.id}`,
       `/api/competition-results?seasonId=${s.seasonA.id}`,
-      `/api/membership-plans`,
     ];
     for (const url of urls) {
       const res = await app.inject({ method: 'GET', url, headers: authHeaders(s.studentA) });
@@ -302,13 +301,16 @@ describe('sweep: other writes by id are academy-scoped', () => {
     expect(row.status).toBe('pending');
   });
 
-  it('payments/students: student or plan of another academy -> 404', async () => {
+  it('payments/students/modalities: student or modality of another academy -> 404', async () => {
     const s = await seedTwoAcademies();
     const reqs = [
       { method: 'POST' as const, url: '/api/payments', payload: { studentId: s.studentB.id, amount: '10.00', paymentDate: '2026-03-01', referenceMonth: '2026-03' } },
       { method: 'POST' as const, url: `/api/payments/overdue/${s.studentB.id}/notify` },
-      { method: 'POST' as const, url: `/api/students/${s.studentB.id}/membership`, payload: { planId: s.planA.id, startDate: '2026-03-01', dueDay: 5 } },
-      { method: 'POST' as const, url: `/api/students/${s.studentA.id}/membership`, payload: { planId: s.planB.id, startDate: '2026-03-01', dueDay: 5 } },
+      { method: 'PUT' as const, url: `/api/students/${s.studentB.id}/membership`, payload: { monthlyFee: '45.00' } },
+      { method: 'PUT' as const, url: `/api/students/${s.studentB.id}/training`, payload: { modalityIds: [], trainingNote: null } },
+      { method: 'PUT' as const, url: `/api/students/${s.studentA.id}/training`, payload: { modalityIds: [s.modalityB.id], trainingNote: null } },
+      { method: 'PUT' as const, url: `/api/modalities/${s.modalityB.id}`, payload: { name: 'Renamed' } },
+      { method: 'DELETE' as const, url: `/api/modalities/${s.modalityB.id}` },
       { method: 'PUT' as const, url: `/api/students/${s.studentB.id}/notifications`, payload: { muted: true } },
     ];
     for (const r of reqs) {
@@ -335,12 +337,12 @@ describe('sweep: other writes by id are academy-scoped', () => {
 });
 
 describe('PUT bodies cannot move records to another academy', () => {
-  it('ignores academyId in the body of class/plan/season/product updates', async () => {
+  it('ignores academyId in the body of class/modality/season/product updates', async () => {
     const s = await seedTwoAcademies();
     const [productA] = await testDb.select().from(schema.product).where(eq(schema.product.id, s.productA.id));
     const cases = [
       { url: `/api/classes/${s.classA.id}`, table: schema.bjjClass, id: s.classA.id },
-      { url: `/api/membership-plans/${s.planA.id}`, table: schema.membershipPlan, id: s.planA.id },
+      { url: `/api/modalities/${s.modalityA.id}`, table: schema.modality, id: s.modalityA.id },
       { url: `/api/seasons/${s.seasonA.id}`, table: schema.season, id: s.seasonA.id },
       { url: `/api/products/${productA.id}`, table: schema.product, id: productA.id },
     ];

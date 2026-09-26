@@ -5,7 +5,7 @@ import { env } from './env.js';
 import { authRoutes } from './routes/auth.js';
 import { classRoutes } from './routes/classes.js';
 import { checkinRoutes } from './routes/checkins.js';
-import { membershipPlanRoutes } from './routes/membership-plans.js';
+import { modalityRoutes } from './routes/modalities.js';
 import { studentRoutes } from './routes/students.js';
 import { paymentRoutes } from './routes/payments.js';
 import { familyRoutes } from './routes/families.js';
@@ -37,7 +37,7 @@ export async function buildApp() {
   await app.register(authRoutes);
   await app.register(classRoutes);
   await app.register(checkinRoutes);
-  await app.register(membershipPlanRoutes);
+  await app.register(modalityRoutes);
   await app.register(studentRoutes);
   await app.register(paymentRoutes);
   await app.register(familyRoutes);

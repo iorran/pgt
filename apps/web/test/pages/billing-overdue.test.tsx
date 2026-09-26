@@ -26,8 +26,8 @@ const session = {
 } as any;
 
 const mockRecords = [
-  { kind: 'student', studentId: 's1', studentName: 'Carlos', belt: 'blue', planName: 'Monthly', daysOverdue: 5, missedMonths: ['2026-09'], phone: '+351 912 345 678', amountDue: '45.00' },
-  { kind: 'student', studentId: 's2', studentName: 'Ana', belt: 'purple', planName: 'Quarterly', daysOverdue: 12, missedMonths: ['2026-08', '2026-09'], phone: null, amountDue: '90.00' },
+  { kind: 'student', studentId: 's1', studentName: 'Carlos', belt: 'blue', daysOverdue: 5, missedMonths: ['2026-09'], phone: '+351 912 345 678', amountDue: '45.00' },
+  { kind: 'student', studentId: 's2', studentName: 'Ana', belt: 'purple', daysOverdue: 12, missedMonths: ['2026-08', '2026-09'], phone: null, amountDue: '90.00' },
 ];
 
 const familyRecord = {
@@ -63,8 +63,14 @@ describe('BillingOverduePage', () => {
     renderWithProviders(<BillingOverduePage />);
     expect(await screen.findByText('Carlos')).toBeInTheDocument();
     expect(screen.getByText('Ana')).toBeInTheDocument();
-    expect(screen.getByText('Monthly')).toBeInTheDocument();
-    expect(screen.getByText('Quarterly')).toBeInTheDocument();
+  });
+
+  it('has no Planos tab (no plans)', async () => {
+    renderWithProviders(<BillingOverduePage />);
+    await screen.findByText('Carlos');
+    const hrefs = screen.getAllByRole('link').map((a) => a.getAttribute('href'));
+    expect(hrefs).not.toContain('/billing/plans');
+    expect(screen.getByRole('link', { name: 'billing.paymentsTitle' })).toBeInTheDocument();
   });
 
   it('shows days overdue in each card', async () => {

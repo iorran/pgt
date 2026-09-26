@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useForm } from '@tanstack/react-form';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSession } from '@/lib/auth-client';
 import { isOwner } from '@/lib/roles';
@@ -41,15 +40,22 @@ interface Student {
   email: string;
   belt: string;
   phone?: string;
-  planName?: string;
-  dueDay?: number;
-  membershipStartDate?: string;
+  dueDay?: number | null;
+  membershipStartDate?: string | null;
   familyId?: string | null;
   familyName?: string | null;
-  agreedPrice?: string | null;
-  planPrice?: string | null;
   monthlyFee?: string | null;
+  modalities?: Modality[];
+  trainingNote?: string | null;
 }
+
+interface Modality {
+  id: string;
+  name: string;
+}
+
+// The academy's usual amounts: one-tap suggestions, never a plan.
+const FEE_SUGGESTIONS = [45, 65, 60, 35];
 
 interface Payment {
   id: string;
@@ -66,7 +72,6 @@ export default function StudentDetailPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [payConfirmOpen, setPayConfirmOpen] = useState(false);
 
   const { data: student, isLoading: studentLoading } = useApiQuery<Student>(
@@ -79,12 +84,6 @@ export default function StudentDetailPage() {
     ['payments', 'student', id!],
     `/payments/student/${id}`,
     !!id,
-  );
-
-  const { data: plans = [] } = useApiQuery<any[]>(
-    ['plans', user?.academyId],
-    `/membership-plans?academyId=${user?.academyId}`,
-    !!user?.academyId,
   );
 
   const { data: checkins = [] } = useApiQuery<any[]>(
@@ -105,19 +104,6 @@ export default function StudentDetailPage() {
 
   const isLoading = studentLoading || paymentsLoading;
 
-  const assignMembershipMutation = useMutation({
-    mutationFn: (body: { planId: string; startDate: string; dueDay: string }) =>
-      api(`/students/${id}/membership`, {
-        method: 'POST',
-        body: JSON.stringify({ ...body, dueDay: Number(body.dueDay) }),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['student', id] });
-      form.reset();
-      setDialogOpen(false);
-    },
-  });
-
   const quickPayMutation = useMutation({
     mutationFn: () =>
       api(`/payments/quick/${id}`, { method: 'POST' }),
@@ -127,17 +113,6 @@ export default function StudentDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['payments', 'student', id] });
       queryClient.invalidateQueries({ queryKey: ['overdue'] });
       queryClient.invalidateQueries({ queryKey: ['my-payment-status'] });
-    },
-  });
-
-  const form = useForm({
-    defaultValues: {
-      planId: '',
-      startDate: '',
-      dueDay: '',
-    },
-    onSubmit: async ({ value }) => {
-      await assignMembershipMutation.mutateAsync(value);
     },
   });
 
@@ -199,123 +174,32 @@ export default function StudentDetailPage() {
         </Card>
       </div>
 
-      {/* Membership info */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="font-heading uppercase tracking-wider text-base">
-            {t('students.plan')}
-          </CardTitle>
-          {isOwner(user) && (
-            <Dialog
-              open={dialogOpen}
-              onOpenChange={(open) => {
-                setDialogOpen(open);
-                if (!open) {
-                  form.reset();
-                }
-              }}
-            >
-              <DialogTrigger render={<Button variant="outline" size="sm" />}>
-                {t('students.assignMembership')}
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="font-heading uppercase tracking-wider">
-                    {t('students.assignMembership')}
-                  </DialogTitle>
-                </DialogHeader>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    form.handleSubmit();
-                  }}
-                  className="flex flex-col gap-4"
-                >
-                  <form.Field name="planId">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label>{t('students.planId')}</Label>
-                        <select
-                          value={field.state.value}
-                          onChange={e => field.handleChange(e.target.value)}
-                          required
-                          className="flex h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-                        >
-                          <option value="">--</option>
-                          {plans.map((p: any) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name} — {formatMoney(p.price, i18n.language)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </form.Field>
-                  <form.Field name="startDate">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label>{t('students.startDate')}</Label>
-                        <Input
-                          type="date"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          required
-                        />
-                      </div>
-                    )}
-                  </form.Field>
-                  <form.Field name="dueDay">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label>{t('students.dueDay')}</Label>
-                        <Input
-                          type="number"
-                          min={1}
-                          max={31}
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          required
-                        />
-                      </div>
-                    )}
-                  </form.Field>
-                  <Button type="submit" loading={assignMembershipMutation.isPending}>
-                    {t('common.save')}
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-          )}
+        <CardHeader className="pb-2">
+          <CardTitle className="font-heading uppercase tracking-wider text-base">{t('students.fee.title')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {student.planName ? (
-            <div className="space-y-1">
-              <p className="font-medium">{student.planName}</p>
-              {student.dueDay && (
-                <p className="text-sm text-muted-foreground">
-                  {t('students.dueDay')}: {student.dueDay}
-                </p>
+          {student.monthlyFee != null ? (
+            <p className="arena-stat text-lg">
+              {formatMoney(student.monthlyFee, i18n.language)}
+              {student.dueDay != null && (
+                <span className="ml-2 text-sm text-muted-foreground">
+                  · {t('students.dueDay')}: {student.dueDay}
+                </span>
               )}
-              {student.planPrice != null && (
-                <p className="text-sm text-muted-foreground">
-                  {t('families.listPrice')}: {formatMoney(student.planPrice, i18n.language)}
-                </p>
-              )}
-              {student.monthlyFee != null && (
-                <p className="text-sm">
-                  {t('families.monthlyFee')}: {formatMoney(student.monthlyFee, i18n.language)}
-                </p>
-              )}
-            </div>
+            </p>
           ) : (
-            <p className="text-muted-foreground">-</p>
+            <p className="text-muted-foreground">{t('students.fee.none')}</p>
           )}
-          {isOwner(user) && student.planName && (
-            <AgreedPriceForm key={student.agreedPrice ?? ''} studentId={student.id} agreedPrice={student.agreedPrice ?? ''} />
+          {isOwner(user) && (
+            <MonthlyFeeForm
+              key={student.id}
+              studentId={student.id}
+              monthlyFee={student.monthlyFee}
+              dueDay={student.dueDay}
+            />
           )}
-          {isOwner(user) && student.planName && (
+          {isOwner(user) && student.monthlyFee != null && (
             <Dialog open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
               <DialogTrigger render={<Button variant="outline" className="w-full sm:w-auto" />}>
                 {t('students.payCurrentMonth')}
@@ -336,6 +220,15 @@ export default function StudentDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {isOwner(user) && (
+        <TrainingCard
+          key={student.id}
+          studentId={student.id}
+          modalityIds={(student.modalities ?? []).map(m => m.id)}
+          trainingNote={student.trainingNote ?? ''}
+        />
+      )}
 
       {isOwner(user) && <WaivedMonthsCard studentId={student.id} />}
 
@@ -458,46 +351,168 @@ function JoinFamilyDialog({ studentId }: { studentId: string }) {
   );
 }
 
-function AgreedPriceForm({ studentId, agreedPrice }: { studentId: string; agreedPrice: string }) {
-  const { t } = useTranslation();
+function MonthlyFeeForm({
+  studentId,
+  monthlyFee,
+  dueDay,
+}: {
+  studentId: string;
+  monthlyFee?: string | null;
+  dueDay?: number | null;
+}) {
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
-  const [value, setValue] = useState(agreedPrice);
+  const [fee, setFee] = useState(monthlyFee != null ? String(Number(monthlyFee)) : '');
+  const [day, setDay] = useState(String(dueDay ?? 8));
 
   const mutation = useMutation({
     mutationFn: () =>
       api(`/students/${studentId}/membership`, {
         method: 'PUT',
-        body: JSON.stringify({ agreedPrice: value || null }),
+        body: JSON.stringify({ monthlyFee: fee, dueDay: Number(day) }),
       }),
-    meta: { successMessage: t('families.saved') },
+    meta: { successMessage: t('students.fee.saved') },
     onSuccess: () => invalidateFamilyQueries(queryClient),
   });
 
   return (
     <form
-      className="flex flex-wrap items-end gap-2"
+      className="space-y-3"
       onSubmit={e => {
         e.preventDefault();
         mutation.mutate();
       }}
     >
-      <div className="space-y-2">
-        <Label htmlFor="agreed-price">{t('families.agreedPrice')}</Label>
-        <Input
-          id="agreed-price"
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder={t('families.agreedPricePlaceholder')}
-          value={value}
-          onChange={e => setValue(e.target.value)}
-          className="max-w-40"
-        />
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="space-y-2">
+          <Label htmlFor="monthly-fee">{t('students.fee.amount')}</Label>
+          <Input
+            id="monthly-fee"
+            type="number"
+            min="0"
+            step="0.01"
+            value={fee}
+            onChange={e => setFee(e.target.value)}
+            required
+            className="max-w-40"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="fee-due-day">{t('students.dueDay')}</Label>
+          <Input
+            id="fee-due-day"
+            type="number"
+            min={1}
+            max={28}
+            value={day}
+            onChange={e => setDay(e.target.value)}
+            required
+            className="max-w-24"
+          />
+        </div>
+      </div>
+      <div role="group" aria-label={t('students.fee.suggestions')} className="flex flex-wrap gap-2">
+        {FEE_SUGGESTIONS.map(amount => (
+          <button
+            key={amount}
+            type="button"
+            aria-pressed={fee !== '' && Number(fee) === amount}
+            onClick={() => setFee(String(amount))}
+            className={`min-h-11 px-4 rounded-sm text-sm transition-colors ${
+              fee !== '' && Number(fee) === amount
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {formatMoney(amount, i18n.language)}
+          </button>
+        ))}
       </div>
       <Button type="submit" variant="outline" loading={mutation.isPending}>
-        {t('families.saveAgreedPrice')}
+        {t('students.fee.save')}
       </Button>
     </form>
+  );
+}
+
+function TrainingCard({
+  studentId,
+  modalityIds,
+  trainingNote,
+}: {
+  studentId: string;
+  modalityIds: string[];
+  trainingNote: string;
+}) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [selected, setSelected] = useState(modalityIds);
+  const [note, setNote] = useState(trainingNote);
+
+  const { data: modalities = [] } = useApiQuery<Modality[]>(['modalities'], '/modalities');
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      api(`/students/${studentId}/training`, {
+        method: 'PUT',
+        body: JSON.stringify({ modalityIds: selected, trainingNote: note.trim() || null }),
+      }),
+    meta: { successMessage: t('students.training.saved') },
+    onSuccess: () => {
+      for (const key of ['student', 'students', 'modalities']) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
+    },
+  });
+
+  const toggle = (modalityId: string) =>
+    setSelected(ids => (ids.includes(modalityId) ? ids.filter(m => m !== modalityId) : [...ids, modalityId]));
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="font-heading uppercase tracking-wider text-base">{t('students.training.title')}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form
+          className="space-y-4"
+          onSubmit={e => {
+            e.preventDefault();
+            mutation.mutate();
+          }}
+        >
+          <fieldset className="space-y-1">
+            <legend className="text-sm font-medium">{t('students.training.modalities')}</legend>
+            <div className="flex flex-wrap gap-x-4">
+              {modalities.map(m => (
+                <label key={m.id} className="flex min-h-11 items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(m.id)}
+                    onChange={() => toggle(m.id)}
+                    className="size-5 accent-primary"
+                  />
+                  {m.name}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <div className="space-y-2">
+            <Label htmlFor="training-note">{t('students.training.note')}</Label>
+            <textarea
+              id="training-note"
+              rows={2}
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              className="flex w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+            />
+          </div>
+          <Button type="submit" variant="outline" loading={mutation.isPending}>
+            {t('students.training.save')}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 

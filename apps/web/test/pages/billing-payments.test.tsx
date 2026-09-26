@@ -26,10 +26,9 @@ const session = {
 } as any;
 
 const students = [
-  { id: 's1', name: 'Ana Silva', planName: 'Basic' },
-  { id: 's2', name: 'Bruno Costa', planName: null },
+  { id: 's1', name: 'Ana Silva', monthlyFee: '45.00' },
+  { id: 's2', name: 'Bruno Costa', monthlyFee: null },
 ];
-const plans = [{ id: 'p1', name: 'Basic', price: '45.00', frequency: 'monthly', classesPerWeek: 3 }];
 const payments = [{ id: 'pay1', studentId: 's1', amount: '45.00', paymentDate: '2026-04-23', referenceMonth: '2026-04' }];
 
 describe('PaymentsPage', () => {
@@ -39,9 +38,6 @@ describe('PaymentsPage', () => {
     mockApi.mockImplementation(async (path: string) => {
       if (path.startsWith('/students')) {
         return students as any;
-      }
-      if (path.startsWith('/membership-plans')) {
-        return plans as any;
       }
       if (path.startsWith('/payments?')) {
         return payments as any;
@@ -66,7 +62,7 @@ describe('PaymentsPage', () => {
     expect(screen.getByRole('cell', { name: 'Ana Silva' })).toBeInTheDocument();
   });
 
-  it('searches student by name, prefills plan price, saves with toast', async () => {
+  it('searches student by name, prefills the monthly fee, saves with toast', async () => {
     const user = userEvent.setup();
     renderWithProviders(<PaymentsPage />);
     const studentInput = await screen.findByLabelText('billing.selectStudent');
@@ -81,5 +77,15 @@ describe('PaymentsPage', () => {
       );
       expect(toast.success).toHaveBeenCalledWith('billing.paymentRecorded');
     });
+    expect(mockApi).not.toHaveBeenCalledWith(expect.stringContaining('/membership-plans'));
+  });
+
+  it('leaves the amount empty for a student without a monthly fee', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<PaymentsPage />);
+    const studentInput = await screen.findByLabelText('billing.selectStudent');
+    await waitFor(() => expect(document.querySelectorAll('datalist option')).toHaveLength(2));
+    await user.type(studentInput, 'Bruno Costa');
+    expect(screen.getByLabelText('billing.amount')).toHaveValue(null);
   });
 });

@@ -1,7 +1,7 @@
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
 import { db } from '../db/client.js';
-import { user, studentMembership, membershipPlan, payment, waivedMonth } from '../db/schema/index.js';
-import { monthlyFee, type MemberBilling } from './rules.js';
+import { user, studentMembership, payment, waivedMonth } from '../db/schema/index.js';
+import type { MemberBilling } from './rules.js';
 
 export interface StudentBilling extends MemberBilling {
   name: string;
@@ -11,7 +11,6 @@ export interface StudentBilling extends MemberBilling {
   familyId: string | null;
   createdAt: Date;
   notificationsMuted: boolean | null;
-  planName: string | null;
   dueDay: number | null;
 }
 
@@ -27,15 +26,12 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
       familyId: user.familyId,
       createdAt: user.createdAt,
       notificationsMuted: studentMembership.notificationsMuted,
-      planName: membershipPlan.name,
-      planPrice: membershipPlan.price,
-      agreedPrice: studentMembership.agreedPrice,
+      monthlyFee: studentMembership.monthlyFee,
       dueDay: studentMembership.dueDay,
       startDate: studentMembership.startDate,
     })
     .from(user)
     .leftJoin(studentMembership, and(eq(studentMembership.studentId, user.id), eq(studentMembership.active, true)))
-    .leftJoin(membershipPlan, eq(membershipPlan.id, studentMembership.planId))
     .where(and(eq(user.role, 'student'), where))
     .orderBy(user.createdAt, user.id);
   if (rows.length === 0) {
@@ -69,10 +65,9 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
     familyId: r.familyId,
     createdAt: r.createdAt,
     notificationsMuted: r.notificationsMuted,
-    planName: r.planName,
     dueDay: r.dueDay,
-    membership: r.planPrice !== null && r.startDate !== null && r.dueDay !== null
-      ? { startDate: r.startDate, dueDay: r.dueDay, fee: monthlyFee(r.planPrice, r.agreedPrice) }
+    membership: r.monthlyFee !== null && r.startDate !== null && r.dueDay !== null
+      ? { startDate: r.startDate, dueDay: r.dueDay, fee: r.monthlyFee }
       : null,
     paid: paid.get(r.studentId) ?? new Set(),
     waived: waived.get(r.studentId) ?? new Set(),

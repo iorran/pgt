@@ -83,6 +83,14 @@ describe('App shell selector', () => {
     expect(window.location.pathname).toBe('/');
   });
 
+  it('has no /billing/plans route (no plans): falls back to / for owners', async () => {
+    setSession('owner');
+    window.history.replaceState({}, '', '/billing/plans');
+    renderWithProviders(<App />);
+    expect(await screen.findByTestId('owner-dashboard-page')).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/');
+  });
+
   it('shows the owner dashboard at / for owners (no indirection)', async () => {
     setSession('owner');
     renderWithProviders(<App />);

@@ -9,7 +9,8 @@ import { dateKey, familyBilling, familyFee, memberStatus, monthKey, splitFamilyP
 
 export const MONEY = /^\d+(\.\d{1,2})?$/;
 export const MONTH = /^\d{4}-(0[1-9]|1[0-2])$/;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
+export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 type FamilyRow = typeof family.$inferSelect;
 
