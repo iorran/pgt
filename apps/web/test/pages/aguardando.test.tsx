@@ -15,6 +15,12 @@ describe('AguardandoPage', () => {
     expect(screen.getByText('onboarding.waitingMessage')).toBeInTheDocument();
   });
 
+  it('uses an icon instead of an emoji', () => {
+    const { container } = renderWithProviders(<AguardandoPage />);
+    expect(screen.queryByText('\u23F3')).not.toBeInTheDocument();
+    expect(container.querySelector('svg[aria-hidden="true"]')).toBeInTheDocument();
+  });
+
   it('shows refresh button', () => {
     renderWithProviders(<AguardandoPage />);
     expect(screen.getByText('onboarding.waitingRefresh')).toBeInTheDocument();

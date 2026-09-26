@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { signOut, useSession } from '@/lib/auth-client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { beltKey } from '@/lib/belts';
 import {
   Receipt,
   Trophy,
@@ -48,10 +49,10 @@ export default function MePage() {
             {(user?.name ?? 'A').slice(0, 1).toUpperCase()}
           </div>
           <div className="flex flex-col">
-            <span className="font-heading text-lg">{user?.name}</span>
+            <h1 className="font-heading text-lg">{user?.name}</h1>
             {user?.belt ? (
               <span className="text-xs uppercase text-muted-foreground">
-                {user.belt}
+                {t(beltKey(user.belt))}
               </span>
             ) : null}
           </div>

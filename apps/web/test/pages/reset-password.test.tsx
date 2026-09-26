@@ -33,6 +33,12 @@ describe('ResetPasswordPage', () => {
     expect(screen.getByRole('button', { name: 'auth.resetPasswordSubmit' })).toBeInTheDocument();
   });
 
+  it('sets new-password autocomplete on both fields', () => {
+    renderWithProviders(<ResetPasswordPage />);
+    expect(screen.getByLabelText('auth.newPassword')).toHaveAttribute('autocomplete', 'new-password');
+    expect(screen.getByLabelText('auth.confirmPassword')).toHaveAttribute('autocomplete', 'new-password');
+  });
+
   it('renders the PGT branding', () => {
     renderWithProviders(<ResetPasswordPage />);
     expect(screen.getByText('PGT')).toBeInTheDocument();
@@ -46,7 +52,8 @@ describe('ResetPasswordPage', () => {
     await user.type(screen.getByLabelText('auth.confirmPassword'), 'different456');
     await user.click(screen.getByRole('button', { name: 'auth.resetPasswordSubmit' }));
 
-    expect(screen.getByText('auth.resetPasswordMismatch')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('auth.resetPasswordMismatch');
+    expect(screen.getByLabelText('auth.confirmPassword')).toHaveAttribute('aria-invalid', 'true');
     expect(mockedResetPassword).not.toHaveBeenCalled();
   });
 

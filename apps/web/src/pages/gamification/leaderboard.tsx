@@ -6,7 +6,9 @@ import { PageLoader } from '@/components/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
-import { TabsNav } from '@/components/tabs-nav';
+import { beltClasses, beltKey } from '@/lib/belts';
+import { formatDate } from '@/lib/format';
+import { GamificationTabs } from './gamification-tabs';
 
 interface Season {
   id: string;
@@ -24,14 +26,6 @@ interface LeaderboardEntry {
 
 const BELTS = ['white', 'blue', 'purple', 'brown', 'black'];
 
-const BELT_COLORS: Record<string, string> = {
-  white: 'bg-white text-black border-white/30',
-  blue: 'bg-blue-600 text-white border-blue-500/30',
-  purple: 'bg-purple-600 text-white border-purple-500/30',
-  brown: 'bg-amber-800 text-white border-amber-700/30',
-  black: 'bg-black text-white border-white/20',
-};
-
 function getRankStyle(rank: number) {
   if (rank === 1) return 'text-arena-gold';
   if (rank === 2) return 'text-arena-silver';
@@ -40,7 +34,7 @@ function getRankStyle(rank: number) {
 }
 
 export default function LeaderboardPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const [seasonId, setSeasonId] = useState('');
@@ -71,29 +65,18 @@ export default function LeaderboardPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-6 space-y-8">
-      <TabsNav items={[
-        { to: '/gamification', label: t('gamification.leaderboardTitle') },
-        { to: '/gamification/seasons', label: t('gamification.seasonsTitle') },
-        { to: '/gamification/results', label: t('gamification.resultsTitle') },
-        { to: '/gamification/profile', label: t('gamification.profileTitle') },
-      ]} />
-      {/* Hero Title */}
-      <div className="text-center space-y-2">
-        <h1 className="font-display text-5xl text-primary arena-glow tracking-wider">
-          {t('gamification.leaderboardPageTitle')}
-        </h1>
-        {activeSeason && (
-          <div className="space-y-1">
-            <p className="font-heading text-lg text-muted-foreground">{activeSeason.name}</p>
-            {activeSeason.startDate && activeSeason.endDate && (
-              <p className="font-mono text-sm text-muted-foreground">
-                {new Date(activeSeason.startDate).toLocaleDateString()} - {new Date(activeSeason.endDate).toLocaleDateString()}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
+    <div className="space-y-8">
+      <GamificationTabs title={t('gamification.leaderboardPageTitle')} />
+      {activeSeason && (
+        <div className="text-center space-y-2">
+          <p className="font-heading text-lg text-muted-foreground">{activeSeason.name}</p>
+          {activeSeason.startDate && activeSeason.endDate && (
+            <p className="font-mono text-sm text-muted-foreground">
+              {formatDate(activeSeason.startDate, i18n.language)} - {formatDate(activeSeason.endDate, i18n.language)}
+            </p>
+          )}
+        </div>
+      )}
 
       {seasons.length === 0 ? (
         <p className="text-center text-muted-foreground">{t('gamification.noSeasons')}</p>
@@ -104,7 +87,8 @@ export default function LeaderboardPage() {
             <select
               value={effectiveSeasonId}
               onChange={e => setSeasonId(e.target.value)}
-              className="rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
+              aria-label={t('gamification.season')}
+              className="min-h-11 rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
             >
               {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
@@ -122,8 +106,10 @@ export default function LeaderboardPage() {
               {category === 'adults' && (
                 <div className="flex flex-wrap gap-2 justify-center">
                   <button
+                    type="button"
                     onClick={() => setBelt('')}
-                    className={`px-3 py-1 rounded-sm text-xs font-heading uppercase transition-colors ${
+                    aria-pressed={belt === ''}
+                    className={`min-h-11 px-4 rounded-sm text-xs font-heading uppercase transition-colors ${
                       belt === '' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -132,12 +118,14 @@ export default function LeaderboardPage() {
                   {BELTS.map(b => (
                     <button
                       key={b}
+                      type="button"
                       onClick={() => setBelt(b)}
-                      className={`px-3 py-1 rounded-sm text-xs font-heading uppercase transition-colors ${
+                      aria-pressed={belt === b}
+                      className={`min-h-11 px-4 rounded-sm text-xs font-heading uppercase transition-colors ${
                         belt === b ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      {b}
+                      {t(beltKey(b))}
                     </button>
                   ))}
                 </div>
@@ -198,14 +186,14 @@ function LeaderboardList({ entries, t }: { entries: LeaderboardEntry[]; t: (key:
             </div>
 
             {/* Belt Badge */}
-            <Badge className={`rounded-sm text-xs uppercase ${BELT_COLORS[entry.belt] || 'bg-muted text-muted-foreground'}`}>
-              {entry.belt}
+            <Badge className={`rounded-sm text-xs uppercase ${beltClasses(entry.belt)}`}>
+              {t(beltKey(entry.belt))}
             </Badge>
 
             {/* Points */}
             <div className={`arena-stat font-mono ${isChampion ? 'text-2xl' : 'text-lg'} text-primary shrink-0`}>
               {entry.totalPoints}
-              <span className="text-xs text-muted-foreground ml-1">pts</span>
+              <span className="text-xs text-muted-foreground ml-1">{t('gamification.pointsShort')}</span>
             </div>
           </div>
         );

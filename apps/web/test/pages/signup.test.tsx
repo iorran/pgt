@@ -29,6 +29,11 @@ describe('SignupPage', () => {
     expect(screen.getByRole('button', { name: 'onboarding.continue' })).toBeEnabled();
   });
 
+  it('academy code input has a visible label and capitalizes input', () => {
+    renderWithProviders(<SignupPage />);
+    expect(screen.getByLabelText('onboarding.joinCode')).toHaveAttribute('autocapitalize', 'characters');
+  });
+
   it('renders login link', () => {
     renderWithProviders(<SignupPage />);
     expect(screen.getByText('auth.login')).toBeInTheDocument();

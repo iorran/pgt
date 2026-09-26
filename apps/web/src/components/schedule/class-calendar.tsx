@@ -25,6 +25,9 @@ const localizer = dateFnsLocalizer({
 // signature. The cast is load-bearing and limited to this single line.
 const DnDCalendar = withDragAndDrop<CalendarEvent>(Calendar as any);
 
+// Week/day views open at 06:00 instead of midnight; earlier slots stay reachable by scrolling.
+const SCROLL_TO_TIME = new Date(1970, 0, 1, 6, 0);
+
 function i18nToCulture(language: string | undefined): 'en-US' | 'pt-BR' {
   if (!language) return 'pt-BR';
   return language.toLowerCase().startsWith('en') ? 'en-US' : 'pt-BR';
@@ -112,6 +115,7 @@ export function ClassCalendar(props: ClassCalendarProps) {
       onSelectEvent={(e) => onEventClick(e.id)}
       eventPropGetter={eventPropGetter}
       components={components}
+      scrollToTime={SCROLL_TO_TIME}
       style={{ height: 600 }}
     />
   );

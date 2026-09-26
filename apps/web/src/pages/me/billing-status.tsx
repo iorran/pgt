@@ -1,45 +1,55 @@
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { AlertTriangle } from 'lucide-react';
+import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent } from '@/components/ui/card';
+import { SubpageHeader } from './subpage-header';
+
+type PaymentStatus = {
+  status: 'ok' | 'overdue' | 'upcoming';
+  daysOverdue?: number;
+  daysUntilDue?: number;
+};
 
 export default function BillingStatusPage() {
   const { t } = useTranslation();
-  const { data, isLoading } = useQuery({
-    queryKey: ['me', 'billing-status'],
-    queryFn: async () => {
-      const res = await fetch('/api/me/billing-status', {
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('failed');
-      return res.json() as Promise<{ status: 'up_to_date' | 'overdue'; amount?: number }>;
-    },
-  });
-
-  if (isLoading) return <div>{t('common.loading')}</div>;
-
-  const isOverdue = data?.status === 'overdue';
+  // Same query key as the student payment banner, so both share one request.
+  const { data, isLoading, isError } = useApiQuery<PaymentStatus>(['my-payment-status'], '/payments/my-status');
 
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center gap-2 p-6 text-center">
-        <span className="font-heading text-sm uppercase text-muted-foreground">
-          {t('me.billingStatus')}
-        </span>
-        <span
-          className={
-            isOverdue
-              ? 'font-display text-3xl text-[color:var(--pgt-red)]'
-              : 'font-display text-3xl text-[color:var(--pgt-green)]'
-          }
-        >
-          {isOverdue
-            ? t('me.billingOverdue')
-            : t('me.billingUpToDate')}
-        </span>
-        {isOverdue && data?.amount ? (
-          <span className="font-mono text-lg">R$ {(data.amount / 100).toFixed(2)}</span>
-        ) : null}
-      </CardContent>
-    </Card>
+    <div className="flex flex-col gap-4">
+      <SubpageHeader title={t('me.billingStatus')} />
+      {isLoading ? (
+        <p className="text-muted-foreground">{t('common.loading')}</p>
+      ) : isError || !data ? (
+        <div role="alert" className="flex items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          <AlertTriangle className="size-5 shrink-0" aria-hidden />
+          {t('me.billingError')}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="flex flex-col items-center gap-2 p-6 text-center">
+            <span
+              className={
+                data.status === 'overdue'
+                  ? 'font-display text-3xl text-[color:var(--pgt-red)]'
+                  : 'font-display text-3xl text-[color:var(--pgt-green)]'
+              }
+            >
+              {data.status === 'overdue' ? t('me.billingOverdue') : t('me.billingUpToDate')}
+            </span>
+            {data.status === 'overdue' ? (
+              <span className="text-sm text-muted-foreground">
+                {t('billing.yourPaymentOverdue', { days: data.daysOverdue })}
+              </span>
+            ) : null}
+            {data.status === 'upcoming' ? (
+              <span className="text-sm text-muted-foreground">
+                {t('billing.paymentDueSoon', { days: data.daysUntilDue })}
+              </span>
+            ) : null}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

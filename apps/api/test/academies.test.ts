@@ -8,7 +8,7 @@ import {
   authHeaders,
   testDb,
 } from './helpers';
-import { academy } from '../src/db/schema/index';
+import { academy, modality } from '../src/db/schema/index';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
@@ -39,6 +39,18 @@ describe('POST /api/academies', () => {
     expect(body.city).toBe('Sao Paulo');
     expect(body.joinCode).toBeDefined();
     expect(body.id).toBeDefined();
+  });
+
+  it('starts the new academy with the default modalities', async () => {
+    const user = await createTestUser(null, { role: 'student', status: 'active' });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/academies',
+      headers: authHeaders(user),
+      payload: { name: 'Nova Academia', city: 'Lisboa' },
+    });
+    const rows = await testDb.select().from(modality).where(eq(modality.academyId, res.json().id));
+    expect(rows.map((m) => m.name).sort()).toEqual(['Feminino', 'Funcional', 'Jiu-Jitsu', 'Kids', 'MMA']);
   });
 });
 

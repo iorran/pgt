@@ -199,7 +199,7 @@
 
 /* Glow effects */
 .arena-glow {
-  box-shadow: 0 0 20px rgba(229, 255, 0, 0.15);
+  text-shadow: 0 0 20px rgba(229, 255, 0, 0.35);
 }
 .arena-glow-red {
   box-shadow: 0 0 20px rgba(255, 59, 48, 0.15);

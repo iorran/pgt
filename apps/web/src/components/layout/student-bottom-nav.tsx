@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Calendar, Trophy, QrCode, ShoppingBag, User } from 'lucide-react';
 
@@ -6,47 +6,46 @@ type Tab = {
   to: string;
   labelKey: string;
   Icon: typeof Calendar;
+  // Path prefixes that belong to this tab (sub-pages keep it highlighted).
+  match: string[];
 };
 
 const LEFT_TABS: Tab[] = [
-  { to: '/classes', labelKey: 'nav.classes', Icon: Calendar },
-  { to: '/gamification/profile', labelKey: 'nav.progress', Icon: Trophy },
+  { to: '/classes', labelKey: 'nav.classes', Icon: Calendar, match: ['/classes'] },
+  { to: '/gamification/profile', labelKey: 'nav.progress', Icon: Trophy, match: ['/gamification'] },
 ];
 
 const RIGHT_TABS: Tab[] = [
-  { to: '/marketplace', labelKey: 'nav.shop', Icon: ShoppingBag },
-  { to: '/me', labelKey: 'nav.me', Icon: User },
+  { to: '/marketplace', labelKey: 'nav.shop', Icon: ShoppingBag, match: ['/marketplace'] },
+  // Tournaments and settings are reached from the Me hub.
+  { to: '/me', labelKey: 'nav.me', Icon: User, match: ['/me', '/tournaments', '/settings'] },
 ];
 
 function TabLink({ tab }: { tab: Tab }) {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const { Icon } = tab;
+  const isActive = tab.match.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   return (
-    <NavLink
+    <Link
       to={tab.to}
       aria-label={t(tab.labelKey)}
-      className={({ isActive }) =>
-        [
-          'flex flex-col items-center justify-center gap-1 flex-1 min-h-[44px]',
-          'text-xs font-heading uppercase tracking-wide',
-          'transition-colors duration-[var(--motion-fast)] ease-[var(--ease-out)]',
-          isActive
-            ? 'text-[color:var(--pgt-green)]'
-            : 'text-muted-foreground hover:text-foreground',
-        ].join(' ')
-      }
-      end={tab.to === '/'}
+      aria-current={isActive ? 'page' : undefined}
+      className={[
+        'flex flex-col items-center justify-center gap-1 flex-1 min-h-[44px]',
+        'text-xs font-heading uppercase tracking-wide',
+        'transition-colors duration-[var(--motion-fast)] ease-[var(--ease-out)]',
+        isActive
+          ? 'text-[color:var(--pgt-green)]'
+          : 'text-muted-foreground hover:text-foreground',
+      ].join(' ')}
     >
-      {({ isActive }) => (
-        <>
-          <Icon className="h-5 w-5" aria-hidden />
-          <span>{t(tab.labelKey)}</span>
-          {isActive ? (
-            <span className="h-1 w-1 rounded-full bg-[color:var(--pgt-green)]" />
-          ) : null}
-        </>
-      )}
-    </NavLink>
+      <Icon className="h-5 w-5" aria-hidden />
+      <span>{t(tab.labelKey)}</span>
+      {isActive ? (
+        <span className="h-1 w-1 rounded-full bg-[color:var(--pgt-green)]" />
+      ) : null}
+    </Link>
   );
 }
 

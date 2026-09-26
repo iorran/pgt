@@ -3,6 +3,7 @@ import {
   QueryCache,
   MutationCache,
 } from '@tanstack/react-query';
+import i18next from 'i18next';
 import { toast } from '@/lib/toast';
 
 export function createQueryClient(): QueryClient {
@@ -14,9 +15,10 @@ export function createQueryClient(): QueryClient {
       },
     },
     queryCache: new QueryCache({
-      onError: (err, query) => {
+      onError: (_err, query) => {
         if (query.meta?.silent) return;
-        toast.error((err as Error).message);
+        // Query failures carry raw API text; show a translated generic message instead.
+        toast.error(i18next.t('common.genericError'));
       },
     }),
     mutationCache: new MutationCache({

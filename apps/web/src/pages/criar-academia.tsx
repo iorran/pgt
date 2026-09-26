@@ -39,7 +39,7 @@ export default function CriarAcademiaPage() {
             role: 'owner',
           } as any);
           if (error) {
-            setError(error.message ?? 'Signup failed');
+            setError(t('common.genericError'));
             return;
           }
         }
@@ -50,8 +50,8 @@ export default function CriarAcademiaPage() {
         });
 
         window.location.href = '/';
-      } catch (err: any) {
-        setError(err.message ?? 'Signup failed');
+      } catch {
+        setError(t('common.genericError'));
       } finally {
         setLoading(false);
       }
@@ -93,6 +93,7 @@ export default function CriarAcademiaPage() {
                           <Input
                             id="name"
                             type="text"
+                            autoComplete="name"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
                             onBlur={field.handleBlur}
@@ -109,6 +110,8 @@ export default function CriarAcademiaPage() {
                           <Input
                             id="email"
                             type="email"
+                            inputMode="email"
+                            autoComplete="email"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
                             onBlur={field.handleBlur}
@@ -130,7 +133,13 @@ export default function CriarAcademiaPage() {
                             onBlur={field.handleBlur}
                             placeholder={t('auth.password')}
                             required
+                            minLength={8}
+                            autoComplete="new-password"
+                            aria-describedby="password-hint"
                           />
+                          <p id="password-hint" className="text-xs text-muted-foreground">
+                            {t('auth.passwordHint')}
+                          </p>
                         </div>
                       )}
                     </form.Field>
@@ -182,7 +191,9 @@ export default function CriarAcademiaPage() {
             </div>
 
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
             )}
 
             <Button type="submit" className="w-full" loading={loading}>

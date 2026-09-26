@@ -3,6 +3,8 @@ import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
 import { QRCodeSVG } from 'qrcode.react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -29,6 +31,12 @@ export default function TotemPage() {
     !!user?.academyId,
   );
 
+  const { data: academy } = useApiQuery<{ name: string }>(
+    ['academy-mine'],
+    '/academies/mine',
+    !!user?.academyId,
+  );
+
   // Poll every 4 minutes to refresh tokens
   useEffect(() => {
     const interval = setInterval(() => refetch(), 4 * 60 * 1000);
@@ -36,12 +44,21 @@ export default function TotemPage() {
   }, [refetch]);
 
   return (
-    <div className="min-h-screen bg-background p-8 flex flex-col items-center">
-      <h1 className="font-display text-4xl text-primary mb-8 arena-glow">PGT</h1>
+    <div className="relative min-h-screen bg-background p-8 flex flex-col items-center">
+      <Link
+        to="/"
+        className="absolute top-2 left-2 inline-flex items-center gap-1 min-h-11 px-3 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft size={16} aria-hidden="true" />
+        {t('common.back')}
+      </Link>
+      <h1 className="font-display text-4xl text-primary arena-glow">PGT</h1>
+      <p className="font-heading text-xl uppercase tracking-wide text-muted-foreground mb-8">{academy?.name}</p>
 
       {tokens.length === 0 ? (
         <div className="text-center mt-20">
           <p className="text-2xl text-muted-foreground">{t('totem.noClasses')}</p>
+          <p className="mt-2 text-muted-foreground">{t('totem.noClassesHint')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">

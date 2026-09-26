@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import TournamentsPage from '@/pages/tournaments/index';
 
@@ -61,9 +62,33 @@ describe('TournamentsPage', () => {
     });
   });
 
-  it('shows empty state', async () => {
+  it('shows a contextual empty state with the owner CTA', async () => {
     mockApi.mockResolvedValue([] as any);
     renderWithProviders(<TournamentsPage />);
-    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+    expect(await screen.findByText('tournaments.empty')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'tournaments.createTournament' })).toHaveLength(2);
+  });
+
+  it('empty state has no create CTA for students', async () => {
+    mockUseSession.mockReturnValue(studentSession);
+    mockApi.mockResolvedValue([] as any);
+    renderWithProviders(<TournamentsPage />);
+    expect(await screen.findByText('tournaments.empty')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'tournaments.createTournament' })).not.toBeInTheDocument();
+  });
+
+  it('formats dates without shifting a day', async () => {
+    renderWithProviders(<TournamentsPage />);
+    expect(await screen.findByText('10/05/2026')).toBeInTheDocument();
+  });
+
+  it('pairs create form labels with inputs', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<TournamentsPage />);
+    await user.click(await screen.findByRole('button', { name: 'tournaments.createTournament' }));
+    expect(await screen.findByLabelText('tournaments.tournamentName')).toBeInTheDocument();
+    expect(screen.getByLabelText('classes.date')).toHaveAttribute('type', 'date');
+    expect(screen.getByLabelText('tournaments.location')).toBeInTheDocument();
+    expect(screen.getByLabelText('tournaments.federation')).toBeInTheDocument();
   });
 });

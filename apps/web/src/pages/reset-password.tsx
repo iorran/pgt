@@ -38,7 +38,7 @@ export default function ResetPasswordPage() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center arena-stripes">
+    <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
       <Card className="w-full max-w-md bg-card border-border">
         <CardContent className="pt-8 pb-8 px-8">
           <div className="text-center mb-8">
@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
               <p className="text-muted-foreground">{t('auth.resetPasswordSuccess')}</p>
               <Link
                 to="/login"
-                className="text-primary hover:text-primary/80 transition-colors no-underline text-sm"
+                className="inline-flex min-h-11 items-center px-2 text-primary hover:text-primary/80 transition-colors no-underline text-sm"
               >
                 {t('auth.backToLogin')}
               </Link>
@@ -76,6 +76,7 @@ export default function ResetPasswordPage() {
                     <Input
                       id="newPassword"
                       type="password"
+                      autoComplete="new-password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
@@ -94,10 +95,12 @@ export default function ResetPasswordPage() {
                     <Input
                       id="confirmPassword"
                       type="password"
+                      autoComplete="new-password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                       onBlur={field.handleBlur}
                       placeholder={t('auth.confirmPassword')}
+                      aria-invalid={error === t('auth.resetPasswordMismatch') || undefined}
                       required
                       minLength={8}
                     />
@@ -107,7 +110,9 @@ export default function ResetPasswordPage() {
 
               {error && (
                 <div className="space-y-2">
-                  <p className="text-sm text-destructive">{error}</p>
+                  <p role="alert" className="text-sm text-destructive">
+                    {error}
+                  </p>
                   {error === t('auth.resetPasswordError') && (
                     <Link
                       to="/forgot-password"

@@ -44,6 +44,11 @@ describe('MePage', () => {
 
   it('renders the user name in the profile header', () => {
     renderWithProviders(<MePage />);
-    expect(screen.getByText('Aluno Teste')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Aluno Teste' })).toBeInTheDocument();
+  });
+
+  it('renders the belt translated, not the raw enum', () => {
+    renderWithProviders(<MePage />);
+    expect(screen.getByText('belts.blue')).toBeInTheDocument();
   });
 });

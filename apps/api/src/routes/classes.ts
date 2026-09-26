@@ -7,9 +7,8 @@ import { injectAcademyId } from '../middleware/tenant.js';
 
 export async function classRoutes(app: FastifyInstance) {
   // List classes for academy
-  app.get('/api/classes', async (request) => {
-    const { academyId } = request.query as { academyId: string };
-    return db.select().from(bjjClass).where(eq(bjjClass.academyId, academyId));
+  app.get('/api/classes', { preHandler: [requireAuth, injectAcademyId] }, async (request) => {
+    return db.select().from(bjjClass).where(eq(bjjClass.academyId, request.academyId));
   });
 
   // Create class (owner only)
@@ -34,7 +33,7 @@ export async function classRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const body = request.body as any;
     const [updated] = await db.update(bjjClass)
-      .set(body)
+      .set({ ...body, id, academyId: request.academyId })
       .where(and(eq(bjjClass.id, id), eq(bjjClass.academyId, request.academyId)))
       .returning();
     return updated;

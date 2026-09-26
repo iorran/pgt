@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
@@ -8,6 +9,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TabsNav } from '@/components/tabs-nav';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { beltKey } from '@/lib/belts';
+import { studentTabs } from '@/pages/students/families';
 
 interface PendingStudent {
   id: string;
@@ -21,6 +33,7 @@ export default function PendingStudentsPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
+  const [rejectTarget, setRejectTarget] = useState<PendingStudent | null>(null);
 
   const { data: students = [], isLoading } = useApiQuery<PendingStudent[]>(
     ['pending-students', user?.academyId],
@@ -40,6 +53,7 @@ export default function PendingStudentsPage() {
     mutationFn: (studentId: string) =>
       api(`/academies/${user.academyId}/reject/${studentId}`, { method: 'POST' }),
     onSuccess: () => {
+      setRejectTarget(null);
       queryClient.invalidateQueries({ queryKey: ['pending-students'] });
     },
   });
@@ -49,11 +63,11 @@ export default function PendingStudentsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <TabsNav items={[
-        { to: '/students', label: t('nav.students') },
-        { to: '/pending', label: t('onboarding.pendingStudents') },
-      ]} />
+    <div className="space-y-6">
+      <TabsNav
+        title={t('nav.students')}
+        items={studentTabs(t)}
+      />
 
       {students.length === 0 ? (
         <p className="text-muted-foreground">{t('onboarding.noPending')}</p>
@@ -61,23 +75,25 @@ export default function PendingStudentsPage() {
         <div className="grid gap-4">
           {students.map(student => (
             <Card key={student.id} className="bg-card border-border">
-              <CardContent className="flex items-center justify-between py-4 px-6">
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4 px-6">
                 <div>
                   <p className="font-heading text-lg">{student.name}</p>
                   <p className="text-sm text-muted-foreground">{student.email}</p>
                   <Badge className="mt-1" variant="secondary">
-                    {student.belt}
+                    {t(beltKey(student.belt))}
                   </Badge>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" loading={approveMutation.isPending} onClick={() => approveMutation.mutate(student.id)}>
+                  <Button
+                    size="sm"
+                    loading={approveMutation.isPending && approveMutation.variables === student.id}
+                    onClick={() => approveMutation.mutate(student.id)}>
                     {t('onboarding.approve')}
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    loading={rejectMutation.isPending}
-                    onClick={() => rejectMutation.mutate(student.id)}
+                    onClick={() => setRejectTarget(student)}
                   >
                     {t('onboarding.reject')}
                   </Button>
@@ -87,6 +103,25 @@ export default function PendingStudentsPage() {
           ))}
         </div>
       )}
+
+      <Dialog open={!!rejectTarget} onOpenChange={(open) => { if (!open) { setRejectTarget(null); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('onboarding.reject')}</DialogTitle>
+            <DialogDescription>{t('onboarding.rejectConfirm', { name: rejectTarget?.name })}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>{t('common.cancel')}</DialogClose>
+            <Button
+              variant="destructive"
+              loading={rejectMutation.isPending}
+              onClick={() => rejectMutation.mutate(rejectTarget!.id)}
+            >
+              {t('common.confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

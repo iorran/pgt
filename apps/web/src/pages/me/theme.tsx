@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getStoredTheme, setTheme, type Theme } from '@/lib/theme';
-import { Button } from '@/components/ui/button';
+import { SubpageHeader } from './subpage-header';
+import { RadioOptions } from './options';
 
 const OPTIONS: { value: Theme; labelKey: string }[] = [
   { value: 'light', labelKey: 'me.themeLight' },
@@ -20,17 +21,14 @@ export default function ThemePage() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      {OPTIONS.map((opt) => (
-        <Button
-          key={opt.value}
-          variant={current === opt.value ? 'default' : 'outline'}
-          className="h-12 justify-start"
-          onClick={() => handle(opt.value)}
-        >
-          {t(opt.labelKey)}
-        </Button>
-      ))}
+    <div className="flex flex-col gap-4">
+      <SubpageHeader title={t('me.theme')} />
+      <RadioOptions
+        label={t('me.theme')}
+        options={OPTIONS.map((opt) => ({ value: opt.value, label: t(opt.labelKey) }))}
+        value={current}
+        onChange={handle}
+      />
     </div>
   );
 }

@@ -8,7 +8,8 @@ const {
   academy,
   user,
   bjjClass,
-  membershipPlan,
+  modality,
+  studentModality,
   studentMembership,
   payment,
   checkinToken,
@@ -40,14 +41,12 @@ export { schema };
 
 type InsertAcademy = typeof academy.$inferInsert;
 type InsertUser = typeof user.$inferInsert;
-type InsertPlan = typeof membershipPlan.$inferInsert;
 type InsertMembership = typeof studentMembership.$inferInsert;
 type InsertPayment = typeof payment.$inferInsert;
 type InsertClass = typeof bjjClass.$inferInsert;
 
 export type FixtureAcademy = typeof academy.$inferSelect;
 export type FixtureUser = typeof user.$inferSelect;
-export type FixturePlan = typeof membershipPlan.$inferSelect;
 export type FixtureClass = typeof bjjClass.$inferSelect;
 
 import crypto from 'node:crypto';
@@ -91,7 +90,7 @@ export async function setupAcademy(
       academyId: acad.id,
       email: `instrutor+${slug}@e2e.pgt`,
       name: 'E2E Instructor',
-      role: 'instructor',
+      role: 'owner',
       belt: 'black',
       dateOfBirth: '1985-01-01',
       status: 'active',
@@ -127,34 +126,15 @@ export async function createStudent(
   return student;
 }
 
-export async function createPlan(
-  academyId: string,
-  overrides?: Partial<InsertPlan>,
-): Promise<FixturePlan> {
-  const [plan] = await e2eDb
-    .insert(membershipPlan)
-    .values({
-      academyId,
-      name: overrides?.name ?? 'E2E Mensal Ilimitado',
-      price: overrides?.price ?? '180.00',
-      frequency: 'monthly',
-      classesPerWeek: overrides?.classesPerWeek ?? null,
-      ...overrides,
-    })
-    .returning();
-  return plan;
-}
-
 export async function assignMembership(
   studentId: string,
-  planId: string,
   overrides?: Partial<InsertMembership>,
 ): Promise<void> {
   const now = new Date();
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
   await e2eDb.insert(studentMembership).values({
     studentId,
-    planId,
+    monthlyFee: overrides?.monthlyFee ?? '180.00',
     startDate: overrides?.startDate ?? monthStart,
     dueDay: overrides?.dueDay ?? 1,
     active: true,
@@ -240,6 +220,9 @@ export async function cleanAcademy(academyId: string): Promise<void> {
     await e2eDb
       .delete(studentMembership)
       .where(inArray(studentMembership.studentId, userIds));
+    await e2eDb
+      .delete(studentModality)
+      .where(inArray(studentModality.studentId, userIds));
     await e2eDb.delete(checkin).where(inArray(checkin.studentId, userIds));
   }
 
@@ -259,9 +242,7 @@ export async function cleanAcademy(academyId: string): Promise<void> {
   // already deleted above via studentId, so season can be dropped now.
   await e2eDb.delete(season).where(eq(season.academyId, academyId));
   await e2eDb.delete(payment).where(eq(payment.academyId, academyId));
-  await e2eDb
-    .delete(membershipPlan)
-    .where(eq(membershipPlan.academyId, academyId));
+  await e2eDb.delete(modality).where(eq(modality.academyId, academyId));
 
   // Collect class ids for checkinToken cleanup
   const classes = await e2eDb
@@ -291,13 +272,11 @@ export async function scenarioInstructorWithApprovedStudent(): Promise<{
   academy: FixtureAcademy;
   instructor: FixtureUser;
   student: FixtureUser;
-  plan: FixturePlan;
 }> {
   const { academy: acad, instructor } = await setupAcademy();
-  const plan = await createPlan(acad.id);
   const student = await createStudent(acad.id, { belt: 'blue' });
-  await assignMembership(student.id, plan.id);
-  return { academy: acad, instructor, student, plan };
+  await assignMembership(student.id);
+  return { academy: acad, instructor, student };
 }
 
 export async function scenarioInstructorWithPendingStudent(): Promise<{
@@ -317,18 +296,16 @@ export async function scenarioStudentWithOverdueBilling(): Promise<{
   academy: FixtureAcademy;
   instructor: FixtureUser;
   student: FixtureUser;
-  plan: FixturePlan;
 }> {
   const { academy: acad, instructor } = await setupAcademy();
-  const plan = await createPlan(acad.id);
   const student = await createStudent(acad.id, { name: 'E2E Overdue Student' });
 
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
   const startDate = `${threeMonthsAgo.getFullYear()}-${String(threeMonthsAgo.getMonth() + 1).padStart(2, '0')}-01`;
-  await assignMembership(student.id, plan.id, {
+  await assignMembership(student.id, {
     startDate,
     dueDay: 1,
   });
-  return { academy: acad, instructor, student, plan };
+  return { academy: acad, instructor, student };
 }

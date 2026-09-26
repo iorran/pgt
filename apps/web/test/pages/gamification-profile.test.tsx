@@ -39,10 +39,10 @@ describe('GamificationProfilePage', () => {
     mockApi.mockResolvedValue(mockProfile as any);
   });
 
-  it('shows XP total', async () => {
+  it('shows XP total once', async () => {
     renderWithProviders(<GamificationProfilePage />);
     await waitFor(() => {
-      expect(screen.getAllByText('gamification.totalXp').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('gamification.totalXp')).toHaveLength(1);
     });
     // totalXp is rendered with toLocaleString, check for the value
     const xpElements = screen.getAllByText((content) => content.includes('1'));
@@ -52,7 +52,7 @@ describe('GamificationProfilePage', () => {
   it('shows streak info', async () => {
     renderWithProviders(<GamificationProfilePage />);
     await waitFor(() => {
-      expect(screen.getByText('gamification.currentStreakFire')).toBeInTheDocument();
+      expect(screen.getByText('gamification.currentStreak')).toBeInTheDocument();
       expect(screen.getByText('gamification.longestStreak')).toBeInTheDocument();
       expect(screen.getByText('7')).toBeInTheDocument();
       expect(screen.getByText('14')).toBeInTheDocument();
@@ -64,6 +64,13 @@ describe('GamificationProfilePage', () => {
     expect(await screen.findByText('First Class')).toBeInTheDocument();
     expect(screen.getByText('Streak Master')).toBeInTheDocument();
     expect(screen.getByText('Attended first class')).toBeInTheDocument();
+  });
+
+  it('students only get Ranking and Profile tabs', async () => {
+    renderWithProviders(<GamificationProfilePage />);
+    const nav = await screen.findByRole('navigation');
+    const links = Array.from(nav.querySelectorAll('a')).map((a) => a.getAttribute('href'));
+    expect(links).toEqual(['/gamification', '/gamification/profile']);
   });
 
   it('shows empty state for no badges', async () => {

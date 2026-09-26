@@ -29,5 +29,7 @@ Students have limited access: check-in to pre-registered classes and receive pay
 
 - [[MVP Scope]]
 - [[Data Model]]
+- [[CONTEXT|Glossary]]
+- [[2026-09-26-families-design|Families (design)]]
 - [[Brainstorm]]
 - [[2026-04-06-bjj-academy-mvp|Implementation Plan]]

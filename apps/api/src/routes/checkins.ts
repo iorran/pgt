@@ -90,7 +90,8 @@ export async function checkinRoutes(app: FastifyInstance) {
       .innerJoin(academy, eq(academy.id, bjjClass.academyId))
       .where(eq(bjjClass.id, classId))
       .limit(1);
-    if (!cls || !cls.active) {
+    // A class of another academy is treated as not found.
+    if (!cls || !cls.active || cls.academyId !== request.user.academyId) {
       return reply.status(400).send({ error: 'CLASS_NOT_ACTIVE' });
     }
 
@@ -285,8 +286,13 @@ export async function checkinRoutes(app: FastifyInstance) {
   );
 
   // Get attendance for a class
-  app.get('/api/checkins/class/:classId', async (request) => {
+  app.get('/api/checkins/class/:classId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { classId } = request.params as { classId: string };
+    const [found] = await db.select({ id: bjjClass.id }).from(bjjClass)
+      .where(and(eq(bjjClass.id, classId), eq(bjjClass.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Class not found' });
+    }
     return db.select().from(checkin).where(eq(checkin.classId, classId));
   });
 

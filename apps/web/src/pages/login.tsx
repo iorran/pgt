@@ -29,21 +29,17 @@ export default function LoginPage() {
     },
     onSubmit: async ({ value }) => {
       setError('');
-      console.log('[Login] Attempting sign-in for:', value.email);
       const result = await signIn.email({ email: value.email, password: value.password });
-      console.log('[Login] Sign-in result:', JSON.stringify(result, null, 2));
       if (result.error) {
-        setError(result.error.message ?? 'Login failed');
+        setError(t('auth.loginError'));
       } else {
-        const target = safeRedirect(searchParams.get('redirect'));
-        console.log('[Login] Success, navigating to', target);
-        navigate(target);
+        navigate(safeRedirect(searchParams.get('redirect')));
       }
     },
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center arena-stripes">
+    <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
       <Card className="w-full max-w-md bg-card border-border">
         <CardContent className="pt-8 pb-8 px-8">
           <div className="text-center mb-8">
@@ -70,6 +66,9 @@ export default function LoginPage() {
                   <Input
                     id="email"
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    aria-invalid={!!error || undefined}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
@@ -87,6 +86,8 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type="password"
+                    autoComplete="current-password"
+                    aria-invalid={!!error || undefined}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     onBlur={field.handleBlur}
@@ -100,14 +101,16 @@ export default function LoginPage() {
             <div className="text-right">
               <Link
                 to="/forgot-password"
-                className="text-xs text-muted-foreground hover:text-primary transition-colors no-underline"
+                className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline"
               >
                 {t('auth.forgotPassword')}
               </Link>
             </div>
 
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
             )}
 
             <form.Subscribe selector={(state) => state.isSubmitting}>
@@ -122,7 +125,7 @@ export default function LoginPage() {
           <p className="mt-6 text-center text-sm">
             <Link
               to="/signup"
-              className="text-muted-foreground hover:text-primary transition-colors no-underline"
+              className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline"
             >
               {t('auth.signup')}
             </Link>

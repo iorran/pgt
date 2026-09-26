@@ -1,15 +1,15 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { tournament, tournamentSignup, user } from '../db/schema/index.js';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
+import { canActForStudent } from '../middleware/student-access.js';
 
 export async function tournamentRoutes(app: FastifyInstance) {
   // List tournaments for academy
-  app.get('/api/tournaments', async (request) => {
-    const { academyId } = request.query as { academyId: string };
-    return db.select().from(tournament).where(eq(tournament.academyId, academyId));
+  app.get('/api/tournaments', { preHandler: [requireAuth, injectAcademyId] }, async (request) => {
+    return db.select().from(tournament).where(eq(tournament.academyId, request.academyId));
   });
 
   // Create tournament (owner only)
@@ -26,9 +26,17 @@ export async function tournamentRoutes(app: FastifyInstance) {
   });
 
   // Student signs up for a tournament
-  app.post('/api/tournaments/:id/signup', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/api/tournaments/:id/signup', { preHandler: [requireAuth, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const body = request.body as any;
+    const [found] = await db.select({ id: tournament.id }).from(tournament)
+      .where(and(eq(tournament.id, id), eq(tournament.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Tournament not found' });
+    }
+    if (!(await canActForStudent(request, reply, body.studentId))) {
+      return reply;
+    }
     const [created] = await db.insert(tournamentSignup).values({
       tournamentId: id,
       studentId: body.studentId,
@@ -38,8 +46,13 @@ export async function tournamentRoutes(app: FastifyInstance) {
   });
 
   // View signed-up students (roster)
-  app.get('/api/tournaments/:id/roster', async (request) => {
+  app.get('/api/tournaments/:id/roster', { preHandler: [requireAuth, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
+    const [found] = await db.select({ id: tournament.id }).from(tournament)
+      .where(and(eq(tournament.id, id), eq(tournament.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Tournament not found' });
+    }
     return db
       .select({
         signupId: tournamentSignup.id,

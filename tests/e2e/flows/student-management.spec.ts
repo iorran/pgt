@@ -4,7 +4,6 @@ import {
   setupAcademy,
   cleanAcademy,
   createStudent,
-  createPlan,
   assignMembership,
   scenarioInstructorWithPendingStudent,
   e2eDb,
@@ -80,37 +79,13 @@ test('8. instructor rejects a pending student', async ({ browser }) => {
   }
 });
 
-test('9. instructor assigns a plan to a student', async ({ browser }) => {
-  const setup = await setupAcademy();
-  academy = setup.academy;
-  const student = await createStudent(setup.academy.id, {
-    name: 'E2E Student For Plan',
-  });
-  const plan = await createPlan(setup.academy.id, { name: 'E2E Mensal' });
-
-  const context = await impersonateAs(browser, setup.instructor.email);
-  try {
-    const page = await context.newPage();
-    const detail = new StudentDetailPage(page);
-    await detail.goto(student.id);
-
-    await detail.assignPlan(plan.name);
-
-    // The detail page should now show the assigned plan name.
-    await expect(page.getByText(plan.name)).toBeVisible({ timeout: 10_000 });
-  } finally {
-    await context.close();
-  }
-});
-
 test('10. instructor uses "Pagar Mês Atual" quick-pay', async ({ browser }) => {
   const setup = await setupAcademy();
   academy = setup.academy;
-  const plan = await createPlan(setup.academy.id);
   const student = await createStudent(setup.academy.id, {
     name: 'E2E Quick Pay Student',
   });
-  await assignMembership(student.id, plan.id);
+  await assignMembership(student.id);
 
   const context = await impersonateAs(browser, setup.instructor.email);
   try {
@@ -120,12 +95,12 @@ test('10. instructor uses "Pagar Mês Atual" quick-pay', async ({ browser }) => 
 
     await expect(detail.payCurrentMonthButton).toBeVisible({ timeout: 10_000 });
 
-    await detail.payCurrentMonthButton.click();
+    await detail.payCurrentMonth();
 
-    // After quick-pay, a new row should appear in the payment history table body
-    // (the "Pagar Mês Atual" button disappears once the current month is paid)
-    // Wait for the payment table to render with at least one data row
+    // After quick-pay, the payment history shows one row at the student's
+    // Monthly Fee (assignMembership sets 180.00).
     await expect(page.locator('tbody tr')).toHaveCount(1, { timeout: 10_000 });
+    await expect(page.locator('tbody tr')).toContainText(/180,00\s*€/);
   } finally {
     await context.close();
   }

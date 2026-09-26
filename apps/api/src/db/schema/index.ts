@@ -12,3 +12,5 @@ export * from './season';
 export * from './competition-result';
 export * from './tournament';
 export * from './gamification';
+export * from './family';
+export * from './modality';

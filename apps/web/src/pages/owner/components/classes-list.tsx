@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useApiQuery } from '@/hooks/use-api';
 
@@ -19,7 +20,7 @@ interface ClassRow {
 }
 
 const PAGE_SIZE = 10;
-const TYPE_FILTERS: Array<'all' | ClassType> = ['all', 'gi', 'no-gi', 'open-mat', 'kids'];
+const CLASS_TYPES: ClassType[] = ['gi', 'no-gi', 'open-mat', 'kids'];
 
 function formatTime(t?: string | null): string {
   if (!t) return '';
@@ -62,6 +63,9 @@ export function ClassesList({
     () => (typeFilter === 'all' ? classes : classes.filter((c) => c.type === typeFilter)),
     [classes, typeFilter],
   );
+  // Only offer filters for types the academy actually has; one type needs no filter.
+  const presentTypes = CLASS_TYPES.filter((type) => classes.some((c) => c.type === type));
+  const typeFilters: Array<'all' | ClassType> = presentTypes.length > 1 ? ['all', ...presentTypes] : [];
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const pageSlice = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
@@ -78,13 +82,14 @@ export function ClassesList({
         <span className="text-sm font-medium text-muted-foreground">
           {t('owner.classes.title')}
         </span>
-        <div className="flex gap-1 flex-wrap">
-          {TYPE_FILTERS.map((f) => (
+        <div className="flex flex-wrap gap-2">
+          {typeFilters.map((f) => (
             <button
               key={f}
               type="button"
+              aria-pressed={typeFilter === f}
               onClick={() => handleTypeChange(f)}
-              className={`px-2 py-1 rounded text-xs ${
+              className={`min-h-11 px-3 rounded text-xs ${
                 typeFilter === f ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}
             >
@@ -96,6 +101,14 @@ export function ClassesList({
       {pageSlice.length === 0 && (
         <div className="px-2 py-6 text-sm text-muted-foreground text-center">
           {t('owner.classes.noClasses')}
+          {classes.length === 0 && (
+            <Link
+              to="/classes"
+              className="ml-1 inline-flex min-h-11 items-center px-2 text-primary underline-offset-4 hover:underline"
+            >
+              {t('classes.createClass')}
+            </Link>
+          )}
         </div>
       )}
       {pageSlice.map((c) => (
@@ -109,7 +122,7 @@ export function ClassesList({
           >
             <span className="font-medium">
               {c.name}{' '}
-              <span className="text-xs text-muted-foreground">· {c.type}</span>
+              <span className="text-xs text-muted-foreground">· {t(`owner.classes.types.${c.type}`)}</span>
               {c.startTime && (
                 <span className="text-xs text-muted-foreground">
                   {' '}

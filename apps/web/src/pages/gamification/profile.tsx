@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Award } from 'lucide-react';
-import { TabsNav } from '@/components/tabs-nav';
+import { Link } from 'react-router-dom';
+import { Award, Flame } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
+import { GamificationTabs } from './gamification-tabs';
 
 interface GamificationProfile {
   totalXp: number;
@@ -25,7 +27,7 @@ export default function GamificationProfilePage() {
   );
 
   if (isLoading) return <PageLoader />;
-  if (!profile) return <div className="p-6 text-muted-foreground">{t('common.noResults')}</div>;
+  if (!profile) return <div className="text-muted-foreground">{t('common.noResults')}</div>;
 
   // Fresh students may have no gamification rows yet; the API can return
   // a partial object. Default each numeric field so the page never crashes.
@@ -35,13 +37,8 @@ export default function GamificationProfilePage() {
   const badges = profile.badges ?? [];
 
   return (
-    <div className="p-4 md:p-6 space-y-8">
-      <TabsNav items={[
-        { to: '/gamification', label: t('gamification.leaderboardTitle') },
-        { to: '/gamification/seasons', label: t('gamification.seasonsTitle') },
-        { to: '/gamification/results', label: t('gamification.resultsTitle') },
-        { to: '/gamification/profile', label: t('gamification.profileTitle') },
-      ]} />
+    <div className="space-y-8">
+      <GamificationTabs title={t('gamification.profileTitle')} />
       {/* XP Header */}
       <div className="text-center space-y-1">
         <div className="font-display text-5xl md:text-6xl text-primary arena-glow">
@@ -51,13 +48,16 @@ export default function GamificationProfilePage() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Card className="rounded-sm text-center">
           <CardContent className="p-6 space-y-1">
             <div className="arena-stat text-3xl font-mono text-primary">
               {currentStreak}
             </div>
-            <p className="text-sm text-muted-foreground">{t('gamification.currentStreakFire')}</p>
+            <p className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+              {t('gamification.currentStreak')}
+              <Flame className="size-4 text-arena-gold" aria-hidden />
+            </p>
           </CardContent>
         </Card>
         <Card className="rounded-sm text-center">
@@ -68,15 +68,12 @@ export default function GamificationProfilePage() {
             <p className="text-sm text-muted-foreground">{t('gamification.longestStreak')}</p>
           </CardContent>
         </Card>
-        <Card className="rounded-sm text-center">
-          <CardContent className="p-6 space-y-1">
-            <div className="arena-stat text-3xl font-mono text-primary">
-              {totalXp.toLocaleString()}
-            </div>
-            <p className="text-sm text-muted-foreground">{t('gamification.totalXp')}</p>
-          </CardContent>
-        </Card>
       </div>
+
+      {/* Result submission lives on /gamification/results, which is not a student tab. */}
+      <Link to="/gamification/results" className={buttonVariants({ variant: 'outline', className: 'w-full' })}>
+        {t('gamification.submitResult')}
+      </Link>
 
       {/* Badges */}
       <div className="space-y-4">

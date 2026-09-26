@@ -40,6 +40,7 @@ export default function CheckinScanPage() {
     hasUrlCredentials ? 'processing' : 'camera-starting',
   );
   const [errorMsg, setErrorMsg] = useState('');
+  const [cameraDenied, setCameraDenied] = useState(false);
 
   async function submitCheckin(token: string, classId: string) {
     try {
@@ -95,6 +96,7 @@ export default function CheckinScanPage() {
     const e = err as { name?: string; message?: string };
     if (e?.name === 'NotAllowedError') {
       setErrorMsg(t('checkin.cameraDenied'));
+      setCameraDenied(true);
     } else if (e?.name === 'NotFoundError') {
       setErrorMsg(t('checkin.noCameraFound'));
     } else if (!window.isSecureContext) {
@@ -104,6 +106,13 @@ export default function CheckinScanPage() {
       setErrorMsg(`${t('checkin.cameraUnavailable')}${detail}`);
     }
     setStatus('error');
+  }
+
+  // Back to camera-starting unmounts the error view and mounts a fresh Scanner.
+  function retry() {
+    setErrorMsg('');
+    setCameraDenied(false);
+    setStatus('camera-starting');
   }
 
   if (!session) {
@@ -148,7 +157,7 @@ export default function CheckinScanPage() {
                   </div>
                 )}
               </div>
-              <Button variant="outline" onClick={() => navigate('/')}>
+              <Button variant="outline" className="h-11" onClick={() => navigate('/')}>
                 {t('common.cancel')}
               </Button>
             </>
@@ -163,16 +172,28 @@ export default function CheckinScanPage() {
               <p className="text-xl text-primary font-heading uppercase">
                 {t('classes.checkinSuccess')}
               </p>
-              <Button onClick={() => navigate('/')}>{t('common.back')}</Button>
+              <Button className="h-11" onClick={() => navigate('/')}>{t('common.back')}</Button>
             </>
           )}
 
           {status === 'error' && (
             <>
-              <p className="text-destructive">{errorMsg}</p>
-              <Button variant="outline" onClick={() => navigate('/')}>
-                {t('common.back')}
-              </Button>
+              <div role="alert" className="space-y-2">
+                <p className="text-destructive">{errorMsg}</p>
+                {cameraDenied && (
+                  <p className="text-sm text-muted-foreground">{t('checkin.cameraDeniedHelp')}</p>
+                )}
+              </div>
+              <div className="flex flex-col gap-3">
+                {!hasUrlCredentials && (
+                  <Button className="h-11" onClick={retry}>
+                    {t('checkin.retry')}
+                  </Button>
+                )}
+                <Button variant="outline" className="h-11" onClick={() => navigate('/')}>
+                  {t('common.back')}
+                </Button>
+              </div>
             </>
           )}
         </CardContent>

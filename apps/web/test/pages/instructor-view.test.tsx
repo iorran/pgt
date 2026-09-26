@@ -43,8 +43,12 @@ vi.mock('@/components/schedule/class-calendar', () => ({
 }));
 
 // Stub dialogs — we only care about the edit dialog for click/delete tests
+let createProps: any = {};
 vi.mock('@/components/schedule/class-create-dialog', () => ({
-  ClassCreateDialog: () => null,
+  ClassCreateDialog: (props: any) => {
+    createProps = props;
+    return null;
+  },
 }));
 
 vi.mock('@/components/tabs-nav', () => ({
@@ -89,6 +93,7 @@ describe('InstructorClassesView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     capturedProps = {};
+    createProps = {};
     mockUseSession.mockReturnValue(instructorSession);
     // Default: first call resolves with classes (query), subsequent ones resolve OK
     mockApi.mockResolvedValue(mockClasses as any);
@@ -250,5 +255,46 @@ describe('InstructorClassesView', () => {
     await waitFor(() => {
       expect(screen.queryByText('classes.editClass')).not.toBeInTheDocument();
     });
+  });
+
+  it('labels the class count', async () => {
+    renderWithProviders(<InstructorClassesView />);
+    expect(await screen.findByText('classes.classCount')).toBeInTheDocument();
+  });
+
+  it('shows an empty state with a create CTA when there are no classes', async () => {
+    const user = userEvent.setup();
+    mockApi.mockResolvedValue([] as any);
+    renderWithProviders(<InstructorClassesView />);
+    expect(await screen.findByText('classes.noClasses')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'classes.createClass' }));
+    await waitFor(() => expect(createProps.open).toBe(true));
+  });
+
+  const createValues = {
+    name: 'Gi',
+    type: 'gi',
+    recurrence: 'weekly',
+    daysOfWeek: [1, 3],
+    startTime: '19:00',
+    endTime: '20:00',
+  };
+
+  it('creating classes for several days shows a success toast', async () => {
+    renderWithProviders(<InstructorClassesView />);
+    await waitFor(() => expect(createProps.onSubmit).toBeDefined());
+    mockApi.mockResolvedValue({} as any);
+    await createProps.onSubmit(createValues);
+    expect(mockApi).toHaveBeenCalledWith('/classes', expect.objectContaining({ method: 'POST' }));
+    expect(toast.success).toHaveBeenCalledWith('classes.classesCreated');
+  });
+
+  it('a failing POST shows an error toast and keeps the dialog open', async () => {
+    renderWithProviders(<InstructorClassesView />);
+    await waitFor(() => expect(createProps.onSubmit).toBeDefined());
+    mockApi.mockResolvedValueOnce({} as any).mockRejectedValueOnce(new Error('boom'));
+    await expect(createProps.onSubmit(createValues)).rejects.toThrow('boom');
+    expect(toast.error).toHaveBeenCalledWith('boom');
+    expect(toast.success).not.toHaveBeenCalled();
   });
 });

@@ -67,3 +67,23 @@ describe('ClassEditDialog — race guards', () => {
     await waitFor(() => expect(saveBtn).not.toBeDisabled());
   });
 });
+
+describe('ClassEditDialog — a11y', () => {
+  it('associates labels and exposes the selected weekday via aria-pressed', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <ClassEditDialog cls={cls} onOpenChange={vi.fn()} onSubmit={vi.fn()} />,
+    );
+    expect(await screen.findByLabelText('classes.className')).toHaveValue('Morning Gi');
+    expect(screen.getByLabelText('classes.classType')).toHaveValue('gi');
+    expect(screen.getByLabelText('classes.startTime')).toHaveValue('07:00');
+    expect(screen.getByLabelText('classes.endTime')).toHaveValue('08:30');
+    const tue = screen.getByRole('button', { name: 'classes.days.tue' });
+    expect(tue).toHaveAttribute('aria-pressed', 'true');
+    const wed = screen.getByRole('button', { name: 'classes.days.wed' });
+    expect(wed).toHaveAttribute('aria-pressed', 'false');
+    await user.click(wed);
+    expect(wed).toHaveAttribute('aria-pressed', 'true');
+    expect(tue).toHaveAttribute('aria-pressed', 'false');
+  });
+});

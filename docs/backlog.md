@@ -34,3 +34,20 @@ Discovered while writing [[2026-04-09-user-guide-audit-design|the user guide aud
 - **Hardcoded English error string in Settings**: `apps/web/src/pages/settings.tsx` renders `"Geolocation unavailable"` as a literal string instead of using `t()`.
 - **Accent omissions in `pt-BR.json`**: Several onboarding strings are missing accents — "comecar" (começar), "codigo" (código), "nao" (não), "Aprovacao" (Aprovação), "ira" (irá). Users see the unaccented versions.
 - **Dashboard greeting bug**: Greeting renders as "Carregando, [name]" because of a `t('common.loading').replace('...', '')` call where the intended greeting key is wrong. Likely meant `t('common.hello')` or similar.
+
+## Families
+
+From [[2026-09-26-families-design|Families design]]:
+
+- **Get the real plan list from the client** (modalities + list prices) to replace the 10 price-named seed plans; move students with a different price to an Agreed Price.
+- Implementation plan for Families (pending).
+
+## Found while updating the user guides (2026-09-26)
+
+- **Quick pay records the current month** even when the overdue debt is an older month ("Registrar Pagamento" on an overdue card). Should pay the oldest owed month.
+- **Family payment dialog over-suggests for partly paid months:** the pre-filled amount uses the whole month's Family Fee, including members who already paid individually; only unpaid members are charged.
+- **Configurações is empty for students** but still linked from Perfil.
+- **Owner's Histórico de Presença** shows the owner's own check-ins, not students'.
+- **Owner cannot check in** (no Check-in button in the owner's Aulas view) — confirm if intended.
+- **User guide screenshots are stale** (captured April 2026): regenerate with `npm run screenshots:capture` after updating `seed-guide` and the SHOTS list for families, modalities, fee card, phone menu, language page, camera retry. Delete `billing-plans.png`, `student-detail-plan.png`, `dashboard-instructor.png`.
+- **Some PUT routes accept arbitrary body fields** (e.g. class `instructorId`): add per-route field whitelists.

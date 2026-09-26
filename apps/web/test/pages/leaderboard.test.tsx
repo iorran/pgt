@@ -79,6 +79,28 @@ describe('LeaderboardPage', () => {
     expect(rank3.className).toContain('text-arena-bronze');
   });
 
+  it('shows translated belts, pressed state on belt chips and a labelled season select', async () => {
+    renderWithProviders(<LeaderboardPage />);
+    await screen.findByText('Champion');
+    expect(screen.getAllByText('belts.black').length).toBeGreaterThan(0);
+    expect(screen.getByRole('combobox', { name: 'gamification.season' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'gamification.allBelts' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'belts.blue' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('formats season dates without shifting a day', async () => {
+    renderWithProviders(<LeaderboardPage />);
+    expect(await screen.findByText('01/01/2026 - 30/06/2026')).toBeInTheDocument();
+  });
+
+  it('owners get leaderboard/seasons/results tabs, not the gamification profile', async () => {
+    renderWithProviders(<LeaderboardPage />);
+    const nav = await screen.findByRole('navigation');
+    const links = Array.from(nav.querySelectorAll('a')).map((a) => a.getAttribute('href'));
+    expect(links).toEqual(['/gamification', '/gamification/seasons', '/gamification/results']);
+    expect(screen.getByRole('heading', { level: 1, name: 'gamification.leaderboardPageTitle' })).toBeInTheDocument();
+  });
+
   it('shows empty state', async () => {
     mockApi
       .mockResolvedValueOnce(mockSeasons as any)

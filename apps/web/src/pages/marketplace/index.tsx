@@ -19,24 +19,29 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { TabsNav } from '@/components/tabs-nav';
+import { formatMoney } from '@/lib/format';
 
 interface Product {
   id: string;
   name: string;
   description?: string;
-  price: number;
+  price: string | number;
   stock: number;
 }
 
 export default function MarketplacePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [msg, setMsg] = useState('');
+  const [editId, setEditId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<Product | null>(null);
 
   const { data: products = [], isLoading } = useApiQuery<Product[]>(
     ['products', user?.academyId],
@@ -44,14 +49,21 @@ export default function MarketplacePage() {
     !!user?.academyId,
   );
 
-  const createMutation = useMutation({
-    mutationFn: (body: any) =>
-      api<Product>('/products', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }),
+  const saveMutation = useMutation({
+    mutationFn: (params: { editId: string | null; body: any }) =>
+      params.editId
+        ? api<Product>(`/products/${params.editId}`, { method: 'PUT', body: JSON.stringify(params.body) })
+        : api<Product>('/products', { method: 'POST', body: JSON.stringify(params.body) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (productId: string) => api(`/products/${productId}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      setDeleting(null);
     },
   });
 
@@ -78,34 +90,54 @@ export default function MarketplacePage() {
       stock: '',
     },
     onSubmit: async ({ value }) => {
-      await createMutation.mutateAsync({
+      const body = {
         ...value,
         price: Number(value.price),
         stock: Number(value.stock),
-        academyId: user.academyId,
-      });
+        ...(editId ? {} : { academyId: user.academyId }),
+      };
+      await saveMutation.mutateAsync({ editId, body });
       form.reset();
+      setEditId(null);
       setDialogOpen(false);
     },
   });
 
+  function openCreate() {
+    setEditId(null);
+    form.reset();
+    setDialogOpen(true);
+  }
+
+  function startEdit(p: Product) {
+    setEditId(p.id);
+    form.reset();
+    form.setFieldValue('name', p.name);
+    form.setFieldValue('description', p.description ?? '');
+    form.setFieldValue('price', String(Number(p.price)));
+    form.setFieldValue('stock', String(p.stock));
+    setDialogOpen(true);
+  }
+
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
-      <TabsNav items={[
+    <div className="space-y-6">
+      <TabsNav title={t('nav.marketplace')} items={[
         { to: '/marketplace', label: t('marketplace.pageTitle') },
         { to: '/marketplace/orders', label: t('marketplace.ordersPageTitle') },
       ]} />
       <div className="flex items-center justify-between">
         {isOwner(user) && (
           <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { form.reset(); } }}>
-            <DialogTrigger render={<Button />}>
+            <DialogTrigger render={<Button />} onClick={openCreate}>
               {t('marketplace.addProduct')}
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle className="font-heading text-xl uppercase">{t('marketplace.addProduct')}</DialogTitle>
+                <DialogTitle className="font-heading text-xl uppercase">
+                  {editId ? t('common.edit') : t('marketplace.addProduct')}
+                </DialogTitle>
               </DialogHeader>
               <form
                 onSubmit={(e) => {
@@ -117,8 +149,9 @@ export default function MarketplacePage() {
                 <form.Field name="name">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('marketplace.productName')}</Label>
+                      <Label htmlFor="product-name">{t('marketplace.productName')}</Label>
                       <Input
+                        id="product-name"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
@@ -130,8 +163,9 @@ export default function MarketplacePage() {
                 <form.Field name="description">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('marketplace.description')}</Label>
+                      <Label htmlFor="product-description">{t('marketplace.description')}</Label>
                       <Input
+                        id="product-description"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
@@ -142,8 +176,9 @@ export default function MarketplacePage() {
                 <form.Field name="price">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('marketplace.price')}</Label>
+                      <Label htmlFor="product-price">{t('marketplace.price')}</Label>
                       <Input
+                        id="product-price"
                         type="number"
                         step="0.01"
                         value={field.state.value}
@@ -157,8 +192,9 @@ export default function MarketplacePage() {
                 <form.Field name="stock">
                   {(field) => (
                     <div className="space-y-2">
-                      <Label>{t('marketplace.stock')}</Label>
+                      <Label htmlFor="product-stock">{t('marketplace.stock')}</Label>
                       <Input
+                        id="product-stock"
                         type="number"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -168,7 +204,7 @@ export default function MarketplacePage() {
                     </div>
                   )}
                 </form.Field>
-                <Button type="submit" className="w-full" loading={createMutation.isPending}>{t('common.save')}</Button>
+                <Button type="submit" className="w-full" loading={saveMutation.isPending}>{t('common.save')}</Button>
               </form>
             </DialogContent>
           </Dialog>
@@ -180,7 +216,11 @@ export default function MarketplacePage() {
       )}
 
       {products.length === 0 ? (
-        <p className="text-muted-foreground">{t('common.noResults')}</p>
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
+          <Package className="size-12" />
+          <p className="text-lg font-heading">{t('marketplace.noProducts')}</p>
+          {isOwner(user) && <Button onClick={openCreate}>{t('marketplace.addProduct')}</Button>}
+        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {products.map(p => (
@@ -195,7 +235,7 @@ export default function MarketplacePage() {
                 )}
                 <div className="flex items-center justify-between">
                   <span className="arena-stat text-xl md:text-2xl text-primary font-mono">
-                    R$ {Number(p.price).toFixed(2).replace('.', ',')}
+                    {formatMoney(p.price, i18n.language)}
                   </span>
                   <Badge variant="outline">
                     {t('marketplace.stock')}: {p.stock}
@@ -211,11 +251,40 @@ export default function MarketplacePage() {
                     {t('marketplace.request')}
                   </Button>
                 )}
+                {isOwner(user) && (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => startEdit(p)}>
+                      {t('common.edit')}
+                    </Button>
+                    <Button variant="destructive" size="sm" className="flex-1" onClick={() => setDeleting(p)}>
+                      {t('common.delete')}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <Dialog open={!!deleting} onOpenChange={(open) => { if (!open) { setDeleting(null); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-heading uppercase">{t('common.delete')}</DialogTitle>
+            <DialogDescription>{t('marketplace.confirmDelete', { name: deleting?.name })}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleting(null)}>{t('common.cancel')}</Button>
+            <Button
+              variant="destructive"
+              loading={deleteMutation.isPending}
+              onClick={() => deleting && deleteMutation.mutate(deleting.id)}
+            >
+              {t('common.delete')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,12 +1,14 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
+import { env } from './env.js';
 import { authRoutes } from './routes/auth.js';
 import { classRoutes } from './routes/classes.js';
 import { checkinRoutes } from './routes/checkins.js';
-import { membershipPlanRoutes } from './routes/membership-plans.js';
+import { modalityRoutes } from './routes/modalities.js';
 import { studentRoutes } from './routes/students.js';
 import { paymentRoutes } from './routes/payments.js';
+import { familyRoutes } from './routes/families.js';
 import { productRoutes } from './routes/products.js';
 import { orderRoutes } from './routes/orders.js';
 import { seasonRoutes } from './routes/seasons.js';
@@ -29,14 +31,16 @@ declare module 'fastify' {
 export async function buildApp() {
   const app = Fastify({ logger: false, trustProxy: true });
 
-  await app.register(cors, { origin: true, credentials: true });
+  // Credentialed CORS only for our own web origins (same list better-auth trusts).
+  await app.register(cors, { origin: env.TRUSTED_ORIGINS, credentials: true });
   await app.register(cookie);
   await app.register(authRoutes);
   await app.register(classRoutes);
   await app.register(checkinRoutes);
-  await app.register(membershipPlanRoutes);
+  await app.register(modalityRoutes);
   await app.register(studentRoutes);
   await app.register(paymentRoutes);
+  await app.register(familyRoutes);
   await app.register(productRoutes);
   await app.register(orderRoutes);
   await app.register(seasonRoutes);

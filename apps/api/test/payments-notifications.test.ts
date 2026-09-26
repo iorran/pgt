@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
-import { membershipPlan, studentMembership, payment } from '../src/db/schema/index';
+import { studentMembership, payment } from '../src/db/schema/index';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
@@ -16,15 +16,12 @@ async function setupOverdueStudent() {
   const acad = await createTestAcademy();
   const instructor = await createTestOwner(acad.id);
   const student = await createTestUser(acad.id, { role: 'student', phone: '5511999999999' });
-  const [plan] = await testDb.insert(membershipPlan).values({
-    academyId: acad.id, name: 'Monthly', price: '150.00', frequency: 'monthly',
-  }).returning();
   const currentDay = new Date().getDate();
   await testDb.insert(studentMembership).values({
-    studentId: student.id, planId: plan.id, startDate: currentMonthStart(),
+    studentId: student.id, monthlyFee: '150.00', startDate: currentMonthStart(),
     dueDay: Math.max(1, currentDay - 3),
   });
-  return { acad, instructor, student, plan };
+  return { acad, instructor, student };
 }
 
 describe('GET /api/payments/my-status', () => {
@@ -77,9 +74,6 @@ describe('GET /api/payments/my-status', () => {
   it('returns upcoming when dueDay is within 3 days ahead', async () => {
     const acad = await createTestAcademy();
     const student = await createTestUser(acad.id, { role: 'student' });
-    const [plan] = await testDb.insert(membershipPlan).values({
-      academyId: acad.id, name: 'Monthly', price: '150.00', frequency: 'monthly',
-    }).returning();
 
     const currentDay = new Date().getDate();
     // dueDay is 2 days ahead — upcoming
@@ -88,7 +82,7 @@ describe('GET /api/payments/my-status', () => {
     // Only run this sub-test when upcomingDueDay is a valid day of the month
     if (upcomingDueDay <= 28) {
       await testDb.insert(studentMembership).values({
-        studentId: student.id, planId: plan.id, startDate: currentMonthStart(),
+        studentId: student.id, monthlyFee: '150.00', startDate: currentMonthStart(),
         dueDay: upcomingDueDay,
       });
 
@@ -130,6 +124,7 @@ describe('GET /api/payments/overdue (extended fields)', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/payments/overdue?academyId=${acad.id}`,
+      headers: authHeaders(await createTestOwner(acad.id)),
     });
 
     expect(res.statusCode).toBe(200);

@@ -65,24 +65,34 @@ export class PendingStudentsPage {
     await studentCard
       .getByRole('button', { name: /rejeitar/i })
       .click();
+    // Rejecting asks for confirmation first.
+    await confirmDialog(this.page);
   }
+}
+
+/** Click "Confirmar" (t('common.confirm')) in the open confirm dialog. */
+export async function confirmDialog(page: Page) {
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: /^confirmar$/i }).click();
+  await expect(dialog).toBeHidden({ timeout: 10_000 });
 }
 
 export class StudentDetailPage {
   readonly page: Page;
-  readonly assignPlanButton: Locator;
   readonly payCurrentMonthButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    // t('students.assignMembership') = "Atribuir Plano"
-    this.assignPlanButton = page.getByRole('button', {
-      name: /atribuir.*plano/i,
-    });
     // t('students.payCurrentMonth') = "Pagar Mês Atual"
     this.payCurrentMonthButton = page.getByRole('button', {
       name: /pagar.*mês.*atual/i,
     });
+  }
+
+  /** Quick-pay the current month at the student's Monthly Fee (confirmed). */
+  async payCurrentMonth() {
+    await this.payCurrentMonthButton.click();
+    await confirmDialog(this.page);
   }
 
   async goto(studentId: string) {
@@ -91,34 +101,5 @@ export class StudentDetailPage {
     await expect(this.page.getByRole('button', { name: /^voltar$/i })).toBeVisible({
       timeout: 10_000,
     });
-  }
-
-  /**
-   * Assign a plan via the dialog. The dialog uses a native <select> element,
-   * so we use selectOption() instead of combobox interaction.
-   */
-  async assignPlan(planName: string) {
-    await this.assignPlanButton.click();
-    const dialog = this.page.getByRole('dialog');
-    await expect(dialog).toBeVisible({ timeout: 5_000 });
-
-    // Native <select> inside the dialog — options are "{name} — {price}", select by partial label match
-    const selectEl = dialog.locator('select');
-    const options = await selectEl.locator('option').allInnerTexts();
-    const matchedLabel = options.find((o) =>
-      o.toLowerCase().includes(planName.toLowerCase()),
-    );
-    if (!matchedLabel) {
-      throw new Error(`Plan option "${planName}" not found. Available: ${options.join(', ')}`);
-    }
-    await selectEl.selectOption({ label: matchedLabel });
-
-    // Fill in a start date (today) and due day
-    const today = new Date().toISOString().split('T')[0];
-    await dialog.locator('input[type="date"]').fill(today);
-    await dialog.locator('input[type="number"]').fill('5');
-
-    await dialog.getByRole('button', { name: /salvar/i }).click();
-    await expect(dialog).toBeHidden({ timeout: 10_000 });
   }
 }

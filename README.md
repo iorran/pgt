@@ -1,12 +1,12 @@
 # PGT BJJ Academy Management
 
-A multi-tenant web application for Brazilian Jiu-Jitsu academies. PGT covers class scheduling, student check-ins, membership and billing management, a marketplace for academy products, tournament tracking, and gamification. The interface is Portuguese-primary with English sub-captions.
+A multi-tenant web application for Brazilian Jiu-Jitsu academies. PGT covers class scheduling, student check-ins, per-student monthly fees and billing (including families that pay together), a marketplace for academy products, tournament tracking, and gamification. The interface is Portuguese-primary with English sub-captions.
 
 ## Documentation
 
 User guides for the PGT BJJ academy management app (Portuguese primary, English sub-captions):
 
-- [Guia do Instrutor — Instructor Guide](./docs/User%20Guide%20-%20Instructor.md)
+- [Guia do Dono da Academia — Owner Guide](./docs/User%20Guide%20-%20Instructor.md)
 - [Guia do Aluno — Student Guide](./docs/User%20Guide%20-%20Student.md)
 
 ## Tech Stack
@@ -100,7 +100,7 @@ User guides for the PGT BJJ academy management app (Portuguese primary, English 
    npm run db:seed
    ```
 
-   For canonical demo data (used by the instructor guide screenshots):
+   For canonical demo data (used by the owner guide screenshots):
 
    ```bash
    npm run db:seed:guide

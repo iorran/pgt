@@ -26,10 +26,12 @@ export async function cleanDb() {
       tournament_signup, tournament,
       competition_result, season,
       "order", product,
-      payment, student_membership, membership_plan,
+      family_suggestion_dismissal, waived_month,
+      payment, family_payment, student_membership,
+      student_modality, modality,
       checkin_token, checkin, class,
       session, account, verification,
-      "user", academy
+      "user", family, academy
     CASCADE
   `);
 }

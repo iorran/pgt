@@ -59,9 +59,7 @@ describe('OwnerDashboardPage', () => {
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /no-gi.*10/i })).toBeInTheDocument(),
     );
-    // Default students filter is "drifting"; João is active, so surface him
-    // by switching to the "all" chip.
-    fireEvent.click(screen.getByRole('button', { name: /^owner\.students\.filters\.all/i }));
+    // Default students filter is "all", so active João is visible.
     expect(screen.getByText('João')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /owner\.period\.week/i }),
@@ -150,33 +148,41 @@ describe('StudentsList status filter + expansion', () => {
     });
   });
 
-  it('defaults to the drifting filter and switches via status chips', async () => {
+  it('defaults to the all filter and switches via status chips', async () => {
     const { default: OwnerDashboardPage } = await import('@/pages/owner/dashboard');
     render(
       <QueryClientProvider client={new QueryClient()}>
         <MemoryRouter initialEntries={['/owner/dashboard']}><OwnerDashboardPage /></MemoryRouter>
       </QueryClientProvider>,
     );
-    // Default filter hides active + slowing students.
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: /owner\.students\.filters\.drifting/i }),
-      ).toBeInTheDocument(),
-    );
-    expect(screen.queryByText('João')).toBeNull();
-    expect(screen.queryByText('Maria')).toBeNull();
+    await waitFor(() => expect(screen.getByText('João')).toBeInTheDocument());
+    expect(screen.getByText('Maria')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /owner\.students\.filters\.all/i }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('heading', { level: 1, name: 'owner.title' })).toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole('button', { name: /owner\.students\.filters\.slowing/i }),
     );
     expect(screen.queryByText('João')).toBeNull();
     expect(screen.getByText('Maria')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /owner\.students\.filters\.slowing/i }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /owner\.students\.filters\.all/i }),
+  it('shows an empty message when a filter has no students', async () => {
+    const { default: OwnerDashboardPage } = await import('@/pages/owner/dashboard');
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter initialEntries={['/owner/dashboard']}><OwnerDashboardPage /></MemoryRouter>
+      </QueryClientProvider>,
     );
-    expect(screen.getByText('João')).toBeInTheDocument();
-    expect(screen.getByText('Maria')).toBeInTheDocument();
+    fireEvent.click(
+      await screen.findByRole('button', { name: /owner\.students\.filters\.drifting/i }),
+    );
+    expect(screen.getByText('owner.students.empty')).toBeInTheDocument();
   });
 
   it('expands a student row to show stats and history', async () => {
@@ -185,15 +191,6 @@ describe('StudentsList status filter + expansion', () => {
       <QueryClientProvider client={new QueryClient()}>
         <MemoryRouter initialEntries={['/owner/dashboard']}><OwnerDashboardPage /></MemoryRouter>
       </QueryClientProvider>,
-    );
-    // Default is 'drifting' — switch to 'all' to see active João.
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: /owner\.students\.filters\.all/i }),
-      ).toBeInTheDocument(),
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: /owner\.students\.filters\.all/i }),
     );
     const row = await screen.findByRole('button', { name: /joão/i });
     fireEvent.click(row);

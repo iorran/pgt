@@ -3,11 +3,30 @@ import { db } from '../db/client.js';
 import { competitionResult, season, xpEntry, user } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
+import { injectAcademyId } from '../middleware/tenant.js';
+import { canActForStudent } from '../middleware/student-access.js';
+
+// A competition result belongs to the academy of its season.
+async function findAcademyResult(id: string, academyId: string) {
+  const [row] = await db.select({ result: competitionResult, pointsConfig: season.pointsConfig })
+    .from(competitionResult)
+    .innerJoin(season, eq(season.id, competitionResult.seasonId))
+    .where(and(eq(competitionResult.id, id), eq(season.academyId, academyId)));
+  return row;
+}
 
 export async function competitionResultRoutes(app: FastifyInstance) {
   // Submit a competition result
-  app.post('/api/competition-results', { preHandler: [requireAuth] }, async (request, reply) => {
+  app.post('/api/competition-results', { preHandler: [requireAuth, injectAcademyId] }, async (request, reply) => {
     const body = request.body as any;
+    if (!(await canActForStudent(request, reply, body.studentId))) {
+      return reply;
+    }
+    const [found] = await db.select({ id: season.id }).from(season)
+      .where(and(eq(season.id, body.seasonId), eq(season.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Season not found' });
+    }
     const [created] = await db.insert(competitionResult).values({
       seasonId: body.seasonId,
       studentId: body.studentId,
@@ -22,8 +41,13 @@ export async function competitionResultRoutes(app: FastifyInstance) {
   });
 
   // List competition results with optional status filter (includes studentName via join)
-  app.get('/api/competition-results', async (request) => {
+  app.get('/api/competition-results', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { seasonId, status } = request.query as { seasonId: string; status?: string };
+    const [found] = await db.select({ id: season.id }).from(season)
+      .where(and(eq(season.id, seasonId), eq(season.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Season not found' });
+    }
     const conditions = [eq(competitionResult.seasonId, seasonId)];
     if (status) {
       conditions.push(eq(competitionResult.status, status as 'pending' | 'approved' | 'rejected'));
@@ -50,19 +74,18 @@ export async function competitionResultRoutes(app: FastifyInstance) {
   });
 
   // Approve a competition result (owner only)
-  app.put('/api/competition-results/:id/approve', { preHandler: [requireOwner] }, async (request) => {
+  app.put('/api/competition-results/:id/approve', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
 
-    // 1. Fetch the result
-    const [result] = await db.select().from(competitionResult).where(eq(competitionResult.id, id));
-    if (!result) throw new Error('Result not found');
-
-    // 2. Fetch the season to get pointsConfig
-    const [seasonData] = await db.select().from(season).where(eq(season.id, result.seasonId));
-    if (!seasonData) throw new Error('Season not found');
+    // 1-2. Fetch the result (scoped to the academy) with its season's pointsConfig
+    const found = await findAcademyResult(id, request.academyId);
+    if (!found) {
+      return reply.status(404).send({ error: 'Result not found' });
+    }
+    const { result } = found;
 
     // 3. Calculate points from config
-    const pointsConfig = seasonData.pointsConfig as Record<number, number>;
+    const pointsConfig = found.pointsConfig as Record<number, number>;
     const points = pointsConfig[result.position] || 0;
 
     // 4. Update result: approved + points
@@ -87,8 +110,11 @@ export async function competitionResultRoutes(app: FastifyInstance) {
   });
 
   // Reject a competition result (owner only)
-  app.put('/api/competition-results/:id/reject', { preHandler: [requireOwner] }, async (request) => {
+  app.put('/api/competition-results/:id/reject', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
+    if (!(await findAcademyResult(id, request.academyId))) {
+      return reply.status(404).send({ error: 'Result not found' });
+    }
     const [updated] = await db.update(competitionResult)
       .set({
         status: 'rejected',

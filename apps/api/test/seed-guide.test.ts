@@ -5,7 +5,8 @@ import {
   academy,
   user,
   bjjClass,
-  membershipPlan,
+  modality,
+  studentModality,
   studentMembership,
   payment,
   tournament,
@@ -32,7 +33,9 @@ async function countDemo() {
       academy: null,
       users: 0,
       classes: 0,
-      plans: 0,
+      modalities: 0,
+      studentModalities: 0,
+      fees: [] as string[],
       memberships: 0,
       payments: 0,
       tournaments: 0,
@@ -47,10 +50,15 @@ async function countDemo() {
     .select()
     .from(bjjClass)
     .where(eq(bjjClass.academyId, acad.id));
-  const plans = await testDb
+  const modalities = await testDb
     .select()
-    .from(membershipPlan)
-    .where(eq(membershipPlan.academyId, acad.id));
+    .from(modality)
+    .where(eq(modality.academyId, acad.id));
+  const studentModalities = await testDb
+    .select()
+    .from(studentModality)
+    .innerJoin(user, eq(studentModality.studentId, user.id))
+    .where(eq(user.academyId, acad.id));
   const memberships = await testDb
     .select()
     .from(studentMembership)
@@ -72,7 +80,9 @@ async function countDemo() {
     academy: acad,
     users: users.length,
     classes: classes.length,
-    plans: plans.length,
+    modalities: modalities.length,
+    studentModalities: studentModalities.length,
+    fees: memberships.map((m) => m.student_membership.monthlyFee).sort(),
     memberships: memberships.length,
     payments: payments.length,
     tournaments: tournaments.length,
@@ -91,7 +101,9 @@ describe('seedGuide', () => {
     expect(counts.users).toBe(5); // 1 instructor + 4 students
     expect(counts.classes).toBeGreaterThanOrEqual(2);
     expect(counts.classes).toBeLessThanOrEqual(3);
-    expect(counts.plans).toBe(1);
+    expect(counts.modalities).toBe(2);
+    expect(counts.studentModalities).toBe(3);
+    expect(counts.fees).toEqual(['180.00', '180.00', '180.00']);
     expect(counts.memberships).toBe(3); // 4 students but 1 is pending
     expect(counts.payments).toBeGreaterThanOrEqual(3);
     expect(counts.tournaments).toBe(1);

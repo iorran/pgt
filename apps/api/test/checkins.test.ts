@@ -274,6 +274,7 @@ describe('GET /api/checkins/class/:classId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/checkins/class/${cls.id}`,
+      headers: authHeaders(await createTestOwner(cls.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -288,6 +289,7 @@ describe('GET /api/checkins/class/:classId', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/checkins/class/${cls.id}`,
+      headers: authHeaders(await createTestOwner(cls.academyId)),
     });
 
     expect(res.statusCode).toBe(200);

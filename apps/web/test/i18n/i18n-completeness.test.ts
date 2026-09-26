@@ -3,19 +3,6 @@ import ptBR from '@/i18n/pt-BR.json';
 import en from '@/i18n/en.json';
 
 describe('i18n completeness', () => {
-  // Bug 1: billing.week
-  describe('billing.week', () => {
-    it('exists in pt-BR and is a non-empty string', () => {
-      expect((ptBR as any).billing.week).toBeTruthy();
-      expect(typeof (ptBR as any).billing.week).toBe('string');
-    });
-
-    it('exists in en and is a non-empty string', () => {
-      expect((en as any).billing.week).toBeTruthy();
-      expect(typeof (en as any).billing.week).toBe('string');
-    });
-  });
-
   // Bug 2: settings.geolocationUnavailable
   describe('settings.geolocationUnavailable', () => {
     it('exists in pt-BR and is a non-empty string', () => {

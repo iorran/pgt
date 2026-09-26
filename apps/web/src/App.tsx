@@ -8,19 +8,19 @@ import SignupPage from './pages/signup';
 import CriarAcademiaPage from './pages/criar-academia';
 import EntrarPage from './pages/entrar';
 import AguardandoPage from './pages/aguardando';
-import DashboardPage from './pages/dashboard';
 import PendingStudentsPage from './pages/pending-students';
 import { StaffShell } from './components/layout/staff-shell';
 import { StudentShell } from './components/layout/student-shell';
 import MePage from './pages/me';
 import BillingStatusPage from './pages/me/billing-status';
 import ThemePage from './pages/me/theme';
+import LanguagePage from './pages/me/language';
 import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
 import StudentsPage from './pages/students/index';
 import StudentDetailPage from './pages/students/detail';
+import FamiliesPage from './pages/students/families';
 import BillingOverduePage from './pages/billing/index';
-import PlansPage from './pages/billing/plans';
 import PaymentsPage from './pages/billing/payments';
 import MarketplacePage from './pages/marketplace/index';
 import OrdersPage from './pages/marketplace/orders';
@@ -79,7 +79,7 @@ function App() {
   return (
     <>
       <AppRoutes />
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-center" offset={{ top: 64 }} mobileOffset={{ top: 64 }} />
     </>
   );
 }
@@ -158,12 +158,10 @@ function AppRoutes() {
   const Shell = owner ? StaffShell : StudentShell;
   const studentHome = '/classes';
 
-  const staffHome = owner ? (
+  const staffHome = (
     <Suspense fallback={<PageLoader />}>
       <OwnerDashboardPage />
     </Suspense>
-  ) : (
-    <DashboardPage />
   );
 
   return (
@@ -179,9 +177,9 @@ function AppRoutes() {
         <Route path="/classes" element={<ClassesPage />} />
         <Route path="/classes/history" element={<CheckinHistoryPage />} />
         <Route path="/students" element={<StudentsPage />} />
+        <Route path="/students/families" element={<FamiliesPage />} />
         <Route path="/students/:id" element={<StudentDetailPage />} />
         <Route path="/billing" element={<BillingOverduePage />} />
-        <Route path="/billing/plans" element={<PlansPage />} />
         <Route path="/billing/payments" element={<PaymentsPage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/orders" element={<OrdersPage />} />
@@ -191,17 +189,11 @@ function AppRoutes() {
         <Route path="/gamification/profile" element={<GamificationProfilePage />} />
         <Route path="/tournaments" element={<TournamentsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
-        <Route
-          path="/owner/dashboard"
-          element={
-            <Suspense fallback={<PageLoader />}>
-              <OwnerDashboardPage />
-            </Suspense>
-          }
-        />
+        <Route path="/owner/dashboard" element={<Navigate to="/" replace />} />
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/theme" element={<ThemePage />} />
+        <Route path="/me/language" element={<LanguagePage />} />
       </Route>
       <Route path="*" element={<Navigate to={owner ? '/' : studentHome} replace />} />
     </Routes>

@@ -64,6 +64,27 @@
       "when": 1779121121982,
       "tag": "0008_fluffy_maximus",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790435157957,
+      "tag": "0009_families",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790436483780,
+      "tag": "0010_modalities_monthly_fee",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1790436494062,
+      "tag": "0011_drop_plans",
+      "breakpoints": true
     }
   ]
 }

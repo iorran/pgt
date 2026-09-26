@@ -177,7 +177,27 @@ test.describe('owner dashboard', () => {
     }
   });
 
-  test('non-owner (student) hitting /owner/dashboard sees 403', async ({
+  test('/owner/dashboard redirects to / (owner sees the dashboard there)', async ({
+    browser,
+  }) => {
+    const setup = await setupAcademy();
+    academy = setup.academy;
+    await makeOwner(academy.id, setup.instructor.id);
+
+    const context = await impersonateAs(browser, setup.instructor.email);
+    try {
+      const page = await context.newPage();
+      const dash = new OwnerDashboardPage(page);
+      await dash.goto();
+
+      await expect(page).toHaveURL(/\/$/, { timeout: 10_000 });
+      await expect(dash.heading()).toBeVisible({ timeout: 10_000 });
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('non-owner (student) hitting /owner/dashboard is sent to their home, not the dashboard', async ({
     browser,
   }) => {
     const setup = await setupAcademy();
@@ -190,7 +210,9 @@ test.describe('owner dashboard', () => {
       const dash = new OwnerDashboardPage(page);
       await dash.goto();
 
-      await expect(dash.forbiddenNotice()).toBeVisible({ timeout: 10_000 });
+      // /owner/dashboard → / → student home (/classes).
+      await expect(page).toHaveURL(/\/classes$/, { timeout: 10_000 });
+      await expect(dash.heading()).toHaveCount(0);
     } finally {
       await context.close();
     }

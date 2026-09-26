@@ -28,6 +28,7 @@ describe('GET /api/classes', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/classes?academyId=${acad.id}`,
+      headers: authHeaders(await createTestOwner(acad.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -52,6 +53,7 @@ describe('GET /api/classes', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/classes?academyId=${acad.id}`,
+      headers: authHeaders(await createTestOwner(acad.id)),
     });
 
     expect(res.statusCode).toBe(200);

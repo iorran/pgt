@@ -1,4 +1,6 @@
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { isStudent } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/use-api';
@@ -13,6 +15,7 @@ import { useApiQuery } from '@/hooks/use-api';
  */
 export function StudentPaymentBanner() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const { data: session } = useSession();
   const user = session?.user as { id?: string; role?: string } | undefined;
   const isStudentUser = isStudent(user ?? null);
@@ -23,24 +26,34 @@ export function StudentPaymentBanner() {
     daysUntilDue?: number;
   }>(['my-payment-status'], '/payments/my-status', !!user?.id && isStudentUser);
 
-  if (!isStudentUser || !paymentStatus) return null;
+  // The billing page already shows the full status.
+  if (!isStudentUser || !paymentStatus || pathname === '/me/billing') return null;
 
   if (paymentStatus.status === 'overdue') {
     return (
-      <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 mx-4 mt-3">
-        <p className="text-destructive font-medium text-sm">
-          {t('billing.yourPaymentOverdue', { days: paymentStatus.daysOverdue })}
-        </p>
+      <div role="alert" className="mx-4 mt-3">
+        <Link
+          to="/me/billing"
+          className="flex min-h-11 items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+        >
+          <AlertTriangle className="size-5 shrink-0" aria-hidden />
+          <span className="flex-1">{t('billing.yourPaymentOverdue', { days: paymentStatus.daysOverdue })}</span>
+          <ChevronRight className="size-4 shrink-0" aria-hidden />
+        </Link>
       </div>
     );
   }
 
   if (paymentStatus.status === 'upcoming') {
     return (
-      <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 mx-4 mt-3">
-        <p className="text-primary font-medium text-sm">
-          {t('billing.paymentDueSoon', { days: paymentStatus.daysUntilDue })}
-        </p>
+      <div className="mx-4 mt-3">
+        <Link
+          to="/me/billing"
+          className="flex min-h-11 items-center gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3 text-sm font-medium text-primary"
+        >
+          <span className="flex-1">{t('billing.paymentDueSoon', { days: paymentStatus.daysUntilDue })}</span>
+          <ChevronRight className="size-4 shrink-0" aria-hidden />
+        </Link>
       </div>
     );
   }

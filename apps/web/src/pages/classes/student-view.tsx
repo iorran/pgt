@@ -116,8 +116,9 @@ export function StudentClassesView() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="p-4 md:p-6 space-y-6">
+    <div className="space-y-6">
       <TabsNav
+        title={t('nav.classes')}
         items={[
           { to: '/classes', label: t('classes.title') },
           { to: '/classes/history', label: t('classes.checkinHistory') },

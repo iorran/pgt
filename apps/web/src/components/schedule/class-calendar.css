@@ -275,3 +275,10 @@
   font-size: 0.7rem;
   padding: 2px 6px !important;
 }
+
+/* 44px touch targets for toolbar buttons on phones */
+@media (max-width: 767px) {
+  .rbc-toolbar button {
+    min-height: 44px;
+  }
+}

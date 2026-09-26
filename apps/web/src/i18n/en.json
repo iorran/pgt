@@ -15,7 +15,9 @@
     "progress": "Progress",
     "shop": "Shop",
     "me": "Me",
-    "checkin": "Check-in"
+    "checkin": "Check-in",
+    "totem": "Kiosk",
+    "menu": "Menu"
   },
   "auth": {
     "login": "Log In",
@@ -36,7 +38,10 @@
     "resetPasswordError": "Invalid or expired link.",
     "resetPasswordMismatch": "Passwords do not match.",
     "requestNewReset": "Request new link",
-    "backToLogin": "Back to Login"
+    "backToLogin": "Back to Login",
+    "loginError": "Invalid email or password.",
+    "passwordHint": "At least 8 characters",
+    "haveAccount": "I already have an account"
   },
   "common": {
     "save": "Save",
@@ -48,7 +53,8 @@
     "loading": "Loading...",
     "noResults": "No results",
     "confirm": "Confirm",
-    "back": "Back"
+    "back": "Back",
+    "genericError": "Something went wrong. Please try again."
   },
   "calendar": {
     "today": "Today",
@@ -72,7 +78,9 @@
     "cameraDenied": "Camera permission denied. Enable it in your browser settings.",
     "cameraUnavailable": "Camera not available on this device",
     "noCameraFound": "No camera found on this device",
-    "insecureContext": "The camera only works over HTTPS. Install the app to your home screen, or open the site over https://."
+    "insecureContext": "The camera only works over HTTPS. Install the app to your home screen, or open the site over https://.",
+    "cameraDeniedHelp": "Tap the lock icon in the address bar, allow the camera, then try again.",
+    "retry": "Try again"
   },
   "classes": {
     "title": "Class Schedule",
@@ -104,6 +112,12 @@
     "checkinInvalidToken": "Invalid or expired QR Code",
     "scanQR": "Scan QR Code",
     "scanning": "Scanning...",
+    "classCount_one": "{{count}} class",
+    "classCount_other": "{{count}} classes",
+    "noClasses": "No classes yet",
+    "classesCreated": "Classes created",
+    "noCheckins": "You have no check-ins yet",
+    "viewSchedule": "View class schedule",
     "moveSuccess": "Class rescheduled",
     "days": {
       "sun": "Sunday",
@@ -119,31 +133,41 @@
     "title": "Students",
     "name": "Name",
     "belt": "Belt",
-    "plan": "Plan",
     "dueDay": "Due Day",
     "email": "Email",
     "phone": "Phone",
-    "assignMembership": "Assign Membership",
-    "planId": "Plan",
     "startDate": "Start Date",
     "paymentHistory": "Payment History",
     "totalClasses": "Total Classes",
     "currentStreak": "Current Streak",
-    "payCurrentMonth": "Pay Current Month"
+    "payCurrentMonth": "Pay Current Month",
+    "payConfirm": "Record this month's payment for {{name}}?",
+    "paySuccess": "Payment recorded",
+    "showMore": "Show more",
+    "count_one": "{{count}} student",
+    "count_other": "{{count}} students",
+    "fee": {
+      "title": "Monthly fee",
+      "amount": "Monthly fee (€)",
+      "suggestions": "Suggested amounts",
+      "none": "No monthly fee — not billed",
+      "save": "Save monthly fee",
+      "saved": "Monthly fee saved"
+    },
+    "training": {
+      "title": "Training",
+      "modalities": "Modalities",
+      "allModalities": "All",
+      "note": "Training note",
+      "save": "Save training",
+      "saved": "Training saved"
+    },
+    "countFiltered": "{{shown}} of {{count}} students"
   },
   "billing": {
     "overdueTitle": "Overdue Payments",
     "noOverdue": "No overdue payments",
     "daysOverdue": "days overdue",
-    "plansTitle": "Membership Plans",
-    "createPlan": "Create Plan",
-    "planName": "Plan Name",
-    "price": "Price",
-    "frequency": "Frequency",
-    "classesPerWeek": "Classes/Week",
-    "monthly": "Monthly",
-    "quarterly": "Quarterly",
-    "yearly": "Yearly",
     "paymentsTitle": "Payments",
     "recordPayment": "Record Payment",
     "selectStudent": "Select a student",
@@ -152,8 +176,29 @@
     "referenceMonth": "Reference Month",
     "recentPayments": "Recent Payments",
     "yourPaymentOverdue": "Your payment is {{days}} days overdue",
+    "overdueCount_one": "{{count}} overdue",
+    "overdueCount_other": "{{count}} overdue",
+    "missedMonths_one": "{{count}} unpaid month",
+    "missedMonths_other": "{{count}} unpaid months",
+    "paymentRecorded": "Payment recorded",
+    "noPayments": "No payments recorded yet",
     "paymentDueSoon": "Your payment is due in {{days}} days",
-    "week": "week"
+    "family": {
+      "badge": "Family",
+      "recordPayment": "Record family payment",
+      "dialogTitle": "Family payment",
+      "months": "Months to pay",
+      "partlyPaid": "{{paid}} of {{total}} paid",
+      "status": {
+        "owed": "owed",
+        "paid": "paid",
+        "waived": "waived",
+        "not-billed": "no monthly fee"
+      },
+      "submit": "Record payment",
+      "paymentRecorded": "Family payment recorded",
+      "paymentError": "Could not record the payment. Please try again."
+    }
   },
   "marketplace": {
     "title": "Marketplace",
@@ -172,8 +217,15 @@
     "quantity": "Quantity",
     "status": "Status",
     "actions": "Actions",
+    "noProducts": "No products in the shop yet",
+    "confirmDelete": "Remove \"{{name}}\" from the shop?",
+    "noOrders": "No orders yet",
+    "browseProducts": "Browse products",
+    "cancelOrder": "Cancel order",
+    "confirmCancelOrder": "Are you sure you want to cancel this order?",
     "deliver": "Deliver",
     "orderStatus": {
+      "requested": "Requested",
       "pending": "Pending",
       "confirmed": "Confirmed",
       "delivered": "Delivered",
@@ -214,10 +266,14 @@
     "profileTitle": "Gamification Profile",
     "totalXp": "Total XP",
     "currentStreak": "Current Streak",
-    "currentStreakFire": "Current Streak \ud83d\udd25",
     "longestStreak": "Longest Streak",
     "badges": "Badges",
-    "noBadges": "No badges earned yet"
+    "noBadges": "No badges earned yet",
+    "season": "Season",
+    "resultsShort": "Results",
+    "profileShort": "Profile",
+    "pointsShort": "pts",
+    "positionN": "Place {{position}}"
   },
   "tournaments": {
     "title": "Tournaments",
@@ -231,7 +287,8 @@
     "signupError": "Sign up failed",
     "weightClass": "Weight Class",
     "viewRoster": "View Roster",
-    "roster": "Roster"
+    "roster": "Roster",
+    "empty": "No tournaments yet"
   },
   "onboarding": {
     "chooseRole": "How would you like to start?",
@@ -255,6 +312,7 @@
     "approve": "Approve",
     "reject": "Reject",
     "noPending": "No pending students",
+    "rejectConfirm": "Reject {{name}}'s sign-up?",
     "joinCode": "Access Code",
     "shareWhatsApp": "Share on WhatsApp",
     "copyCode": "Copy",
@@ -323,16 +381,37 @@
       "classes": "Classes",
       "streak": "Streak",
       "best": "Best",
-      "noCheckins": "No check-ins in the last 30 days."
+      "noCheckins": "No check-ins in the last 30 days.",
+      "empty": "No students in this filter."
     },
     "forbidden": "Owner access required."
   },
   "settings": {
-    "geolocationUnavailable": "Geolocation unavailable"
+    "geolocationUnavailable": "Geolocation unavailable",
+    "modalities": {
+      "title": "Modalities",
+      "name": "Modality name",
+      "newName": "New modality",
+      "add": "Add",
+      "rename": "Rename",
+      "delete": "Delete modality",
+      "confirmDelete": "Delete the modality {{name}}?",
+      "studentCount_one": "{{count}} student",
+      "studentCount_other": "{{count}} students",
+      "added": "Modality added",
+      "saved": "Modality saved",
+      "deleted": "Modality deleted",
+      "errors": {
+        "exists": "A modality with this name already exists",
+        "inUse_one": "In use by {{count}} student — remove it from students first",
+        "inUse_other": "In use by {{count}} students — remove it from students first"
+      }
+    }
   },
   "totem": {
     "title": "Check-in Totem",
     "noClasses": "No classes right now",
+    "noClassesHint": "QR codes appear here during each class time.",
     "nextClass": "Next class",
     "scanToCheckin": "Scan to check in",
     "openTotem": "Open Totem",
@@ -350,7 +429,10 @@
     "themeDark": "Dark",
     "themeSystem": "System",
     "settings": "Settings",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "billingError": "Couldn't load your membership status. Please try again.",
+    "languagePortuguese": "Português",
+    "languageEnglish": "English"
   },
   "notifications": {
     "title": "Notifications",
@@ -362,5 +444,51 @@
     "mute": "Mute",
     "unmute": "Unmute",
     "overdueMessage": "Hi {{name}}, your academy payment is {{days}} days overdue. Please settle it as soon as possible."
+  },
+  "families": {
+    "title": "Families",
+    "family": "Family",
+    "new": "New family",
+    "empty": "No families yet",
+    "name": "Family name",
+    "members": "Members",
+    "searchMembers": "Search students without a family",
+    "searchResults": "Matching students",
+    "removeMember": "Remove from family",
+    "remove": "Remove",
+    "contact": "Family contact",
+    "noContact": "None (any member)",
+    "agreedPrice": "Agreed price",
+    "familyAgreedPrice": "Family agreed price",
+    "agreedPricePlaceholder": "Empty = no agreed price",
+    "priceReviewNeeded": "Members changed, review the agreed price",
+    "saved": "Saved",
+    "deleted": "Family deleted",
+    "deleteTitle": "Delete family",
+    "deleteConfirm": "Students leave the family. Payment history is kept.",
+    "suggestions": "Possible families",
+    "createFamily": "Create family",
+    "dismiss": "Dismiss",
+    "addToFamily": "Add to a family",
+    "existingFamily": "Existing family",
+    "add": "Add",
+    "monthlyFee": "Monthly fee",
+    "saveAgreedPrice": "Save agreed price",
+    "waivedMonths": "Waived months",
+    "noWaivedMonths": "No waived months",
+    "waiveMonth": "Waive month",
+    "unwaive": "Remove waiver for",
+    "month": "Month",
+    "reason": "Reason (optional)",
+    "errors": {
+      "studentInFamily": "One of the students already belongs to a family"
+    }
+  },
+  "belts": {
+    "white": "White",
+    "blue": "Blue",
+    "purple": "Purple",
+    "brown": "Brown",
+    "black": "Black"
   }
 }

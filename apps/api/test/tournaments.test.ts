@@ -33,6 +33,7 @@ describe('GET /api/tournaments', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/tournaments?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -49,6 +50,7 @@ describe('GET /api/tournaments', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/tournaments?academyId=${academy.id}`,
+      headers: authHeaders(await createTestOwner(academy.id)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -153,6 +155,7 @@ describe('GET /api/tournaments/:id/roster', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/tournaments/${tournamentRecord.id}/roster`,
+      headers: authHeaders(await createTestOwner(tournamentRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -183,6 +186,7 @@ describe('GET /api/tournaments/:id/roster', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/tournaments/${tournamentRecord.id}/roster`,
+      headers: authHeaders(await createTestOwner(tournamentRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -228,6 +232,7 @@ describe('GET /api/tournaments/:id/roster', () => {
     const rosterRes = await app.inject({
       method: 'GET',
       url: `/api/tournaments/${tournament.id}/roster`,
+      headers: authHeaders(await createTestOwner(tournament.academyId)),
     });
     expect(rosterRes.statusCode).toBe(200);
     const roster = rosterRes.json();

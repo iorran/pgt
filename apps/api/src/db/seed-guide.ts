@@ -71,11 +71,14 @@ export async function seedGuide(
     await db
       .delete(schema.studentMembership)
       .where(eq(schema.studentMembership.studentId, u.id));
+    await db
+      .delete(schema.studentModality)
+      .where(eq(schema.studentModality.studentId, u.id));
   }
 
   await db
-    .delete(schema.membershipPlan)
-    .where(eq(schema.membershipPlan.academyId, demoId));
+    .delete(schema.modality)
+    .where(eq(schema.modality.academyId, demoId));
   await db
     .delete(schema.product)
     .where(eq(schema.product.academyId, demoId));
@@ -192,17 +195,19 @@ export async function seedGuide(
     })
     .returning();
 
-  // 5. Plan — one canonical plan used by all active students
-  const [plan] = await db
-    .insert(schema.membershipPlan)
-    .values({
-      academyId: acad.id,
-      name: 'Mensal Ilimitado',
-      price: '180.00',
-      frequency: 'monthly' as const,
-      classesPerWeek: null,
-    })
+  // 5. Modalities — João trains Jiu-Jitsu, Maria Jiu-Jitsu and MMA.
+  const [jiuJitsu, mma] = await db
+    .insert(schema.modality)
+    .values([
+      { academyId: acad.id, name: 'Jiu-Jitsu' },
+      { academyId: acad.id, name: 'MMA' },
+    ])
     .returning();
+  await db.insert(schema.studentModality).values([
+    { studentId: azul.id, modalityId: jiuJitsu.id },
+    { studentId: roxa.id, modalityId: jiuJitsu.id },
+    { studentId: roxa.id, modalityId: mma.id },
+  ]);
 
   // 6. Memberships — active students only; pending student has none yet.
   //    dueDay is set 5 days before today so Pedro's payments appear overdue.
@@ -216,19 +221,19 @@ export async function seedGuide(
   await db.insert(schema.studentMembership).values([
     {
       studentId: azul.id,
-      planId: plan.id,
+      monthlyFee: '180.00',
       startDate: threeMonthsAgoStr,
       dueDay,
     },
     {
       studentId: roxa.id,
-      planId: plan.id,
+      monthlyFee: '180.00',
       startDate: monthStart,
       dueDay,
     },
     {
       studentId: brancaOverdue.id,
-      planId: plan.id,
+      monthlyFee: '180.00',
       startDate: threeMonthsAgoStr,
       dueDay,
     },

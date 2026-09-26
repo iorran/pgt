@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { streak, xpEntry, badgeDefinition, studentBadge } from '../db/schema/index.js';
-import { eq, sql } from 'drizzle-orm';
+import { streak, xpEntry, badgeDefinition, studentBadge, user } from '../db/schema/index.js';
+import { eq, and, sql } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
@@ -35,9 +35,8 @@ export async function gamificationRoutes(app: FastifyInstance) {
   });
 
   // List badge definitions for an academy
-  app.get('/api/gamification/badges', async (request) => {
-    const { academyId } = request.query as { academyId: string };
-    return db.select().from(badgeDefinition).where(eq(badgeDefinition.academyId, academyId));
+  app.get('/api/gamification/badges', { preHandler: [requireAuth, injectAcademyId] }, async (request) => {
+    return db.select().from(badgeDefinition).where(eq(badgeDefinition.academyId, request.academyId));
   });
 
   // Create badge definition (owner only)
@@ -55,8 +54,19 @@ export async function gamificationRoutes(app: FastifyInstance) {
   });
 
   // Manually award a badge to a student (owner only)
-  app.post('/api/gamification/badges/:badgeId/award/:studentId', { preHandler: [requireOwner] }, async (request, reply) => {
+  app.post('/api/gamification/badges/:badgeId/award/:studentId', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { badgeId, studentId } = request.params as { badgeId: string; studentId: string };
+
+    const [badge] = await db.select().from(badgeDefinition)
+      .where(and(eq(badgeDefinition.id, badgeId), eq(badgeDefinition.academyId, request.academyId)));
+    if (!badge) {
+      return reply.status(404).send({ error: 'Badge not found' });
+    }
+    const [student] = await db.select({ id: user.id }).from(user)
+      .where(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
+    if (!student) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
 
     // Insert student badge
     const [awarded] = await db.insert(studentBadge).values({
@@ -65,7 +75,6 @@ export async function gamificationRoutes(app: FastifyInstance) {
     }).returning();
 
     // Create XP entry for badge award
-    const [badge] = await db.select().from(badgeDefinition).where(eq(badgeDefinition.id, badgeId));
     await db.insert(xpEntry).values({
       studentId,
       xpAmount: badge.criteriaValue * 10,

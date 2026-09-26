@@ -99,6 +99,7 @@ describe('GET /api/competition-results', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/competition-results?seasonId=${seasonRecord.id}&status=pending`,
+      headers: authHeaders(await createTestOwner(seasonRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -148,6 +149,7 @@ describe('GET /api/competition-results', () => {
     const res = await app.inject({
       method: 'GET',
       url: `/api/competition-results?seasonId=${seasonRecord.id}`,
+      headers: authHeaders(await createTestOwner(seasonRecord.academyId)),
     });
 
     expect(res.statusCode).toBe(200);
@@ -367,6 +369,7 @@ describe('end-to-end: submit -> approve -> verify', () => {
     const leaderboardRes = await app.inject({
       method: 'GET',
       url: `/api/seasons/${seasonRecord.id}/leaderboard`,
+      headers: authHeaders(await createTestOwner(seasonRecord.academyId)),
     });
 
     expect(leaderboardRes.statusCode).toBe(200);

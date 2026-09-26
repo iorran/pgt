@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center arena-stripes">
+    <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
       <Card className="w-full max-w-md bg-card border-border">
         <CardContent className="pt-8 pb-8 px-8">
           <div className="text-center mb-8">
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
               <p className="text-muted-foreground">{t('auth.forgotPasswordSuccess')}</p>
               <Link
                 to="/login"
-                className="text-primary hover:text-primary/80 transition-colors no-underline text-sm"
+                className="inline-flex min-h-11 items-center px-2 text-primary hover:text-primary/80 transition-colors no-underline text-sm"
               >
                 {t('auth.backToLogin')}
               </Link>
@@ -69,6 +69,8 @@ export default function ForgotPasswordPage() {
                       <Input
                         id="email"
                         type="email"
+                        inputMode="email"
+                        autoComplete="email"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                         onBlur={field.handleBlur}
@@ -91,7 +93,7 @@ export default function ForgotPasswordPage() {
               <p className="mt-6 text-center text-sm">
                 <Link
                   to="/login"
-                  className="text-muted-foreground hover:text-primary transition-colors no-underline"
+                  className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline"
                 >
                   {t('auth.backToLogin')}
                 </Link>
