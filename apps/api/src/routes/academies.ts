@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { academy, user, modality, DEFAULT_MODALITIES } from '../db/schema/index.js';
+import { academy, user, modality, season, DEFAULT_MODALITIES } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
@@ -40,6 +40,15 @@ export async function academyRoutes(app: FastifyInstance) {
     }
 
     await db.insert(modality).values(DEFAULT_MODALITIES.map((name) => ({ academyId: created!.id, name })));
+    // A ranking works from day one: results need a season covering their date.
+    const year = new Date().getFullYear();
+    await db.insert(season).values({
+      academyId: created!.id,
+      name: `Ranking ${year}`,
+      startDate: `${year}-01-01`,
+      endDate: `${year}-12-31`,
+      pointsConfig: { 1: 10, 2: 7, 3: 5 },
+    });
 
     // Update user to owner with this academy
     await db.update(user)

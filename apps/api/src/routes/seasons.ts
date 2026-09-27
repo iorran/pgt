@@ -76,7 +76,8 @@ export async function seasonRoutes(app: FastifyInstance) {
       eq(competitionResult.status, 'approved'),
     ))
     .groupBy(user.id, user.name, user.belt, user.dateOfBirth)
-    .orderBy(sql`total_points DESC`);
+    // Ties sorted by name so the order is stable between refreshes.
+    .orderBy(sql`total_points DESC`, user.name);
 
     const KID_AGE_LIMIT = 16;
     const today = new Date();

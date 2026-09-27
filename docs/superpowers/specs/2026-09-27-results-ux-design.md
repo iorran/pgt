@@ -16,7 +16,7 @@ At the first showcase nobody could find how to register a won championship: stud
 4. **No season for that date:** the dialog explains "Nenhuma temporada para esta data — fale com a academia" (API 422 `NO_SEASON_FOR_DATE`).
 5. **Meus resultados:** students see their own results with status (Pendente / Aprovado +N pts / Recusado) on Progresso → Perfil.
 6. **Owner registers results:** "Registrar resultado" on the Resultados page — pick a student (search by name), same fields; owner-entered results are **approved immediately** with points and XP.
-7. **Seeds:** the seed creates an active season for the current calendar year (10 / 7 / 5 points).
+7. **Every academy starts with a season:** a new academy (created in the app or by the seed) gets an active "Ranking <year>" season for the current calendar year (10 / 7 / 5 points).
 
 ## API contract
 
