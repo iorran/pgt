@@ -1,3 +1,11 @@
+# [1.15.0](https://github.com/iorran/pgt/compare/v1.14.0...v1.15.0) (2026-09-27)
+
+
+### Features
+
+* **api:** Kids/Adultos ranking by belt, birth date or Kids modality ([82e83c2](https://github.com/iorran/pgt/commit/82e83c271a1c05cc8aa8835db3661227f37810d2))
+* ranking categories by belt/Kids modality, carried-over points import ([ab13982](https://github.com/iorran/pgt/commit/ab13982f22ad1b3ca1ef6c19a448a7952455e558))
+
 # [1.14.0](https://github.com/iorran/pgt/compare/v1.13.0...v1.14.0) (2026-09-27)
 
 
