@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/iorran/pgt/compare/v1.16.0...v1.17.0) (2026-09-27)
+
+
+### Features
+
+* **web:** one popup at a time in the ranking; compact result rows ([0385a0e](https://github.com/iorran/pgt/commit/0385a0e5c1d0a300672cfb431c8f5b41b2e134eb))
+
 # [1.16.0](https://github.com/iorran/pgt/compare/v1.15.0...v1.16.0) (2026-09-27)
 
 
