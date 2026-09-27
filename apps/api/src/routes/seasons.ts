@@ -1,10 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { season, competitionResult, user } from '../db/schema/index.js';
-import { eq, and, sql } from 'drizzle-orm';
+import { season, competitionResult, user, modality, studentModality } from '../db/schema/index.js';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { normalizePointsConfig, withRanks } from '../gamification/points.js';
+import { rankingCategory } from '../gamification/ranking-category.js';
 
 export async function seasonRoutes(app: FastifyInstance) {
   // List seasons for academy
@@ -79,16 +80,22 @@ export async function seasonRoutes(app: FastifyInstance) {
     // Ties sorted by name so the order is stable between refreshes.
     .orderBy(sql`total_points DESC`, user.name);
 
-    const KID_AGE_LIMIT = 16;
-    const today = new Date();
-
-    const filtered = results.filter(r => {
-      if (!r.dateOfBirth) return category !== 'kids';
-      const age = Math.floor((today.getTime() - new Date(r.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-      const isKid = age < KID_AGE_LIMIT;
-      if (category === 'kids') return isKid;
-      if (category === 'adults' && belt) return !isKid && r.belt === belt;
-      if (category === 'adults') return !isKid;
+    // Kids vs Adultos follows the Ranking Category rule (belt, birth date, Kids modality).
+    const modalityRows = results.length
+      ? await db.select({ studentId: studentModality.studentId, name: modality.name })
+        .from(studentModality)
+        .innerJoin(modality, eq(modality.id, studentModality.modalityId))
+        .where(inArray(studentModality.studentId, results.map((r) => r.studentId)))
+      : [];
+    const filtered = results.filter((r) => {
+      const modalities = modalityRows.filter((m) => m.studentId === r.studentId).map((m) => m.name);
+      const isKid = rankingCategory({ belt: r.belt, dateOfBirth: r.dateOfBirth, modalities }) === 'kids';
+      if (category === 'kids') {
+        return isKid;
+      }
+      if (category === 'adults') {
+        return !isKid && (!belt || r.belt === belt);
+      }
       return true;
     });
     return withRanks(filtered.map((r) => ({ ...r, totalPoints: Number(r.totalPoints) })));

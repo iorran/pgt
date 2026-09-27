@@ -31,6 +31,14 @@ _Avoid_: Household, group, account
 A discipline the academy teaches (e.g. Jiu-Jitsu, MMA, Kids, Funcional, Feminino), from a short list the Owner maintains. A Student is tagged with the Modalities they train; this is informational and never sets the price or restricts check-in.
 _Avoid_: Plan, class type, turma, category
 
+**Ranking Category**:
+Whether a Student is ranked with Kids or Adultos. Adult belt → Adultos; kids belt → Kids; white belt → Kids if under 16 (when the birth date is known) or tagged with the Kids Modality, otherwise Adultos. Teenagers on adult or white belts rank with Adultos.
+_Avoid_: Division, age group, adolescente/juvenil (as separate rankings)
+
+**Carried-over Points**:
+Points a Student earned before the app was used, entered as one approved ranking entry with no podium position.
+_Avoid_: Bonus, manual points, adjustment (in the UI: "Pontos acumulados")
+
 **Training Note**:
 Free text on a Student for what Modalities don't capture (e.g. "trânsito livre", "turma das 7h").
 _Avoid_: Observations, comments
