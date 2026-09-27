@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { user, studentMembership, family, waivedMonth, modality, studentModality } from '../db/schema/index.js';
+import { user, studentMembership, family, waivedMonth, modality, studentModality, beltEnum } from '../db/schema/index.js';
 import { eq, and, asc, inArray } from 'drizzle-orm';
 import { dateKey } from '../billing/rules.js';
 import { DATE, MONEY, MONTH, UUID } from './families.js';
@@ -135,6 +135,24 @@ export async function studentRoutes(app: FastifyInstance) {
   });
 
   // What the student trains: Modalities (replaced as a whole) and the Training Note (owner only).
+  // Promotion: owner sets a student's belt (kids or adult, see beltEnum)
+  app.put('/api/students/:id/belt', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { belt } = (request.body ?? {}) as { belt?: string };
+    if (!belt || !(beltEnum.enumValues as readonly string[]).includes(belt)) {
+      return reply.status(400).send({ error: 'Unknown belt' });
+    }
+    if (!(await isAcademyStudent(id, request.academyId))) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
+    const [updated] = await db
+      .update(user)
+      .set({ belt: belt as (typeof beltEnum.enumValues)[number], updatedAt: new Date() })
+      .where(eq(user.id, id))
+      .returning({ id: user.id, belt: user.belt });
+    return updated;
+  });
+
   app.put('/api/students/:id/training', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { modalityIds, trainingNote } = (request.body ?? {}) as { modalityIds?: unknown; trainingNote?: unknown };

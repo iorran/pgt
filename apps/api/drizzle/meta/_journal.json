@@ -92,6 +92,13 @@
       "when": 1790514303565,
       "tag": "0012_repair_season_points",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1790515702222,
+      "tag": "0013_kids_belts",
+      "breakpoints": true
     }
   ]
 }

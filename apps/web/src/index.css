@@ -42,6 +42,10 @@
 
   /* Belt Colors */
   --color-belt-white: #E8E8E8;
+  --color-belt-grey: #4B5563;
+  --color-belt-yellow: #FACC15;
+  --color-belt-orange: #F97316;
+  --color-belt-green: #15803D;
   --color-belt-blue: #2563EB;
   --color-belt-purple: #7C3AED;
   --color-belt-brown: #92400E;

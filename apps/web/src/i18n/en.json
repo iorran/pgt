@@ -162,7 +162,11 @@
       "save": "Save training",
       "saved": "Training saved"
     },
-    "countFiltered": "{{shown}} of {{count}} students"
+    "countFiltered": "{{shown}} of {{count}} students",
+    "beltForm": {
+      "save": "Save belt",
+      "saved": "Belt updated"
+    }
   },
   "billing": {
     "overdueTitle": "Overdue Payments",
@@ -504,9 +508,25 @@
   },
   "belts": {
     "white": "White",
+    "grey-white": "Grey-white",
+    "grey": "Grey",
+    "grey-black": "Grey-black",
+    "yellow-white": "Yellow-white",
+    "yellow": "Yellow",
+    "yellow-black": "Yellow-black",
+    "orange-white": "Orange-white",
+    "orange": "Orange",
+    "orange-black": "Orange-black",
+    "green-white": "Green-white",
+    "green": "Green",
+    "green-black": "Green-black",
     "blue": "Blue",
     "purple": "Purple",
     "brown": "Brown",
     "black": "Black"
+  },
+  "beltGroups": {
+    "adult": "Adult",
+    "kids": "Kids"
   }
 }

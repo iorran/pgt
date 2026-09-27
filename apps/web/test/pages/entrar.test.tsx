@@ -97,6 +97,20 @@ describe('EntrarPage', () => {
     expect(screen.queryByRole('option', { name: 'White' })).not.toBeInTheDocument();
   });
 
+  it('groups belt options into Adulto and Infantil with white once', async () => {
+    mockedApi.mockResolvedValue(academy);
+    renderEntrar();
+
+    const adult = await screen.findByRole('group', { name: 'beltGroups.adult' });
+    const kids = screen.getByRole('group', { name: 'beltGroups.kids' });
+    const names = (g: HTMLElement) => Array.from(g.querySelectorAll('option')).map(o => o.value);
+    expect(names(adult)).toEqual(['white', 'blue', 'purple', 'brown', 'black']);
+    expect(names(kids)).toHaveLength(12);
+    expect(names(kids)[0]).toBe('grey-white');
+    expect(screen.getAllByRole('option', { name: 'belts.white' })).toHaveLength(1);
+    expect(screen.getByRole('option', { name: 'belts.orange-white' })).toBeInTheDocument();
+  });
+
   it('requires 8+ char password with hint and autocomplete hints', async () => {
     mockedApi.mockResolvedValue(academy);
     renderEntrar();

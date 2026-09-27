@@ -162,7 +162,11 @@
       "save": "Salvar treino",
       "saved": "Treino salvo"
     },
-    "countFiltered": "{{shown}} de {{count}} alunos"
+    "countFiltered": "{{shown}} de {{count}} alunos",
+    "beltForm": {
+      "save": "Salvar faixa",
+      "saved": "Faixa atualizada"
+    }
   },
   "billing": {
     "overdueTitle": "Inadimplentes",
@@ -504,9 +508,25 @@
   },
   "belts": {
     "white": "Branca",
+    "grey-white": "Cinza e branca",
+    "grey": "Cinza",
+    "grey-black": "Cinza e preta",
+    "yellow-white": "Amarela e branca",
+    "yellow": "Amarela",
+    "yellow-black": "Amarela e preta",
+    "orange-white": "Laranja e branca",
+    "orange": "Laranja",
+    "orange-black": "Laranja e preta",
+    "green-white": "Verde e branca",
+    "green": "Verde",
+    "green-black": "Verde e preta",
     "blue": "Azul",
     "purple": "Roxa",
     "brown": "Marrom",
     "black": "Preta"
+  },
+  "beltGroups": {
+    "adult": "Adulto",
+    "kids": "Infantil"
   }
 }
