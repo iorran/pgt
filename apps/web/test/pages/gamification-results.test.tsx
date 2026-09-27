@@ -110,8 +110,8 @@ describe('ResultsPage', () => {
     renderWithProviders(<ResultsPage />);
     await screen.findByText('Carlos');
     expect(screen.getByRole('combobox', { name: 'gamification.season' })).toBeInTheDocument();
-    expect(screen.getByText('gamification.first')).toBeInTheDocument();
-    expect(screen.getByText('gamification.third')).toBeInTheDocument();
+    expect(screen.getByText('gamification.results.first')).toBeInTheDocument();
+    expect(screen.getByText('gamification.results.third')).toBeInTheDocument();
     expect(screen.queryByText('1st')).not.toBeInTheDocument();
   });
 
@@ -123,13 +123,13 @@ describe('ResultsPage', () => {
       .mockResolvedValueOnce(mockPendingResults as any)
       .mockReturnValueOnce(new Promise(() => {}));
     renderWithProviders(<ResultsPage />);
-    const carlosCard = (await screen.findByText('Carlos')).closest('[data-slot="card"]') as HTMLElement;
-    const anaCard = screen.getByText('Ana').closest('[data-slot="card"]') as HTMLElement;
-    await user.click(within(carlosCard).getByRole('button', { name: 'gamification.approve' }));
+    const carlosRow = (await screen.findByText('Carlos')).closest('li') as HTMLElement;
+    const anaRow = screen.getByText('Ana').closest('li') as HTMLElement;
+    await user.click(within(carlosRow).getByRole('button', { name: 'gamification.approve' }));
     await waitFor(() => {
-      expect(within(carlosCard).getByRole('button', { name: 'gamification.approve' })).toBeDisabled();
+      expect(within(carlosRow).getByRole('button', { name: 'gamification.approve' })).toBeDisabled();
     });
-    expect(within(anaCard).getByRole('button', { name: 'gamification.approve' })).not.toBeDisabled();
-    expect(within(anaCard).getByRole('button', { name: 'gamification.reject' })).not.toBeDisabled();
+    expect(within(anaRow).getByRole('button', { name: 'gamification.approve' })).not.toBeDisabled();
+    expect(within(anaRow).getByRole('button', { name: 'gamification.reject' })).not.toBeDisabled();
   });
 });

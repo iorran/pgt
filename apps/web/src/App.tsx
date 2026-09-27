@@ -28,6 +28,7 @@ import LeaderboardPage from './pages/gamification/leaderboard';
 import SeasonsPage from './pages/gamification/seasons';
 import ResultsPage from './pages/gamification/results';
 import GamificationProfilePage from './pages/gamification/profile';
+import StudentPointsPage from './pages/gamification/student-points';
 import TournamentsPage from './pages/tournaments/index';
 import ForgotPasswordPage from './pages/forgot-password';
 import ResetPasswordPage from './pages/reset-password';
@@ -187,6 +188,7 @@ function AppRoutes() {
         <Route path="/gamification/seasons" element={<SeasonsPage />} />
         <Route path="/gamification/results" element={<ResultsPage />} />
         <Route path="/gamification/profile" element={<GamificationProfilePage />} />
+        <Route path="/gamification/students/:studentId" element={<StudentPointsPage />} />
         <Route path="/tournaments" element={<TournamentsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/owner/dashboard" element={<Navigate to="/" replace />} />

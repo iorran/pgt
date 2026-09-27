@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatMoney, formatDate } from '@/lib/format';
+import { formatMoney, formatDate, signedPoints } from '@/lib/format';
 
 describe('formatMoney', () => {
   it('formats decimal strings from the API as euros', () => {
@@ -15,5 +15,13 @@ describe('formatMoney', () => {
 describe('formatDate', () => {
   it('formats a YYYY-MM-DD date without a UTC day shift', () => {
     expect(formatDate('2026-03-01', 'pt-BR')).toBe('01/03/2026');
+  });
+});
+
+describe('signedPoints', () => {
+  it('prefixes + for gains and a real minus sign for losses', () => {
+    expect(signedPoints(5)).toBe('+5');
+    expect(signedPoints(-3)).toBe('\u22123');
+    expect(signedPoints(0)).toBe('0');
   });
 });

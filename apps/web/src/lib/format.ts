@@ -14,3 +14,11 @@ export function todayYmd() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
+
+// Ranking points with their sign: "+5", "−3" (real minus sign), "0".
+export function signedPoints(points: number): string {
+  if (points > 0) {
+    return `+${points}`;
+  }
+  return points < 0 ? `−${-points}` : '0';
+}

@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 
-export function SubpageHeader({ title }: { title: string }) {
+export function SubpageHeader({ title, to = '/me' }: { title: string; to?: string }) {
   const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2">
       <Link
-        to="/me"
+        to={to}
         aria-label={t('common.back')}
         className="-ml-3 flex size-11 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground"
       >

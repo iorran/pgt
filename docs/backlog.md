@@ -51,3 +51,10 @@ From [[2026-09-26-families-design|Families design]]:
 - **Owner cannot check in** (no Check-in button in the owner's Aulas view) — confirm if intended.
 - **User guide screenshots are stale** (captured April 2026): regenerate with `npm run screenshots:capture` after updating `seed-guide` and the SHOTS list for families, modalities, fee card, phone menu, language page, camera retry. Delete `billing-plans.png`, `student-detail-plan.png`, `dashboard-instructor.png`.
 - **Some PUT routes accept arbitrary body fields** (e.g. class `instructorId`): add per-route field whitelists.
+
+## Found while updating the user guides (2026-09-27)
+
+- ~~**Negative Point Adjustments read "+-N pts" for the student:** Meus resultados (`apps/web/src/pages/gamification/profile.tsx`) always prefixes `+`, so a −3 adjustment shows "Aprovado +-3 pts".~~ Fixed: signed points ("−3 pts").
+- ~~**Every position-less entry is "Acumulado" for the student:** any Point Adjustment (not only Carried-over Points) shows as "Acumulado" in Meus resultados; the owner sees "Ajuste". Consider "Ajuste" for non-carried-over adjustments.~~ Fixed: all shown as "Ajuste" with their name.
+- **Birth date wins over the Kids modality** for white belts (Ranking Category), and there is no way to edit a birth date in the app — the owner cannot move a white belt with a known birth date to the other category.
+- **Ranking screenshots are stale:** `gamification-results-instructor.png` (status filter, Editar/Excluir, Ajustar pontos), `gamification-seasons.png` (Editar button), `student-join-form.png` (grouped belt list); missing: student points page (Ranking → aluno), compact result rows with ⋯ menu and inline delete confirmation, edit-result dialog, "Recalcular pontos" step, Faixa field on the student page, "Acumulado" entry in `gamification-profile.png`.

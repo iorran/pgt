@@ -38,6 +38,8 @@ const mockMine = [
   { id: 'r3', competitionName: 'Taça Braga', competitionDate: '2026-07-05', position: 3, status: 'rejected', pointsAwarded: 0, seasonName: 'S26' },
   // Carried-over Points: approved, no podium position.
   { id: 'r4', competitionName: 'Pontos acumulados até a Mafra Cup', competitionDate: '2026-09-27', position: null, status: 'approved', pointsAwarded: 31, seasonName: 'S26' },
+  // Negative Point Adjustment.
+  { id: 'r5', competitionName: 'Faltou à arbitragem', competitionDate: '2026-09-26', position: null, status: 'approved', pointsAwarded: -3, seasonName: 'S26' },
 ];
 
 function mockApiFor(profile: unknown, mine: unknown) {
@@ -117,12 +119,23 @@ describe('GamificationProfilePage', () => {
     expect(screen.queryByRole('link', { name: 'gamification.results.submit' })).not.toBeInTheDocument();
   });
 
-  it('shows carried-over points without a podium position', async () => {
+  it('labels position-less entries Ajuste and keeps their name visible', async () => {
     mockApiFor(mockProfile, mockMine);
     renderWithProviders(<GamificationProfilePage />);
-    const item = (await screen.findByText('Pontos acumulados até a Mafra Cup')).closest('li')!;
-    expect(item).toHaveTextContent('gamification.results.carriedOver');
+    const name = await screen.findByText('Pontos acumulados até a Mafra Cup');
+    expect(name).toHaveAttribute('title', 'Pontos acumulados até a Mafra Cup');
+    const item = name.closest('li')!;
+    expect(item).toHaveTextContent('gamification.control.adjustment');
     expect(item).toHaveTextContent('+31');
-    expect(item).not.toHaveTextContent(/gamification\.results\.(first|second|third)/);
+    expect(item).not.toHaveTextContent(/gamification\.results\.(first|second|third|carriedOver)/);
+  });
+
+  it('shows negative adjustments with a minus sign, not +-', async () => {
+    mockApiFor(mockProfile, mockMine);
+    renderWithProviders(<GamificationProfilePage />);
+    const item = (await screen.findByText('Faltou à arbitragem')).closest('li')!;
+    expect(item).toHaveTextContent('gamification.control.adjustment');
+    expect(item).toHaveTextContent('\u22123 gamification.pointsShort');
+    expect(item).not.toHaveTextContent('+-');
   });
 });

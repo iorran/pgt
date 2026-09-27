@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Award, Flame } from 'lucide-react';
 import { isStudent } from '@/lib/roles';
-import { formatDate } from '@/lib/format';
+import { formatDate, signedPoints } from '@/lib/format';
 import { GamificationTabs } from './gamification-tabs';
 import { PODIUM, SubmitResultDialog } from './submit-result-dialog';
 
@@ -21,7 +21,7 @@ interface MyResult {
   id: string;
   competitionName: string;
   competitionDate: string;
-  position: number | null; // null = Carried-over Points
+  position: number | null; // null = Point Adjustment (incl. Carried-over Points)
   status: 'pending' | 'approved' | 'rejected';
   pointsAwarded: number;
 }
@@ -107,15 +107,17 @@ export default function GamificationProfilePage() {
               {myResults.map((r) => (
                 <li key={r.id} className="flex items-center gap-3 rounded-sm border border-border bg-card p-3">
                   <div className="min-w-0 flex-1">
-                    <p className="font-heading text-base truncate">{r.competitionName}</p>
+                    <p className="font-heading text-base truncate" title={r.competitionName}>
+                      {r.competitionName}
+                    </p>
                     <p className="text-xs font-mono text-muted-foreground">{formatDate(r.competitionDate, i18n.language)}</p>
                   </div>
                   <span className="font-heading shrink-0">
-                    {r.position === null ? t('gamification.results.carriedOver') : t(PODIUM[r.position - 1].key)}
+                    {r.position === null ? t('gamification.control.adjustment') : t(PODIUM[r.position - 1].key)}
                   </span>
                   <Badge className={`shrink-0 ${STATUS_STYLES[r.status]}`}>
                     {t(`gamification.results.status.${r.status}`)}
-                    {r.status === 'approved' && ` +${r.pointsAwarded} ${t('gamification.pointsShort')}`}
+                    {r.status === 'approved' && ` ${signedPoints(r.pointsAwarded)} ${t('gamification.pointsShort')}`}
                   </Badge>
                 </li>
               ))}
