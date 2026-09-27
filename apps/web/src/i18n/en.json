@@ -255,11 +255,6 @@
     "rank": "Rank",
     "totalPoints": "Points",
     "resultsTitle": "Competition Results",
-    "submitResult": "Submit Result",
-    "competitionName": "Competition Name",
-    "position": "Position",
-    "resultSubmitted": "Result submitted successfully!",
-    "resultError": "Failed to submit result",
     "pendingResults": "Pending Results",
     "approve": "Approve",
     "reject": "Reject",
@@ -273,7 +268,30 @@
     "resultsShort": "Results",
     "profileShort": "Profile",
     "pointsShort": "pts",
-    "positionN": "Place {{position}}"
+    "positionN": "Place {{position}}",
+    "results": {
+      "submit": "Submit Result",
+      "send": "Submit",
+      "register": "Register result",
+      "registerSubmit": "Register",
+      "student": "Student",
+      "competition": "Competition",
+      "date": "Competition date",
+      "position": "Placement",
+      "first": "1st",
+      "second": "2nd",
+      "third": "3rd",
+      "noSeasonForDate": "No season for this date — talk to your academy",
+      "submitted": "Result sent! Waiting for the academy's approval.",
+      "registered": "Result registered and approved",
+      "mine": "My results",
+      "empty": "No results sent yet",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    }
   },
   "tournaments": {
     "title": "Tournaments",

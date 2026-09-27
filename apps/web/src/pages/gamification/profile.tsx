@@ -3,20 +3,38 @@ import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
-import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 import { Award, Flame } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button';
+import { isStudent } from '@/lib/roles';
+import { formatDate } from '@/lib/format';
 import { GamificationTabs } from './gamification-tabs';
+import { PODIUM, SubmitResultDialog } from './submit-result-dialog';
 
+// GET /api/gamification/profile/:id (xp is a SQL SUM, so it may arrive as a string)
 interface GamificationProfile {
-  totalXp: number;
-  currentStreak: number;
-  longestStreak: number;
+  xp: number | string;
+  streak: { currentStreak: number; longestStreak: number };
   badges: { id: string; name: string; description?: string; earnedAt: string }[];
 }
 
+interface MyResult {
+  id: string;
+  competitionName: string;
+  competitionDate: string;
+  position: number;
+  status: 'pending' | 'approved' | 'rejected';
+  pointsAwarded: number;
+}
+
+// Status is spelled out in the badge text; colour only reinforces it.
+const STATUS_STYLES: Record<MyResult['status'], string> = {
+  pending: 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30 dark:text-yellow-400',
+  approved: 'bg-green-500/20 text-green-600 border-green-500/30 dark:text-green-400',
+  rejected: 'bg-destructive/10 text-destructive border-destructive/30',
+};
+
 export default function GamificationProfilePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
 
@@ -26,14 +44,17 @@ export default function GamificationProfilePage() {
     !!user?.id,
   );
 
+  const student = isStudent(user);
+  const { data: myResults } = useApiQuery<MyResult[]>(['my-results', user?.id], '/competition-results/mine', student);
+
   if (isLoading) return <PageLoader />;
   if (!profile) return <div className="text-muted-foreground">{t('common.noResults')}</div>;
 
   // Fresh students may have no gamification rows yet; the API can return
   // a partial object. Default each numeric field so the page never crashes.
-  const totalXp = profile.totalXp ?? 0;
-  const currentStreak = profile.currentStreak ?? 0;
-  const longestStreak = profile.longestStreak ?? 0;
+  const totalXp = Number(profile.xp ?? 0);
+  const currentStreak = profile.streak?.currentStreak ?? 0;
+  const longestStreak = profile.streak?.longestStreak ?? 0;
   const badges = profile.badges ?? [];
 
   return (
@@ -70,10 +91,38 @@ export default function GamificationProfilePage() {
         </Card>
       </div>
 
-      {/* Result submission lives on /gamification/results, which is not a student tab. */}
-      <Link to="/gamification/results" className={buttonVariants({ variant: 'outline', className: 'w-full' })}>
-        {t('gamification.submitResult')}
-      </Link>
+      {myResults && (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-heading text-xl md:text-2xl uppercase">{t('gamification.results.mine')}</h2>
+            {myResults.length > 0 && <SubmitResultDialog className="w-full sm:w-auto" />}
+          </div>
+          {myResults.length === 0 ? (
+            <div className="space-y-3 text-center">
+              <p className="text-muted-foreground">{t('gamification.results.empty')}</p>
+              <SubmitResultDialog className="w-full sm:w-auto" />
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {myResults.map((r) => (
+                <li key={r.id} className="flex items-center gap-3 rounded-sm border border-border bg-card p-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-heading text-base truncate">{r.competitionName}</p>
+                    <p className="text-xs font-mono text-muted-foreground">{formatDate(r.competitionDate, i18n.language)}</p>
+                  </div>
+                  <span className="font-heading shrink-0">
+                    {t(PODIUM[r.position - 1].key)}
+                  </span>
+                  <Badge className={`shrink-0 ${STATUS_STYLES[r.status]}`}>
+                    {t(`gamification.results.status.${r.status}`)}
+                    {r.status === 'approved' && ` +${r.pointsAwarded} ${t('gamification.pointsShort')}`}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* Badges */}
       <div className="space-y-4">

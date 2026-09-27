@@ -102,6 +102,24 @@ describe('LeaderboardPage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'gamification.leaderboardPageTitle' })).toBeInTheDocument();
   });
 
+  it('owners do not get the Enviar Resultado button', async () => {
+    renderWithProviders(<LeaderboardPage />);
+    await screen.findByText('Champion');
+    expect(screen.queryByRole('button', { name: 'gamification.results.submit' })).not.toBeInTheDocument();
+  });
+
+  it('students get Enviar Resultado right under the title', async () => {
+    mockUseSession.mockReturnValue({
+      ...session,
+      data: { user: { ...session.data.user, role: 'student' } },
+    });
+    renderWithProviders(<LeaderboardPage />);
+    const button = await screen.findByRole('button', { name: 'gamification.results.submit' });
+    // Primary action comes before the season picker so it is visible without scrolling.
+    const select = screen.getByRole('combobox', { name: 'gamification.season' });
+    expect(button.compareDocumentPosition(select) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('shows empty state', async () => {
     mockApi
       .mockResolvedValueOnce(mockSeasons as any)

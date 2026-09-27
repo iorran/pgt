@@ -1,7 +1,7 @@
 # Competition results: easy to send, visible, owner can register
 
 Date: 2026-09-27
-Status: In implementation
+Status: Implemented
 Glossary: [[CONTEXT|Glossary]] · Related: [[2026-09-26-families-design|Families design]]
 
 ## Problem
@@ -27,3 +27,8 @@ At the first showcase nobody could find how to register a won championship: stud
   - Owner (for a student of the academy): `201`, `status: 'approved'`, `pointsAwarded` from the season, `reviewedBy` = owner, XP entry created (points × 10) — same effect as approving.
 - `GET /api/competition-results/mine` (logged-in student) → `{ id, competitionName, competitionDate, position, status: 'pending'|'approved'|'rejected', pointsAwarded, seasonName }[]`, newest competition first.
 - Unchanged: owner `GET /api/competition-results?seasonId&status`, approve/reject.
+
+## Found while verifying in the browser
+
+- The Perfil page read `totalXp` / `currentStreak` / `longestStreak`, but the API returns `xp` and `streak.{currentStreak,longestStreak}` — XP and streaks always showed 0. Fixed in the page; tests now use the real API shape.
+- The selected podium option was too subtle on the dark theme; it now has a solid medal-coloured border and a check mark.
