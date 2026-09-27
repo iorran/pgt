@@ -668,6 +668,22 @@ Quando os alunos enviam resultados, você os analisa.
 4. Toque em **"Aprovar"** para conceder os pontos ou **"Rejeitar"** para recusar
    <sub><em>Tap "Aprovar" (Approve) to award the points or "Rejeitar" (Reject) to decline</em></sub>
 
+### Registrar um Resultado
+<sub><em>Register a Result</em></sub>
+
+Para registrar você mesmo um campeonato de um aluno (ex.: ele contou na academia):
+<sub><em>To register a student's championship yourself (e.g. they told you at the academy):</em></sub>
+
+1. Menu → **Ranking** → aba **Resultados** → **"Registrar resultado"**
+   <sub><em>Menu → Ranking → Resultados (Results) tab → "Registrar resultado" (Register result)</em></sub>
+2. Busque o **Aluno** pelo nome, preencha **Competição**, **Data da competição** e a **Colocação** (1º / 2º / 3º)
+   <sub><em>Search the **Aluno** (student) by name, fill in **Competição** (competition), **Data da competição** (date) and **Colocação** (placement: 1st / 2nd / 3rd)</em></sub>
+3. Toque em **"Registrar"** — o resultado já entra **aprovado**, com pontos no ranking e XP para o aluno
+   <sub><em>Tap **"Registrar"** — the result is **approved** right away, with ranking points and XP for the student</em></sub>
+
+> Toda academia começa com a temporada **"Ranking <ano>"** (1º = 10, 2º = 7, 3º = 5 pts). A temporada de cada resultado é escolhida pela data da competição.
+> <sub><em>Every academy starts with a "Ranking <year>" season (1st = 10, 2nd = 7, 3rd = 5 pts). Each result's season is picked from the competition date.</em></sub>
+
 ### Ver o Ranking
 <sub><em>View Leaderboard</em></sub>
 
