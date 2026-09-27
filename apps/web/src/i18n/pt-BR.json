@@ -296,6 +296,35 @@
         "rejected": "Recusado"
       },
       "carriedOver": "Acumulado"
+    },
+    "control": {
+      "filter": {
+        "pending": "Pendentes",
+        "approved": "Aprovados",
+        "rejected": "Recusados",
+        "all": "Todos"
+      },
+      "adjustment": "Ajuste",
+      "adjust": "Ajustar pontos",
+      "adjustHelp": "Use número negativo para tirar pontos",
+      "adjusted": "Ajuste de pontos registrado",
+      "reason": "Motivo",
+      "points": "Pontos",
+      "pointsHelp": "Deixe como está para usar os pontos da temporada",
+      "pointsOverridden": "Pontos definidos manualmente",
+      "pointsNonZero": "Informe um número inteiro diferente de 0",
+      "noSeasonToday": "Nenhuma temporada ativa hoje",
+      "status": "Status",
+      "noPosition": "Sem colocação",
+      "editTitle": "Editar resultado",
+      "saved": "Resultado atualizado",
+      "deleteTitle": "Excluir resultado?",
+      "deleteConfirm": "Os pontos saem do ranking.",
+      "deleted": "Resultado excluído",
+      "recalculate": "Recalcular pontos",
+      "recalculateHelp": "Temporada salva. Recalcular aplica os novos pontos aos resultados aprovados, exceto ajustes e pontos definidos manualmente.",
+      "notNow": "Agora não",
+      "recalculated": "{{count}} resultados atualizados"
     }
   },
   "tournaments": {

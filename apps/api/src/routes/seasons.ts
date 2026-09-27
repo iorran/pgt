@@ -1,10 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { season, competitionResult, user, modality, studentModality } from '../db/schema/index.js';
-import { eq, and, sql, inArray } from 'drizzle-orm';
+import { eq, and, sql, inArray, isNotNull } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
-import { normalizePointsConfig, withRanks } from '../gamification/points.js';
+import { normalizePointsConfig, pointsForPosition, withRanks } from '../gamification/points.js';
+import { saveResult } from '../gamification/result-points.js';
 import { rankingCategory } from '../gamification/ranking-category.js';
 
 export async function seasonRoutes(app: FastifyInstance) {
@@ -50,6 +51,28 @@ export async function seasonRoutes(app: FastifyInstance) {
       .where(and(eq(season.id, id), eq(season.academyId, request.academyId)))
       .returning();
     return updated;
+  });
+
+  // Re-apply the season's points to approved podium results whose points were not typed (owner only)
+  app.post('/api/seasons/:id/recalculate', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const [found] = await db.select({ pointsConfig: season.pointsConfig }).from(season)
+      .where(and(eq(season.id, id), eq(season.academyId, request.academyId)));
+    if (!found) {
+      return reply.status(404).send({ error: 'Season not found' });
+    }
+    const rows = await db.select({ id: competitionResult.id, position: competitionResult.position })
+      .from(competitionResult)
+      .where(and(
+        eq(competitionResult.seasonId, id),
+        eq(competitionResult.status, 'approved'),
+        isNotNull(competitionResult.position),
+        eq(competitionResult.pointsOverridden, false),
+      ));
+    for (const row of rows) {
+      await saveResult(row.id, { pointsAwarded: pointsForPosition(found.pointsConfig as Record<string, unknown>, row.position) });
+    }
+    return { updated: rows.length };
   });
 
   // Leaderboard for a season

@@ -1,7 +1,7 @@
 # Ranking: owner control over points
 
 Date: 2026-09-27
-Status: In implementation
+Status: Implemented
 Glossary: [[CONTEXT|Glossary]] · Related: [[2026-09-27-results-ux-design|Results UX]], [[2026-09-27-kids-belts-design|Kids belts]]
 
 ## Problem

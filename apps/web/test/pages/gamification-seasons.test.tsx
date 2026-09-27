@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import SeasonsPage from '@/pages/gamification/seasons';
@@ -14,6 +14,7 @@ vi.mock('@/lib/api', () => ({
 
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { toast } from '@/lib/toast';
 
 const mockUseSession = vi.mocked(useSession);
 const mockApi = vi.mocked(api);
@@ -76,5 +77,51 @@ describe('SeasonsPage', () => {
     await user.click(screen.getByRole('button', { name: 'common.create' }));
     const post = mockApi.mock.calls.find(([, o]: any) => o?.method === 'POST');
     expect(JSON.parse((post![1] as any).body).pointsConfig).toEqual({ 1: 10, 2: 7, 3: 5 });
+  });
+
+  it('owner edits a season with PUT, then recalculates points with a toast', async () => {
+    const user = userEvent.setup();
+    const season = { id: 's1', name: 'S1', startDate: '2026-01-01', endDate: '2026-12-31', prize: 'Kimono', active: true, pointsConfig: { 1: 10, 2: 7, 3: 5 } };
+    mockApi.mockImplementation(async (path: string, opts?: any) => {
+      if (opts?.method === 'PUT') {
+        return season as any;
+      }
+      if (opts?.method === 'POST') {
+        return { updated: 4 } as any;
+      }
+      return [season] as any;
+    });
+    renderWithProviders(<SeasonsPage />);
+    await user.click(await screen.findByRole('button', { name: 'common.edit' }));
+    const name = await screen.findByLabelText('gamification.seasonName');
+    expect(name).toHaveValue('S1');
+    expect(screen.getByLabelText('gamification.prize')).toHaveValue('Kimono');
+    const first = screen.getByLabelText('gamification.first');
+    await user.clear(first);
+    await user.type(first, '12');
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/seasons/s1', expect.objectContaining({ method: 'PUT' })));
+    const put = mockApi.mock.calls.find(([, o]: any) => o?.method === 'PUT');
+    expect(JSON.parse((put![1] as any).body)).toMatchObject({
+      name: 'S1',
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
+      prize: 'Kimono',
+      pointsConfig: { 1: 12, 2: 7, 3: 5 },
+    });
+    expect(mockApi).not.toHaveBeenCalledWith('/seasons', expect.anything());
+
+    expect(await screen.findByText('gamification.control.recalculateHelp')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'gamification.control.recalculate' }));
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/seasons/s1/recalculate', expect.objectContaining({ method: 'POST' })));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('gamification.control.recalculated'));
+  });
+
+  it('students do not get the season edit button', async () => {
+    mockUseSession.mockReturnValue({ ...ownerSession, data: { user: { ...ownerSession.data.user, role: 'student' } } });
+    mockApi.mockResolvedValue([{ id: 's1', name: 'S1', startDate: '2026-01-01', endDate: '2026-12-31' }] as any);
+    renderWithProviders(<SeasonsPage />);
+    await screen.findByText('S1');
+    expect(screen.queryByRole('button', { name: 'common.edit' })).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db/client.js';
-import { competitionResult, xpEntry } from '../db/schema/index.js';
+import { competitionResult } from '../db/schema/index.js';
+import { saveResult } from './result-points.js';
 
 // Carried-over Points (docs/CONTEXT.md): points earned before the app, entered as one approved
 // ranking entry per student with no podium position. Idempotent per season + label + student.
@@ -34,11 +35,11 @@ export async function carryOverPoints(input: {
         competitionDate: input.date,
         position: null,
         status: 'approved',
-        pointsAwarded: points,
+        pointsOverridden: true,
         submittedBy: input.ownerId,
         reviewedBy: input.ownerId,
       }).returning({ id: competitionResult.id });
-      await tx.insert(xpEntry).values({ studentId, xpAmount: points * 10, sourceType: 'competition', sourceId: row.id });
+      await saveResult(row.id, { pointsAwarded: points }, tx);
     });
     created++;
   }
