@@ -5,6 +5,7 @@ import { eq, and } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { canActForStudent } from '../middleware/student-access.js';
+import { pointsForPosition } from '../gamification/points.js';
 
 // A competition result belongs to the academy of its season.
 async function findAcademyResult(id: string, academyId: string) {
@@ -85,8 +86,7 @@ export async function competitionResultRoutes(app: FastifyInstance) {
     const { result } = found;
 
     // 3. Calculate points from config
-    const pointsConfig = found.pointsConfig as Record<number, number>;
-    const points = pointsConfig[result.position] || 0;
+    const points = pointsForPosition(found.pointsConfig as Record<string, unknown>, result.position);
 
     // 4. Update result: approved + points
     const [updated] = await db.update(competitionResult)

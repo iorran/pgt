@@ -379,3 +379,82 @@ describe('end-to-end: submit -> approve -> verify', () => {
     expect(Number(leaderboard[0].totalPoints)).toBe(20);
   });
 });
+
+describe('season created from the web form (named points) through to the leaderboard', () => {
+  it('awards the configured points, XP and a ranked leaderboard entry', async () => {
+    const academy = await createTestAcademy();
+    const owner = await createTestOwner(academy.id);
+    const student = await createTestUser(academy.id, { name: 'Bia' });
+
+    // Exactly what the Temporadas form sends.
+    const seasonRes = await app.inject({
+      method: 'POST',
+      url: '/api/seasons',
+      headers: authHeaders(owner),
+      payload: {
+        name: '2026',
+        startDate: '2026-01-01',
+        endDate: '2026-12-31',
+        pointsConfig: { first: 10, second: 7, third: 5 },
+      },
+    });
+    expect(seasonRes.statusCode).toBe(201);
+    // Stored in the canonical position-keyed shape.
+    expect(seasonRes.json().pointsConfig).toEqual({ 1: 10, 2: 7, 3: 5 });
+
+    const submitRes = await app.inject({
+      method: 'POST',
+      url: '/api/competition-results',
+      headers: authHeaders(student),
+      payload: { seasonId: seasonRes.json().id, studentId: student.id, competitionName: 'Open Lisboa', competitionDate: '2026-09-20', position: 1 },
+    });
+    const approveRes = await app.inject({
+      method: 'PUT',
+      url: `/api/competition-results/${submitRes.json().id}/approve`,
+      headers: authHeaders(owner),
+    });
+    expect(approveRes.json().pointsAwarded).toBe(10);
+
+    const [xp] = await testDb.select().from(schema.xpEntry).where(eq(schema.xpEntry.studentId, student.id));
+    expect(xp.xpAmount).toBe(100);
+
+    const board = (await app.inject({
+      method: 'GET',
+      url: `/api/seasons/${seasonRes.json().id}/leaderboard`,
+      headers: authHeaders(student),
+    })).json();
+    expect(board).toEqual([expect.objectContaining({ rank: 1, studentName: 'Bia', totalPoints: 10 })]);
+  });
+
+  it('still awards points for seasons stored with named keys before the fix', async () => {
+    const academy = await createTestAcademy();
+    const owner = await createTestOwner(academy.id);
+    const student = await createTestUser(academy.id);
+    const [legacy] = await testDb.insert(schema.season).values({
+      academyId: academy.id, name: 'Legacy', startDate: '2026-01-01', endDate: '2026-12-31',
+      pointsConfig: { first: 10, second: 7, third: 5 } as any,
+    }).returning();
+    const [result] = await testDb.insert(schema.competitionResult).values({
+      seasonId: legacy.id, studentId: student.id, competitionName: 'X', competitionDate: '2026-05-01', position: 2, submittedBy: student.id,
+    }).returning();
+    const res = await app.inject({ method: 'PUT', url: `/api/competition-results/${result.id}/approve`, headers: authHeaders(owner) });
+    expect(res.json().pointsAwarded).toBe(7);
+  });
+
+  it('ranks ties together (competition ranking)', async () => {
+    const academy = await createTestAcademy();
+    const [s] = await testDb.insert(schema.season).values({
+      academyId: academy.id, name: 'S', startDate: '2026-01-01', endDate: '2026-12-31', pointsConfig: { 1: 10, 2: 7 },
+    }).returning();
+    const a = await createTestUser(academy.id, { name: 'A' });
+    const b = await createTestUser(academy.id, { name: 'B' });
+    const c = await createTestUser(academy.id, { name: 'C' });
+    await testDb.insert(schema.competitionResult).values([
+      { seasonId: s.id, studentId: a.id, competitionName: 'X', competitionDate: '2026-05-01', position: 1, submittedBy: a.id, status: 'approved', pointsAwarded: 10 },
+      { seasonId: s.id, studentId: b.id, competitionName: 'X', competitionDate: '2026-05-01', position: 1, submittedBy: b.id, status: 'approved', pointsAwarded: 10 },
+      { seasonId: s.id, studentId: c.id, competitionName: 'X', competitionDate: '2026-05-01', position: 2, submittedBy: c.id, status: 'approved', pointsAwarded: 7 },
+    ]);
+    const board = (await app.inject({ method: 'GET', url: `/api/seasons/${s.id}/leaderboard`, headers: authHeaders(a) })).json();
+    expect(board.map((e: any) => [e.studentName, e.rank, e.totalPoints])).toEqual([['A', 1, 10], ['B', 1, 10], ['C', 3, 7]]);
+  });
+});

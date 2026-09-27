@@ -18,8 +18,9 @@ interface Season {
 }
 
 interface LeaderboardEntry {
+  studentId: string;
   rank: number;
-  name: string;
+  studentName: string;
   belt: string;
   totalPoints: number;
 }
@@ -164,7 +165,7 @@ function LeaderboardList({ entries, t }: { entries: LeaderboardEntry[]; t: (key:
 
         return (
           <div
-            key={entry.rank}
+            key={entry.studentId}
             className={`flex items-center gap-4 px-4 rounded-sm border transition-all ${
               isChampion
                 ? 'py-5 border-primary/50 bg-primary/5 animate-glow'
@@ -181,7 +182,7 @@ function LeaderboardList({ entries, t }: { entries: LeaderboardEntry[]; t: (key:
             {/* Name + Belt */}
             <div className="flex-1 min-w-0">
               <span className={`font-heading ${isChampion ? 'text-xl' : 'text-base'} truncate block`}>
-                {entry.name}
+                {entry.studentName}
               </span>
             </div>
 

@@ -4,6 +4,7 @@ import { season, competitionResult, user } from '../db/schema/index.js';
 import { eq, and, sql } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
+import { normalizePointsConfig, withRanks } from '../gamification/points.js';
 
 export async function seasonRoutes(app: FastifyInstance) {
   // List seasons for academy
@@ -30,7 +31,7 @@ export async function seasonRoutes(app: FastifyInstance) {
       name: body.name,
       startDate: body.startDate,
       endDate: body.endDate,
-      pointsConfig: body.pointsConfig,
+      pointsConfig: normalizePointsConfig(body.pointsConfig),
       prizeDescription: body.prizeDescription,
     }).returning();
     return reply.status(201).send(created);
@@ -40,6 +41,9 @@ export async function seasonRoutes(app: FastifyInstance) {
   app.put('/api/seasons/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const { id } = request.params as { id: string };
     const body = request.body as any;
+    if (body.pointsConfig !== undefined) {
+      body.pointsConfig = normalizePointsConfig(body.pointsConfig);
+    }
     const [updated] = await db.update(season)
       .set({ ...body, id, academyId: request.academyId })
       .where(and(eq(season.id, id), eq(season.academyId, request.academyId)))
@@ -77,7 +81,7 @@ export async function seasonRoutes(app: FastifyInstance) {
     const KID_AGE_LIMIT = 16;
     const today = new Date();
 
-    return results.filter(r => {
+    const filtered = results.filter(r => {
       if (!r.dateOfBirth) return category !== 'kids';
       const age = Math.floor((today.getTime() - new Date(r.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
       const isKid = age < KID_AGE_LIMIT;
@@ -86,5 +90,6 @@ export async function seasonRoutes(app: FastifyInstance) {
       if (category === 'adults') return !isKid;
       return true;
     });
+    return withRanks(filtered.map((r) => ({ ...r, totalPoints: Number(r.totalPoints) })));
   });
 }

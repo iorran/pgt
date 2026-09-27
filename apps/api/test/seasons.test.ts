@@ -361,3 +361,18 @@ describe('GET /api/seasons/:id/leaderboard', () => {
     expect(body[0].belt).toBe('blue');
   });
 });
+
+describe('PUT /api/seasons/:id points', () => {
+  it('stores named points from the form in the position-keyed shape', async () => {
+    const academy = await createTestAcademy();
+    const owner = await createTestOwner(academy.id);
+    const [s] = await testDb.insert(schema.season).values({
+      academyId: academy.id, name: 'S', startDate: '2026-01-01', endDate: '2026-12-31', pointsConfig: { 1: 10 },
+    }).returning();
+    const res = await app.inject({
+      method: 'PUT', url: `/api/seasons/${s.id}`, headers: authHeaders(owner),
+      payload: { pointsConfig: { first: 12, second: 8, third: 4 } },
+    });
+    expect(res.json().pointsConfig).toEqual({ 1: 12, 2: 8, 3: 4 });
+  });
+});
