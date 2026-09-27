@@ -27,10 +27,11 @@ const mockSeasons = [
 ];
 
 const mockEntries = [
-  { rank: 1, name: 'Champion', belt: 'black', totalPoints: 500 },
-  { rank: 2, name: 'Runner Up', belt: 'brown', totalPoints: 400 },
-  { rank: 3, name: 'Third Place', belt: 'purple', totalPoints: 350 },
-  { rank: 4, name: 'Fourth', belt: 'blue', totalPoints: 200 },
+  // Real API shape: GET /api/seasons/:id/leaderboard
+  { studentId: 'p1', rank: 1, studentName: 'Champion', belt: 'black', totalPoints: 500 },
+  { studentId: 'p2', rank: 2, studentName: 'Runner Up', belt: 'brown', totalPoints: 400 },
+  { studentId: 'p3', rank: 3, studentName: 'Third Place', belt: 'purple', totalPoints: 350 },
+  { studentId: 'p4', rank: 4, studentName: 'Fourth', belt: 'blue', totalPoints: 200 },
 ];
 
 describe('LeaderboardPage', () => {

@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:reset": "tsx src/db/reset.ts",
     "db:seed": "tsx src/db/seed.ts",
+    "db:set-password": "tsx src/db/set-password.ts",
     "db:seed:guide": "tsx src/db/seed-guide.ts"
   },
   "dependencies": {

@@ -56,4 +56,25 @@ describe('SeasonsPage', () => {
     await user.type(screen.getByLabelText('gamification.startDate'), '2026-03-01');
     expect(screen.getByLabelText('gamification.endDate')).toHaveAttribute('min', '2026-03-01');
   });
+
+  it('sends points keyed by podium position and shows them from that shape', async () => {
+    const user = userEvent.setup();
+    mockApi.mockImplementation(async (path: string, opts?: any) => {
+      if (opts?.method === 'POST') {
+        return { id: 'new' } as any;
+      }
+      return [{ id: 's1', name: 'S1', startDate: '2026-01-01', endDate: '2026-12-31', active: true, pointsConfig: { 1: 12, 2: 8, 3: 4 } }] as any;
+    });
+    renderWithProviders(<SeasonsPage />);
+    expect(await screen.findByText(/gamification\.first: 12/)).toBeInTheDocument();
+    expect(screen.getByText(/gamification\.third: 4/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'gamification.createSeason' }));
+    await user.type(await screen.findByLabelText('gamification.seasonName'), 'Ranking 2027');
+    await user.type(screen.getByLabelText('gamification.startDate'), '2027-01-01');
+    await user.type(screen.getByLabelText('gamification.endDate'), '2027-12-31');
+    await user.click(screen.getByRole('button', { name: 'common.create' }));
+    const post = mockApi.mock.calls.find(([, o]: any) => o?.method === 'POST');
+    expect(JSON.parse((post![1] as any).body).pointsConfig).toEqual({ 1: 10, 2: 7, 3: 5 });
+  });
 });

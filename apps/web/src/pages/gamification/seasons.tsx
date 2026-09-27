@@ -30,7 +30,8 @@ interface Season {
   endDate: string;
   prize?: string;
   active?: boolean;
-  pointsConfig?: { first: number; second: number; third: number };
+  // Points per podium position, e.g. { 1: 10, 2: 7, 3: 5 }.
+  pointsConfig?: Record<number, number>;
 }
 
 function isSeasonActive(s: Season): boolean {
@@ -77,9 +78,9 @@ export default function SeasonsPage() {
         endDate: value.endDate,
         prize: value.prize,
         pointsConfig: {
-          first: Number(value.firstPoints),
-          second: Number(value.secondPoints),
-          third: Number(value.thirdPoints),
+          1: Number(value.firstPoints),
+          2: Number(value.secondPoints),
+          3: Number(value.thirdPoints),
         },
         academyId: user.academyId,
       };
@@ -269,11 +270,11 @@ export default function SeasonsPage() {
                   )}
                   {s.pointsConfig && (
                     <div className="flex flex-wrap items-center gap-3 text-sm font-mono">
-                      <span className="text-arena-gold">{t('gamification.first')}: {s.pointsConfig.first} {t('gamification.pointsShort')}</span>
+                      <span className="text-arena-gold">{t('gamification.first')}: {s.pointsConfig[1]} {t('gamification.pointsShort')}</span>
                       <span className="text-muted-foreground">|</span>
-                      <span className="text-arena-silver">{t('gamification.second')}: {s.pointsConfig.second} {t('gamification.pointsShort')}</span>
+                      <span className="text-arena-silver">{t('gamification.second')}: {s.pointsConfig[2]} {t('gamification.pointsShort')}</span>
                       <span className="text-muted-foreground">|</span>
-                      <span className="text-arena-bronze">{t('gamification.third')}: {s.pointsConfig.third} {t('gamification.pointsShort')}</span>
+                      <span className="text-arena-bronze">{t('gamification.third')}: {s.pointsConfig[3]} {t('gamification.pointsShort')}</span>
                     </div>
                   )}
                 </CardContent>
