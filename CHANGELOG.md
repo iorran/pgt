@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/iorran/pgt/compare/v1.11.0...v1.12.0) (2026-09-27)
+
+
+### Bug Fixes
+
+* ranking shows 0 points and no names for approved results ([c31b4dc](https://github.com/iorran/pgt/commit/c31b4dc1dce5ada35c995a1f20fc4ccdfd36206e))
+
+
+### Features
+
+* **api:** db:set-password recovery script ([a10ba69](https://github.com/iorran/pgt/commit/a10ba6996b2d6f8ce98758122c0f743b1551bb6f))
+
 # [1.11.0](https://github.com/iorran/pgt/compare/v1.10.0...v1.11.0) (2026-09-26)
 
 
