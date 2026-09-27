@@ -294,8 +294,7 @@
         "pending": "Pending",
         "approved": "Approved",
         "rejected": "Rejected"
-      },
-      "carriedOver": "Carried over"
+      }
     },
     "control": {
       "filter": {
@@ -318,8 +317,8 @@
       "noPosition": "No placement",
       "editTitle": "Edit result",
       "saved": "Result updated",
-      "deleteTitle": "Delete result?",
-      "deleteConfirm": "Its points leave the ranking.",
+      "deleteInline": "Delete this result? Its points leave the ranking.",
+      "actionsFor": "Actions for {{name}}",
       "deleted": "Result deleted",
       "recalculate": "Recalculate points",
       "recalculateHelp": "Season saved. Recalculating applies the new points to approved results, except adjustments and manually set points.",

@@ -70,8 +70,8 @@ Você precisa de um código de acesso do dono da academia (ex.: `PGT-PONTINHA-CM
    <sub><em>Under **"Tenho um código"** (I have a code), enter the code in the **"Código de Acesso"** (Access Code) field</em></sub>
 3. Toque em **"Continuar"** — o sistema identifica sua academia
    <sub><em>Tap **"Continuar"** (Continue) — the system identifies your academy</em></sub>
-4. Preencha seus dados: **Nome**, **E-mail**, **Senha** (mínimo de 8 caracteres) e **Faixa** (Branca, Azul, Roxa, Marrom ou Preta)
-   <sub><em>Fill in your details: **Nome** (name), **Email**, **Senha** (password, at least 8 characters), and **Faixa** (belt: White, Blue, Purple, Brown, or Black)</em></sub>
+4. Preencha seus dados: **Nome**, **E-mail**, **Senha** (mínimo de 8 caracteres) e **Faixa**. A lista de faixas é agrupada em **Adulto** (Branca, Azul, Roxa, Marrom, Preta) e **Infantil** (Cinza e branca, Cinza, Cinza e preta; Amarela e branca, Amarela, Amarela e preta; Laranja e branca, Laranja, Laranja e preta; Verde e branca, Verde, Verde e preta)
+   <sub><em>Fill in your details: **Nome** (name), **Email**, **Senha** (password, at least 8 characters), and **Faixa** (belt). The belt list is grouped into **Adulto** (Adult: White, Blue, Purple, Brown, Black) and **Infantil** (Kids: Grey-white, Grey, Grey-black; Yellow-white, Yellow, Yellow-black; Orange-white, Orange, Orange-black; Green-white, Green, Green-black)</em></sub>
 5. Toque em **"Continuar"** para enviar o cadastro
    <sub><em>Tap **"Continuar"** to submit your registration</em></sub>
 
@@ -296,6 +296,9 @@ Quando você competir em um campeonato, envie seu resultado para ganhar pontos.
 4. Acompanhe em **Progresso → Perfil → Meus resultados**: **Pendente** até o dono da academia revisar, depois **Aprovado +N pts** (conta no ranking e no XP) ou **Recusado**.
    <sub><em>Track it under **Progresso → Perfil → Meus resultados** (My results): **Pendente** (pending) until the owner reviews it, then **Aprovado +N pts** (approved, counts in the ranking and XP) or **Recusado** (rejected).</em></sub>
 
+Em **Meus resultados** também aparecem entradas lançadas pela academia sem colocação, marcadas como **Ajuste** — por exemplo, os **"Pontos acumulados até a Mafra Cup"** (os pontos que você já tinha no ranking antes do app) ou um ajuste com o motivo escrito pela academia. Pontos negativos aparecem com **−**.
+<sub><em>**Meus resultados** also lists entries added by the academy without a placement, marked **Ajuste** (Adjustment) — for example, **"Pontos acumulados até a Mafra Cup"** (the points you already had in the ranking before the app) or an adjustment with the reason the academy wrote. Negative points show with a **−**.</em></sub>
+
 ### Ranking
 <sub><em>Leaderboard</em></sub>
 
@@ -303,6 +306,9 @@ Quando você competir em um campeonato, envie seu resultado para ganhar pontos.
 
 Barra inferior → **Progresso** → aba **Classificação**. Veja onde você se posiciona em relação aos outros alunos. Escolha a temporada e filtre por categoria (**Adultos** / **Kids**) e, em Adultos, por faixa (**Todas as faixas** / Branca / Azul / Roxa / Marrom / Preta).
 <sub><em>Bottom nav → Progress → **Classificação** (Leaderboard) tab. See where you rank against other students. Pick the season and filter by category (**Adultos** / **Kids**) and, for adults, by belt (**Todas as faixas** / White / Blue / Purple / Brown / Black).</em></sub>
+
+Você aparece em **Kids** se tiver faixa infantil (Cinza, Amarela, Laranja ou Verde) e em **Adultos** se tiver faixa Azul, Roxa, Marrom ou Preta. Na faixa Branca, menores de 16 anos ficam em **Kids**. Se estiver na categoria errada, fale com a academia.
+<sub><em>You show under **Kids** if you have a kids belt (Grey, Yellow, Orange, or Green) and under **Adultos** with a Blue, Purple, Brown, or Black belt. On a White belt, under-16s are in **Kids**. If you're in the wrong category, talk to the academy.</em></sub>
 
 ## Loja
 <sub><em>Marketplace</em></sub>

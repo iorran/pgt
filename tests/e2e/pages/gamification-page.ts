@@ -17,12 +17,12 @@ export class GamificationResultsPage {
   }
 
   /**
-   * Results render as [data-slot="card"] cards, not table rows.
-   * Filter by student name text inside the card.
+   * Results render as compact list rows (<li>), not table rows.
+   * Filter by student name text inside the row.
    */
   resultCard(studentName: string) {
     return this.page
-      .locator('[data-slot="card"]')
+      .getByRole('listitem')
       .filter({ hasText: new RegExp(studentName, 'i') });
   }
 }

@@ -157,8 +157,8 @@ Quando um aluno entra com seu código, ele aparece como **Pendente**.
 ### Página do Aluno
 <sub><em>Student Page</em></sub>
 
-A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP e os cartões **Mensalidade**, **Treino**, **Meses isentos** e **Histórico de Pagamentos**.
-<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, and the Mensalidade (Monthly Fee), Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
+A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade**, o campo **Faixa** e os cartões **Treino**, **Meses isentos** e **Histórico de Pagamentos**.
+<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card, the Faixa (Belt) field, and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
 
 ### Definir a Mensalidade
 <sub><em>Set the Monthly Fee</em></sub>
@@ -185,11 +185,25 @@ Não existem planos: cada aluno tem a sua própria **Mensalidade**, digitada por
 Quando o aluno tem mensalidade, o botão **"Pagar Mês Atual"** aparece no cartão **Mensalidade**. Toque nele e confirme em **"Confirmar"** ("Registrar o pagamento do mês atual de …?") para registrar o mês corrente com o valor da mensalidade, sem sair da página.
 <sub><em>When the student has a Monthly Fee, the "Pagar Mês Atual" (Pay Current Month) button appears on the Mensalidade card. Tap it and confirm with "Confirmar" ("Record this month's payment for …?") to record the current month at the Monthly Fee, without leaving the page.</em></sub>
 
+### Mudar a Faixa
+<sub><em>Change the Belt</em></sub>
+
+Para registrar uma graduação, abaixo do cartão **Mensalidade**:
+<sub><em>To record a promotion, below the Mensalidade card:</em></sub>
+
+1. Escolha a nova faixa em **Faixa**. A lista é agrupada em **Adulto** (Branca, Azul, Roxa, Marrom, Preta) e **Infantil** (Cinza e branca, Cinza, Cinza e preta; Amarela e branca, Amarela, Amarela e preta; Laranja e branca, Laranja, Laranja e preta; Verde e branca, Verde, Verde e preta)
+   <sub><em>Pick the new belt under Faixa (Belt). The list is grouped into Adulto (Adult: White, Blue, Purple, Brown, Black) and Infantil (Kids: Grey-white, Grey, Grey-black; Yellow-white, Yellow, Yellow-black; Orange-white, Orange, Orange-black; Green-white, Green, Green-black)</em></sub>
+2. Toque em **"Salvar faixa"** — aparece "Faixa atualizada"
+   <sub><em>Tap "Salvar faixa" (Save belt) — "Faixa atualizada" (Belt updated) appears</em></sub>
+
+A faixa define em qual ranking o aluno aparece (**Adultos** ou **Kids**) — veja **Gamificação → Categorias: Adultos e Kids**.
+<sub><em>The belt decides which ranking the student appears in (Adultos or Kids) — see Gamificação → Categories: Adults and Kids.</em></sub>
+
 ### Treino: Modalidades e Observação
 <sub><em>Training: Modalities and Note</em></sub>
 
-O cartão **Treino** registra o que o aluno treina. É apenas informativo: não muda o preço nem restringe o check-in.
-<sub><em>The Treino (Training) card records what the student trains. It is informational only: it doesn't change the price or restrict check-in.</em></sub>
+O cartão **Treino** registra o que o aluno treina. Não muda o preço nem restringe o check-in. A única exceção é a modalidade **Kids**, que coloca um aluno de faixa branca sem data de nascimento no ranking **Kids**.
+<sub><em>The Treino (Training) card records what the student trains. It doesn't change the price or restrict check-in. The only exception is the Kids modality, which puts a white-belt student without a birth date in the Kids ranking.</em></sub>
 
 1. Na página do aluno, marque as **Modalidades** que ele treina
    <sub><em>On the student page, tick the Modalidades (Modalities) they train</em></sub>
@@ -651,22 +665,56 @@ A página **Ranking** tem as abas **Classificação**, **Temporadas** e **Result
 4. Toque em **"Criar"** para salvar
    <sub><em>Tap "Criar" (Create) to save</em></sub>
 
-### Aprovar Resultados de Competição
-<sub><em>Approve Competition Results</em></sub>
+### Editar uma Temporada
+<sub><em>Edit a Season</em></sub>
 
-![Resultados pendentes — dono](./assets/user-guide/instructor/gamification-results-instructor.png)
+1. Menu → **Ranking** → aba **Temporadas** → **"Editar"** na temporada
+   <sub><em>Menu → Ranking → Temporadas tab → "Editar" (Edit) on the season</em></sub>
+2. Altere nome, datas, premiação ou a pontuação de 1º / 2º / 3º e toque em **"Salvar"**
+   <sub><em>Change the name, dates, prize, or the 1st / 2nd / 3rd points and tap "Salvar" (Save)</em></sub>
+3. Em seguida aparece **"Recalcular pontos"**: toque em **"Recalcular pontos"** para aplicar a nova pontuação aos resultados aprovados, ou em **"Agora não"** para manter os pontos como estão
+   <sub><em>Next, "Recalcular pontos" (Recalculate points) appears: tap "Recalcular pontos" to apply the new points to approved results, or "Agora não" (Not now) to keep points as they are</em></sub>
 
-Quando os alunos enviam resultados, você os analisa.
-<sub><em>When students submit results, you review them.</em></sub>
+> [!note] O que o recálculo não muda
+> O recálculo só mexe em resultados **aprovados** com colocação (1º / 2º / 3º). Ficam de fora os **ajustes de pontos** (incluindo os pontos acumulados) e os resultados com **pontos definidos manualmente**. Ao final aparece quantos resultados foram atualizados.
+> <sub><em>Recalculation only touches approved results with a placement (1st / 2nd / 3rd). Point adjustments (including carried-over points) and results with manually set points are skipped. At the end it shows how many results were updated.</em></sub>
 
-1. Menu → **Ranking** → aba **Resultados**
-   <sub><em>Menu → Ranking → Resultados (Results) tab</em></sub>
-2. Em **Resultados Pendentes**, escolha a temporada no seletor
-   <sub><em>Under Resultados Pendentes (Pending Results), pick the season in the selector</em></sub>
-3. Cada resultado mostra aluno, competição, data, colocação e pontos
-   <sub><em>Each result shows student, competition, date, placement, and points</em></sub>
-4. Toque em **"Aprovar"** para conceder os pontos ou **"Rejeitar"** para recusar
-   <sub><em>Tap "Aprovar" (Approve) to award the points or "Rejeitar" (Reject) to decline</em></sub>
+### Resultados de Competição
+<sub><em>Competition Results</em></sub>
+
+![Resultados — dono](./assets/user-guide/instructor/gamification-results-instructor.png)
+
+Menu → **Ranking** → aba **Resultados**. Escolha a temporada no seletor e filtre por status: **Pendentes** (padrão), **Aprovados**, **Recusados** ou **Todos**.
+<sub><em>Menu → Ranking → Resultados (Results) tab. Pick the season in the selector and filter by status: Pendentes (Pending, the default), Aprovados (Approved), Recusados (Rejected), or Todos (All).</em></sub>
+
+Cada resultado mostra aluno, competição, data, colocação (ou **Ajuste**, para ajustes de pontos), os pontos (quando aprovado) e o status.
+<sub><em>Each result shows student, competition, date, placement (or Ajuste — Adjustment — for point adjustments), the points (when approved), and the status.</em></sub>
+
+### Aprovar ou Rejeitar Resultados
+<sub><em>Approve or Reject Results</em></sub>
+
+Quando os alunos enviam resultados, eles aparecem em **Pendentes**. Toque em **"Aprovar"** para conceder os pontos (e o XP) ou **"Rejeitar"** para recusar.
+<sub><em>When students submit results, they show under Pendentes. Tap "Aprovar" (Approve) to award the points (and XP) or "Rejeitar" (Reject) to decline.</em></sub>
+
+### Editar um Resultado
+<sub><em>Edit a Result</em></sub>
+
+1. No resultado, toque em **⋯** → **"Editar"** — abre **Editar resultado**
+   <sub><em>On the result, tap ⋯ → "Editar" (Edit) — Editar resultado (Edit result) opens</em></sub>
+2. Altere **Competição**, **Data da competição**, **Colocação** (1º / 2º / 3º ou **Sem colocação**), **Status** (Pendente / Aprovado / Recusado) ou **Pontos**
+   <sub><em>Change Competição (Competition), Data da competição (Competition date), Colocação (Placement: 1st / 2nd / 3rd or Sem colocação — No placement), Status (Pending / Approved / Rejected), or Pontos (Points)</em></sub>
+3. Toque em **"Salvar"** — aparece "Resultado atualizado"
+   <sub><em>Tap "Salvar" (Save) — "Resultado atualizado" (Result updated) appears</em></sub>
+
+> [!note] Pontos
+> Deixe **Pontos** como está para usar os pontos da temporada: aprovado ganha os pontos da colocação; pendente ou recusado fica com 0. Se você digitar outro valor, ele é mantido mesmo que a pontuação da temporada mude depois — o resultado passa a mostrar **"Pontos definidos manualmente"**. O XP acompanha os pontos (pontos × 10, só quando aprovado; nunca fica negativo).
+> <sub><em>Leave Pontos as is to use the season's points: approved gets the placement's points; pending or rejected stays at 0. If you type another value, it is kept even if the season's points change later — the result then shows "Pontos definidos manualmente" (Points set manually). XP follows the points (points × 10, only when approved; never negative).</em></sub>
+
+### Excluir um Resultado
+<sub><em>Delete a Result</em></sub>
+
+No resultado, toque em **⋯** → **"Excluir"**. A própria linha pergunta **"Excluir este resultado? Os pontos saem do ranking."** — toque em **"Excluir"** para confirmar ou **"Cancelar"**. O XP daquele resultado também é removido.
+<sub><em>On the result, tap ⋯ → "Excluir" (Delete). The row itself asks "Excluir este resultado? Os pontos saem do ranking." (Delete this result? Its points leave the ranking) — tap "Excluir" to confirm or "Cancelar" (Cancel). That result's XP is removed too.</em></sub>
 
 ### Registrar um Resultado
 <sub><em>Register a Result</em></sub>
@@ -684,6 +732,28 @@ Para registrar você mesmo um campeonato de um aluno (ex.: ele contou na academi
 > Toda academia começa com a temporada **"Ranking <ano>"** (1º = 10, 2º = 7, 3º = 5 pts). A temporada de cada resultado é escolhida pela data da competição.
 > <sub><em>Every academy starts with a "Ranking <year>" season (1st = 10, 2nd = 7, 3rd = 5 pts). Each result's season is picked from the competition date.</em></sub>
 
+### Ajustar Pontos
+<sub><em>Adjust Points</em></sub>
+
+Para dar ou tirar pontos por outro motivo que não um campeonato:
+<sub><em>To give or remove points for a reason other than a championship:</em></sub>
+
+1. Menu → **Ranking** → aba **Resultados** → **"Ajustar pontos"** (ou pela Classificação — veja abaixo)
+   <sub><em>Menu → Ranking → Resultados (Results) tab → "Ajustar pontos" (Adjust points) (or from the Leaderboard — see below)</em></sub>
+2. Busque o **Aluno** pelo nome e digite os **Pontos**: positivo para dar, **negativo para tirar** (ex.: `-3`). Não pode ser 0
+   <sub><em>Search the Aluno (Student) by name and type the Pontos (Points): positive to give, negative to remove (e.g. `-3`). It can't be 0</em></sub>
+3. Preencha o **Motivo** e toque em **"Salvar"** — aparece "Ajuste de pontos registrado"
+   <sub><em>Fill in Motivo (Reason) and tap "Salvar" (Save) — "Ajuste de pontos registrado" (Point adjustment saved) appears</em></sub>
+
+O ajuste entra **aprovado** na temporada ativa hoje, sem colocação, e aparece na lista como **Ajuste** com o motivo no lugar da competição. Ajustes positivos também dão XP; ajustes negativos tiram pontos do ranking, mas o XP nunca fica negativo. Sem temporada ativa hoje, aparece "Nenhuma temporada ativa hoje".
+<sub><em>The adjustment is entered as approved in today's active season, without a placement, and shows in the list as Ajuste (Adjustment) with the reason in place of the competition. Positive adjustments also give XP; negative ones remove ranking points, but XP never goes negative. With no season active today, "Nenhuma temporada ativa hoje" (No active season today) appears.</em></sub>
+
+### Pontos Acumulados
+<sub><em>Carried-over Points</em></sub>
+
+Os pontos que os alunos já tinham antes do app (planilha do ranking até a Mafra Cup) foram importados como um ajuste por aluno: **"Pontos acumulados até a Mafra Cup"**. Na aba **Resultados**, na página de pontos do aluno e em **Meus resultados** do aluno ele aparece como **Ajuste**, com o nome "Pontos acumulados até a Mafra Cup". Pode ser editado ou excluído como qualquer resultado.
+<sub><em>Points students already had before the app (the ranking sheet up to the Mafra Cup) were imported as one adjustment per student: "Pontos acumulados até a Mafra Cup" (Points carried over up to the Mafra Cup). In the Resultados tab, the student's points page and the student's Meus resultados (My results) it shows as Ajuste (Adjustment), named "Pontos acumulados até a Mafra Cup". It can be edited or deleted like any result.</em></sub>
+
 ### Ver o Ranking
 <sub><em>View Leaderboard</em></sub>
 
@@ -691,6 +761,29 @@ Para registrar você mesmo um campeonato de um aluno (ex.: ele contou na academi
 
 Menu → **Ranking** → aba **Classificação**. Escolha a temporada, a categoria (**Adultos** / **Kids**) e, em Adultos, a faixa (**Todas as faixas** / Branca / Azul / Roxa / Marrom / Preta).
 <sub><em>Menu → Ranking → Classificação (Leaderboard) tab. Pick the season, the category (Adultos / Kids — Adults / Kids) and, for adults, the belt (Todas as faixas / All belts, White, Blue, Purple, Brown, Black).</em></sub>
+
+Toque em um aluno para abrir a **página de pontos dele**: faixa, total na temporada e **todas as entradas** que formam os pontos (resultados, ajustes e pontos acumulados), cada uma com **⋯** → **"Editar"** / **"Excluir"**, e o botão **"Ajustar pontos"** já com o aluno escolhido. Use a seta **←** para voltar ao ranking.
+<sub><em>Tap a student to open their **points page**: belt, season total and **every entry** behind their points (results, adjustments, and carried-over points), each with ⋯ → "Editar" (Edit) / "Excluir" (Delete), plus the "Ajustar pontos" (Adjust points) button with the student already picked. Use the ← arrow to go back to the ranking.</em></sub>
+
+### Categorias: Adultos e Kids
+<sub><em>Categories: Adults and Kids</em></sub>
+
+A categoria de cada aluno vem da faixa:
+<sub><em>Each student's category comes from their belt:</em></sub>
+
+- **Faixa adulta** (Azul, Roxa, Marrom, Preta) → **Adultos**
+  <sub><em>Adult belt (Blue, Purple, Brown, Black) → Adultos</em></sub>
+- **Faixa infantil** (Cinza, Amarela, Laranja, Verde e variações) → **Kids**
+  <sub><em>Kids belt (Grey, Yellow, Orange, Green and their variations) → Kids</em></sub>
+- **Faixa Branca** → **Kids** se tiver menos de 16 anos (quando a data de nascimento é conhecida); sem data de nascimento, **Kids** se tiver a modalidade **Kids**, senão **Adultos**
+  <sub><em>White belt → Kids if under 16 (when the birth date is known); without a birth date, Kids if tagged with the Kids modality, otherwise Adultos</em></sub>
+
+Adolescentes com faixa adulta ou branca competem em **Adultos**. Para corrigir uma exceção de faixa branca, marque ou desmarque a modalidade **Kids** no cartão **Treino** do aluno; para os demais, mude a **Faixa**.
+<sub><em>Teenagers on adult or white belts rank with Adultos. To fix a white-belt exception, tick or untick the Kids modality on the student's Treino (Training) card; for everyone else, change the Faixa (Belt).</em></sub>
+
+> [!warning]
+> A regra usa a modalidade com o nome exato **Kids** — se renomeá-la em Configurações, os alunos de faixa branca sem data de nascimento passam para **Adultos**.
+> <sub><em>The rule uses the modality named exactly Kids — if you rename it in Settings, white-belt students without a birth date move to Adultos.</em></sub>
 
 ## Campeonatos
 <sub><em>Tournaments</em></sub>

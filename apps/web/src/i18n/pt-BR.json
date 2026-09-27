@@ -294,8 +294,7 @@
         "pending": "Pendente",
         "approved": "Aprovado",
         "rejected": "Recusado"
-      },
-      "carriedOver": "Acumulado"
+      }
     },
     "control": {
       "filter": {
@@ -318,8 +317,8 @@
       "noPosition": "Sem colocação",
       "editTitle": "Editar resultado",
       "saved": "Resultado atualizado",
-      "deleteTitle": "Excluir resultado?",
-      "deleteConfirm": "Os pontos saem do ranking.",
+      "deleteInline": "Excluir este resultado? Os pontos saem do ranking.",
+      "actionsFor": "Ações para {{name}}",
       "deleted": "Resultado excluído",
       "recalculate": "Recalcular pontos",
       "recalculateHelp": "Temporada salva. Recalcular aplica os novos pontos aos resultados aprovados, exceto ajustes e pontos definidos manualmente.",

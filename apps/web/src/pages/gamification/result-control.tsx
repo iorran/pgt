@@ -1,24 +1,23 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { useApiQuery } from '@/hooks/use-api';
-import { formatDate, todayYmd } from '@/lib/format';
-import { Card, CardContent } from '@/components/ui/card';
+import { formatDate, signedPoints, todayYmd } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MoreHorizontal } from 'lucide-react';
 import { POSITION_STYLES } from './submit-result-dialog';
 
 export interface CompetitionResult {
@@ -34,9 +33,9 @@ export interface CompetitionResult {
 }
 
 const POSITION_KEYS: Record<number, string> = {
-  1: 'gamification.first',
-  2: 'gamification.second',
-  3: 'gamification.third',
+  1: 'gamification.results.first',
+  2: 'gamification.results.second',
+  3: 'gamification.results.third',
 };
 
 const STATUSES = ['pending', 'approved', 'rejected'] as const;
@@ -50,57 +49,128 @@ export function invalidateRanking(queryClient: QueryClient) {
   }
 }
 
-// One result/adjustment row. `actions` holds page-specific buttons (approve/reject).
-export function ResultCard({ result: r, showStudent, actions }: { result: CompetitionResult; showStudent?: boolean; actions?: ReactNode }) {
+// One dense result/adjustment row. `actions` holds page-specific primary buttons (approve/reject).
+export function ResultRow({ result: r, showStudent, actions }: { result: CompetitionResult; showStudent?: boolean; actions?: ReactNode }) {
   const { t, i18n } = useTranslation();
-  const points = r.pointsAwarded ?? 0;
+  const [editing, setEditing] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const menuRef = useRef<HTMLButtonElement>(null);
+
+  function cancelDelete() {
+    setConfirmDelete(false);
+    // Back to the row's own menu button, so keyboard users don't lose their place.
+    requestAnimationFrame(() => menuRef.current?.focus());
+  }
+
   return (
-    <Card className="rounded-sm">
-      <CardContent className="p-4 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            {showStudent && <p className="font-heading text-base">{r.studentName || '-'}</p>}
-            <p className="text-sm text-muted-foreground">{r.competitionName}</p>
-            <p className="text-xs font-mono text-muted-foreground">{formatDate(r.date, i18n.language)}</p>
+    <li className="rounded-sm border border-border bg-card px-3 py-2">
+      {confirmDelete ? (
+        <DeleteConfirm result={r} showStudent={showStudent} onCancel={cancelDelete} />
+      ) : (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="min-w-0 flex-1">
+            {showStudent && <p className="truncate font-heading text-sm">{r.studentName || '-'}</p>}
+            <p className="truncate text-sm text-muted-foreground" title={r.competitionName}>
+              {r.competitionName}
+            </p>
+            <p className="flex gap-2 text-xs text-muted-foreground">
+              <span className="font-mono">{formatDate(r.date, i18n.language)}</span>
+              <span>{t(`gamification.results.status.${r.status}`)}</span>
+            </p>
           </div>
-          <Badge className={r.position ? POSITION_STYLES[r.position] || '' : ''} variant={r.position ? 'default' : 'outline'}>
-            {r.position
-              ? POSITION_KEYS[r.position]
-                ? t(POSITION_KEYS[r.position])
-                : t('gamification.positionN', { position: r.position })
-              : t('gamification.control.adjustment')}
+          <Badge className={`shrink-0 ${r.position ? POSITION_STYLES[r.position] || '' : ''}`} variant={r.position ? 'default' : 'outline'}>
+            {r.position ? (POSITION_KEYS[r.position] ? t(POSITION_KEYS[r.position]) : `${r.position}º`) : t('gamification.control.adjustment')}
           </Badge>
           {r.status === 'approved' && (
-            <span className="arena-stat text-primary font-mono">
-              {points > 0 ? '+' : ''}
-              {points} {t('gamification.pointsShort')}
+            <span className="arena-stat shrink-0 font-mono text-sm text-primary">
+              {signedPoints(r.pointsAwarded ?? 0)} {t('gamification.pointsShort')}
             </span>
           )}
-          <Badge variant="secondary">{t(`gamification.results.status.${r.status}`)}</Badge>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              ref={menuRef}
+              render={<Button variant="ghost" size="icon" className="shrink-0" />}
+              aria-label={t('gamification.control.actionsFor', { name: r.competitionName })}
+            >
+              <MoreHorizontal className="size-5" aria-hidden />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-auto">
+              <DropdownMenuItem className="min-h-11" onClick={() => setEditing(true)}>
+                {t('common.edit')}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="min-h-11" variant="destructive" onClick={() => setConfirmDelete(true)}>
+                {t('common.delete')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {actions && <div className="flex w-full gap-2">{actions}</div>}
         </div>
-        <div className="flex flex-wrap gap-2">
-          {actions}
-          <EditResultDialog result={r} />
-          <DeleteResultDialog result={r} />
-        </div>
-      </CardContent>
-    </Card>
+      )}
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-heading uppercase tracking-wider">{t('gamification.control.editTitle')}</DialogTitle>
+          </DialogHeader>
+          <EditResultForm result={r} onDone={() => setEditing(false)} />
+        </DialogContent>
+      </Dialog>
+    </li>
   );
 }
 
-function EditResultDialog({ result }: { result: CompetitionResult }) {
+// Destructive confirm in place of the row (no second overlay). Escape cancels.
+function DeleteConfirm({ result, showStudent, onCancel }: { result: CompetitionResult; showStudent?: boolean; onCancel: () => void }) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const textId = useId();
+  const mutation = useMutation({
+    mutationFn: () => api(`/competition-results/${result.id}`, { method: 'DELETE' }),
+    onSuccess: () => invalidateRanking(queryClient),
+    meta: { successMessage: t('gamification.control.deleted'), silent: true },
+  });
+
+  // After the menu hands focus back to its (now gone) trigger.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => cancelRef.current?.focus());
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" variant="outline" />}>{t('common.edit')}</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="font-heading uppercase tracking-wider">{t('gamification.control.editTitle')}</DialogTitle>
-        </DialogHeader>
-        <EditResultForm result={result} onDone={() => setOpen(false)} />
-      </DialogContent>
-    </Dialog>
+    <div
+      role="alertdialog"
+      aria-labelledby={textId}
+      className="flex flex-wrap items-center gap-2"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          onCancel();
+        }
+      }}
+    >
+      <div className="min-w-0 flex-1">
+        {/* Which row is being deleted stays visible. */}
+        <p className="flex gap-2 text-xs text-muted-foreground">
+          {showStudent && <span className="shrink-0 font-heading">{result.studentName}</span>}
+          <span className="truncate" title={result.competitionName}>
+            {result.competitionName}
+          </span>
+        </p>
+        <p id={textId} className="text-sm">
+          {t('gamification.control.deleteInline')}
+        </p>
+      </div>
+      {mutation.isError && (
+        <p role="alert" className="w-full text-sm text-destructive">
+          {t('common.genericError')}
+        </p>
+      )}
+      <Button ref={cancelRef} variant="outline" onClick={onCancel}>
+        {t('common.cancel')}
+      </Button>
+      <Button variant="destructive" loading={mutation.isPending} onClick={() => mutation.mutate()}>
+        {t('common.delete')}
+      </Button>
+    </div>
   );
 }
 
@@ -204,49 +274,12 @@ function EditResultForm({ result, onDone }: { result: CompetitionResult; onDone:
   );
 }
 
-function DeleteResultDialog({ result }: { result: CompetitionResult }) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const mutation = useMutation({
-    mutationFn: () => api(`/competition-results/${result.id}`, { method: 'DELETE' }),
-    onSuccess: () => {
-      invalidateRanking(queryClient);
-      setOpen(false);
-    },
-    meta: { successMessage: t('gamification.control.deleted'), silent: true },
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" variant="ghost" className="text-destructive" />}>{t('common.delete')}</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('gamification.control.deleteTitle')}</DialogTitle>
-        </DialogHeader>
-        <p className="text-sm text-muted-foreground">{t('gamification.control.deleteConfirm')}</p>
-        {mutation.isError && (
-          <p role="alert" className="text-sm text-destructive">
-            {t('common.genericError')}
-          </p>
-        )}
-        <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>{t('common.cancel')}</DialogClose>
-          <Button variant="destructive" loading={mutation.isPending} onClick={() => mutation.mutate()}>
-            {t('common.confirm')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 interface Student {
   id: string;
   name: string;
 }
 
-// Point Adjustment ("Ajuste de pontos"). With `student` the student is fixed (breakdown); otherwise searched.
+// Point Adjustment ("Ajuste de pontos"). With `student` the student is fixed (student page); otherwise searched.
 export function AdjustPointsDialog({ student, className }: { student?: Student; className?: string }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -369,49 +402,5 @@ function AdjustPointsForm({ student, onDone }: { student?: Student; onDone: () =
         {t('common.save')}
       </Button>
     </form>
-  );
-}
-
-// Every entry behind a student's ranking points (owner).
-export function StudentBreakdownDialog({
-  seasonId,
-  student,
-  onClose,
-}: {
-  seasonId: string;
-  student: Student | null;
-  onClose: () => void;
-}) {
-  return (
-    <Dialog open={!!student} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="font-heading uppercase tracking-wider">{student?.name}</DialogTitle>
-        </DialogHeader>
-        {student && <BreakdownList seasonId={seasonId} student={student} />}
-        {student && <AdjustPointsDialog student={student} className="w-full" />}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function BreakdownList({ seasonId, student }: { seasonId: string; student: Student }) {
-  const { t } = useTranslation();
-  const { data: entries = [], isLoading } = useApiQuery<CompetitionResult[]>(
-    ['competition-results', seasonId, 'student', student.id],
-    `/competition-results?seasonId=${seasonId}&studentId=${student.id}`,
-  );
-  if (isLoading) {
-    return <p className="text-muted-foreground">{t('common.loading')}</p>;
-  }
-  if (entries.length === 0) {
-    return <p className="text-muted-foreground">{t('common.noResults')}</p>;
-  }
-  return (
-    <div className="space-y-3">
-      {entries.map((r) => (
-        <ResultCard key={r.id} result={r} />
-      ))}
-    </div>
   );
 }

@@ -11,7 +11,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { CalendarPlus } from 'lucide-react';
 import { GamificationTabs } from './gamification-tabs';
 import { SubmitResultDialog } from './submit-result-dialog';
-import { AdjustPointsDialog, ResultCard, invalidateRanking, type CompetitionResult } from './result-control';
+import { AdjustPointsDialog, ResultRow, invalidateRanking, type CompetitionResult } from './result-control';
 
 interface Season {
   id: string;
@@ -114,21 +114,21 @@ export default function ResultsPage() {
           {results.length === 0 ? (
             <p className="text-muted-foreground">{t('common.noResults')}</p>
           ) : (
-            <div className="space-y-3">
+            <ul className="space-y-2">
               {results.map((r) => {
                 const rowPending = approvalMutation.isPending && approvalMutation.variables?.resultId === r.id;
                 return (
-                  <ResultCard
+                  <ResultRow
                     key={r.id}
                     result={r}
                     showStudent
                     actions={
                       r.status === 'pending' && (
                         <>
-                          <Button size="sm" disabled={rowPending} loading={rowPending && approvalMutation.variables?.status === 'approved'} onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'approved' })}>
+                          <Button size="sm" className="flex-1 sm:flex-none" disabled={rowPending} loading={rowPending && approvalMutation.variables?.status === 'approved'} onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'approved' })}>
                             {t('gamification.approve')}
                           </Button>
-                          <Button size="sm" variant="destructive" disabled={rowPending} loading={rowPending && approvalMutation.variables?.status === 'rejected'} onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'rejected' })}>
+                          <Button size="sm" variant="destructive" className="flex-1 sm:flex-none" disabled={rowPending} loading={rowPending && approvalMutation.variables?.status === 'rejected'} onClick={() => approvalMutation.mutate({ resultId: r.id, status: 'rejected' })}>
                             {t('gamification.reject')}
                           </Button>
                         </>
@@ -137,7 +137,7 @@ export default function ResultsPage() {
                   />
                 );
               })}
-            </div>
+            </ul>
           )}
         </div>
       )}
