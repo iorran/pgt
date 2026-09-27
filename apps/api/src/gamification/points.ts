@@ -16,8 +16,8 @@ export function normalizePointsConfig(input: Record<string, unknown> | null | un
   return out;
 }
 
-export function pointsForPosition(config: Record<string, unknown> | null | undefined, position: number): number {
-  return normalizePointsConfig(config)[position] ?? 0;
+export function pointsForPosition(config: Record<string, unknown> | null | undefined, position: number | null): number {
+  return position === null ? 0 : normalizePointsConfig(config)[position] ?? 0;
 }
 
 // Competition ranking: ties share a rank and the next rank skips (10, 10, 7 → 1, 1, 3).

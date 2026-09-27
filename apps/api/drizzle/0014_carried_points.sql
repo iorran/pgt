@@ -1,0 +1,1 @@
+ALTER TABLE "competition_result" ALTER COLUMN "position" DROP NOT NULL;

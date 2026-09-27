@@ -99,6 +99,13 @@
       "when": 1790515702222,
       "tag": "0013_kids_belts",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790517543000,
+      "tag": "0014_carried_points",
+      "breakpoints": true
     }
   ]
 }

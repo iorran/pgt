@@ -36,6 +36,8 @@ const mockMine = [
   { id: 'r1', competitionName: 'Open Lisboa', competitionDate: '2026-09-20', position: 1, status: 'pending', pointsAwarded: 0, seasonName: 'S26' },
   { id: 'r2', competitionName: 'Copa Porto', competitionDate: '2026-08-10', position: 2, status: 'approved', pointsAwarded: 7, seasonName: 'S26' },
   { id: 'r3', competitionName: 'Taça Braga', competitionDate: '2026-07-05', position: 3, status: 'rejected', pointsAwarded: 0, seasonName: 'S26' },
+  // Carried-over Points: approved, no podium position.
+  { id: 'r4', competitionName: 'Pontos acumulados até a Mafra Cup', competitionDate: '2026-09-27', position: null, status: 'approved', pointsAwarded: 31, seasonName: 'S26' },
 ];
 
 function mockApiFor(profile: unknown, mine: unknown) {
@@ -113,5 +115,14 @@ describe('GamificationProfilePage', () => {
     expect(await screen.findByText('gamification.results.empty')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'gamification.results.submit' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'gamification.results.submit' })).not.toBeInTheDocument();
+  });
+
+  it('shows carried-over points without a podium position', async () => {
+    mockApiFor(mockProfile, mockMine);
+    renderWithProviders(<GamificationProfilePage />);
+    const item = (await screen.findByText('Pontos acumulados até a Mafra Cup')).closest('li')!;
+    expect(item).toHaveTextContent('gamification.results.carriedOver');
+    expect(item).toHaveTextContent('+31');
+    expect(item).not.toHaveTextContent(/gamification\.results\.(first|second|third)/);
   });
 });
