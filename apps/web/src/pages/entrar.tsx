@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { beltKey } from '@/lib/belts';
+import { BeltOptions } from '@/components/belt-options';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -201,11 +201,7 @@ export default function EntrarPage() {
                     onBlur={field.handleBlur}
                     className="bg-secondary border border-border text-foreground rounded-sm px-2.5 min-h-11 w-full font-body"
                   >
-                    {['white', 'blue', 'purple', 'brown', 'black'].map((b) => (
-                      <option key={b} value={b}>
-                        {t(beltKey(b))}
-                      </option>
-                    ))}
+                    <BeltOptions />
                   </select>
                 </div>
               )}

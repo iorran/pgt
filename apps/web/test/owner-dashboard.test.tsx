@@ -111,6 +111,7 @@ describe('ClassesList expansion', () => {
     const row = await screen.findByRole('button', { name: /no-gi.*10/i });
     fireEvent.click(row);
     await waitFor(() => expect(screen.getByText('João')).toBeInTheDocument());
+    expect(screen.getByText('· belts.blue')).toBeInTheDocument();
     expect(screen.getByTestId('occurrence-chart')).toBeInTheDocument();
   });
 

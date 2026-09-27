@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useApiQuery } from '@/hooks/use-api';
+import { beltKey } from '@/lib/belts';
 
 type ClassType = 'gi' | 'no-gi' | 'open-mat' | 'kids';
 
@@ -214,7 +215,7 @@ function ClassExpansion({
           {roster?.students.map((s) => (
             <li key={s.id}>
               <span>{s.name}</span>
-              <span className="text-muted-foreground"> · {s.belt}</span>
+              <span className="text-muted-foreground"> · {t(beltKey(s.belt))}</span>
             </li>
           ))}
           {roster && roster.students.length === 0 && (

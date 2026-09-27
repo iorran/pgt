@@ -75,7 +75,7 @@ describe('StudentDetailPage', () => {
 
   it('translates the belt, hides placeholder .local emails and formats money in EUR', async () => {
     renderPage();
-    expect(await screen.findByText('belts.blue')).toBeInTheDocument();
+    expect(await screen.findByText('belts.blue', { ignore: 'option' })).toBeInTheDocument();
     expect(screen.queryByText('ana@import.local')).toBeNull();
     expect(screen.getAllByText(/45,00\s€/).length).toBeGreaterThan(0);
   });
@@ -216,5 +216,35 @@ describe('StudentDetailPage', () => {
         body: JSON.stringify({ month: '2026-10', reason: 'Férias' }),
       }),
     );
+  });
+
+  it('lets the owner change the belt (grouped Infantil / Adulto) and toasts', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const select = await screen.findByLabelText('students.belt');
+    expect(select).toHaveValue('blue');
+    expect(screen.getByRole('group', { name: 'beltGroups.kids' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'beltGroups.adult' })).toBeInTheDocument();
+    await user.selectOptions(select, 'orange-white');
+    await user.click(screen.getByRole('button', { name: 'students.beltForm.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/students/s1/belt', {
+        method: 'PUT',
+        body: JSON.stringify({ belt: 'orange-white' }),
+      }),
+    );
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('students.beltForm.saved'));
+  });
+
+  it('shows a kids belt badge translated and hides the belt control from students', async () => {
+    vi.mocked(useSession).mockReturnValue({
+      ...session,
+      data: { user: { ...session.data.user, role: 'student' } },
+    });
+    student = { ...baseStudent, belt: 'grey-black' };
+    renderPage();
+    expect(await screen.findByText('belts.grey-black')).toBeInTheDocument();
+    expect(screen.queryByLabelText('students.belt')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'students.beltForm.save' })).toBeNull();
   });
 });

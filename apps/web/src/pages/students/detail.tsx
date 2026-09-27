@@ -31,6 +31,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { beltClasses, beltKey } from '@/lib/belts';
+import { BeltOptions } from '@/components/belt-options';
 import { formatDate, formatMoney } from '@/lib/format';
 import { familyErrorKey, invalidateFamilyQueries } from '@/pages/students/families';
 
@@ -220,6 +221,8 @@ export default function StudentDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      {isOwner(user) && <BeltForm key={`${student.id}-${student.belt}`} studentId={student.id} belt={student.belt} />}
 
       {isOwner(user) && (
         <TrainingCard
@@ -430,6 +433,47 @@ function MonthlyFeeForm({
       </div>
       <Button type="submit" variant="outline" loading={mutation.isPending}>
         {t('students.fee.save')}
+      </Button>
+    </form>
+  );
+}
+
+function BeltForm({ studentId, belt }: { studentId: string; belt: string }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [value, setValue] = useState(belt);
+
+  const mutation = useMutation({
+    mutationFn: () => api(`/students/${studentId}/belt`, { method: 'PUT', body: JSON.stringify({ belt: value }) }),
+    meta: { successMessage: t('students.beltForm.saved') },
+    onSuccess: () => {
+      for (const key of ['student', 'students', 'leaderboard']) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
+    },
+  });
+
+  return (
+    <form
+      className="flex flex-wrap items-end gap-2"
+      onSubmit={e => {
+        e.preventDefault();
+        mutation.mutate();
+      }}
+    >
+      <div className="space-y-2">
+        <Label htmlFor="student-belt">{t('students.belt')}</Label>
+        <select
+          id="student-belt"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+        >
+          <BeltOptions />
+        </select>
+      </div>
+      <Button type="submit" variant="outline" loading={mutation.isPending}>
+        {t('students.beltForm.save')}
       </Button>
     </form>
   );

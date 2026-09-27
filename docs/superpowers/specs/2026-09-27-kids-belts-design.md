@@ -1,7 +1,7 @@
 # Kids belts and belt promotion
 
 Date: 2026-09-27
-Status: In implementation
+Status: Implemented
 Glossary: [[CONTEXT|Glossary]]
 
 ## Problem
