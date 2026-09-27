@@ -1,3 +1,12 @@
+# [1.14.0](https://github.com/iorran/pgt/compare/v1.13.0...v1.14.0) (2026-09-27)
+
+
+### Features
+
+* **api:** kids belts enum (migration 0013), spec ([3c997c0](https://github.com/iorran/pgt/commit/3c997c0da82b12d8c6c8aea2be160f18b17f11ad))
+* **api:** set a student's belt; import belts from the ranking sheet ([b53936d](https://github.com/iorran/pgt/commit/b53936d09fc0c42153911124c5f62a6cc8c2092e))
+* **web:** kids belts and belt promotion ([9652533](https://github.com/iorran/pgt/commit/96525333091c3a5906cf7830531c6f2b494afce6))
+
 # [1.13.0](https://github.com/iorran/pgt/compare/v1.12.0...v1.13.0) (2026-09-27)
 
 
