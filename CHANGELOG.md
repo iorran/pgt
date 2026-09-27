@@ -1,3 +1,11 @@
+# [1.13.0](https://github.com/iorran/pgt/compare/v1.12.0...v1.13.0) (2026-09-27)
+
+
+### Features
+
+* **api:** results — season from date, owner entries approved, my results ([71331ee](https://github.com/iorran/pgt/commit/71331ee8221ad0ffdf9f2159528dc206476a33ee))
+* **web:** results UX — Enviar Resultado on Ranking, Meus resultados, owner registers ([d36052d](https://github.com/iorran/pgt/commit/d36052d2367f4d46e7b74f354d8ada1ec849bfb9))
+
 # [1.12.0](https://github.com/iorran/pgt/compare/v1.11.0...v1.12.0) (2026-09-27)
 
 
