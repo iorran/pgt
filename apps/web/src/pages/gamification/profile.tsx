@@ -21,7 +21,7 @@ interface MyResult {
   id: string;
   competitionName: string;
   competitionDate: string;
-  position: number;
+  position: number | null; // null = Carried-over Points
   status: 'pending' | 'approved' | 'rejected';
   pointsAwarded: number;
 }
@@ -111,7 +111,7 @@ export default function GamificationProfilePage() {
                     <p className="text-xs font-mono text-muted-foreground">{formatDate(r.competitionDate, i18n.language)}</p>
                   </div>
                   <span className="font-heading shrink-0">
-                    {t(PODIUM[r.position - 1].key)}
+                    {r.position === null ? t('gamification.results.carriedOver') : t(PODIUM[r.position - 1].key)}
                   </span>
                   <Badge className={`shrink-0 ${STATUS_STYLES[r.status]}`}>
                     {t(`gamification.results.status.${r.status}`)}

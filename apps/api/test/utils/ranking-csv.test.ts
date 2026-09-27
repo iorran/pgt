@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseBeltText, parseRanking, matchStudent } from '../../src/db/ranking-csv';
+import { parseBeltText, parseRanking, matchStudent, isPromotion } from '../../src/db/ranking-csv';
 
 describe('parseBeltText', () => {
   it.each([
@@ -60,5 +60,15 @@ describe('matchStudent', () => {
   it('reports ambiguous and missing names instead of guessing', () => {
     expect(matchStudent('Guilherme', students)).toMatchObject({ status: 'ambiguous', candidates: [students[1], students[2]] });
     expect(matchStudent('Luna Silva', students)).toEqual({ status: 'none' });
+  });
+});
+
+describe('isPromotion', () => {
+  it('only moves belts forward in IBJJF order', () => {
+    expect(isPromotion('white', 'blue')).toBe(true);
+    expect(isPromotion('grey-white', 'grey')).toBe(true);
+    expect(isPromotion('orange-black', 'green-white')).toBe(true);
+    expect(isPromotion('grey', 'grey-white')).toBe(false); // manual promotion in the app wins over the sheet
+    expect(isPromotion('black', 'black')).toBe(false);
   });
 });

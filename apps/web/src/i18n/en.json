@@ -294,7 +294,8 @@
         "pending": "Pending",
         "approved": "Approved",
         "rejected": "Rejected"
-      }
+      },
+      "carriedOver": "Carried over"
     }
   },
   "tournaments": {

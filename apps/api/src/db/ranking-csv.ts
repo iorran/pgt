@@ -76,3 +76,9 @@ export function matchStudent(name: string, students: Candidate[]): Match {
   }
   return hits.length ? { status: 'ambiguous', candidates: hits } : { status: 'none' };
 }
+
+// beltEnum lists belts in IBJJF order, so a later index is a higher belt. The sheet may promote a
+// student but never demote one (a promotion made in the app after the sheet wins).
+export function isPromotion(from: Belt, to: Belt): boolean {
+  return beltEnum.enumValues.indexOf(to) > beltEnum.enumValues.indexOf(from);
+}

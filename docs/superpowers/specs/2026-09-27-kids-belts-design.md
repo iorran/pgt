@@ -16,3 +16,8 @@ The app only knew adult belts, but the academy's ranking (after the Mafra Cup) l
 ## API contract
 - `PUT /api/students/:id/belt` (owner, same academy) `{ belt }` → `{ id, belt }`; `400` for an unknown belt; `404` for another academy's student.
 - Belt values anywhere in API responses may now be any of the 17 values above.
+
+## Revision: ranking categories and carried-over points (2026-09-27)
+- **Ranking Category** (glossary): adult belt → Adultos; kids belt → Kids; white belt → Kids if under 16 by birth date or tagged with the Kids modality, else Adultos. Teenagers ("adolescente"/"juvenil") on adult or white belts rank with Adultos. The owner adjusts exceptions by changing the student's Kids modality.
+- **Carried-over Points** (glossary): the sheet's totals become one approved entry per student ("Pontos acumulados até a Mafra Cup"), with no podium position (`competition_result.position` nullable, migration 0014), in the season covering the import date. Shown as "Acumulado" in Meus resultados.
+- `db:import-ranking` (replaces `db:import-belts`): belts (promote only — never undoes a promotion made in the app) + carried-over points; idempotent; dry run unless `APPLY=1`. Unmatched rows: fix the student's name in the app, then re-run.

@@ -10,7 +10,8 @@ export const competitionResult = pgTable('competition_result', {
   studentId: uuid('student_id').notNull().references(() => user.id),
   competitionName: varchar('competition_name', { length: 255 }).notNull(),
   competitionDate: date('competition_date').notNull(),
-  position: integer('position').notNull(),
+  // Null for Carried-over Points (no podium position).
+  position: integer('position'),
   pointsAwarded: integer('points_awarded').default(0).notNull(),
   status: resultStatusEnum('status').default('pending').notNull(),
   submittedBy: uuid('submitted_by').notNull().references(() => user.id),
