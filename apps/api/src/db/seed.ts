@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { existsSync, readFileSync } from 'node:fs';
 import { eq } from 'drizzle-orm';
 import { db } from './client.js';
-import { academy, user, studentMembership, badgeDefinition, modality, studentModality } from './schema/index.js';
+import { academy, user, studentMembership, badgeDefinition, modality, studentModality, season } from './schema/index.js';
 import { auth } from '../auth/index.js';
 import { parseRoster, normalizeName, DEFAULT_MODALITIES } from './roster-csv.js';
 
@@ -106,6 +106,16 @@ async function seed() {
   } else {
     console.warn(`No roster at ${ROSTER_CSV}; seeded academy + owner only`);
   }
+
+  // Same as a new academy created in the app: a season for the current year so results count.
+  const year = new Date().getFullYear();
+  await db.insert(season).values({
+    academyId: acad.id,
+    name: `Ranking ${year}`,
+    startDate: `${year}-01-01`,
+    endDate: `${year}-12-31`,
+    pointsConfig: { 1: 10, 2: 7, 3: 5 },
+  });
 
   await db.insert(badgeDefinition).values([
     { academyId: acad.id, name: '100 Aulas', description: 'Completou 100 aulas', icon: '💯', criteriaType: 'classes_count', criteriaValue: 100 },

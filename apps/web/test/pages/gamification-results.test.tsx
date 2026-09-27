@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { renderWithProviders } from '../render';
+import { Routes, Route } from 'react-router-dom';
+import { renderWithProviders, renderWithRoute } from '../render';
 import ResultsPage from '@/pages/gamification/results';
 
 vi.mock('@/lib/auth-client', () => ({
@@ -42,14 +43,28 @@ describe('ResultsPage', () => {
     vi.clearAllMocks();
   });
 
-  it('shows result submission form for student', async () => {
+  it('redirects a student to the ranking', async () => {
     mockUseSession.mockReturnValue(studentSession);
-    mockApi.mockResolvedValueOnce(mockSeasons as any);
+    mockApi.mockResolvedValue([] as any);
+    renderWithRoute(
+      <Routes>
+        <Route path="/gamification" element={<p>ranking</p>} />
+        <Route path="/gamification/results" element={<ResultsPage />} />
+      </Routes>,
+      ['/gamification/results'],
+    );
+    expect(await screen.findByText('ranking')).toBeInTheDocument();
+    expect(screen.queryByLabelText('gamification.results.competition')).not.toBeInTheDocument();
+  });
+
+  it('owner gets a Registrar resultado button', async () => {
+    mockUseSession.mockReturnValue(instructorSession);
+    mockApi
+      .mockResolvedValueOnce(mockSeasons as any)
+      .mockResolvedValueOnce(mockPendingResults as any);
     renderWithProviders(<ResultsPage />);
-    await waitFor(() => {
-      expect(screen.getAllByText('gamification.submitResult').length).toBeGreaterThan(0);
-      expect(screen.getByText('gamification.competitionName')).toBeInTheDocument();
-    });
+    await screen.findByText('Carlos');
+    expect(screen.getByRole('button', { name: 'gamification.results.register' })).toBeInTheDocument();
   });
 
   it('shows pending results for instructor', async () => {

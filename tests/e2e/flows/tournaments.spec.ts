@@ -135,43 +135,21 @@ test('25. student submits a result and instructor approves it', async ({
     })
     .returning();
 
-  // Phase 1: Student submits a result via UI form
+  // Phase 1: Student opens "Enviar Resultado" from the top of the Ranking page (no season to pick)
   const studentContext = await impersonateAs(browser, student.email);
+  const pastDate = new Date();
+  pastDate.setDate(pastDate.getDate() - 7);
   try {
     const page = await studentContext.newPage();
-    await page.goto('/gamification/results');
-    // Wait for the page heading to confirm the page loaded
-    await expect(
-      page.getByRole('heading', { name: /resultados de competição/i }),
-    ).toBeVisible({ timeout: 10_000 });
-
-    // t('gamification.competitionName') = "Nome da Competição"
-    await page
-      .getByText(/nome da competição/i)
-      .locator('..')
-      .locator('input')
-      .fill('E2E Grand Prix');
-
-    // t('classes.date') = "Data"
-    const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - 7);
-    await page
-      .getByText(/^data$/i)
-      .locator('..')
-      .locator('input')
-      .fill(pastDate.toISOString().slice(0, 10));
-
-    // Select position 1º Lugar (already default but click to be sure)
-    // t('gamification.first') = "1º Lugar"
-    await page.getByRole('button', { name: /1º lugar/i }).click();
-
-    // t('common.save') = "Salvar"
-    await page.getByRole('button', { name: /^salvar$/i }).click();
-
-    // t('gamification.resultSubmitted') = "Resultado enviado com sucesso!"
-    await expect(
-      page.getByText(/resultado enviado com sucesso/i),
-    ).toBeVisible({ timeout: 10_000 });
+    await page.goto('/gamification');
+    await page.getByRole('button', { name: /^enviar resultado$/i }).first().click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel(/^competição$/i).fill('E2E Grand Prix');
+    await dialog.getByLabel(/data da competição/i).fill(pastDate.toISOString().slice(0, 10));
+    await dialog.locator('label').filter({ hasText: '1º' }).click();
+    await dialog.getByRole('button', { name: /^enviar$/i }).click();
+    // t('gamification.results.submitted')
+    await expect(page.getByText(/aguarda aprovação da academia/i)).toBeVisible({ timeout: 10_000 });
   } finally {
     await studentContext.close();
   }
@@ -194,5 +172,54 @@ test('25. student submits a result and instructor approves it', async ({
     await expect(card).not.toBeVisible({ timeout: 10_000 });
   } finally {
     await instructorContext.close();
+  }
+
+  // Phase 3: the approved result counts — ranking row with name and points, and "Aprovado" for the student
+  const checkContext = await impersonateAs(browser, student.email);
+  try {
+    const page = await checkContext.newPage();
+    await page.goto('/gamification');
+    await expect(page.getByText(student.name)).toBeVisible({ timeout: 10_000 });
+    await expect(
+      page.locator('div').filter({ hasText: student.name }).filter({ hasText: /100\s*pts/i }).last(),
+    ).toBeVisible();
+    await page.goto('/gamification/profile');
+    await expect(page.getByText(/aprovado \+100 pts/i)).toBeVisible({ timeout: 10_000 });
+  } finally {
+    await checkContext.close();
+  }
+});
+
+test('26. owner registers a result that counts immediately', async ({ browser }) => {
+  const setup = await setupAcademy();
+  academy = setup.academy;
+  const student = await createStudent(setup.academy.id, { name: 'E2E Podium Owner Entry' });
+  const now = new Date();
+  await e2eDb.insert(schema.season).values({
+    academyId: setup.academy.id,
+    name: 'E2E Season',
+    startDate: `${now.getFullYear()}-01-01`,
+    endDate: `${now.getFullYear()}-12-31`,
+    pointsConfig: { 1: 100, 2: 60, 3: 30 },
+    active: true,
+  });
+
+  const ownerContext = await impersonateAs(browser, setup.instructor.email);
+  try {
+    const page = await ownerContext.newPage();
+    await page.goto('/gamification/results');
+    await page.getByRole('button', { name: /^registrar resultado$/i }).first().click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByLabel(/^aluno$/i).fill(student.name);
+    await dialog.getByLabel(/^competição$/i).fill('E2E Europeu');
+    await dialog.getByLabel(/data da competição/i).fill(`${now.getFullYear()}-01-15`);
+    await dialog.locator('label').filter({ hasText: '2º' }).click();
+    await dialog.getByRole('button', { name: /^registrar$/i }).click();
+    await expect(page.getByText(/resultado registrado e aprovado/i)).toBeVisible({ timeout: 10_000 });
+
+    await page.goto('/gamification');
+    await expect(page.getByText(student.name)).toBeVisible({ timeout: 10_000 });
+  } finally {
+    await ownerContext.close();
   }
 });

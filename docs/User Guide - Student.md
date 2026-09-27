@@ -278,27 +278,23 @@ Barra inferior → **Progresso** (abre a aba **Perfil**, página **Perfil de Gam
 ### Enviar Resultados de Competição
 <sub><em>Submit Competition Results</em></sub>
 
-![Formulário de envio de resultado de competição](./assets/user-guide/student/gamification-results-student.png)
-
 Quando você competir em um campeonato, envie seu resultado para ganhar pontos.
 <sub><em>When you compete in a tournament, submit your result for points.</em></sub>
 
-1. Barra inferior → **Progresso** → aba **Perfil**
-   <sub><em>Bottom nav → Progress → **Perfil** (Profile) tab</em></sub>
-2. Toque em **"Enviar Resultado"** — abre a página **Resultados de Competição**
-   <sub><em>Tap **"Enviar Resultado"** (Submit Result) — it opens the **Resultados de Competição** (Competition Results) page</em></sub>
-3. Preencha o formulário:
-   <sub><em>Fill in the form:</em></sub>
-   - **Temporada**: selecione a temporada
-     <sub><em>**Temporada**: select the season</em></sub>
-   - **Nome da Competição**: nome do campeonato
-     <sub><em>**Nome da Competição**: tournament name</em></sub>
-   - **Data**: data em que o campeonato ocorreu
-     <sub><em>**Data**: date the tournament took place</em></sub>
-   - **Colocação**: toque em **"1º Lugar"**, **"2º Lugar"** ou **"3º Lugar"**
-     <sub><em>**Colocação**: tap **"1º Lugar"**, **"2º Lugar"**, or **"3º Lugar"**</em></sub>
-4. Toque em **"Salvar"** — o dono da academia irá revisar e aprovar
-   <sub><em>Tap **"Salvar"** (Save) — the academy owner will review and approve it</em></sub>
+1. Barra inferior → **Progresso** → toque em **"Enviar Resultado"** no topo da **Classificação** (o mesmo botão está na aba **Perfil**)
+   <sub><em>Bottom nav → Progress → tap **"Enviar Resultado"** (Submit Result) at the top of **Classificação** (Leaderboard); the same button is on the **Perfil** (Profile) tab</em></sub>
+2. Preencha:
+   <sub><em>Fill in:</em></sub>
+   - **Competição**: nome do campeonato
+     <sub><em>**Competição**: tournament name</em></sub>
+   - **Data da competição**: quando aconteceu
+     <sub><em>**Data da competição**: when it took place</em></sub>
+   - **Colocação**: toque em 🥇 **1º**, 🥈 **2º** ou 🥉 **3º** (só pódio conta pontos)
+     <sub><em>**Colocação**: tap 1º, 2º or 3º (only podium places score points)</em></sub>
+3. Toque em **"Enviar"**. A temporada é escolhida automaticamente pela data. Se aparecer *"Nenhuma temporada para esta data"*, fale com a academia.
+   <sub><em>Tap **"Enviar"** (Send). The season is picked automatically from the date. If you see "Nenhuma temporada para esta data" (no season for this date), talk to the academy.</em></sub>
+4. Acompanhe em **Progresso → Perfil → Meus resultados**: **Pendente** até o dono da academia revisar, depois **Aprovado +N pts** (conta no ranking e no XP) ou **Recusado**.
+   <sub><em>Track it under **Progresso → Perfil → Meus resultados** (My results): **Pendente** (pending) until the owner reviews it, then **Aprovado +N pts** (approved, counts in the ranking and XP) or **Recusado** (rejected).</em></sub>
 
 ### Ranking
 <sub><em>Leaderboard</em></sub>

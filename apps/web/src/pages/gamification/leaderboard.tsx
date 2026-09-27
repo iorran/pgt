@@ -8,7 +8,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { formatDate } from '@/lib/format';
+import { isStudent } from '@/lib/roles';
 import { GamificationTabs } from './gamification-tabs';
+import { SubmitResultDialog } from './submit-result-dialog';
 
 interface Season {
   id: string;
@@ -68,6 +70,11 @@ export default function LeaderboardPage() {
   return (
     <div className="space-y-8">
       <GamificationTabs title={t('gamification.leaderboardPageTitle')} />
+      {isStudent(user) && (
+        <div className="flex justify-center">
+          <SubmitResultDialog className="w-full sm:w-auto" />
+        </div>
+      )}
       {activeSeason && (
         <div className="text-center space-y-2">
           <p className="font-heading text-lg text-muted-foreground">{activeSeason.name}</p>

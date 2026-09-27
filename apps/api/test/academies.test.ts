@@ -8,7 +8,7 @@ import {
   authHeaders,
   testDb,
 } from './helpers';
-import { academy, modality } from '../src/db/schema/index';
+import { academy, modality, season } from '../src/db/schema/index';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 
@@ -51,6 +51,25 @@ describe('POST /api/academies', () => {
     });
     const rows = await testDb.select().from(modality).where(eq(modality.academyId, res.json().id));
     expect(rows.map((m) => m.name).sort()).toEqual(['Feminino', 'Funcional', 'Jiu-Jitsu', 'Kids', 'MMA']);
+  });
+
+  it('starts the new academy with an active season for the current year', async () => {
+    const user = await createTestUser(null, { role: 'student', status: 'active' });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/academies',
+      headers: authHeaders(user),
+      payload: { name: 'Com Ranking', city: 'Porto' },
+    });
+    const year = new Date().getFullYear();
+    const [s] = await testDb.select().from(season).where(eq(season.academyId, res.json().id));
+    expect(s).toMatchObject({
+      name: `Ranking ${year}`,
+      startDate: `${year}-01-01`,
+      endDate: `${year}-12-31`,
+      pointsConfig: { 1: 10, 2: 7, 3: 5 },
+      active: true,
+    });
   });
 });
 

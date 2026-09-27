@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useForm } from '@tanstack/react-form';
 import { useSession } from '@/lib/auth-client';
 import { isOwner, isStudent } from '@/lib/roles';
 import { api } from '@/lib/api';
@@ -7,15 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { CalendarPlus } from 'lucide-react';
 import { formatDate } from '@/lib/format';
 import { GamificationTabs } from './gamification-tabs';
+import { POSITION_STYLES, SubmitResultDialog } from './submit-result-dialog';
 
 interface CompetitionResult {
   id: string;
@@ -32,12 +30,6 @@ interface Season {
   name: string;
 }
 
-const POSITION_STYLES: Record<number, string> = {
-  1: 'bg-arena-gold/20 text-arena-gold border-arena-gold/30',
-  2: 'bg-arena-silver/20 text-arena-silver border-arena-silver/30',
-  3: 'bg-arena-bronze/20 text-arena-bronze border-arena-bronze/30',
-};
-
 const POSITION_KEYS: Record<number, string> = {
   1: 'gamification.first',
   2: 'gamification.second',
@@ -50,7 +42,6 @@ export default function ResultsPage() {
   const user = session?.user as any;
   const queryClient = useQueryClient();
   const [seasonId, setSeasonId] = useState('');
-  const [msg, setMsg] = useState('');
 
   const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
     ['seasons', user?.academyId],
@@ -66,22 +57,6 @@ export default function ResultsPage() {
     !!effectiveSeasonId && isOwner(user),
   );
 
-  const submitMutation = useMutation({
-    mutationFn: (body: any) =>
-      api('/competition-results', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      }),
-    onSuccess: () => {
-      setMsg(t('gamification.resultSubmitted'));
-      form.reset();
-      setTimeout(() => setMsg(''), 3000);
-    },
-    onError: () => {
-      setMsg(t('gamification.resultError'));
-    },
-  });
-
   const approvalMutation = useMutation({
     mutationFn: ({ resultId, status }: { resultId: string; status: 'approved' | 'rejected' }) => {
       const action = status === 'approved' ? 'approve' : 'reject';
@@ -94,22 +69,10 @@ export default function ResultsPage() {
     },
   });
 
-  const form = useForm({
-    defaultValues: {
-      competitionName: '',
-      date: '',
-      position: '1',
-    },
-    onSubmit: async ({ value }) => {
-      await submitMutation.mutateAsync({
-        competitionName: value.competitionName,
-        competitionDate: value.date,
-        position: Number(value.position),
-        studentId: user.id,
-        seasonId: effectiveSeasonId,
-      });
-    },
-  });
+  // Students send results from the ranking/profile dialog; this page is the owner's.
+  if (isStudent(user)) {
+    return <Navigate to="/gamification" replace />;
+  }
 
   if (isLoading) return <PageLoader />;
 
@@ -117,99 +80,7 @@ export default function ResultsPage() {
     <div className="space-y-6">
       <GamificationTabs title={t('gamification.resultsTitle')} />
 
-      {isStudent(user) && (
-        <div>
-          {msg && <p className="text-sm font-bold text-primary mb-4">{msg}</p>}
-          {seasons.length === 0 ? (
-            <p className="text-muted-foreground">{t('gamification.noSeasons')}</p>
-          ) : (
-            <Card className="rounded-sm max-w-md">
-              <CardHeader>
-                <CardTitle className="font-heading text-lg">{t('gamification.submitResult')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    form.handleSubmit();
-                  }}
-                  className="space-y-4"
-                >
-                  <div className="space-y-2">
-                    <Label htmlFor="result-season">{t('gamification.season')}</Label>
-                    <select
-                      id="result-season"
-                      value={effectiveSeasonId}
-                      onChange={(e) => setSeasonId(e.target.value)}
-                      className="min-h-11 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
-                    >
-                      {seasons.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <form.Field name="competitionName">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label htmlFor="result-competition">{t('gamification.competitionName')}</Label>
-                        <Input
-                          id="result-competition"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          required
-                        />
-                      </div>
-                    )}
-                  </form.Field>
-                  <form.Field name="date">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label htmlFor="result-date">{t('classes.date')}</Label>
-                        <Input
-                          id="result-date"
-                          type="date"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          onBlur={field.handleBlur}
-                          required
-                        />
-                      </div>
-                    )}
-                  </form.Field>
-                  <form.Field name="position">
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label>{t('gamification.position')}</Label>
-                        <div className="flex gap-2">
-                          {[1, 2, 3].map((pos) => (
-                            <button
-                              key={pos}
-                              type="button"
-                              onClick={() => field.handleChange(String(pos))}
-                              aria-pressed={field.state.value === String(pos)}
-                              className={`flex-1 min-h-11 rounded-sm border text-sm font-heading uppercase transition-colors ${
-                                field.state.value === String(pos)
-                                  ? POSITION_STYLES[pos]
-                                  : 'border-border text-muted-foreground hover:text-foreground'
-                              }`}
-                            >
-                              {t(POSITION_KEYS[pos])}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </form.Field>
-                  <Button type="submit" className="w-full" loading={submitMutation.isPending}>{t('common.save')}</Button>
-                </form>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
+      {isOwner(user) && seasons.length > 0 && <SubmitResultDialog owner className="w-full sm:w-auto" />}
 
       {isOwner(user) && seasons.length === 0 && (
         <div className="text-center py-12 space-y-3">
