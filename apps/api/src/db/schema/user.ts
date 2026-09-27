@@ -2,7 +2,15 @@ import { pgTable, uuid, varchar, date, timestamp, boolean, pgEnum, text, type An
 import { academy } from './academy';
 import { family } from './family';
 
-export const beltEnum = pgEnum('belt', ['white', 'blue', 'purple', 'brown', 'black']);
+// IBJJF order: kids belts (grey/yellow/orange/green, each with white/black variants), then adult belts.
+export const beltEnum = pgEnum('belt', [
+  'white',
+  'grey-white', 'grey', 'grey-black',
+  'yellow-white', 'yellow', 'yellow-black',
+  'orange-white', 'orange', 'orange-black',
+  'green-white', 'green', 'green-black',
+  'blue', 'purple', 'brown', 'black',
+]);
 export const userRoleEnum = pgEnum('user_role', ['student', 'owner']);
 export const userStatusEnum = pgEnum('user_status', ['pending', 'active', 'rejected']);
 
