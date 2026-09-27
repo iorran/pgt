@@ -8,9 +8,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { formatDate } from '@/lib/format';
-import { isStudent } from '@/lib/roles';
+import { isOwner, isStudent } from '@/lib/roles';
 import { GamificationTabs } from './gamification-tabs';
 import { SubmitResultDialog } from './submit-result-dialog';
+import { StudentBreakdownDialog } from './result-control';
 
 interface Season {
   id: string;
@@ -43,6 +44,7 @@ export default function LeaderboardPage() {
   const [seasonId, setSeasonId] = useState('');
   const [category, setCategory] = useState<'adults' | 'kids'>('adults');
   const [belt, setBelt] = useState('');
+  const [selected, setSelected] = useState<{ id: string; name: string } | null>(null);
 
   const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
     ['seasons', user?.academyId],
@@ -64,6 +66,8 @@ export default function LeaderboardPage() {
   );
 
   const activeSeason = seasons.find(s => s.id === effectiveSeasonId);
+  // Owners tap a student to see and fix the entries behind their points.
+  const onSelect = isOwner(user) ? (e: LeaderboardEntry) => setSelected({ id: e.studentId, name: e.studentName }) : undefined;
 
   if (isLoading) return <PageLoader />;
 
@@ -141,19 +145,28 @@ export default function LeaderboardPage() {
             </div>
 
             <TabsContent value="adults" className="mt-6">
-              <LeaderboardList entries={entries} t={t} />
+              <LeaderboardList entries={entries} t={t} onSelect={onSelect} />
             </TabsContent>
             <TabsContent value="kids" className="mt-6">
-              <LeaderboardList entries={entries} t={t} />
+              <LeaderboardList entries={entries} t={t} onSelect={onSelect} />
             </TabsContent>
           </Tabs>
         </>
       )}
+      <StudentBreakdownDialog seasonId={effectiveSeasonId} student={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }
 
-function LeaderboardList({ entries, t }: { entries: LeaderboardEntry[]; t: (key: string) => string }) {
+function LeaderboardList({
+  entries,
+  t,
+  onSelect,
+}: {
+  entries: LeaderboardEntry[];
+  t: (key: string) => string;
+  onSelect?: (entry: LeaderboardEntry) => void;
+}) {
   if (entries.length === 0) {
     return (
       <div className="text-center py-12 space-y-3">
@@ -169,11 +182,13 @@ function LeaderboardList({ entries, t }: { entries: LeaderboardEntry[]; t: (key:
         const isChampion = entry.rank === 1;
         const isPodium = entry.rank <= 3;
         const rankColor = getRankStyle(entry.rank);
+        const Row = onSelect ? 'button' : 'div';
 
         return (
-          <div
+          <Row
             key={entry.studentId}
-            className={`flex items-center gap-4 px-4 rounded-sm border transition-all ${
+            {...(onSelect && { type: 'button' as const, onClick: () => onSelect(entry) })}
+            className={`flex w-full min-h-11 items-center gap-4 px-4 rounded-sm border text-left transition-all ${onSelect ? 'cursor-pointer hover:border-primary/60 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50' : ''} ${
               isChampion
                 ? 'py-5 border-primary/50 bg-primary/5 animate-glow'
                 : isPodium
@@ -203,7 +218,7 @@ function LeaderboardList({ entries, t }: { entries: LeaderboardEntry[]; t: (key:
               {entry.totalPoints}
               <span className="text-xs text-muted-foreground ml-1">{t('gamification.pointsShort')}</span>
             </div>
-          </div>
+          </Row>
         );
       })}
     </div>

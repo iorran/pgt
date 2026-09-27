@@ -296,6 +296,35 @@
         "rejected": "Rejected"
       },
       "carriedOver": "Carried over"
+    },
+    "control": {
+      "filter": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "all": "All"
+      },
+      "adjustment": "Adjustment",
+      "adjust": "Adjust points",
+      "adjustHelp": "Use a negative number to remove points",
+      "adjusted": "Point adjustment saved",
+      "reason": "Reason",
+      "points": "Points",
+      "pointsHelp": "Leave as is to use the season's points",
+      "pointsOverridden": "Points set manually",
+      "pointsNonZero": "Enter a whole number other than 0",
+      "noSeasonToday": "No active season today",
+      "status": "Status",
+      "noPosition": "No placement",
+      "editTitle": "Edit result",
+      "saved": "Result updated",
+      "deleteTitle": "Delete result?",
+      "deleteConfirm": "Its points leave the ranking.",
+      "deleted": "Result deleted",
+      "recalculate": "Recalculate points",
+      "recalculateHelp": "Season saved. Recalculating applies the new points to approved results, except adjustments and manually set points.",
+      "notNow": "Not now",
+      "recalculated": "{{count}} results updated"
     }
   },
   "tournaments": {

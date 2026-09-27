@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, date, integer, timestamp, pgEnum, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, date, integer, boolean, timestamp, pgEnum, index } from 'drizzle-orm/pg-core';
 import { season } from './season';
 import { user } from './user';
 
@@ -13,6 +13,8 @@ export const competitionResult = pgTable('competition_result', {
   // Null for Carried-over Points (no podium position).
   position: integer('position'),
   pointsAwarded: integer('points_awarded').default(0).notNull(),
+  // Owner typed the points: they no longer follow the season's points per place.
+  pointsOverridden: boolean('points_overridden').default(false).notNull(),
   status: resultStatusEnum('status').default('pending').notNull(),
   submittedBy: uuid('submitted_by').notNull().references(() => user.id),
   reviewedBy: uuid('reviewed_by').references(() => user.id),

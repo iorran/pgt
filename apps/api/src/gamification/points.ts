@@ -29,3 +29,8 @@ export function withRanks<T extends { totalPoints: number }>(sorted: T[]): (T & 
   });
   return out;
 }
+
+// XP follows points: approved → max(0, points) × 10; otherwise no XP entry (null).
+export function xpForResult(result: { status: string; pointsAwarded: number }): number | null {
+  return result.status === 'approved' ? Math.max(0, result.pointsAwarded) * 10 : null;
+}
