@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/iorran/pgt/compare/v1.15.0...v1.16.0) (2026-09-27)
+
+
+### Features
+
+* owner control over ranking points ([d5ac28e](https://github.com/iorran/pgt/commit/d5ac28e97a939dc6b614aea0d0542f1d67b4f110))
+
 # [1.15.0](https://github.com/iorran/pgt/compare/v1.14.0...v1.15.0) (2026-09-27)
 
 
