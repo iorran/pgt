@@ -35,9 +35,13 @@ _Avoid_: Plan, class type, turma, category
 Whether a Student is ranked with Kids or Adultos. Adult belt → Adultos; kids belt → Kids; white belt → Kids if under 16 (when the birth date is known) or tagged with the Kids Modality, otherwise Adultos. Teenagers on adult or white belts rank with Adultos.
 _Avoid_: Division, age group, adolescente/juvenil (as separate rankings)
 
+**Point Adjustment**:
+Points the Owner adds to or removes from a Student's ranking (+N or −N) with a reason, entered as an approved ranking entry with no podium position.
+_Avoid_: Bonus, penalty entry, manual result (in the UI: "Ajuste de pontos")
+
 **Carried-over Points**:
-Points a Student earned before the app was used, entered as one approved ranking entry with no podium position.
-_Avoid_: Bonus, manual points, adjustment (in the UI: "Pontos acumulados")
+A Point Adjustment for points a Student earned before the app was used (in the UI: "Pontos acumulados").
+_Avoid_: Bonus, manual points
 
 **Training Note**:
 Free text on a Student for what Modalities don't capture (e.g. "trânsito livre", "turma das 7h").
