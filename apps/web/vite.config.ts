@@ -8,6 +8,7 @@ import { readFileSync } from 'fs';
 const rootPkg = JSON.parse(readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8'));
 
 export default defineConfig({
+  envDir: path.resolve(__dirname, '../..'),
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
     __APP_VERSION__: JSON.stringify(rootPkg.version),
