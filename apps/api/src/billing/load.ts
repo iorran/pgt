@@ -40,8 +40,15 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
 
   const ids = rows.map((r) => r.studentId);
   const [paidRows, waivedRows] = await Promise.all([
-    db.select({ studentId: payment.studentId, month: payment.referenceMonth }).from(payment).where(inArray(payment.studentId, ids)),
-    db.select({ studentId: waivedMonth.studentId, month: waivedMonth.referenceMonth }).from(waivedMonth).where(inArray(waivedMonth.studentId, ids)),
+    // Only records of the student's current academy count: billing state stays with the academy.
+    db.select({ studentId: payment.studentId, month: payment.referenceMonth })
+      .from(payment)
+      .innerJoin(user, and(eq(user.id, payment.studentId), eq(user.academyId, payment.academyId)))
+      .where(inArray(payment.studentId, ids)),
+    db.select({ studentId: waivedMonth.studentId, month: waivedMonth.referenceMonth })
+      .from(waivedMonth)
+      .innerJoin(user, and(eq(user.id, waivedMonth.studentId), eq(user.academyId, waivedMonth.academyId)))
+      .where(inArray(waivedMonth.studentId, ids)),
   ]);
   const group = (list: { studentId: string; month: string }[]) => {
     const map = new Map<string, Set<string>>();

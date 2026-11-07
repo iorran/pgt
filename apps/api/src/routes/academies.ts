@@ -1,16 +1,37 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { academy, user, modality, season, DEFAULT_MODALITIES } from '../db/schema/index.js';
-import { eq, and } from 'drizzle-orm';
+import { academy, user, modality, season, family, studentMembership, DEFAULT_MODALITIES } from '../db/schema/index.js';
+import { eq, and, isNull } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { generateJoinCode } from '../utils/join-code.js';
+
+// Fees, payments, waivers and family links belong to one academy. Leaving it ends the active Monthly Fee
+// and the family link; a family's Responsible must hand the family over first.
+async function isFamilyResponsible(userId: string) {
+  const [row] = await db
+    .select({ id: family.id })
+    .from(family)
+    .where(and(eq(family.responsibleUserId, userId), isNull(family.deletedAt)));
+  return !!row;
+}
+
+async function endAcademyMembership(userId: string) {
+  await db
+    .update(studentMembership)
+    .set({ active: false })
+    .where(and(eq(studentMembership.studentId, userId), eq(studentMembership.active, true)));
+}
 
 export async function academyRoutes(app: FastifyInstance) {
   // Create academy (authenticated user, no academy yet)
   app.post('/api/academies', { preHandler: [requireAuth] }, async (request, reply) => {
     const { name, city } = request.body as { name: string; city: string };
     const userId = request.user.id;
+    const leaving = !!request.user.academyId;
+    if (leaving && (await isFamilyResponsible(userId))) {
+      return reply.status(409).send({ error: 'RESPONSIBLE_OF_FAMILY' });
+    }
 
     // Generate slug and join code
     const slug = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -51,8 +72,11 @@ export async function academyRoutes(app: FastifyInstance) {
     });
 
     // Update user to owner with this academy
+    if (leaving) {
+      await endAcademyMembership(userId);
+    }
     await db.update(user)
-      .set({ academyId: created!.id, role: 'owner', status: 'active' })
+      .set({ academyId: created!.id, role: 'owner', status: 'active', ...(leaving ? { familyId: null } : {}) })
       .where(eq(user.id, userId));
 
     return reply.status(201).send(created);
@@ -79,9 +103,17 @@ export async function academyRoutes(app: FastifyInstance) {
     const [found] = await db.select().from(academy).where(eq(academy.id, id));
     if (!found) return reply.status(404).send({ error: 'Academy not found' });
 
+    const leaving = !!request.user.academyId && request.user.academyId !== id;
+    if (leaving) {
+      if (await isFamilyResponsible(request.user.id)) {
+        return reply.status(409).send({ error: 'RESPONSIBLE_OF_FAMILY' });
+      }
+      await endAcademyMembership(request.user.id);
+    }
+
     // Update user
     await db.update(user)
-      .set({ academyId: id, status: 'pending', role: 'student' })
+      .set({ academyId: id, status: 'pending', role: 'student', ...(leaving ? { familyId: null } : {}) })
       .where(eq(user.id, request.user.id));
 
     return { status: 'pending' };

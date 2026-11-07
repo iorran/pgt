@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { signUp, useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { errorKey } from '@/lib/api-errors';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -49,8 +50,8 @@ export default function CriarAcademiaPage() {
         });
 
         window.location.href = '/';
-      } catch {
-        setError(t('common.genericError'));
+      } catch (err) {
+        setError(t(errorKey(err)));
       } finally {
         setLoading(false);
       }

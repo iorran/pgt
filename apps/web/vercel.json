@@ -1,7 +1,20 @@
 {
   "framework": "vite",
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "https://pgt-api.fly.dev/api/:path*" },
-    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "https://pgt-api.fly.dev/api/$1",
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": { "key": "x-origin-secret" },
+          "args": "$ORIGIN_SECRET",
+          "env": ["ORIGIN_SECRET"]
+        }
+      ]
+    },
+    { "handle": "filesystem" },
+    { "src": "/((?!assets/).*)", "dest": "/index.html" }
   ]
 }

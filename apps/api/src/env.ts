@@ -13,4 +13,6 @@ export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   RESEND_API_KEY: process.env.RESEND_API_KEY || '',
   EMAIL_FROM: process.env.EMAIL_FROM || 'PGT <onboarding@resend.dev>',
+  // Shared with the Vercel /api rewrite, which sends it as x-origin-secret (see apps/web/vercel.json).
+  ORIGIN_SECRET: process.env.ORIGIN_SECRET || '',
 };
