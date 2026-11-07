@@ -1,3 +1,5 @@
+import { getActingAs } from './profile';
+
 const API_BASE = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
 
 export async function api<T>(path: string, options?: RequestInit): Promise<T> {
@@ -5,10 +7,15 @@ export async function api<T>(path: string, options?: RequestInit): Promise<T> {
   if (options?.body) {
     headers['Content-Type'] = headers['Content-Type'] ?? 'application/json';
   }
+  // A Responsible using a Dependent's profile: the API answers as that Dependent.
+  const actingAs = getActingAs();
+  if (actingAs) {
+    headers['x-acting-as'] = actingAs.id;
+  }
   const res = await fetch(`${API_BASE}${path}`, {
     credentials: 'include',
-    headers,
     ...options,
+    headers,
   });
   if (!res.ok) {
     const error = await res.json().catch(() => ({ error: 'Request failed' }));
