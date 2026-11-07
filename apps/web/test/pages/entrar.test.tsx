@@ -132,6 +132,25 @@ describe('EntrarPage', () => {
     expect(screen.getByRole('link', { name: 'auth.haveAccount' })).toHaveAttribute('href', '/login');
   });
 
+  it('signs up without authority fields, then joins the academy server-side', async () => {
+    mockedApi.mockResolvedValue(academy);
+    mockedSignUp.mockResolvedValue({ error: null } as any);
+    const user = userEvent.setup();
+    renderEntrar();
+
+    await user.type(await screen.findByLabelText('auth.name'), 'Ana');
+    await user.type(screen.getByLabelText('auth.email'), 'a@b.com');
+    await user.type(screen.getByLabelText('auth.password'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'onboarding.continue' }));
+
+    await waitFor(() => {
+      expect(mockedApi).toHaveBeenCalledWith('/academies/1/join', { method: 'POST' });
+    });
+    const body = mockedSignUp.mock.calls[0][0] as Record<string, unknown>;
+    expect(body).not.toHaveProperty('academyId');
+    expect(body).not.toHaveProperty('role');
+  });
+
   it('shows a translated alert when signup fails', async () => {
     mockedApi.mockResolvedValue(academy);
     mockedSignUp.mockResolvedValue({ error: { message: 'User already exists' } } as any);

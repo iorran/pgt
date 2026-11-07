@@ -36,8 +36,7 @@ export default function CriarAcademiaPage() {
             name: value.name,
             email: value.email,
             password: value.password,
-            role: 'owner',
-          } as any);
+          });
           if (error) {
             setError(t('common.genericError'));
             return;
