@@ -146,4 +146,9 @@ describe('LoginPage', () => {
 
     await waitFor(() => expect(screen.getByTestId('home')).toBeInTheDocument());
   });
+
+  it('links "Primeiro acesso" to the set-password flow (removed family members, invited Responsibles)', () => {
+    renderWithProviders(<LoginPage />);
+    expect(screen.getByRole('link', { name: 'auth.firstAccess' })).toHaveAttribute('href', '/forgot-password');
+  });
 });

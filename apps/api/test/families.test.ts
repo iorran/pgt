@@ -52,12 +52,12 @@ describe('families CRUD', () => {
     const bia = await student('Bia', '35.00', { phone: '911' });
     const leo = await student('Leo', '30.00');
 
-    const res = await api('POST', '/api/families', { name: 'Família Silva', memberIds: [bia.id, leo.id], contactStudentId: leo.id });
+    const res = await api('POST', '/api/families', { name: 'Família Silva', memberIds: [bia.id, leo.id], responsibleId: leo.id });
     expect(res.statusCode).toBe(201);
     const fam = res.json();
     expect(fam).toMatchObject({
       name: 'Família Silva',
-      contactStudentId: leo.id,
+      responsible: { id: leo.id, name: 'Leo', trains: true },
       agreedPrice: null,
       priceReviewNeeded: false,
       familyFee: '65.00',
@@ -81,7 +81,7 @@ describe('families CRUD', () => {
   it('member without membership has monthlyFee null', async () => {
     const { academy, api } = await setup();
     const kid = await createTestUser(academy.id, { name: 'Kid' });
-    const res = await api('POST', '/api/families', { name: 'F', memberIds: [kid.id] });
+    const res = await api('POST', '/api/families', { name: 'F', responsibleId: kid.id, memberIds: [kid.id] });
     expect(res.statusCode).toBe(201);
     expect(res.json().members[0].monthlyFee).toBeNull();
     expect(res.json().familyFee).toBe('0.00');
@@ -92,53 +92,50 @@ describe('families CRUD', () => {
     const bia = await student('Bia', '35.00');
     const leo = await student('Leo', '35.00');
     expect((await api('POST', '/api/families', { name: 'F', memberIds: [] })).statusCode).toBe(400);
-    expect((await api('POST', '/api/families', { memberIds: [bia.id] })).statusCode).toBe(400);
+    expect((await api('POST', '/api/families', { responsibleId: bia.id, memberIds: [bia.id] })).statusCode).toBe(400);
     // Contact must be a member
-    expect((await api('POST', '/api/families', { name: 'F', memberIds: [bia.id], contactStudentId: leo.id })).statusCode).toBe(400);
-    expect((await api('POST', '/api/families', { name: 'F', memberIds: [bia.id], agreedPrice: 'abc' })).statusCode).toBe(400);
+    expect((await api('POST', '/api/families', { name: 'F', memberIds: [bia.id], responsibleId: leo.id })).statusCode).toBe(400);
+    expect((await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id], agreedPrice: 'abc' })).statusCode).toBe(400);
   });
 
-  it('updates name, contact and agreed price', async () => {
+  it('updates name and agreed price', async () => {
     const { student, api } = await setup();
     const bia = await student('Bia', '35.00');
     const leo = await student('Leo', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id, leo.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id, leo.id] })).json();
 
-    const res = await api('PUT', `/api/families/${fam.id}`, { name: 'Família Silva', contactStudentId: bia.id, agreedPrice: '60.00' });
+    const res = await api('PUT', `/api/families/${fam.id}`, { name: 'Família Silva', agreedPrice: '60.00' });
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toMatchObject({ name: 'Família Silva', contactStudentId: bia.id, agreedPrice: '60.00', familyFee: '60.00' });
+    expect(res.json()).toMatchObject({ name: 'Família Silva', agreedPrice: '60.00', familyFee: '60.00' });
 
-    const cleared = await api('PUT', `/api/families/${fam.id}`, { contactStudentId: null, agreedPrice: null });
-    expect(cleared.json()).toMatchObject({ name: 'Família Silva', contactStudentId: null, agreedPrice: null, familyFee: '70.00' });
-
-    const outsider = await student('Out', '35.00');
-    expect((await api('PUT', `/api/families/${fam.id}`, { contactStudentId: outsider.id })).statusCode).toBe(400);
+    const cleared = await api('PUT', `/api/families/${fam.id}`, { agreedPrice: null });
+    expect(cleared.json()).toMatchObject({ name: 'Família Silva', agreedPrice: null, familyFee: '70.00' });
   });
 
-  it('adds and removes members; removing the contact clears it', async () => {
+  it('adds and removes members (the Responsible stays)', async () => {
     const { student, api } = await setup();
     const bia = await student('Bia', '35.00');
     const leo = await student('Leo', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id], contactStudentId: bia.id })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id], responsibleId: bia.id })).json();
 
     const added = await api('POST', `/api/families/${fam.id}/members`, { studentId: leo.id });
     expect(added.statusCode).toBe(200);
     expect(added.json().members).toHaveLength(2);
     expect(added.json().priceReviewNeeded).toBe(false);
 
-    const removed = await api('DELETE', `/api/families/${fam.id}/members/${bia.id}`);
+    const removed = await api('DELETE', `/api/families/${fam.id}/members/${leo.id}`);
     expect(removed.statusCode).toBe(200);
-    expect(removed.json().members.map((m: any) => m.id)).toEqual([leo.id]);
-    expect(removed.json().contactStudentId).toBeNull();
+    expect(removed.json().members.map((m: any) => m.id)).toEqual([bia.id]);
+    expect(removed.json().responsible.id).toBe(bia.id);
 
     // Not a member any more
-    expect((await api('DELETE', `/api/families/${fam.id}/members/${bia.id}`)).statusCode).toBe(404);
+    expect((await api('DELETE', `/api/families/${fam.id}/members/${leo.id}`)).statusCode).toBe(404);
   });
 
   it('soft deletes a family: members freed, payments untouched', async () => {
     const { student, api } = await setup();
     const bia = await student('Bia', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id] })).json();
     await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-08'], amount: '35.00' });
 
     const res = await api('DELETE', `/api/families/${fam.id}`);
@@ -157,7 +154,7 @@ describe('families CRUD', () => {
     const a = await setup();
     const b = await setup();
     const bStudent = await b.student('B', '35.00');
-    const bFam = (await b.api('POST', '/api/families', { name: 'B', memberIds: [bStudent.id] })).json();
+    const bFam = (await b.api('POST', '/api/families', { name: 'B', responsibleId: bStudent.id, memberIds: [bStudent.id] })).json();
     const aStudent = await a.student('A', '35.00');
 
     expect((await a.api('GET', `/api/families/${bFam.id}`)).statusCode).toBe(404);
@@ -167,7 +164,7 @@ describe('families CRUD', () => {
     expect((await a.api('POST', `/api/families/${bFam.id}/payments`, { months: ['2026-08'], amount: '1.00' })).statusCode).toBe(404);
     expect((await a.api('POST', `/api/families/${bFam.id}/members`, { studentId: aStudent.id })).statusCode).toBe(404);
     // Another academy's student cannot be added
-    expect((await a.api('POST', '/api/families', { name: 'A', memberIds: [bStudent.id] })).statusCode).toBe(404);
+    expect((await a.api('POST', '/api/families', { name: 'A', responsibleId: bStudent.id, memberIds: [bStudent.id] })).statusCode).toBe(404);
     expect((await a.api('GET', '/api/families')).json()).toHaveLength(0);
   });
 
@@ -185,7 +182,7 @@ describe('family billing and payments', () => {
     const { student, api } = await setup();
     const bia = await student('Bia', '35.00');
     const leo = await student('Leo', '35.00', { startDate: '2026-09-01' });
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id, leo.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id, leo.id] })).json();
 
     const res = await api('GET', `/api/families/${fam.id}/billing`);
     expect(res.statusCode).toBe(200);
@@ -202,7 +199,7 @@ describe('family billing and payments', () => {
   it('rejects a payment for a month with no billable member', async () => {
     const { student, api } = await setup();
     const bia = await student('Bia', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id] })).json();
     // Before membership start
     expect((await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-07'], amount: '35.00' })).statusCode).toBe(400);
     expect((await api('POST', `/api/families/${fam.id}/payments`, { months: [], amount: '35.00' })).statusCode).toBe(400);
@@ -214,7 +211,7 @@ describe('family billing and payments', () => {
   it('defaults paymentDate to today and accepts an explicit one', async () => {
     const { student, api } = await setup();
     const bia = await student('Bia', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id] })).json();
     const r1 = await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-08'], amount: '35.00' });
     expect(r1.json().familyPayment.paymentDate).toBe('2026-09-26');
     const r2 = await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-09'], amount: '35.00', paymentDate: '2026-09-20' });
@@ -227,7 +224,7 @@ describe('spec scenarios', () => {
     const { academy, owner, student, api } = await setup();
     const bia = await student('Bia', '35.00', { phone: '911111111' });
     const leo = await student('Leo', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'Família Silva', memberIds: [bia.id, leo.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'Família Silva', responsibleId: bia.id, memberIds: [bia.id, leo.id] })).json();
 
     const overdue = (await api('GET', `/api/payments/overdue?academyId=${academy.id}`)).json();
     expect(overdue).toHaveLength(1);
@@ -265,7 +262,7 @@ describe('spec scenarios', () => {
     const carlos = await student('Carlos', '45.00');
     const k1 = await student('K1', '35.00');
     const k2 = await student('K2', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [carlos.id, k1.id, k2.id], agreedPrice: '100.00' })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: carlos.id, memberIds: [carlos.id, k1.id, k2.id], agreedPrice: '100.00' })).json();
     expect(fam.familyFee).toBe('100.00');
 
     const res = await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-09'], amount: '100.00' });
@@ -281,7 +278,7 @@ describe('spec scenarios', () => {
     const bia = await student('Bia', '35.00');
     const leo = await student('Leo', '35.00');
     const solo = await student('Solo', '35.00', { startDate: '2026-09-01' });
-    const fam = (await api('POST', '/api/families', { name: 'Família Silva', memberIds: [bia.id, leo.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'Família Silva', responsibleId: bia.id, memberIds: [bia.id, leo.id] })).json();
 
     expect((await api('POST', `/api/students/${leo.id}/waived-months`, { month: '2026-09' })).statusCode).toBe(201);
     expect((await api('POST', `/api/students/${solo.id}/waived-months`, { month: '2026-09' })).statusCode).toBe(201);
@@ -307,7 +304,7 @@ describe('spec scenarios', () => {
     const carlos = await student('Carlos', '45.00', { startDate: '2026-09-01' });
     const k1 = await student('K1', '35.00', { startDate: '2026-09-01' });
     const k2 = await student('K2', '35.00', { startDate: '2026-09-01' });
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [carlos.id, k1.id, k2.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: carlos.id, memberIds: [carlos.id, k1.id, k2.id] })).json();
 
     await app.inject({
       method: 'POST', url: '/api/payments', headers: authHeaders(owner),
@@ -335,7 +332,7 @@ describe('spec scenarios', () => {
     const { academy, student, api } = await setup();
     const bia = await student('Bia', '35.00');
     const leo = await student('Leo', '35.00');
-    const fam = (await api('POST', '/api/families', { name: 'F', memberIds: [bia.id, leo.id], agreedPrice: '60.00' })).json();
+    const fam = (await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id, leo.id], agreedPrice: '60.00' })).json();
     await api('POST', `/api/families/${fam.id}/payments`, { months: ['2026-08'], amount: '60.00' });
 
     const res = await api('DELETE', `/api/families/${fam.id}/members/${leo.id}`);
@@ -381,7 +378,7 @@ describe('spec scenarios', () => {
     expect((await api('GET', '/api/families')).json()).toHaveLength(0);
 
     // Creating the family removes the suggestion
-    await api('POST', '/api/families', { name: 'Família Stefan', memberIds: [a.id, b.id] });
+    await api('POST', '/api/families', { name: 'Família Stefan', responsibleId: a.id, memberIds: [a.id, b.id] });
     // Dismissing persists
     expect((await api('POST', '/api/families/suggestions/dismiss', { phone: '351900000001' })).statusCode).toBe(204);
     expect((await api('POST', '/api/families/suggestions/dismiss', { phone: '351900000001' })).statusCode).toBe(204);
@@ -393,15 +390,15 @@ describe('spec scenarios', () => {
     const bia = await student('Bia', '35.00');
     const leo = await student('Leo', '35.00');
     const x = await student('X', '35.00');
-    await api('POST', '/api/families', { name: 'Silva', memberIds: [bia.id, leo.id] });
+    await api('POST', '/api/families', { name: 'Silva', responsibleId: bia.id, memberIds: [bia.id, leo.id] });
 
-    const res = await api('POST', '/api/families', { name: 'Other', memberIds: [x.id, leo.id] });
+    const res = await api('POST', '/api/families', { name: 'Other', responsibleId: x.id, memberIds: [x.id, leo.id] });
     expect(res.statusCode).toBe(409);
     expect(res.json()).toEqual({ error: 'STUDENT_IN_FAMILY', studentIds: [leo.id] });
     const [xRow] = await testDb.select().from(schema.user).where(eq(schema.user.id, x.id));
     expect(xRow.familyId).toBeNull();
 
-    const other = (await api('POST', '/api/families', { name: 'Other', memberIds: [x.id] })).json();
+    const other = (await api('POST', '/api/families', { name: 'Other', responsibleId: x.id, memberIds: [x.id] })).json();
     const add = await api('POST', `/api/families/${other.id}/members`, { studentId: leo.id });
     expect(add.statusCode).toBe(409);
     expect(add.json()).toEqual({ error: 'STUDENT_IN_FAMILY', studentIds: [leo.id] });

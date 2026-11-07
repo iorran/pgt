@@ -11,7 +11,8 @@ export const beltEnum = pgEnum('belt', [
   'green-white', 'green', 'green-black',
   'blue', 'purple', 'brown', 'black',
 ]);
-export const userRoleEnum = pgEnum('user_role', ['student', 'owner']);
+// responsible = logs in only to manage a Family, doesn't train (ADR 0004).
+export const userRoleEnum = pgEnum('user_role', ['student', 'owner', 'responsible']);
 export const userStatusEnum = pgEnum('user_status', ['pending', 'active', 'rejected']);
 
 export const user = pgTable('user', {

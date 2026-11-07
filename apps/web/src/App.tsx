@@ -35,6 +35,9 @@ import TotemPage from './pages/totem';
 import CheckinScanPage from './pages/checkin-scan';
 import SettingsPage from './pages/settings';
 import { PageLoader } from './components/page-loader';
+import ProfilesPage from './pages/profiles';
+import { useProfiles } from './hooks/use-profiles';
+import { wasProfileChosen } from './lib/profile';
 import { Card, CardContent } from './components/ui/card';
 import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -86,6 +89,9 @@ function App() {
 
 function AppRoutes() {
   const { data: session, isPending, isRefetching } = useSession();
+  const sessionUser = session?.user as any;
+  // Family profiles (ADR 0004): only non-owners can have Dependents.
+  const { data: profiles } = useProfiles(!!sessionUser && !isOwner(sessionUser));
 
   // Hold the loading screen during any fetch or refetch. Without the
   // isRefetching guard, better-auth can transiently surface
@@ -153,6 +159,22 @@ function AppRoutes() {
 
   console.log('[App] Routing → authenticated (dashboard)');
 
+  // A Responsible picks a profile before using the app: always when they don't train,
+  // otherwise once per tab when they have Dependents.
+  const acting = !!user.actorId && user.actorId !== user.id;
+  const mustPick =
+    !isOwner(user) &&
+    !acting &&
+    (user.actorRole === 'responsible' || (!wasProfileChosen() && (profiles?.dependents.length ?? 0) > 0));
+  if (mustPick) {
+    return (
+      <Routes>
+        <Route path="/perfis" element={<ProfilesPage />} />
+        <Route path="*" element={<Navigate to="/perfis" replace />} />
+      </Routes>
+    );
+  }
+
   // Normal authenticated routes
   const owner = isOwner(user);
   const Shell = owner ? StaffShell : StudentShell;
@@ -167,6 +189,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/totem" element={<TotemPage />} />
+      <Route path="/perfis" element={<ProfilesPage />} />
       <Route path="/checkin" element={<CheckinScanPage />} />
       <Route element={<Shell />}>
         <Route

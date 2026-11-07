@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { QueryError } from '@/components/query-error';
 import { formatList, formatMoney } from '@/lib/format';
-import { toast } from '@/lib/toast';
 
 export interface FamilyMember {
   id: string;
@@ -24,10 +23,18 @@ export interface FamilyMember {
   monthlyFee: string | null;
 }
 
+export interface FamilyResponsible {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  trains: boolean;
+}
+
 export interface Family {
   id: string;
   name: string;
-  contactStudentId: string | null;
+  responsible: FamilyResponsible | null;
   agreedPrice: string | null;
   priceReviewNeeded: boolean;
   familyFee: string;
@@ -56,9 +63,17 @@ export function invalidateFamilyQueries(queryClient: ReturnType<typeof useQueryC
   }
 }
 
+const FAMILY_ERRORS: Record<string, string> = {
+  STUDENT_IN_FAMILY: 'families.errors.studentInFamily',
+  EMAIL_TAKEN: 'families.errors.emailTaken',
+  RESPONSIBLE_REQUIRED: 'families.errors.responsibleRequired',
+};
+
 export function familyErrorKey(err: Error) {
-  return err.message === 'STUDENT_IN_FAMILY' ? 'families.errors.studentInFamily' : 'common.genericError';
+  return FAMILY_ERRORS[err.message] ?? 'common.genericError';
 }
+
+const NEW_RESPONSIBLE = '__new';
 
 export default function FamiliesPage() {
   const { t, i18n } = useTranslation();
@@ -107,6 +122,9 @@ export default function FamiliesPage() {
                     <div className="min-w-0 space-y-1">
                       <h2 className="font-heading text-lg uppercase">{f.name}</h2>
                       <p className="text-sm text-muted-foreground">{formatList(f.members.map(m => m.name), i18n.language)}</p>
+                      {f.responsible && (
+                        <p className="text-sm">{`${t('families.responsible')}: ${f.responsible.name}`}</p>
+                      )}
                     </div>
                     <Button
                       variant="outline"
@@ -209,7 +227,10 @@ function FamilyForm({
   const isEdit = dialog.mode === 'edit';
   const [name, setName] = useState(family?.name ?? '');
   const [draftMembers, setDraftMembers] = useState(dialog.mode === 'create' ? dialog.members : []);
-  const [contactId, setContactId] = useState(family?.contactStudentId ?? '');
+  const [responsibleId, setResponsibleId] = useState(family?.responsible?.id ?? '');
+  const [newResponsible, setNewResponsible] = useState({ name: '', email: '' });
+  const [removing, setRemoving] = useState<{ id: string; name: string } | null>(null);
+  const [ownEmail, setOwnEmail] = useState('');
   const [agreedPrice, setAgreedPrice] = useState(family?.agreedPrice ?? '');
   const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -229,12 +250,23 @@ function FamilyForm({
     invalidateFamilyQueries(queryClient);
   };
 
+  const isNewResponsible = responsibleId === NEW_RESPONSIBLE;
+  const responsiblePayload = isNewResponsible ? { responsible: newResponsible } : { responsibleId };
+  const responsibleChanged = isEdit && responsibleId !== (family?.responsible?.id ?? '');
+  const hasResponsible = isNewResponsible ? !!newResponsible.name.trim() && !!newResponsible.email.trim() : !!responsibleId;
+
   const saveMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       if (isEdit) {
+        if (responsibleChanged) {
+          await api(`/families/${family!.id}/responsible`, {
+            method: 'PUT',
+            body: JSON.stringify(isNewResponsible ? newResponsible : { userId: responsibleId }),
+          });
+        }
         return api(`/families/${family!.id}`, {
           method: 'PUT',
-          body: JSON.stringify({ name, contactStudentId: contactId || null, agreedPrice: agreedPrice || null }),
+          body: JSON.stringify({ name, agreedPrice: agreedPrice || null }),
         });
       }
       return api('/families', {
@@ -242,7 +274,7 @@ function FamilyForm({
         body: JSON.stringify({
           name,
           memberIds: draftMembers.map(m => m.id),
-          contactStudentId: contactId || undefined,
+          ...responsiblePayload,
           agreedPrice: agreedPrice || undefined,
         }),
       });
@@ -263,17 +295,26 @@ function FamilyForm({
     onSuccess,
   });
 
+  // An own email lets the removed person create their login alone ("Primeiro acesso").
   const removeMemberMutation = useMutation({
-    mutationFn: (member: { id: string; name: string }) =>
-      api(`/families/${family!.id}/members/${member.id}`, { method: 'DELETE' }),
+    mutationFn: ({ studentId, email }: { studentId: string; email: string }) =>
+      api(`/families/${family!.id}/members/${studentId}`, {
+        method: 'DELETE',
+        body: JSON.stringify(email.trim() ? { email: email.trim() } : {}),
+      }),
     meta: { silent: true },
     onError,
-    onSuccess: (_, member) => {
+    onSuccess: () => {
       onSuccess();
-      toast(t('families.memberRemoved', { name: member.name }), {
-        action: { label: t('common.undo'), onClick: () => addMemberMutation.mutate(member.id) },
-      });
+      setRemoving(null);
+      setOwnEmail('');
     },
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: () => api(`/families/${family!.id}/responsible/invite`, { method: 'POST' }),
+    meta: { silent: true, successMessage: t('families.inviteSent') },
+    onError,
   });
 
   const deleteMutation = useMutation({
@@ -296,15 +337,46 @@ function FamilyForm({
   }
 
   function removeMember(member: { id: string; name: string }) {
-    const { id } = member;
-    if (contactId === id) {
-      setContactId('');
-    }
     if (isEdit) {
-      removeMemberMutation.mutate(member);
-    } else {
-      setDraftMembers(ms => ms.filter(m => m.id !== id));
+      setRemoving(member);
+      return;
     }
+    if (responsibleId === member.id) {
+      setResponsibleId('');
+    }
+    setDraftMembers(ms => ms.filter(m => m.id !== member.id));
+  }
+
+  if (removing) {
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>{`${t('families.removeMember')} ${removing.name}`}</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">{t('families.removeExplain')}</p>
+        <div className="space-y-2">
+          <Label htmlFor="family-own-email">{t('families.ownEmail')}</Label>
+          <Input id="family-own-email" type="email" value={ownEmail} onChange={e => setOwnEmail(e.target.value)} />
+        </div>
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setRemoving(null)}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            variant="destructive"
+            loading={removeMemberMutation.isPending}
+            onClick={() => removeMemberMutation.mutate({ studentId: removing.id, email: ownEmail })}
+          >
+            {t('families.confirmRemove')}
+          </Button>
+        </DialogFooter>
+      </>
+    );
   }
 
   if (confirmDelete) {
@@ -361,6 +433,7 @@ function FamilyForm({
                   variant="ghost"
                   size="sm"
                   aria-label={`${t('families.removeMember')} ${m.name}`}
+                  disabled={isEdit && m.id === family?.responsible?.id}
                   onClick={() => removeMember(m)}
                 >
                   {t('families.remove')}
@@ -388,20 +461,60 @@ function FamilyForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="family-contact">{t('families.contact')}</Label>
+          <Label htmlFor="family-responsible">{t('families.responsible')}</Label>
           <select
-            id="family-contact"
-            value={contactId}
-            onChange={e => setContactId(e.target.value)}
+            id="family-responsible"
+            value={responsibleId}
+            onChange={e => setResponsibleId(e.target.value)}
             className={selectClass}
           >
-            <option value="">{t('families.noContact')}</option>
+            <option value="">{t('families.chooseResponsible')}</option>
             {members.map(m => (
               <option key={m.id} value={m.id}>
                 {m.name}
               </option>
             ))}
+            {family?.responsible && !family.responsible.trains && (
+              <option value={family.responsible.id}>{family.responsible.name}</option>
+            )}
+            <option value={NEW_RESPONSIBLE}>{t('families.newResponsible')}</option>
           </select>
+          <p className="text-xs text-muted-foreground">{t('families.responsibleHelp')}</p>
+          {isNewResponsible && (
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label htmlFor="family-responsible-name">{t('families.responsibleName')}</Label>
+                <Input
+                  id="family-responsible-name"
+                  value={newResponsible.name}
+                  onChange={e => setNewResponsible(r => ({ ...r, name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="family-responsible-email">{t('families.responsibleEmail')}</Label>
+                <Input
+                  id="family-responsible-email"
+                  type="email"
+                  value={newResponsible.email}
+                  onChange={e => setNewResponsible(r => ({ ...r, email: e.target.value }))}
+                />
+              </div>
+            </div>
+          )}
+          {responsibleChanged && family?.responsible?.trains && (
+            <p className="text-sm text-destructive">{t('families.loginMoves')}</p>
+          )}
+          {isEdit && family?.responsible && !responsibleChanged && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              loading={inviteMutation.isPending}
+              onClick={() => inviteMutation.mutate()}
+            >
+              {t('families.sendInvite')}
+            </Button>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -429,7 +542,7 @@ function FamilyForm({
               {t('common.delete')}
             </Button>
           )}
-          <Button type="submit" disabled={members.length === 0} loading={saveMutation.isPending}>
+          <Button type="submit" disabled={members.length === 0 || !hasResponsible} loading={saveMutation.isPending}>
             {isEdit ? t('common.save') : t('common.create')}
           </Button>
         </DialogFooter>

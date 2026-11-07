@@ -9,6 +9,7 @@ import { modalityRoutes } from './routes/modalities.js';
 import { studentRoutes } from './routes/students.js';
 import { paymentRoutes } from './routes/payments.js';
 import { familyRoutes } from './routes/families.js';
+import { meRoutes } from './routes/me.js';
 import { productRoutes } from './routes/products.js';
 import { orderRoutes } from './routes/orders.js';
 import { seasonRoutes } from './routes/seasons.js';
@@ -23,6 +24,8 @@ declare module 'fastify' {
   interface FastifyRequest {
     session: any;
     user: any;
+    // The logged-in user when acting as a Dependent (x-acting-as); otherwise same as user.
+    actor: any;
     academyId: string;
     academy?: { id: string; ownerId: string | null; timezone: string };
   }
@@ -41,6 +44,7 @@ export async function buildApp() {
   await app.register(studentRoutes);
   await app.register(paymentRoutes);
   await app.register(familyRoutes);
+  await app.register(meRoutes);
   await app.register(productRoutes);
   await app.register(orderRoutes);
   await app.register(seasonRoutes);

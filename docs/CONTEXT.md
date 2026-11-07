@@ -24,8 +24,20 @@ A person who trains at the academy and belongs to it, adult or kid.
 _Avoid_: Aluno (in code/specs), member, athlete
 
 **Family**:
-A group of Students of the same household whose monthly fees are paid together. A Student belongs to at most one Family.
-_Avoid_: Household, group, account
+A group of Students of the same household whose monthly fees are paid together, managed through one login — its Responsible's. A Student belongs to at most one Family.
+_Avoid_: Household, group
+
+**Responsible**:
+The one person who logs in for a Family and acts for all its members (in the UI: "Responsável"). May train (then also a Student) or not (login only). Every Family has exactly one. See [[0004-one-login-per-family-with-profiles|ADR 0004]].
+_Avoid_: Guardian, parent, payer, head of family, Family Contact
+
+**Dependent**:
+A Family member who is not its Responsible: has no login of their own and is managed by the Responsible — usually a kid, sometimes an adult (in the UI: "Dependente").
+_Avoid_: Child, minor, sub-account
+
+**Profile**:
+Whose eyes the Responsible is using the app through — themself or one Dependent — chosen after login ("Quem vai usar?").
+_Avoid_: Account, user switch, impersonation
 
 **Modality**:
 A discipline the academy teaches (e.g. Jiu-Jitsu, MMA, Kids, Funcional, Feminino), from a short list the Owner maintains. A Student is tagged with the Modalities they train; this is informational and never sets the price or restricts check-in.
@@ -54,8 +66,7 @@ The amount the Owner set for a Student to pay per month. There are no plans: the
 _Avoid_: Plan, agreed price, mensalidade (in code/specs), dues, package
 
 **Family Contact**:
-The member of a Family the Owner prefers to reach about its payments. Optional; a Family has no payer of its own, and any member can be contacted.
-_Avoid_: Payer, responsible, guardian, head of family
+_Superseded by **Responsible** ([[0004-one-login-per-family-with-profiles|ADR 0004]])._ Formerly the optional member the Owner preferred to reach about a Family's payments.
 
 **Waived Month**:
 A month the Owner decided a Student does not owe (didn't train, injury, holidays). Applies to any Student, in a Family or not.

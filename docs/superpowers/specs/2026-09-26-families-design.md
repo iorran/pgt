@@ -3,6 +3,7 @@
 Date: 2026-09-26
 Status: Implemented — families + no plans / modalities ([[0002-no-plans-monthly-fee-per-student|ADR 0002]])
 Glossary: [[CONTEXT|Glossary]] · Decision: [[0001-family-payments-as-per-member-rows|ADR 0001]]
+Revised by: [[0004-one-login-per-family-with-profiles|ADR 0004]] — decisions 7 and 15 superseded (one Responsible login per Family, with profiles).
 
 ## Problem
 

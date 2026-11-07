@@ -25,15 +25,21 @@ vi.mock('@/components/layout/staff-shell', () => ({
 vi.mock('@/pages/classes/index', () => ({
   default: () => <div data-testid="classes-page" />,
 }));
+vi.mock('@/pages/profiles', () => ({
+  default: () => <div data-testid="profiles-page" />,
+}));
+vi.mock('@/hooks/use-profiles', () => ({ useProfiles: vi.fn() }));
 vi.mock('@/pages/owner/dashboard', () => ({
   default: () => <div data-testid="owner-dashboard-page" />,
 }));
 
 import { useSession } from '@/lib/auth-client';
+import { useProfiles } from '@/hooks/use-profiles';
+import { clearProfile, markProfileChosen } from '@/lib/profile';
 
 const mockedUseSession = vi.mocked(useSession);
 
-function setSession(role: 'student' | 'owner') {
+function setSession(role: 'student' | 'owner' | 'responsible', extra: Record<string, unknown> = {}) {
   mockedUseSession.mockReturnValue({
     data: {
       user: {
@@ -41,6 +47,7 @@ function setSession(role: 'student' | 'owner') {
         academyId: 'a1',
         role,
         status: 'approved',
+        ...extra,
       },
     },
     isPending: false,
@@ -50,6 +57,8 @@ function setSession(role: 'student' | 'owner') {
 describe('App shell selector', () => {
   beforeEach(() => {
     mockedUseSession.mockReset();
+    clearProfile();
+    vi.mocked(useProfiles).mockReturnValue({ data: { actorId: 'u1', currentId: 'u1', self: null, dependents: [] } } as any);
     // BrowserRouter reads window.location; reset to '/' between tests
     // so redirects from earlier cases don't leak into the next.
     window.history.replaceState({}, '', '/');
@@ -129,5 +138,46 @@ describe('App shell selector', () => {
     expect(screen.queryByRole('status', { name: 'common.loading' })).not.toBeInTheDocument();
     expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
     expect(screen.queryByTestId('staff-shell')).not.toBeInTheDocument();
+  });
+
+  describe('family profiles (ADR 0004)', () => {
+    const dependents = [{ id: 'd1', name: 'Livia', belt: 'yellow', image: null }];
+
+    it('a Responsible who does not train always starts at "Quem vai usar?"', () => {
+      setSession('responsible', { actorId: 'u1', actorRole: 'responsible' });
+      vi.mocked(useProfiles).mockReturnValue({ data: { actorId: 'u1', currentId: 'u1', self: null, dependents } } as any);
+      renderWithProviders(<App />);
+      expect(screen.getByTestId('profiles-page')).toBeInTheDocument();
+      expect(window.location.pathname).toBe('/perfis');
+    });
+
+    it('a student with Dependents picks a profile first, once per tab', () => {
+      setSession('student', { actorId: 'u1', actorRole: 'student' });
+      vi.mocked(useProfiles).mockReturnValue({ data: { actorId: 'u1', currentId: 'u1', self: { id: 'u1', name: 'Rafael', belt: 'purple', image: null }, dependents } } as any);
+      renderWithProviders(<App />);
+      expect(screen.getByTestId('profiles-page')).toBeInTheDocument();
+    });
+
+    it('after choosing, the app opens normally', () => {
+      markProfileChosen();
+      setSession('student', { actorId: 'u1', actorRole: 'student' });
+      vi.mocked(useProfiles).mockReturnValue({ data: { actorId: 'u1', currentId: 'u1', self: { id: 'u1', name: 'Rafael', belt: 'purple', image: null }, dependents } } as any);
+      renderWithProviders(<App />);
+      expect(screen.getByTestId('classes-page')).toBeInTheDocument();
+    });
+
+    it('acting as a Dependent opens the student app', () => {
+      markProfileChosen();
+      setSession('student', { id: 'd1', actorId: 'u1', actorRole: 'responsible' });
+      renderWithProviders(<App />);
+      expect(screen.getByTestId('student-shell')).toBeInTheDocument();
+    });
+
+    it('owners never see the picker', async () => {
+      setSession('owner');
+      renderWithProviders(<App />);
+      expect(await screen.findByTestId('owner-dashboard-page')).toBeInTheDocument();
+      expect(useProfiles).toHaveBeenCalledWith(false);
+    });
   });
 });

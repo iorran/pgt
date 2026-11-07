@@ -98,7 +98,14 @@ export default function LoginPage() {
               )}
             </form.Field>
 
-            <div className="text-right">
+            <div className="flex justify-between">
+              {/* Same set-password flow: removed family members and invited Responsibles (ADR 0004). */}
+              <Link
+                to="/forgot-password"
+                className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline"
+              >
+                {t('auth.firstAccess')}
+              </Link>
               <Link
                 to="/forgot-password"
                 className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline"

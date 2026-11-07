@@ -43,7 +43,8 @@
     "backToLogin": "Voltar ao login",
     "loginError": "E-mail ou senha inválidos.",
     "passwordHint": "Mínimo de 8 caracteres",
-    "haveAccount": "Já tenho conta"
+    "haveAccount": "Já tenho conta",
+    "firstAccess": "Primeiro acesso"
   },
   "common": {
     "close": "Fechar",
@@ -515,7 +516,6 @@
     "overdueMessage_other": "Olá {{name}}, seu pagamento na academia está {{count}} dias atrasado. Por favor, regularize o quanto antes."
   },
   "families": {
-    "memberRemoved": "{{name}} removido(a) da família",
     "title": "Famílias",
     "family": "Família",
     "new": "Nova família",
@@ -526,8 +526,6 @@
     "searchResults": "Alunos encontrados",
     "removeMember": "Remover da família",
     "remove": "Remover",
-    "contact": "Contato da família",
-    "noContact": "Nenhum (qualquer membro)",
     "agreedPrice": "Preço acordado",
     "familyAgreedPrice": "Preço acordado da família",
     "agreedPricePlaceholder": "Vazio = sem preço acordado",
@@ -551,8 +549,22 @@
     "month": "Mês",
     "reason": "Motivo (opcional)",
     "errors": {
-      "studentInFamily": "Um dos alunos já pertence a uma família"
-    }
+      "studentInFamily": "Um dos alunos já pertence a uma família",
+      "emailTaken": "Este e-mail já está em uso",
+      "responsibleRequired": "Escolha outro responsável antes de remover este membro"
+    },
+    "responsible": "Responsável",
+    "chooseResponsible": "Escolha o responsável",
+    "newResponsible": "Nova pessoa (não treina)",
+    "responsibleHelp": "Só o responsável entra no app e cuida de todos os membros.",
+    "responsibleName": "Nome do responsável",
+    "responsibleEmail": "E-mail do responsável",
+    "loginMoves": "O responsável atual deixa de ter login próprio e passa a ser gerido pelo novo.",
+    "sendInvite": "Enviar convite",
+    "inviteSent": "Convite enviado",
+    "removeExplain": "A pessoa vira aluno independente e mantém o histórico. Com um e-mail próprio, ela cria o acesso sozinha em \"Primeiro acesso\".",
+    "ownEmail": "E-mail próprio (opcional)",
+    "confirmRemove": "Remover"
   },
   "belts": {
     "white": "Branca",
@@ -576,5 +588,10 @@
   "beltGroups": {
     "adult": "Adulto",
     "kids": "Infantil"
+  },
+  "profiles": {
+    "title": "Quem vai usar?",
+    "you": "Você",
+    "switch": "Trocar perfil"
   }
 }

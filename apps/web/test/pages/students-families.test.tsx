@@ -19,7 +19,7 @@ const session = {
 const silva = {
   id: 'f1',
   name: 'Família Silva',
-  contactStudentId: 's1',
+  responsible: { id: 's1', name: 'Bia', email: 'bia@x.com', phone: null, trains: true },
   agreedPrice: '100.00',
   priceReviewNeeded: true,
   familyFee: '100.00',
@@ -80,13 +80,13 @@ describe('FamiliesPage', () => {
     const results = screen.getByRole('list', { name: 'families.searchResults' });
     expect(within(results).queryByText('Bia')).toBeNull();
     await user.click(within(results).getByRole('button', { name: /Carlos/ }));
-    await user.selectOptions(screen.getByLabelText('families.contact'), 's3');
+    await user.selectOptions(screen.getByLabelText('families.responsible'), 's3');
     await user.type(screen.getByLabelText('families.familyAgreedPrice'), '80');
     await user.click(screen.getByRole('button', { name: 'common.create' }));
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/families', {
         method: 'POST',
-        body: JSON.stringify({ name: 'Família Stefan', memberIds: ['s3'], contactStudentId: 's3', agreedPrice: '80' }),
+        body: JSON.stringify({ name: 'Família Stefan', memberIds: ['s3'], responsibleId: 's3', agreedPrice: '80' }),
       }),
     );
   });
@@ -118,6 +118,7 @@ describe('FamiliesPage', () => {
     await user.type(screen.getByLabelText('families.name'), 'X');
     await user.type(screen.getByLabelText('families.searchMembers'), 'Car');
     await user.click(screen.getByRole('button', { name: /Carlos/ }));
+    await user.selectOptions(screen.getByLabelText('families.responsible'), 's3');
     await user.click(screen.getByRole('button', { name: 'common.create' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('families.errors.studentInFamily');
   });
@@ -127,7 +128,10 @@ describe('FamiliesPage', () => {
     renderWithProviders(<FamiliesPage />);
     await user.click(await screen.findByRole('button', { name: 'common.edit Família Silva' }));
     await user.click(screen.getByRole('button', { name: 'families.removeMember Leo' }));
-    await waitFor(() => expect(api).toHaveBeenCalledWith('/families/f1/members/s2', { method: 'DELETE' }));
+    await user.click(screen.getByRole('button', { name: 'families.confirmRemove' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/families/f1/members/s2', { method: 'DELETE', body: JSON.stringify({}) }),
+    );
 
     await user.type(screen.getByLabelText('families.searchMembers'), 'Du');
     await user.click(screen.getByRole('button', { name: /Duda/ }));
@@ -148,24 +152,7 @@ describe('FamiliesPage', () => {
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/families/f1', {
         method: 'PUT',
-        body: JSON.stringify({ name: 'Silva', contactStudentId: 's1', agreedPrice: '90' }),
-      }),
-    );
-  });
-
-  it('offers an undo toast after removing a member, which re-adds them', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<FamiliesPage />);
-    await user.click(await screen.findByRole('button', { name: 'common.edit Família Silva' }));
-    await user.click(screen.getByRole('button', { name: 'families.removeMember Leo' }));
-    await waitFor(() => expect(toast).toHaveBeenCalledWith('families.memberRemoved', expect.anything()));
-    const [, opts] = vi.mocked(toast).mock.calls[0] as any;
-    expect(opts.action.label).toBe('common.undo');
-    opts.action.onClick();
-    await waitFor(() =>
-      expect(api).toHaveBeenCalledWith('/families/f1/members', {
-        method: 'POST',
-        body: JSON.stringify({ studentId: 's2' }),
+        body: JSON.stringify({ name: 'Silva', agreedPrice: '90' }),
       }),
     );
   });
@@ -207,5 +194,78 @@ describe('FamiliesPage', () => {
     renderWithProviders(<FamiliesPage />);
     await screen.findByRole('heading', { name: 'Família Silva' });
     expect(screen.queryByRole('heading', { name: 'families.suggestions' })).toBeNull();
+  });
+  it('shows the Responsible on the family card', async () => {
+    renderWithProviders(<FamiliesPage />);
+    const card = (await screen.findByRole('heading', { name: 'Família Silva' })).closest('li')!;
+    expect(within(card).getByText(/families\.responsible: Bia/)).toBeInTheDocument();
+  });
+
+  it('creates a family with a new Responsible who does not train', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<FamiliesPage />);
+    await user.click(await screen.findByRole('button', { name: 'families.new' }));
+    await user.type(screen.getByLabelText('families.name'), 'Lima');
+    await user.type(screen.getByLabelText('families.searchMembers'), 'Car');
+    await user.click(screen.getByRole('button', { name: /Carlos/ }));
+    await user.selectOptions(screen.getByLabelText('families.responsible'), '__new');
+    await user.type(screen.getByLabelText('families.responsibleName'), 'Paula');
+    await user.type(screen.getByLabelText('families.responsibleEmail'), 'paula@x.com');
+    await user.click(screen.getByRole('button', { name: 'common.create' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/families', {
+        method: 'POST',
+        body: JSON.stringify({ name: 'Lima', memberIds: ['s3'], responsible: { name: 'Paula', email: 'paula@x.com' } }),
+      }),
+    );
+  });
+
+  it('requires a Responsible before creating', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<FamiliesPage />);
+    await user.click(await screen.findByRole('button', { name: 'families.new' }));
+    await user.type(screen.getByLabelText('families.name'), 'X');
+    await user.type(screen.getByLabelText('families.searchMembers'), 'Car');
+    await user.click(screen.getByRole('button', { name: /Carlos/ }));
+    expect(screen.getByRole('button', { name: 'common.create' })).toBeDisabled();
+  });
+
+  it('changes the Responsible (warning: the old one loses their own login) and saves', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<FamiliesPage />);
+    await user.click(await screen.findByRole('button', { name: 'common.edit Família Silva' }));
+    await user.selectOptions(screen.getByLabelText('families.responsible'), 's2');
+    expect(screen.getByText('families.loginMoves')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/families/f1/responsible', { method: 'PUT', body: JSON.stringify({ userId: 's2' }) }),
+    );
+  });
+
+  it('sends an invite to the Responsible', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<FamiliesPage />);
+    await user.click(await screen.findByRole('button', { name: 'common.edit Família Silva' }));
+    await user.click(screen.getByRole('button', { name: 'families.sendInvite' }));
+    await waitFor(() => expect(api).toHaveBeenCalledWith('/families/f1/responsible/invite', { method: 'POST' }));
+  });
+
+  it('removes a member with their own email so they can log in alone', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<FamiliesPage />);
+    await user.click(await screen.findByRole('button', { name: 'common.edit Família Silva' }));
+    await user.click(screen.getByRole('button', { name: 'families.removeMember Leo' }));
+    await user.type(screen.getByLabelText('families.ownEmail'), 'leo@x.com');
+    await user.click(screen.getByRole('button', { name: 'families.confirmRemove' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/families/f1/members/s2', { method: 'DELETE', body: JSON.stringify({ email: 'leo@x.com' }) }),
+    );
+  });
+
+  it('the Responsible cannot be removed', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<FamiliesPage />);
+    await user.click(await screen.findByRole('button', { name: 'common.edit Família Silva' }));
+    expect(screen.getByRole('button', { name: 'families.removeMember Bia' })).toBeDisabled();
   });
 });
