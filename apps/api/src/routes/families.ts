@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { family, familyPayment, familySuggestionDismissal, payment, user } from '../db/schema/index.js';
+import { account, family, familyPayment, familySuggestionDismissal, payment, user } from '../db/schema/index.js';
 import { and, eq, inArray, isNull, isNotNull } from 'drizzle-orm';
 import { requireOwner } from '../middleware/auth.js';
 import { auth } from '../auth/index.js';
@@ -96,8 +96,13 @@ async function loadResponsible(fam: FamilyRow): Promise<Responsible | null> {
   return r ? { id: r.id, name: r.name, email: r.email, phone: r.phone, trains: r.role !== 'responsible' } : null;
 }
 
+// A family's members: users linked to it who still belong to its academy (a stale link after a move doesn't count).
+function membersOf(fam: FamilyRow) {
+  return and(eq(user.familyId, fam.id), eq(user.academyId, fam.academyId));
+}
+
 async function familyResponse(fam: FamilyRow) {
-  return buildFamily(fam, await loadStudentBilling(eq(user.familyId, fam.id)), new Date(), await loadResponsible(fam));
+  return buildFamily(fam, await loadStudentBilling(membersOf(fam)), new Date(), await loadResponsible(fam));
 }
 
 // Sets family_id only for students not already in a family; throws with the ones that were taken.
@@ -282,7 +287,7 @@ export async function familyRoutes(app: FastifyInstance) {
       const [member] = await db
         .select({ id: user.id })
         .from(user)
-        .where(and(eq(user.id, body.userId), eq(user.familyId, fam.id)));
+        .where(and(eq(user.id, body.userId), membersOf(fam)));
       if (!member) {
         return reply.status(400).send({ error: 'The Responsible must be a member' });
       }
@@ -376,11 +381,16 @@ export async function familyRoutes(app: FastifyInstance) {
       if (other && other.id !== studentId) {
         return reply.status(409).send({ error: 'EMAIL_TAKEN' });
       }
+      // The email is only for someone without a login yet; changing a login's email would hand the account over.
+      const [login] = await db.select({ id: account.id }).from(account).where(eq(account.userId, studentId)).limit(1);
+      if (login) {
+        return reply.status(409).send({ error: 'MEMBER_HAS_LOGIN' });
+      }
     }
     const removed = await db
       .update(user)
       .set({ familyId: null, ...(email ? { email } : {}) })
-      .where(and(eq(user.id, studentId), eq(user.familyId, fam.id)))
+      .where(and(eq(user.id, studentId), membersOf(fam)))
       .returning({ id: user.id });
     if (removed.length === 0) {
       return reply.status(404).send({ error: 'Student is not a member' });
@@ -402,7 +412,7 @@ export async function familyRoutes(app: FastifyInstance) {
     if (!fam) {
       return reply.status(404).send({ error: 'Family not found' });
     }
-    const members = await loadStudentBilling(eq(user.familyId, fam.id));
+    const members = await loadStudentBilling(membersOf(fam));
     return familyBilling(fam.agreedPrice, members, new Date());
   });
 
@@ -427,7 +437,7 @@ export async function familyRoutes(app: FastifyInstance) {
     const paymentDate = (body.paymentDate as string | undefined) ?? dateKey(new Date());
 
     // Members already paid for a month (individual payment) are not charged again.
-    const members = await loadStudentBilling(eq(user.familyId, fam.id));
+    const members = await loadStudentBilling(membersOf(fam));
     const splitMonths = months.map((month) => ({
       month,
       members: members

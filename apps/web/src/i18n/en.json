@@ -551,6 +551,7 @@
     "errors": {
       "studentInFamily": "One of the students already belongs to a family",
       "emailTaken": "This email is already in use",
+      "memberHasLogin": "This person already has their own login, so their email can’t be changed here. Remove them without an email.",
       "responsibleRequired": "Choose another Responsible before removing this member"
     },
     "responsible": "Responsible",

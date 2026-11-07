@@ -67,6 +67,7 @@ const FAMILY_ERRORS: Record<string, string> = {
   STUDENT_IN_FAMILY: 'families.errors.studentInFamily',
   EMAIL_TAKEN: 'families.errors.emailTaken',
   RESPONSIBLE_REQUIRED: 'families.errors.responsibleRequired',
+  MEMBER_HAS_LOGIN: 'families.errors.memberHasLogin',
 };
 
 export function familyErrorKey(err: Error) {
