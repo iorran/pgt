@@ -13,10 +13,10 @@ export function StudentHeader() {
 
   return (
     <header
-      className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-[color:var(--pgt-green)] px-4 text-white"
+      className="sticky top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between gap-3 border-b border-border bg-[color:var(--pgt-green)] px-4 text-white"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <img
           src="/pwa-192.png"
           alt=""
@@ -27,14 +27,14 @@ export function StudentHeader() {
       </div>
       <div className="flex min-w-0 items-center gap-3">
         {userName ? (
-          <span className="font-heading text-sm uppercase tracking-wide truncate">
+          <span className="min-w-0 font-heading text-sm uppercase tracking-wide line-clamp-2 break-words text-right">
             {userName}
           </span>
         ) : null}
         {canSwitch && (
           <Link
             to="/perfis"
-            className="shrink-0 rounded-sm border border-white/40 px-2 py-1 text-xs uppercase tracking-wide text-white no-underline hover:bg-white/10"
+            className="inline-flex min-h-11 shrink-0 items-center rounded-sm border border-white/40 px-2 text-xs uppercase tracking-wide text-white no-underline hover:bg-white/10"
           >
             {t('profiles.switch')}
           </Link>

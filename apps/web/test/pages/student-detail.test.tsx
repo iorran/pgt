@@ -204,7 +204,7 @@ describe('StudentDetailPage', () => {
     const user = userEvent.setup();
     renderPage();
     expect(await screen.findByText(/Lesão/)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'families.unwaive 2026-08' }));
+    await user.click(screen.getByRole('button', { name: 'families.unwaive' }));
     await waitFor(() => expect(api).toHaveBeenCalledWith('/students/s1/waived-months/2026-08', { method: 'DELETE' }));
 
     fireEvent.change(screen.getByLabelText('families.month'), { target: { value: '2026-10' } });

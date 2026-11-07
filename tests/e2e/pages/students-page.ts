@@ -63,17 +63,17 @@ export class PendingStudentsPage {
   async reject(name: string) {
     const studentCard = this.card(name);
     await studentCard
-      .getByRole('button', { name: /rejeitar/i })
+      .getByRole('button', { name: /^recusar$/i })
       .click();
     // Rejecting asks for confirmation first.
-    await confirmDialog(this.page);
+    await confirmDialog(this.page, /^recusar cadastro$/i);
   }
 }
 
-/** Click "Confirmar" (t('common.confirm')) in the open confirm dialog. */
-export async function confirmDialog(page: Page) {
+/** Click the confirm button (default "Confirmar", t('common.confirm')) in the open confirm dialog. */
+export async function confirmDialog(page: Page, name: RegExp = /^confirmar$/i) {
   const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: /^confirmar$/i }).click();
+  await dialog.getByRole('button', { name }).click();
   await expect(dialog).toBeHidden({ timeout: 10_000 });
 }
 

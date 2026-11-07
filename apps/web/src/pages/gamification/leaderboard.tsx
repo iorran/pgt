@@ -4,6 +4,7 @@ import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
+import { QueryError } from '@/components/query-error';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
@@ -45,7 +46,7 @@ export default function LeaderboardPage() {
   const [category, setCategory] = useState<'adults' | 'kids'>('adults');
   const [belt, setBelt] = useState('');
 
-  const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
+  const { data: seasons = [], isLoading, isError: seasonsError, refetch: refetchSeasons } = useApiQuery<Season[]>(
     ['seasons', user?.academyId],
     `/seasons?academyId=${user?.academyId}`,
     !!user?.academyId,
@@ -58,7 +59,7 @@ export default function LeaderboardPage() {
     ? `/seasons/${effectiveSeasonId}/leaderboard?category=${category}${category === 'adults' && belt ? `&belt=${belt}` : ''}`
     : '';
 
-  const { data: entries = [] } = useApiQuery<LeaderboardEntry[]>(
+  const { data: entries = [], isError: entriesError, refetch: refetchEntries } = useApiQuery<LeaderboardEntry[]>(
     ['leaderboard', effectiveSeasonId, category, belt],
     leaderboardUrl,
     !!effectiveSeasonId,
@@ -89,7 +90,9 @@ export default function LeaderboardPage() {
         </div>
       )}
 
-      {seasons.length === 0 ? (
+      {seasonsError ? (
+        <QueryError onRetry={() => void refetchSeasons()} />
+      ) : seasons.length === 0 ? (
         <p className="text-center text-muted-foreground">{t('gamification.noSeasons')}</p>
       ) : (
         <>
@@ -99,7 +102,7 @@ export default function LeaderboardPage() {
               value={effectiveSeasonId}
               onChange={e => setSeasonId(e.target.value)}
               aria-label={t('gamification.season')}
-              className="min-h-11 rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
+              className="min-h-11 rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm font-heading"
             >
               {seasons.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
@@ -144,10 +147,20 @@ export default function LeaderboardPage() {
             </div>
 
             <TabsContent value="adults" className="mt-6">
-              <LeaderboardList entries={entries} t={t} rowHref={rowHref} />
+              <LeaderboardList
+                entries={entries}
+                t={t}
+                rowHref={rowHref}
+                onRetry={entriesError ? () => void refetchEntries() : undefined}
+              />
             </TabsContent>
             <TabsContent value="kids" className="mt-6">
-              <LeaderboardList entries={entries} t={t} rowHref={rowHref} />
+              <LeaderboardList
+                entries={entries}
+                t={t}
+                rowHref={rowHref}
+                onRetry={entriesError ? () => void refetchEntries() : undefined}
+              />
             </TabsContent>
           </Tabs>
         </>
@@ -160,11 +173,16 @@ function LeaderboardList({
   entries,
   t,
   rowHref,
+  onRetry,
 }: {
   entries: LeaderboardEntry[];
   t: (key: string) => string;
   rowHref?: (entry: LeaderboardEntry) => string;
+  onRetry?: () => void;
 }) {
+  if (onRetry) {
+    return <QueryError onRetry={onRetry} />;
+  }
   if (entries.length === 0) {
     return (
       <div className="text-center py-12 space-y-3">
@@ -180,7 +198,7 @@ function LeaderboardList({
         const isChampion = entry.rank === 1;
         const isPodium = entry.rank <= 3;
         const rankColor = getRankStyle(entry.rank);
-        const className = `flex w-full min-h-11 items-center gap-4 px-4 rounded-sm border text-left transition-all ${rowHref ? 'cursor-pointer hover:border-primary/60 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50' : ''} ${
+        const className = `flex w-full min-h-11 items-center gap-4 px-4 rounded-sm border text-left transition-colors ${rowHref ? 'cursor-pointer hover:border-primary/60 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50' : ''} ${
               isChampion
                 ? 'py-5 border-primary/50 bg-primary/5 animate-glow'
                 : isPodium
@@ -196,7 +214,7 @@ function LeaderboardList({
 
             {/* Name + Belt */}
             <div className="flex-1 min-w-0">
-              <span className={`font-heading ${isChampion ? 'text-xl' : 'text-base'} truncate block`}>
+              <span className={`font-heading ${isChampion ? 'text-xl' : 'text-base'} block break-words`}>
                 {entry.studentName}
               </span>
             </div>

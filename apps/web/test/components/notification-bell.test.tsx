@@ -9,6 +9,7 @@ vi.mock('@/lib/api', () => ({ api: vi.fn() }));
 
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { toast } from '@/lib/toast';
 
 const mockUseSession = vi.mocked(useSession);
 const mockApi = vi.mocked(api);
@@ -62,5 +63,38 @@ describe('NotificationBell', () => {
     // email/mute are per student: only João has them
     expect(screen.getAllByRole('button', { name: /notifications\.sendEmail/ })).toHaveLength(1);
     expect(screen.getAllByRole('button', { name: /notifications\.sendReminder/ })).toHaveLength(1);
+  });
+
+  it('names the count in the trigger and opens an Escape-closable sheet', async () => {
+    mockApi.mockResolvedValue([
+      { studentId: 's1', studentName: 'João', kind: 'student', amountDue: '45.00', daysOverdue: 3, phone: '5511999', notificationsMuted: false },
+    ] as any);
+    renderWithProviders(<NotificationBell />);
+    const trigger = await screen.findByRole('button', { name: 'notifications.title (1)' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(trigger);
+    expect(await screen.findByRole('dialog', { name: 'notifications.title' })).toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => { expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); });
+  });
+
+  it('offers undo after muting a student, which unmutes them', async () => {
+    mockApi.mockResolvedValue([
+      { studentId: 's1', studentName: 'João', kind: 'student', amountDue: '45.00', daysOverdue: 3, phone: '5511999', notificationsMuted: false },
+    ] as any);
+    renderWithProviders(<NotificationBell />);
+    await userEvent.click(await screen.findByRole('button', { name: /notifications\.title/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'notifications.mute' }));
+    await waitFor(() => {
+      expect(mockApi).toHaveBeenCalledWith('/students/s1/notifications', { method: 'PUT', body: JSON.stringify({ muted: true }) });
+    });
+    await waitFor(() => { expect(toast).toHaveBeenCalledWith('notifications.mutedToast', expect.anything()); });
+    const [, opts] = vi.mocked(toast).mock.calls[0] as any;
+    expect(opts.action.label).toBe('common.undo');
+    opts.action.onClick();
+    await waitFor(() => {
+      expect(mockApi).toHaveBeenCalledWith('/students/s1/notifications', { method: 'PUT', body: JSON.stringify({ muted: false }) });
+    });
   });
 });

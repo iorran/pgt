@@ -9,4 +9,12 @@ describe('TabsNav', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Financeiro' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'B' })).toHaveAttribute('aria-current', 'page');
   });
+
+  it('labels the nav with the title, or an explicit label', () => {
+    const { unmount } = render(<MemoryRouter><TabsNav title="Financeiro" items={[{ to: '/a', label: 'A' }]} /></MemoryRouter>);
+    expect(screen.getByRole('navigation', { name: 'Financeiro' })).toBeInTheDocument();
+    unmount();
+    render(<MemoryRouter><TabsNav label="Aulas" items={[{ to: '/a', label: 'A' }]} /></MemoryRouter>);
+    expect(screen.getByRole('navigation', { name: 'Aulas' })).toBeInTheDocument();
+  });
 });

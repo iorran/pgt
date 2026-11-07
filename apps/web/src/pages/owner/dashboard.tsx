@@ -66,7 +66,7 @@ export default function OwnerDashboardPage() {
   if (!isOwner) {
     return (
       <div className="p-8 text-center">
-        <h1 className="text-xl">Forbidden (403)</h1>
+        <h1 className="text-xl">{t('owner.forbiddenTitle')}</h1>
         <p className="text-muted-foreground">{t('owner.forbidden')}</p>
       </div>
     );

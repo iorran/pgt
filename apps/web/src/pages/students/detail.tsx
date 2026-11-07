@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/table';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { BeltOptions } from '@/components/belt-options';
-import { formatDate, formatMoney } from '@/lib/format';
+import { formatDate, formatMoney, formatMonth } from '@/lib/format';
 import { familyErrorKey, invalidateFamilyQueries } from '@/pages/students/families';
 
 interface Student {
@@ -318,7 +318,7 @@ function JoinFamilyDialog({ studentId }: { studentId: string }) {
             value={familyId}
             onChange={e => setFamilyId(e.target.value)}
             required
-            className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+            className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm"
           >
             <option value="">--</option>
             {families.map(f => (
@@ -467,7 +467,7 @@ function BeltForm({ studentId, belt }: { studentId: string; belt: string }) {
           id="student-belt"
           value={value}
           onChange={e => setValue(e.target.value)}
-          className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+          className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm"
         >
           <BeltOptions />
         </select>
@@ -561,7 +561,7 @@ function TrainingCard({
 }
 
 function WaivedMonthsCard({ studentId }: { studentId: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [month, setMonth] = useState('');
   const [reason, setReason] = useState('');
@@ -614,7 +614,7 @@ function WaivedMonthsCard({ studentId }: { studentId: string }) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  aria-label={`${t('families.unwaive')} ${w.referenceMonth}`}
+                  aria-label={t('families.unwaive', { month: formatMonth(w.referenceMonth, i18n.language) })}
                   loading={unwaiveMutation.isPending && unwaiveMutation.variables === w.referenceMonth}
                   onClick={() => unwaiveMutation.mutate(w.referenceMonth)}
                 >

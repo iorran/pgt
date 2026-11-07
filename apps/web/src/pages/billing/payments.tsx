@@ -19,6 +19,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
+import { QueryError } from '@/components/query-error';
 import { formatDate, formatMoney, todayYmd as today } from '@/lib/format';
 
 interface Payment {
@@ -60,7 +61,7 @@ export default function PaymentsPage() {
     },
   });
 
-  const { data: payments = [], isLoading: paymentsLoading } = useApiQuery<Payment[]>(
+  const { data: payments = [], isLoading: paymentsLoading, isError, refetch } = useApiQuery<Payment[]>(
     ['payments', user?.academyId],
     `/payments?academyId=${user?.academyId}`,
     !!user?.academyId,
@@ -192,31 +193,48 @@ export default function PaymentsPage() {
 
       <div>
         <h2 className="font-heading uppercase tracking-wider text-base mb-4">{t('billing.recentPayments')}</h2>
-        {payments.length === 0 ? (
+        {isError ? (
+          <QueryError onRetry={() => void refetch()} />
+        ) : payments.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">{t('billing.noPayments')}</p>
         ) : (
-          <div className="rounded-sm border border-border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('students.name')}</TableHead>
-                  <TableHead>{t('billing.amount')}</TableHead>
-                  <TableHead>{t('billing.date')}</TableHead>
-                  <TableHead>{t('billing.referenceMonth')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {payments.map(p => (
-                  <TableRow key={p.id}>
-                    <TableCell>{studentNames.get(p.studentId) || '-'}</TableCell>
-                    <TableCell className="arena-stat">{formatMoney(p.amount, i18n.language)}</TableCell>
-                    <TableCell className="font-mono">{formatDate(p.paymentDate, i18n.language)}</TableCell>
-                    <TableCell>{p.referenceMonth}</TableCell>
+          <>
+            <ul aria-label={t('billing.recentPayments')} className="md:hidden divide-y divide-border rounded-sm border border-border">
+              {payments.map(p => (
+                <li key={p.id} className="flex items-start justify-between gap-3 p-3">
+                  <div className="min-w-0 space-y-1">
+                    <p className="font-medium break-words">{studentNames.get(p.studentId) || '—'}</p>
+                    <p className="font-mono text-xs text-muted-foreground">
+                      {formatDate(p.paymentDate, i18n.language)} · {p.referenceMonth}
+                    </p>
+                  </div>
+                  <span className="arena-stat shrink-0">{formatMoney(p.amount, i18n.language)}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden md:block rounded-sm border border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('students.name')}</TableHead>
+                    <TableHead>{t('billing.amount')}</TableHead>
+                    <TableHead>{t('billing.date')}</TableHead>
+                    <TableHead>{t('billing.referenceMonth')}</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {payments.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell>{studentNames.get(p.studentId) || '—'}</TableCell>
+                      <TableCell className="arena-stat">{formatMoney(p.amount, i18n.language)}</TableCell>
+                      <TableCell className="font-mono">{formatDate(p.paymentDate, i18n.language)}</TableCell>
+                      <TableCell>{p.referenceMonth}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </div>
     </div>

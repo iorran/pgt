@@ -72,7 +72,13 @@ export function StudentClassesView() {
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude,
         }),
-      () => toast.error(t('classes.checkinTooFar')),
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error(t('classes.locationDenied'), { description: t('classes.locationDeniedHelp') });
+        } else {
+          toast.error(t('classes.locationUnavailable'));
+        }
+      },
     );
   }
 

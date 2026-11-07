@@ -19,7 +19,7 @@ export const ALL_BELTS = ['white', ...KIDS_BELTS, ...ADULT_BELTS];
 // Two-tone kids belts: main colour with an inset white/black stripe, so the badge reads on any background.
 // Literal class names so Tailwind's scanner picks them up.
 const BELT_CLASSES: Record<string, string> = {
-  white: 'bg-gray-200 text-gray-800',
+  white: 'bg-belt-white text-gray-800',
   'grey-white': 'bg-belt-grey text-white ring-2 ring-inset ring-white',
   grey: 'bg-belt-grey text-white',
   'grey-black': 'bg-belt-grey text-white ring-2 ring-inset ring-black',

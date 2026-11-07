@@ -71,7 +71,7 @@ describe('OwnerDashboardPage', () => {
     const { useSession } = await import('@/lib/auth-client');
     vi.mocked(useSession).mockReturnValue({ data: { user: { id: 'stu-1', role: 'student' } } } as any);
     await renderPage();
-    expect(screen.getByText(/forbidden \(403\)/i)).toBeInTheDocument();
+    expect(screen.getByText('owner.forbiddenTitle')).toBeInTheDocument();
   });
 });
 
@@ -109,7 +109,9 @@ describe('ClassesList expansion', () => {
     // inside an SVG text element, not a button). Match includes the totals
     // count so it doesn't collide with the type filter chip.
     const row = await screen.findByRole('button', { name: /no-gi.*10/i });
+    expect(row).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(row);
+    expect(row).toHaveAttribute('aria-expanded', 'true');
     await waitFor(() => expect(screen.getByText('João')).toBeInTheDocument());
     expect(screen.getByText('· belts.blue')).toBeInTheDocument();
     expect(screen.getByTestId('occurrence-chart')).toBeInTheDocument();
@@ -194,7 +196,9 @@ describe('StudentsList status filter + expansion', () => {
       </QueryClientProvider>,
     );
     const row = await screen.findByRole('button', { name: /joão/i });
+    expect(row).toHaveAttribute('aria-expanded', 'false');
     fireEvent.click(row);
+    expect(row).toHaveAttribute('aria-expanded', 'true');
     await waitFor(() =>
       expect(screen.getByText(/owner\.students\.streak: 3/i)).toBeInTheDocument(),
     );

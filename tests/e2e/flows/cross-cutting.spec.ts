@@ -148,8 +148,8 @@ test('28. instructor notification bell shows overdue count and dropdown actions'
 
     // Mute button (BellOff icon) should be visible — it's icon-only, ghost variant
     // It's in the same flex row as the WhatsApp and email buttons
-    // Use the notification dropdown container to scope the lookup
-    const dropdown = page.locator('.w-80');
+    // The notifications open in a side sheet (dialog role)
+    const dropdown = page.getByRole('dialog');
     await expect(dropdown).toBeVisible({ timeout: 5_000 });
     // The mute button is the last button in the actions row; there are 3 buttons per student entry
     const actionButtons = dropdown.getByRole('button');

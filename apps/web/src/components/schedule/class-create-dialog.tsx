@@ -102,13 +102,13 @@ export function ClassCreateDialog({
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   required
-                  className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm"
                 >
                   <option value="">--</option>
-                  <option value="gi">Gi</option>
-                  <option value="no-gi">No-Gi</option>
-                  <option value="open-mat">Open Mat</option>
-                  <option value="kids">Kids</option>
+                  <option value="gi">{t('owner.classes.types.gi')}</option>
+                  <option value="no-gi">{t('owner.classes.types.no-gi')}</option>
+                  <option value="open-mat">{t('owner.classes.types.open-mat')}</option>
+                  <option value="kids">{t('owner.classes.types.kids')}</option>
                 </select>
               </div>
             )}

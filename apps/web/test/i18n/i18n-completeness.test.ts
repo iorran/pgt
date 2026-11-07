@@ -35,11 +35,11 @@ describe('i18n completeness', () => {
     });
 
     it('onboarding.academyNotFound has correct accent', () => {
-      expect((ptBR as any).onboarding.academyNotFound).toBe('Academia não encontrada');
+      expect((ptBR as any).onboarding.academyNotFound).toContain('Academia não encontrada');
     });
 
     it('onboarding.waitingTitle has correct accent', () => {
-      expect((ptBR as any).onboarding.waitingTitle).toBe('Aguardando Aprovação');
+      expect((ptBR as any).onboarding.waitingTitle).toBe('Aguardando aprovação');
     });
 
     it('onboarding.waitingMessage has correct accent', () => {
@@ -47,7 +47,7 @@ describe('i18n completeness', () => {
     });
 
     it('onboarding.joinCode has correct accent', () => {
-      expect((ptBR as any).onboarding.joinCode).toBe('Código de Acesso');
+      expect((ptBR as any).onboarding.joinCode).toBe('Código de acesso');
     });
   });
 

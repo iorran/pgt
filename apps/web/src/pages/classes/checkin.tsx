@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
 import { buttonVariants } from '@/components/ui/button';
+import { QueryError } from '@/components/query-error';
 
 interface CheckinRecord {
   id: string;
@@ -27,7 +28,7 @@ export default function CheckinHistoryPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
 
-  const { data: checkins = [], isLoading } = useApiQuery<CheckinRecord[]>(
+  const { data: checkins = [], isLoading, isError, refetch } = useApiQuery<CheckinRecord[]>(
     ['checkins', user?.id],
     `/checkins/student/${user?.id}`,
     !!user?.id,
@@ -42,7 +43,9 @@ export default function CheckinHistoryPage() {
         { to: '/classes/history', label: t('classes.checkinHistory') },
       ]} />
 
-      {checkins.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : checkins.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
           <CalendarCheck className="size-12" />
           <p className="text-lg font-heading">{t('classes.noCheckins')}</p>

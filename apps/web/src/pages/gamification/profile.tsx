@@ -28,9 +28,9 @@ interface MyResult {
 
 // Status is spelled out in the badge text; colour only reinforces it.
 const STATUS_STYLES: Record<MyResult['status'], string> = {
-  pending: 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30 dark:text-yellow-400',
-  approved: 'bg-green-500/20 text-green-600 border-green-500/30 dark:text-green-400',
-  rejected: 'bg-destructive/10 text-destructive border-destructive/30',
+  pending: 'bg-yellow-500/20 text-warning-text border-yellow-500/30',
+  approved: 'bg-green-500/20 text-success-text border-green-500/30',
+  rejected: 'bg-destructive/10 text-danger-text border-destructive/30',
 };
 
 export default function GamificationProfilePage() {
@@ -63,7 +63,7 @@ export default function GamificationProfilePage() {
       {/* XP Header */}
       <div className="text-center space-y-1">
         <div className="font-display text-5xl md:text-6xl text-primary arena-glow">
-          {totalXp.toLocaleString()}
+          {totalXp.toLocaleString(i18n.language)}
         </div>
         <p className="font-heading text-lg text-muted-foreground uppercase">{t('gamification.totalXp')}</p>
       </div>
@@ -107,7 +107,7 @@ export default function GamificationProfilePage() {
               {myResults.map((r) => (
                 <li key={r.id} className="flex items-center gap-3 rounded-sm border border-border bg-card p-3">
                   <div className="min-w-0 flex-1">
-                    <p className="font-heading text-base truncate" title={r.competitionName}>
+                    <p className="font-heading text-base break-words">
                       {r.competitionName}
                     </p>
                     <p className="text-xs font-mono text-muted-foreground">{formatDate(r.competitionDate, i18n.language)}</p>
@@ -145,7 +145,7 @@ export default function GamificationProfilePage() {
                       <p className="text-sm text-muted-foreground">{b.description}</p>
                     )}
                     <p className="text-xs font-mono text-muted-foreground mt-1">
-                      {new Date(b.earnedAt).toLocaleDateString()}
+                      {new Date(b.earnedAt).toLocaleDateString(i18n.language)}
                     </p>
                   </div>
                 </CardContent>

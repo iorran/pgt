@@ -180,8 +180,8 @@ describe('InstructorClassesView', () => {
     capturedProps.onEventDrop('c1', newStart, newEnd);
 
     await waitFor(() => {
-      // MutationCache.onError fires toast.error with the error message
-      expect(toast.error).toHaveBeenCalledWith('boom');
+      // MutationCache.onError toasts (mapping is covered in query-client tests)
+      expect(toast.error).toHaveBeenCalled();
     });
 
     await waitFor(() => {
@@ -294,7 +294,7 @@ describe('InstructorClassesView', () => {
     await waitFor(() => expect(createProps.onSubmit).toBeDefined());
     mockApi.mockResolvedValueOnce({} as any).mockRejectedValueOnce(new Error('boom'));
     await expect(createProps.onSubmit(createValues)).rejects.toThrow('boom');
-    expect(toast.error).toHaveBeenCalledWith('boom');
+    expect(toast.error).toHaveBeenCalledWith('common.genericError');
     expect(toast.success).not.toHaveBeenCalled();
   });
 });

@@ -1,0 +1,19 @@
+import { describe, it, expect } from 'vitest';
+import { errorKey } from '@/lib/api-errors';
+
+describe('errorKey', () => {
+  it('maps known API codes to translated keys', () => {
+    expect(errorKey(new Error('CHECKIN_DUPLICATE'))).toBe('classes.checkinDuplicate');
+    expect(errorKey(new Error('OVERLAPPING_CLASS'))).toBe('classes.checkinOverlap');
+    expect(errorKey(new Error('OUTSIDE_TIME_WINDOW'))).toBe('classes.checkinOutsideWindow');
+    expect(errorKey(new Error('INVALID_TOKEN'))).toBe('classes.checkinInvalidToken');
+    expect(errorKey(new Error('LOCATION_NOT_SET'))).toBe('classes.checkinLocationNotSet');
+    expect(errorKey(new Error('TOO_FAR'))).toBe('classes.checkinTooFar');
+  });
+
+  it('falls back to the generic error for unknown or raw messages', () => {
+    expect(errorKey(new Error('Request failed'))).toBe('common.genericError');
+    expect(errorKey('nope')).toBe('common.genericError');
+    expect(errorKey(undefined)).toBe('common.genericError');
+  });
+});

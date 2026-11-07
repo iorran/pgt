@@ -9,6 +9,7 @@ vi.mock('@/lib/api', () => ({ api: vi.fn() }));
 
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { toast } from '@/lib/toast';
 
 const session = {
   data: { user: { id: 'u1', role: 'owner', academyId: 'a1', status: 'active' } },
@@ -64,7 +65,7 @@ describe('FamiliesPage', () => {
     const card = (await screen.findByRole('heading', { name: 'Família Silva' })).closest('li')!;
     expect(screen.getByRole('heading', { level: 1, name: 'nav.students' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'families.title' })).toHaveAttribute('href', '/students/families');
-    expect(within(card).getByText('Bia, Leo')).toBeInTheDocument();
+    expect(within(card).getByText('Bia e Leo')).toBeInTheDocument();
     expect(within(card).getByText(/100,00\s€/)).toBeInTheDocument();
     expect(within(card).getByText('families.agreedPrice')).toBeInTheDocument();
     expect(within(card).getByText('families.priceReviewNeeded')).toBeInTheDocument();
@@ -163,7 +164,7 @@ describe('FamiliesPage', () => {
     await user.click(screen.getByRole('button', { name: 'common.delete' }));
     expect(api).not.toHaveBeenCalledWith('/families/f1', { method: 'DELETE' });
     expect(screen.getByText('families.deleteConfirm')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'common.confirm' }));
+    await user.click(screen.getByRole('button', { name: 'families.deleteTitle' }));
     await waitFor(() => expect(api).toHaveBeenCalledWith('/families/f1', { method: 'DELETE' }));
   });
 
@@ -171,7 +172,7 @@ describe('FamiliesPage', () => {
     const user = userEvent.setup();
     renderWithProviders(<FamiliesPage />);
     const section = (await screen.findByRole('heading', { name: 'families.suggestions' })).closest('section')!;
-    expect(within(section).getByText('Carlos, Duda')).toBeInTheDocument();
+    expect(within(section).getByText('Carlos e Duda')).toBeInTheDocument();
 
     await user.click(within(section).getByRole('button', { name: 'families.dismiss' }));
     await waitFor(() =>

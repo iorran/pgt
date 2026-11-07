@@ -123,7 +123,7 @@ describe('App shell selector', () => {
       isRefetching: true,
     } as any);
     renderWithProviders(<App />);
-    expect(screen.getByText(/Carregando/)).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: 'common.loading' })).toBeInTheDocument();
     expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
     expect(screen.queryByTestId('staff-shell')).not.toBeInTheDocument();
   });
@@ -135,7 +135,7 @@ describe('App shell selector', () => {
       isRefetching: false,
     } as any);
     renderWithProviders(<App />);
-    expect(screen.queryByText(/Carregando/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('status', { name: 'common.loading' })).not.toBeInTheDocument();
     expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
     expect(screen.queryByTestId('staff-shell')).not.toBeInTheDocument();
   });

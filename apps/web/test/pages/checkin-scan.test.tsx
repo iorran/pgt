@@ -49,11 +49,24 @@ describe('CheckinScanPage', () => {
     expect(await screen.findByText('classes.checkinSuccess')).toBeInTheDocument();
   });
 
+  it('announces progress through one persistent status region', async () => {
+    let resolve!: (v: unknown) => void;
+    mockApi.mockReturnValue(new Promise((r) => { resolve = r; }) as any);
+
+    renderWithRoute(<CheckinScanPage />, ['/checkin?token=abc123&classId=c1']);
+
+    const status = await screen.findByRole('status');
+    expect(status).toHaveTextContent('common.loading');
+    resolve({ success: true });
+    await waitFor(() => expect(status).toHaveTextContent('classes.checkinSuccess'));
+    expect(screen.getByRole('status')).toBe(status);
+  });
+
   it('shows error message on failure', async () => {
     mockApi.mockRejectedValue(new Error('CHECKIN_DUPLICATE'));
 
     renderWithRoute(<CheckinScanPage />, ['/checkin?token=abc123&classId=c1']);
 
-    expect(await screen.findByText('CHECKIN_DUPLICATE')).toBeInTheDocument();
+    expect(await screen.findByText('classes.checkinDuplicate')).toBeInTheDocument();
   });
 });

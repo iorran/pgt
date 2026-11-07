@@ -7,6 +7,8 @@ import { api } from '@/lib/api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Bell, MessageCircle, Mail, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { toast } from '@/lib/toast';
 import { formatMoney } from '@/lib/format';
 
 interface OverdueStudent {
@@ -54,13 +56,21 @@ export function NotificationBell() {
   const unmutedCount = visibleItems.length;
 
   const muteMutation = useMutation({
-    mutationFn: ({ studentId, muted }: { studentId: string; muted: boolean }) =>
+    mutationFn: ({ studentId, muted }: { studentId: string; muted: boolean; name: string }) =>
       api(`/students/${studentId}/notifications`, {
         method: 'PUT',
         body: JSON.stringify({ muted }),
       }),
-    onSuccess: () => {
+    onSuccess: (_, { studentId, muted, name }) => {
       queryClient.invalidateQueries({ queryKey: ['overdue'] });
+      if (muted) {
+        toast(t('notifications.mutedToast', { name }), {
+          action: {
+            label: t('common.undo'),
+            onClick: () => muteMutation.mutate({ studentId, muted: false, name }),
+          },
+        });
+      }
     },
   });
 
@@ -78,7 +88,7 @@ export function NotificationBell() {
     }
     const message = t('notifications.overdueMessage', {
       name: itemName(item),
-      days: item.daysOverdue,
+      count: item.daysOverdue,
     });
     window.open(`https://wa.me/${item.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
   }
@@ -88,66 +98,70 @@ export function NotificationBell() {
   }
 
   return (
-    <div className="relative">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setOpen(!open)}
-        className="relative text-muted-foreground hover:text-foreground"
-        aria-label={t('notifications.title')}
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative text-muted-foreground hover:text-foreground"
+            aria-label={unmutedCount > 0 ? `${t('notifications.title')} (${unmutedCount})` : t('notifications.title')}
+          />
+        }
       >
-        <Bell size={20} />
+        <Bell className="size-5" />
         {unmutedCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+          <span
+            aria-hidden
+            className="absolute -top-0.5 -right-0.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center"
+          >
             {unmutedCount}
           </span>
         )}
-      </Button>
+      </SheetTrigger>
 
-      {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
-          <div className="p-3 border-b border-border">
-            <h3 className="font-heading text-sm uppercase tracking-wider">{t('notifications.title')}</h3>
+      <SheetContent side="right" className="gap-0 overflow-y-auto overscroll-contain">
+        <SheetHeader className="border-b border-border pr-12">
+          <SheetTitle className="font-heading text-sm uppercase tracking-wider">{t('notifications.title')}</SheetTitle>
+        </SheetHeader>
+
+        {visibleItems.length === 0 ? (
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            {t('notifications.noOverdue')}
           </div>
-
-          {visibleItems.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              {t('notifications.noOverdue')}
-            </div>
-          ) : (
-            <div className="divide-y divide-border">
-              {visibleItems.map((item) => (
-                <div key={itemKey(item)} className="p-3 space-y-2">
-                  <div>
-                    <p className="text-sm font-medium">{itemName(item)}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatMoney(item.amountDue, i18n.language)} &middot; {t('notifications.daysOverdue', { days: item.daysOverdue })}
-                    </p>
-                  </div>
-                  <div className="flex gap-1">
-                    {item.phone && (
-                      <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleWhatsApp(item)}>
-                        <MessageCircle size={14} className="mr-1" />
-                        {t('notifications.sendReminder')}
-                      </Button>
-                    )}
-                    {item.kind === 'student' && (
-                      <StudentActions
-                        student={item}
-                        emailSent={emailSentFor.has(item.studentId)}
-                        emailPending={emailMutation.isPending}
-                        onEmail={() => emailMutation.mutate(item.studentId)}
-                        onMute={() => muteMutation.mutate({ studentId: item.studentId, muted: true })}
-                      />
-                    )}
-                  </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {visibleItems.map((item) => (
+              <div key={itemKey(item)} className="p-3 space-y-2">
+                <div>
+                  <p className="text-sm font-medium">{itemName(item)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatMoney(item.amountDue, i18n.language)} &middot; {t('notifications.daysOverdue', { count: item.daysOverdue })}
+                  </p>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+                <div className="flex flex-wrap gap-1">
+                  {item.phone && (
+                    <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleWhatsApp(item)}>
+                      <MessageCircle />
+                      {t('notifications.sendReminder')}
+                    </Button>
+                  )}
+                  {item.kind === 'student' && (
+                    <StudentActions
+                      student={item}
+                      emailSent={emailSentFor.has(item.studentId)}
+                      emailPending={emailMutation.isPending}
+                      onEmail={() => emailMutation.mutate(item.studentId)}
+                      onMute={() => muteMutation.mutate({ studentId: item.studentId, muted: true, name: item.studentName })}
+                    />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -168,7 +182,7 @@ function StudentActions({
   return (
     <>
       <Button variant="outline" size="sm" className="text-xs" onClick={onEmail} disabled={emailSent || emailPending}>
-        <Mail size={14} className="mr-1" />
+        <Mail />
         {emailSent ? t('notifications.emailSent') : t('notifications.sendEmail')}
       </Button>
       <Button
@@ -178,7 +192,7 @@ function StudentActions({
         aria-label={t('notifications.mute', { name: student.studentName })}
         onClick={onMute}
       >
-        <BellOff size={14} />
+        <BellOff />
       </Button>
     </>
   );

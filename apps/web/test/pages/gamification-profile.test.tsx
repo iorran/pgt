@@ -123,7 +123,8 @@ describe('GamificationProfilePage', () => {
     mockApiFor(mockProfile, mockMine);
     renderWithProviders(<GamificationProfilePage />);
     const name = await screen.findByText('Pontos acumulados até a Mafra Cup');
-    expect(name).toHaveAttribute('title', 'Pontos acumulados até a Mafra Cup');
+    expect(name).toHaveClass('break-words');
+    expect(name).not.toHaveClass('truncate');
     const item = name.closest('li')!;
     expect(item).toHaveTextContent('gamification.control.adjustment');
     expect(item).toHaveTextContent('+31');

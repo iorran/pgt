@@ -37,7 +37,7 @@ export function StudentPaymentBanner() {
           className="flex min-h-11 items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm font-medium text-destructive"
         >
           <AlertTriangle className="size-5 shrink-0" aria-hidden />
-          <span className="flex-1">{t('billing.yourPaymentOverdue', { days: paymentStatus.daysOverdue })}</span>
+          <span className="flex-1">{t('billing.yourPaymentOverdue', { count: paymentStatus.daysOverdue })}</span>
           <ChevronRight className="size-4 shrink-0" aria-hidden />
         </Link>
       </div>
@@ -51,7 +51,7 @@ export function StudentPaymentBanner() {
           to="/me/billing"
           className="flex min-h-11 items-center gap-3 rounded-lg border border-primary/30 bg-primary/10 p-3 text-sm font-medium text-primary"
         >
-          <span className="flex-1">{t('billing.paymentDueSoon', { days: paymentStatus.daysUntilDue })}</span>
+          <span className="flex-1">{t('billing.paymentDueSoon', { count: paymentStatus.daysUntilDue })}</span>
           <ChevronRight className="size-4 shrink-0" aria-hidden />
         </Link>
       </div>

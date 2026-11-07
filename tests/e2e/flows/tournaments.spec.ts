@@ -101,9 +101,9 @@ test('24. student signs up for a tournament', async ({ browser }) => {
     // t('common.confirm') = "Confirmar"
     await page.getByRole('button', { name: /confirmar/i }).click();
 
-    // t('tournaments.signupSuccess') = "Inscrição realizada com sucesso!"
+    // t('tournaments.signupSuccess') = "Inscrição feita"
     await expect(
-      page.getByText(/inscrição realizada com sucesso/i),
+      page.getByText(/inscrição feita/i),
     ).toBeVisible({ timeout: 10_000 });
   } finally {
     await context.close();
@@ -149,7 +149,7 @@ test('25. student submits a result and instructor approves it', async ({
     await dialog.locator('label').filter({ hasText: '1º' }).click();
     await dialog.getByRole('button', { name: /^enviar$/i }).click();
     // t('gamification.results.submitted')
-    await expect(page.getByText(/aguarda aprovação da academia/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/aguardando aprovação da academia/i)).toBeVisible({ timeout: 10_000 });
   } finally {
     await studentContext.close();
   }

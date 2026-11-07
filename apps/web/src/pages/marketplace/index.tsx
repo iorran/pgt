@@ -23,6 +23,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { TabsNav } from '@/components/tabs-nav';
+import { QueryError } from '@/components/query-error';
 import { formatMoney } from '@/lib/format';
 
 interface Product {
@@ -43,7 +44,7 @@ export default function MarketplacePage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<Product | null>(null);
 
-  const { data: products = [], isLoading } = useApiQuery<Product[]>(
+  const { data: products = [], isLoading, isError, refetch } = useApiQuery<Product[]>(
     ['products', user?.academyId],
     `/products?academyId=${user?.academyId}`,
     !!user?.academyId,
@@ -215,7 +216,9 @@ export default function MarketplacePage() {
         <p className="text-sm font-bold text-primary">{msg}</p>
       )}
 
-      {products.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
           <Package className="size-12" />
           <p className="text-lg font-heading">{t('marketplace.noProducts')}</p>
@@ -270,7 +273,7 @@ export default function MarketplacePage() {
       <Dialog open={!!deleting} onOpenChange={(open) => { if (!open) { setDeleting(null); } }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="font-heading uppercase">{t('common.delete')}</DialogTitle>
+            <DialogTitle className="font-heading uppercase">{t('marketplace.deleteTitle', { name: deleting?.name })}</DialogTitle>
             <DialogDescription>{t('marketplace.confirmDelete', { name: deleting?.name })}</DialogDescription>
           </DialogHeader>
           <DialogFooter>

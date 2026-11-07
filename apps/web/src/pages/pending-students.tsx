@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TabsNav } from '@/components/tabs-nav';
+import { QueryError } from '@/components/query-error';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +36,7 @@ export default function PendingStudentsPage() {
   const queryClient = useQueryClient();
   const [rejectTarget, setRejectTarget] = useState<PendingStudent | null>(null);
 
-  const { data: students = [], isLoading } = useApiQuery<PendingStudent[]>(
+  const { data: students = [], isLoading, isError, refetch } = useApiQuery<PendingStudent[]>(
     ['pending-students', user?.academyId],
     `/academies/${user?.academyId}/pending`,
     !!user?.academyId,
@@ -69,7 +70,9 @@ export default function PendingStudentsPage() {
         items={studentTabs(t)}
       />
 
-      {students.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : students.length === 0 ? (
         <p className="text-muted-foreground">{t('onboarding.noPending')}</p>
       ) : (
         <div className="grid gap-4">
@@ -117,7 +120,7 @@ export default function PendingStudentsPage() {
               loading={rejectMutation.isPending}
               onClick={() => rejectMutation.mutate(rejectTarget!.id)}
             >
-              {t('common.confirm')}
+              {t('onboarding.rejectSubmit')}
             </Button>
           </DialogFooter>
         </DialogContent>

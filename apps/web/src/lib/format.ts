@@ -22,3 +22,11 @@ export function signedPoints(points: number): string {
   }
   return points < 0 ? `−${-points}` : '0';
 }
+
+// YYYY-MM as "agosto de 2026" / "August 2026".
+export const formatMonth = (ym: string, locale: string) =>
+  new Date(`${ym.slice(0, 7)}-01T00:00`).toLocaleDateString(toLocale(locale), { month: 'long', year: 'numeric' });
+
+// ["Ana", "Bia", "Caio"] as "Ana, Bia e Caio" / "Ana, Bia, and Caio".
+export const formatList = (items: string[], locale: string) =>
+  new Intl.ListFormat(toLocale(locale), { type: 'conjunction' }).format(items);

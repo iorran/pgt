@@ -8,7 +8,6 @@ import {
   Receipt,
   Trophy,
   Languages,
-  Palette,
   Settings,
   LogOut,
   ChevronRight,
@@ -24,7 +23,6 @@ const ROWS: HubRow[] = [
   { to: '/me/billing', labelKey: 'me.billingStatus', Icon: Receipt },
   { to: '/tournaments', labelKey: 'me.tournaments', Icon: Trophy },
   { to: '/me/language', labelKey: 'me.language', Icon: Languages },
-  { to: '/me/theme', labelKey: 'me.theme', Icon: Palette },
   { to: '/settings', labelKey: 'me.settings', Icon: Settings },
 ];
 
@@ -73,7 +71,7 @@ export default function MePage() {
         ))}
       </div>
 
-      <Button variant="destructive" onClick={handleSignOut} className="h-12">
+      <Button variant="outline" onClick={handleSignOut} className="h-12">
         <LogOut className="mr-2 h-4 w-4" />
         {t('me.signOut')}
       </Button>

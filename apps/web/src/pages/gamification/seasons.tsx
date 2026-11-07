@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { QueryError } from '@/components/query-error';
 import {
   Dialog,
   DialogClose,
@@ -50,7 +51,7 @@ export default function SeasonsPage() {
   const user = session?.user as any;
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { data: seasons = [], isLoading } = useApiQuery<Season[]>(
+  const { data: seasons = [], isLoading, isError, refetch } = useApiQuery<Season[]>(
     ['seasons', user?.academyId],
     `/seasons?academyId=${user?.academyId}`,
     !!user?.academyId,
@@ -80,7 +81,9 @@ export default function SeasonsPage() {
         )}
       </div>
 
-      {seasons.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : seasons.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <CalendarPlus className="size-12 text-muted-foreground mx-auto" aria-hidden />
           <p className="text-muted-foreground font-heading">{t('gamification.noSeasons')}</p>

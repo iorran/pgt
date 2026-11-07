@@ -13,7 +13,6 @@ import { StaffShell } from './components/layout/staff-shell';
 import { StudentShell } from './components/layout/student-shell';
 import MePage from './pages/me';
 import BillingStatusPage from './pages/me/billing-status';
-import ThemePage from './pages/me/theme';
 import LanguagePage from './pages/me/language';
 import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
@@ -58,7 +57,7 @@ function RejectedView() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
+    <div className="min-h-dvh flex items-center justify-center arena-stripes px-4">
       <Card className="w-full max-w-md bg-card border-border">
         <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
           <h1 className="font-display text-4xl text-primary leading-none arena-glow">
@@ -104,7 +103,7 @@ function AppRoutes() {
   // as "still waiting" keeps URLs stable across refetches.
   if (isPending || (isRefetching && !session)) {
     console.log('[App] Routing → loading');
-    return <div style={{ padding: 40 }}>Carregando...</div>;
+    return <PageLoader />;
   }
 
   if (!session) {
@@ -217,7 +216,6 @@ function AppRoutes() {
         <Route path="/owner/dashboard" element={<Navigate to="/" replace />} />
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
-        <Route path="/me/theme" element={<ThemePage />} />
         <Route path="/me/language" element={<LanguagePage />} />
       </Route>
       <Route path="*" element={<Navigate to={owner ? '/' : studentHome} replace />} />

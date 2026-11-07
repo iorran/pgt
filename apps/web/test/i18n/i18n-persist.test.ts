@@ -22,3 +22,18 @@ describe('language persistence', () => {
     expect(i18n.language).toBe('pt-BR');
   });
 });
+
+describe('document language', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.resetModules();
+  });
+
+  it('sets <html lang> on init and on language change', async () => {
+    document.documentElement.lang = '';
+    const { default: i18n } = await import('@/i18n');
+    expect(document.documentElement.lang).toBe('pt-BR');
+    await i18n.changeLanguage('en');
+    expect(document.documentElement.lang).toBe('en');
+  });
+});

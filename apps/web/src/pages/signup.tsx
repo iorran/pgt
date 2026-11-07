@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [code, setCode] = useState('');
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center arena-stripes px-4">
+    <div className="min-h-dvh flex flex-col items-center justify-center arena-stripes px-4">
       <div className="text-center mb-10">
         <h1 className="font-display text-6xl text-primary leading-none arena-glow">
           PGT

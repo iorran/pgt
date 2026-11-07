@@ -23,7 +23,11 @@ i18n.use(initReactI18next).init({
   interpolation: { escapeValue: false },
 });
 
+// Screen readers and hyphenation follow <html lang>.
+document.documentElement.lang = i18n.language;
+
 i18n.on('languageChanged', (lng) => {
+  document.documentElement.lang = lng;
   try {
     localStorage.setItem(STORAGE_KEY, lng);
   } catch {

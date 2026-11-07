@@ -121,6 +121,11 @@ export function ModalitiesCard() {
                   <p className="text-xs text-muted-foreground">
                     {t('settings.modalities.studentCount', { count: m.studentCount })}
                   </p>
+                  {m.studentCount > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {t('settings.modalities.errors.inUse', { count: m.studentCount })}
+                    </p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -139,11 +144,6 @@ export function ModalitiesCard() {
                     size="sm"
                     aria-label={`${t('settings.modalities.delete')} ${m.name}`}
                     disabled={m.studentCount > 0}
-                    title={
-                      m.studentCount > 0
-                        ? t('settings.modalities.errors.inUse', { count: m.studentCount })
-                        : undefined
-                    }
                     onClick={() => {
                       setError(null);
                       setDeleting(m);

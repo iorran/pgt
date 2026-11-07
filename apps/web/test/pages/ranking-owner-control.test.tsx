@@ -112,7 +112,7 @@ describe('Resultados (owner control)', () => {
     await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/competition-results?seasonId=s1'));
   });
 
-  it('compact rows: position chip or Ajuste, signed points, status, truncated label; actions behind ⋯', async () => {
+  it('compact rows: position chip or Ajuste, signed points, status, wrapping label; actions behind ⋯', async () => {
     mockApi.mockImplementation(async (path: string) => {
       if (path.startsWith('/seasons?')) {
         return seasons as any;
@@ -129,8 +129,8 @@ describe('Resultados (owner control)', () => {
     expect(within(row('Ana')).getByText('+31 gamification.pointsShort')).toBeInTheDocument();
     expect(within(row('Rui')).getByText('−3 gamification.pointsShort')).toBeInTheDocument();
     const label = within(row('Ana')).getByText('Pontos acumulados');
-    expect(label).toHaveAttribute('title', 'Pontos acumulados');
-    expect(label).toHaveClass('truncate');
+    expect(label).toHaveClass('break-words');
+    expect(label).not.toHaveClass('truncate');
     expect(within(row('Carlos')).getByText('gamification.results.first')).toBeInTheDocument();
     expect(within(row('Carlos')).getByText('gamification.results.status.approved')).toBeInTheDocument();
     expect(within(row('Carlos')).getByText('15/03/2026')).toBeInTheDocument();
