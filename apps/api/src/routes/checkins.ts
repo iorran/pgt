@@ -58,6 +58,8 @@ async function updateStreak(studentId: string, now: Date, academyTimezone: strin
   }
 }
 
+const isCoordinate = (v: unknown) => v != null && v !== '' && Number.isFinite(Number(v));
+
 export async function checkinRoutes(app: FastifyInstance) {
   // POST /api/checkins — validated checkin pipeline
   app.post('/api/checkins', { preHandler: requireAuth }, async (request, reply) => {
@@ -72,6 +74,13 @@ export async function checkinRoutes(app: FastifyInstance) {
       longitude?: number;
       token?: string;
     };
+    // Every check-in needs a presence proof: a QR token or a location within range.
+    if (source !== 'qr' && source !== 'button') {
+      return reply.status(400).send({ error: 'INVALID_SOURCE' });
+    }
+    if (source === 'button' && !(isCoordinate(latitude) && isCoordinate(longitude))) {
+      return reply.status(400).send({ error: 'LOCATION_NOT_SET' });
+    }
 
     // 1. Class exists and active=true (join academy to read its timezone)
     const [cls] = await db
@@ -176,10 +185,6 @@ export async function checkinRoutes(app: FastifyInstance) {
         return reply.status(400).send({ error: 'LOCATION_NOT_SET' });
       }
 
-      if (latitude == null || longitude == null) {
-        return reply.status(400).send({ error: 'LOCATION_NOT_SET' });
-      }
-
       const distance = haversineDistance(
         Number(acad.latitude),
         Number(acad.longitude),
@@ -198,7 +203,7 @@ export async function checkinRoutes(app: FastifyInstance) {
       .values({
         classId,
         studentId,
-        source: source ?? 'button',
+        source,
         latitude: latitude != null ? String(latitude) : null,
         longitude: longitude != null ? String(longitude) : null,
       })
