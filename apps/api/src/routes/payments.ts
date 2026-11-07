@@ -67,7 +67,12 @@ export async function paymentRoutes(app: FastifyInstance) {
   // Payment history for a student
   app.get('/api/payments/student/:studentId', { preHandler: authorizeStudentRead('studentId') }, async (request) => {
     const { studentId } = request.params as { studentId: string };
-    return db.select().from(payment).where(eq(payment.studentId, studentId));
+    // Only this academy's payments: a student who moved keeps their old academy's history out of view.
+    const [student] = await db.select({ academyId: user.academyId }).from(user).where(eq(user.id, studentId));
+    if (!student?.academyId) {
+      return [];
+    }
+    return db.select().from(payment).where(and(eq(payment.studentId, studentId), eq(payment.academyId, student.academyId)));
   });
 
   // Overdue dashboard: one item per student, family members grouped into one family item.

@@ -35,11 +35,13 @@ export const familyPayment = pgTable('family_payment', {
 export const waivedMonth = pgTable('waived_month', {
   id: uuid('id').primaryKey().defaultRandom(),
   studentId: uuid('student_id').notNull().references(() => user.id),
+  // The academy that waived it: a student who moves academy starts with none at the new one.
+  academyId: uuid('academy_id').notNull().references(() => academy.id),
   referenceMonth: varchar('reference_month', { length: 7 }).notNull(),
   reason: text('reason'),
   createdBy: uuid('created_by').notNull().references(() => user.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-}, (t) => [unique('waived_month_student_month_uq').on(t.studentId, t.referenceMonth)]);
+}, (t) => [unique('waived_month_student_academy_month_uq').on(t.studentId, t.academyId, t.referenceMonth)]);
 
 // "Possíveis famílias" the owner dismissed, keyed by the shared phone number.
 export const familySuggestionDismissal = pgTable('family_suggestion_dismissal', {

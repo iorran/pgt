@@ -127,6 +127,13 @@
       "when": 1794078023275,
       "tag": "0017_drop_family_contact",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794090233684,
+      "tag": "0018_waived_month_academy",
+      "breakpoints": true
     }
   ]
 }

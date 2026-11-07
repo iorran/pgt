@@ -372,6 +372,7 @@
     "enterCode": "Enter the academy code",
     "continue": "Continue",
     "academyNotFound": "Academy not found. Check the code with your academy and try again.",
+    "responsibleOfFamily": "You’re the Responsible of a family at this academy. Ask the academy to hand the family to someone else before you switch.",
     "waitingTitle": "Waiting for approval",
     "waitingMessage": "Your registration has been submitted. The gym owner will approve your access soon.",
     "waitingRefresh": "Check status",

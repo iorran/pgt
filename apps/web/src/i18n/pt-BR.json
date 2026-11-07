@@ -372,6 +372,7 @@
     "enterCode": "Digite o código da academia",
     "continue": "Continuar",
     "academyNotFound": "Academia não encontrada. Confira o código com a sua academia e tente novamente.",
+    "responsibleOfFamily": "Você é o responsável de uma família nesta academia. Peça à academia para passar a família a outra pessoa antes de mudar.",
     "waitingTitle": "Aguardando aprovação",
     "waitingMessage": "Seu cadastro foi enviado. O dono da academia irá aprovar sua entrada em breve.",
     "waitingRefresh": "Verificar status",

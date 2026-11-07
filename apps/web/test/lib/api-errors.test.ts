@@ -11,6 +11,10 @@ describe('errorKey', () => {
     expect(errorKey(new Error('TOO_FAR'))).toBe('classes.checkinTooFar');
   });
 
+  it('explains that a family\u2019s Responsible must hand it over before changing academy', () => {
+    expect(errorKey(new Error('RESPONSIBLE_OF_FAMILY'))).toBe('onboarding.responsibleOfFamily');
+  });
+
   it('falls back to the generic error for unknown or raw messages', () => {
     expect(errorKey(new Error('Request failed'))).toBe('common.genericError');
     expect(errorKey('nope')).toBe('common.genericError');

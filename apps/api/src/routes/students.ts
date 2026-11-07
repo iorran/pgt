@@ -193,7 +193,7 @@ export async function studentRoutes(app: FastifyInstance) {
     return db
       .select({ referenceMonth: waivedMonth.referenceMonth, reason: waivedMonth.reason })
       .from(waivedMonth)
-      .where(eq(waivedMonth.studentId, id))
+      .where(and(eq(waivedMonth.studentId, id), eq(waivedMonth.academyId, request.academyId)))
       .orderBy(waivedMonth.referenceMonth);
   });
 
@@ -208,12 +208,12 @@ export async function studentRoutes(app: FastifyInstance) {
     }
     await db
       .insert(waivedMonth)
-      .values({ studentId: id, referenceMonth: month, reason: reason ?? null, createdBy: request.user.id })
+      .values({ studentId: id, academyId: request.academyId, referenceMonth: month, reason: reason ?? null, createdBy: request.user.id })
       .onConflictDoNothing();
     const [row] = await db
       .select({ referenceMonth: waivedMonth.referenceMonth, reason: waivedMonth.reason })
       .from(waivedMonth)
-      .where(and(eq(waivedMonth.studentId, id), eq(waivedMonth.referenceMonth, month)));
+      .where(and(eq(waivedMonth.studentId, id), eq(waivedMonth.academyId, request.academyId), eq(waivedMonth.referenceMonth, month)));
     return reply.status(201).send(row);
   });
 
@@ -222,7 +222,7 @@ export async function studentRoutes(app: FastifyInstance) {
     if (!(await isAcademyStudent(id, request.academyId))) {
       return reply.status(404).send({ error: 'Student not found' });
     }
-    await db.delete(waivedMonth).where(and(eq(waivedMonth.studentId, id), eq(waivedMonth.referenceMonth, month)));
+    await db.delete(waivedMonth).where(and(eq(waivedMonth.studentId, id), eq(waivedMonth.academyId, request.academyId), eq(waivedMonth.referenceMonth, month)));
     return reply.status(204).send();
   });
 

@@ -10,6 +10,7 @@ const KEYS: Record<string, string> = {
   NO_SEASON_FOR_DATE: 'gamification.results.noSeasonForDate',
   MODALITY_EXISTS: 'settings.modalities.errors.exists',
   STUDENT_IN_FAMILY: 'families.errors.studentInFamily',
+  RESPONSIBLE_OF_FAMILY: 'onboarding.responsibleOfFamily',
   'Academy not found': 'onboarding.academyNotFound',
 };
 

@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { auth } from '../auth/index.js';
 import { env } from '../env.js';
+import { clientIp } from '../utils/client-ip.js';
 
 function setCors(reply: any, origin: string) {
   const allowedOrigin = env.TRUSTED_ORIGINS.includes(origin) ? origin : env.TRUSTED_ORIGINS[0];
@@ -29,6 +30,9 @@ export async function authRoutes(app: FastifyInstance) {
     for (const [key, value] of Object.entries(request.headers)) {
       if (value) headers.set(key, Array.isArray(value) ? value.join(', ') : value);
     }
+    // better-auth rate-limits by the first X-Forwarded-For value: give it the real client IP only.
+    headers.set('x-forwarded-for', clientIp(request.headers, request.socket.remoteAddress, env.ORIGIN_SECRET));
+    headers.delete('x-origin-secret');
 
     const webRequest = new Request(url, {
       method: request.method,
