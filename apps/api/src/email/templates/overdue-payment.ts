@@ -4,6 +4,9 @@ interface OverduePaymentEmailProps {
   daysOverdue: number;
 }
 
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 export function renderOverduePaymentEmail({ studentName, academyName, daysOverdue }: OverduePaymentEmailProps): string {
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -26,10 +29,10 @@ export function renderOverduePaymentEmail({ studentName, academyName, daysOverdu
             <td style="padding:0 32px 24px;">
               <h2 style="margin:0 0 16px;font-size:20px;color:#fafafa;">Lembrete de Pagamento</h2>
               <p style="margin:0 0 16px;font-size:14px;color:#a3a3a3;line-height:1.6;">
-                Olá <strong style="color:#fafafa;">${studentName}</strong>,
+                Olá <strong style="color:#fafafa;">${escapeHtml(studentName)}</strong>,
               </p>
               <p style="margin:0 0 24px;font-size:14px;color:#a3a3a3;line-height:1.6;">
-                Seu pagamento na <strong style="color:#fafafa;">${academyName}</strong> está <strong style="color:#f97316;">${daysOverdue} dias</strong> atrasado. Por favor, regularize o quanto antes para manter seu acesso às aulas.
+                Seu pagamento na <strong style="color:#fafafa;">${escapeHtml(academyName)}</strong> está <strong style="color:#f97316;">${daysOverdue} dias</strong> atrasado. Por favor, regularize o quanto antes para manter seu acesso às aulas.
               </p>
             </td>
           </tr>

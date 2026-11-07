@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { account, family, familyPayment, familySuggestionDismissal, payment, user } from '../db/schema/index.js';
+import { account, family, familyPayment, familySuggestionDismissal, payment, session, user } from '../db/schema/index.js';
 import { and, eq, inArray, isNull, isNotNull } from 'drizzle-orm';
 import { requireOwner } from '../middleware/auth.js';
 import { auth } from '../auth/index.js';
@@ -105,8 +105,21 @@ async function familyResponse(fam: FamilyRow) {
   return buildFamily(fam, await loadStudentBilling(membersOf(fam)), new Date(), await loadResponsible(fam));
 }
 
+// A Dependent has no login of their own (ADR 0004): end any session they already had.
+async function revokeSessions(tx: Pick<typeof db, 'delete'>, userIds: string[]) {
+  if (userIds.length > 0) {
+    await tx.delete(session).where(inArray(session.userId, userIds));
+  }
+}
+
 // Sets family_id only for students not already in a family; throws with the ones that were taken.
-async function claimMembers(tx: Pick<typeof db, 'update'>, familyId: string, studentIds: string[]) {
+// Every claimed member other than the Responsible becomes a Dependent.
+async function claimMembers(
+  tx: Pick<typeof db, 'update' | 'delete'>,
+  familyId: string,
+  studentIds: string[],
+  responsibleUserId: string | null,
+) {
   const claimed = await tx
     .update(user)
     .set({ familyId })
@@ -116,6 +129,7 @@ async function claimMembers(tx: Pick<typeof db, 'update'>, familyId: string, stu
   if (taken.length > 0) {
     throw new StudentInFamilyError(taken);
   }
+  await revokeSessions(tx, claimed.map((c) => c.id).filter((id) => id !== responsibleUserId));
 }
 
 async function academyStudentIds(ids: string[], academyId: string) {
@@ -229,7 +243,7 @@ export async function familyRoutes(app: FastifyInstance) {
           .insert(family)
           .values({ academyId: request.academyId, name: body.name as string, responsibleUserId, agreedPrice })
           .returning();
-        await claimMembers(tx, fam.id, memberIds);
+        await claimMembers(tx, fam.id, memberIds, responsibleUserId);
         return fam;
       });
       return reply.status(201).send(await familyResponse(created));
@@ -307,6 +321,16 @@ export async function familyRoutes(app: FastifyInstance) {
       }
     }
     const [updated] = await db.update(family).set({ responsibleUserId }).where(eq(family.id, fam.id)).returning();
+    // A previous Responsible who stays a member is now a Dependent.
+    if (fam.responsibleUserId && fam.responsibleUserId !== responsibleUserId) {
+      const [stillMember] = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(and(eq(user.id, fam.responsibleUserId), membersOf(fam)));
+      if (stillMember) {
+        await revokeSessions(db, [stillMember.id]);
+      }
+    }
     return familyResponse(updated);
   });
 
@@ -346,7 +370,7 @@ export async function familyRoutes(app: FastifyInstance) {
       return reply.status(404).send({ error: 'Student not found' });
     }
     try {
-      await claimMembers(db, fam.id, [studentId]);
+      await claimMembers(db, fam.id, [studentId], fam.responsibleUserId);
     } catch (err) {
       if (err instanceof StudentInFamilyError) {
         return reply.status(409).send({ error: 'STUDENT_IN_FAMILY', studentIds: err.studentIds });

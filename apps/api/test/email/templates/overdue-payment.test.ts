@@ -44,3 +44,17 @@ describe('renderOverduePaymentEmail', () => {
     expect(html).toContain('<html lang="pt-BR">');
   });
 });
+
+describe('renderOverduePaymentEmail escaping', () => {
+  it('renders names as text, never as markup', () => {
+    const html = renderOverduePaymentEmail({
+      studentName: '<a href="https://example.invalid">Pague aqui</a>',
+      academyName: 'A<b>x</b> & "Co"',
+      daysOverdue: 3,
+    });
+    expect(html).not.toContain('<a href="https://example.invalid">');
+    expect(html).not.toContain('<b>x</b>');
+    expect(html).toContain('&lt;a href=&quot;https://example.invalid&quot;&gt;Pague aqui&lt;/a&gt;');
+    expect(html).toContain('A&lt;b&gt;x&lt;/b&gt; &amp; &quot;Co&quot;');
+  });
+});
