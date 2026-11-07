@@ -30,7 +30,7 @@ describe('MePage', () => {
     expect(screen.getByText('me.billingStatus')).toBeInTheDocument();
     expect(screen.getByText('me.tournaments')).toBeInTheDocument();
     expect(screen.getByText('me.language')).toBeInTheDocument();
-    expect(screen.getByText('me.theme')).toBeInTheDocument();
+    expect(screen.queryByText('me.theme')).not.toBeInTheDocument();
     expect(screen.getByText('me.settings')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'me.signOut' })).toBeInTheDocument();
   });

@@ -36,7 +36,20 @@ describe('createQueryClient', () => {
       { wrapper: makeWrapper(client) },
     );
     result.current.mutate();
-    await waitFor(() => expect(toastError).toHaveBeenCalledWith('boom'));
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith('common.genericError'));
+  });
+
+  it('translates known API error codes on failed mutation', async () => {
+    const client = createQueryClient();
+    const { result } = renderHook(
+      () =>
+        useMutation({
+          mutationFn: () => Promise.reject(new Error('CHECKIN_DUPLICATE')),
+        }),
+      { wrapper: makeWrapper(client) },
+    );
+    result.current.mutate();
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith('classes.checkinDuplicate'));
   });
 
   it('suppresses error toast when mutation meta.silent', async () => {
@@ -80,7 +93,22 @@ describe('createQueryClient', () => {
       { wrapper: makeWrapper(client) },
     );
     // Raw (often English) API messages are replaced by a translated generic one.
-    await waitFor(() => expect(toastError).toHaveBeenCalledWith('common.genericError'));
+    await waitFor(() =>
+      expect(toastError).toHaveBeenCalledWith('common.genericError', {
+        action: { label: 'common.retry', onClick: expect.any(Function) },
+      }),
+    );
+  });
+
+  it('retries the failed query from the toast action', async () => {
+    const client = createQueryClient();
+    const queryFn = vi.fn(() => Promise.reject(new Error('boom')));
+    renderHook(() => useQuery({ queryKey: ['retry-fail'], queryFn, retry: false }), {
+      wrapper: makeWrapper(client),
+    });
+    await waitFor(() => expect(toastError).toHaveBeenCalled());
+    toastError.mock.calls[0][1].action.onClick();
+    await waitFor(() => expect(queryFn).toHaveBeenCalledTimes(2));
   });
 
   it('suppresses error toast when query meta.silent', async () => {

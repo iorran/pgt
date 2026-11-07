@@ -129,4 +129,18 @@ describe('LeaderboardPage', () => {
     const elements = await screen.findAllByText('gamification.noResultsYet');
     expect(elements.length).toBeGreaterThan(0);
   });
+
+  it('shows an error with retry instead of the empty state when the ranking fails to load', async () => {
+    mockApi.mockReset();
+    mockApi
+      .mockResolvedValueOnce(mockSeasons as any)
+      .mockRejectedValueOnce(new Error('Request failed'))
+      .mockResolvedValueOnce(mockEntries as any);
+    renderWithProviders(<LeaderboardPage />);
+    const retry = await screen.findByRole('button', { name: 'common.retry' });
+    expect(screen.getByText('common.genericError')).toBeInTheDocument();
+    expect(screen.queryByText('gamification.noResultsYet')).not.toBeInTheDocument();
+    retry.click();
+    expect(await screen.findByText('Champion')).toBeInTheDocument();
+  });
 });

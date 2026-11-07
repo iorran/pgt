@@ -40,7 +40,7 @@ const POSITION_KEYS: Record<number, string> = {
 
 const STATUSES = ['pending', 'approved', 'rejected'] as const;
 
-const SELECT_CLASS = 'min-h-11 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm';
+const SELECT_CLASS = 'min-h-11 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm';
 
 // Every place a result can change: ranking, both result lists and XP.
 export function invalidateRanking(queryClient: QueryClient) {
@@ -69,8 +69,8 @@ export function ResultRow({ result: r, showStudent, actions }: { result: Competi
       ) : (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <div className="min-w-0 flex-1">
-            {showStudent && <p className="truncate font-heading text-sm">{r.studentName || '-'}</p>}
-            <p className="truncate text-sm text-muted-foreground" title={r.competitionName}>
+            {showStudent && <p className="break-words font-heading text-sm">{r.studentName || '—'}</p>}
+            <p className="break-words text-sm text-muted-foreground">
               {r.competitionName}
             </p>
             <p className="flex gap-2 text-xs text-muted-foreground">
@@ -151,7 +151,7 @@ function DeleteConfirm({ result, showStudent, onCancel }: { result: CompetitionR
         {/* Which row is being deleted stays visible. */}
         <p className="flex gap-2 text-xs text-muted-foreground">
           {showStudent && <span className="shrink-0 font-heading">{result.studentName}</span>}
-          <span className="truncate" title={result.competitionName}>
+          <span className="min-w-0 break-words">
             {result.competitionName}
           </span>
         </p>

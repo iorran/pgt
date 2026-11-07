@@ -31,20 +31,20 @@ export default function BillingStatusPage() {
             <span
               className={
                 data.status === 'overdue'
-                  ? 'font-display text-3xl text-[color:var(--pgt-red)]'
-                  : 'font-display text-3xl text-[color:var(--pgt-green)]'
+                  ? 'font-display text-3xl text-danger-text'
+                  : 'font-display text-3xl text-success-text'
               }
             >
               {data.status === 'overdue' ? t('me.billingOverdue') : t('me.billingUpToDate')}
             </span>
             {data.status === 'overdue' ? (
               <span className="text-sm text-muted-foreground">
-                {t('billing.yourPaymentOverdue', { days: data.daysOverdue })}
+                {t('billing.yourPaymentOverdue', { count: data.daysOverdue })}
               </span>
             ) : null}
             {data.status === 'upcoming' ? (
               <span className="text-sm text-muted-foreground">
-                {t('billing.paymentDueSoon', { days: data.daysUntilDue })}
+                {t('billing.paymentDueSoon', { count: data.daysUntilDue })}
               </span>
             ) : null}
           </CardContent>

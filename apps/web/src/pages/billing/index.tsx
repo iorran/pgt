@@ -8,11 +8,36 @@ import { PageLoader } from '@/components/page-loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { CheckCircle2, MessageCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, MessageCircle } from 'lucide-react';
 import { TabsNav } from '@/components/tabs-nav';
+import { QueryError } from '@/components/query-error';
 import { beltKey } from '@/lib/belts';
-import { formatMoney } from '@/lib/format';
+import { formatList, formatMoney } from '@/lib/format';
 import FamilyPaymentDialog from './family-payment-dialog';
+
+function isCritical(days: number) {
+  return days >= 8;
+}
+
+// The card's left border carries the tier by color; this repeats it in text.
+function OverdueDays({ days }: { days: number }) {
+  const { t } = useTranslation();
+  const critical = isCritical(days);
+  return (
+    <div className="text-right">
+      <span className={`arena-stat text-2xl ${critical ? 'text-danger-text' : 'text-warning-text'}`}>
+        {days}
+      </span>
+      <p className="text-xs text-muted-foreground">{t('billing.daysOverdue', { count: days })}</p>
+      <p
+        className={`mt-1 inline-flex items-center gap-1 text-xs font-medium ${critical ? 'text-danger-text' : 'text-warning-text'}`}
+      >
+        <AlertTriangle className="size-3.5" aria-hidden />
+        {t(critical ? 'billing.tierCritical' : 'billing.tierWarning')}
+      </p>
+    </div>
+  );
+}
 
 interface StudentOverdue {
   kind: 'student';
@@ -59,7 +84,7 @@ export default function BillingOverduePage() {
   const queryClient = useQueryClient();
   const [payingFamily, setPayingFamily] = useState<FamilyOverdue | null>(null);
 
-  const { data: records = [], isLoading } = useApiQuery<OverdueItem[]>(
+  const { data: records = [], isLoading, isError, refetch } = useApiQuery<OverdueItem[]>(
     ['overdue', user?.academyId],
     `/payments/overdue?academyId=${user?.academyId}`,
     !!user?.academyId,
@@ -75,7 +100,7 @@ export default function BillingOverduePage() {
   });
 
   function getBorderColor(days: number) {
-    return days >= 8 ? 'border-l-destructive' : 'border-l-yellow-500';
+    return isCritical(days) ? 'border-l-destructive' : 'border-l-yellow-500';
   }
 
   if (isLoading) return <PageLoader />;
@@ -90,7 +115,9 @@ export default function BillingOverduePage() {
         <Badge variant="destructive">{t('billing.overdueCount', { count: records.length })}</Badge>
       )}
 
-      {records.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : records.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
           <CheckCircle2 className="h-12 w-12 text-primary" />
           <p className="text-lg font-heading">{t('billing.noOverdue')}</p>
@@ -104,18 +131,13 @@ export default function BillingOverduePage() {
                   <div className="space-y-1">
                     <Badge variant="secondary">{t('billing.family.badge')}</Badge>
                     <p className="font-bold">{r.familyName}</p>
-                    <p className="text-sm text-muted-foreground">{r.members.map(m => m.name).join(', ')}</p>
+                    <p className="text-sm text-muted-foreground">{formatList(r.members.map(m => m.name), i18n.language)}</p>
                     <p className="text-sm text-muted-foreground">
                       {t('billing.missedMonths', { count: r.missedMonths.length })}
                     </p>
                     <p className="arena-stat">{formatMoney(r.amountDue, i18n.language)}</p>
                   </div>
-                  <div className="text-right">
-                    <span className={`arena-stat text-2xl ${r.daysOverdue >= 8 ? 'text-destructive' : 'text-yellow-500'}`}>
-                      {r.daysOverdue}
-                    </span>
-                    <p className="text-xs text-muted-foreground">{t('billing.daysOverdue')}</p>
-                  </div>
+                  <OverdueDays days={r.daysOverdue} />
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" className="flex-1" onClick={() => setPayingFamily(r)}>
@@ -137,12 +159,7 @@ export default function BillingOverduePage() {
                     </p>
                     <p className="arena-stat">{formatMoney(r.amountDue, i18n.language)}</p>
                   </div>
-                  <div className="text-right">
-                    <span className={`arena-stat text-2xl ${r.daysOverdue >= 8 ? 'text-destructive' : 'text-yellow-500'}`}>
-                      {r.daysOverdue}
-                    </span>
-                    <p className="text-xs text-muted-foreground">{t('billing.daysOverdue')}</p>
-                  </div>
+                  <OverdueDays days={r.daysOverdue} />
                 </div>
                 <div className="flex gap-2">
                   <Button

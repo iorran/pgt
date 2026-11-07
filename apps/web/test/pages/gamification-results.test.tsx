@@ -127,7 +127,7 @@ describe('ResultsPage', () => {
     const anaRow = screen.getByText('Ana').closest('li') as HTMLElement;
     await user.click(within(carlosRow).getByRole('button', { name: 'gamification.approve' }));
     await waitFor(() => {
-      expect(within(carlosRow).getByRole('button', { name: 'gamification.approve' })).toBeDisabled();
+      expect(within(carlosRow).getByRole('button', { name: 'gamification.approve' })).toHaveAttribute('aria-disabled', 'true');
     });
     expect(within(anaRow).getByRole('button', { name: 'gamification.approve' })).not.toBeDisabled();
     expect(within(anaRow).getByRole('button', { name: 'gamification.reject' })).not.toBeDisabled();

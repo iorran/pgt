@@ -122,13 +122,13 @@ export function ClassEditDialog({
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   required
-                  className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm"
+                  className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm"
                 >
                   <option value="">--</option>
-                  <option value="gi">Gi</option>
-                  <option value="no-gi">No-Gi</option>
-                  <option value="open-mat">Open Mat</option>
-                  <option value="kids">Kids</option>
+                  <option value="gi">{t('owner.classes.types.gi')}</option>
+                  <option value="no-gi">{t('owner.classes.types.no-gi')}</option>
+                  <option value="open-mat">{t('owner.classes.types.open-mat')}</option>
+                  <option value="kids">{t('owner.classes.types.kids')}</option>
                 </select>
               </div>
             )}
@@ -206,8 +206,8 @@ export function ClassEditDialog({
             {(saving) =>
               !confirmingDelete ? (
                 <Button
-                  variant="outline"
-                  className="text-destructive mt-4"
+                  variant="destructive"
+                  className="mt-4"
                   onClick={() => setConfirmingDelete(true)}
                   disabled={saving}
                 >
@@ -216,7 +216,7 @@ export function ClassEditDialog({
               ) : (
                 <div className="mt-4 space-y-3 border-t border-border pt-4">
                   <p className="text-sm text-muted-foreground">
-                    {t('classes.confirmDelete')}
+                    {t('classes.confirmDelete', { name: cls?.name })}
                   </p>
                   <div className="flex justify-end gap-2">
                     <Button
@@ -227,8 +227,7 @@ export function ClassEditDialog({
                       {t('common.cancel')}
                     </Button>
                     <Button
-                      variant="outline"
-                      className="text-destructive"
+                      variant="destructive"
                       onClick={handleDelete}
                       loading={deleting}
                       disabled={saving}

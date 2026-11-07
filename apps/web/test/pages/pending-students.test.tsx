@@ -69,7 +69,8 @@ describe('PendingStudentsPage', () => {
     mockApi.mockReturnValue(new Promise(() => {}) as any);
     const [approveCarlos, approveAna] = screen.getAllByRole('button', { name: 'onboarding.approve' });
     fireEvent.click(approveCarlos);
-    await waitFor(() => expect(approveCarlos).toBeDisabled());
+    // Loading keeps the button focusable (aria-disabled) instead of natively disabled.
+    await waitFor(() => expect(approveCarlos).toHaveAttribute('aria-disabled', 'true'));
     expect(approveAna).not.toBeDisabled();
   });
 
@@ -78,7 +79,7 @@ describe('PendingStudentsPage', () => {
     await screen.findByText('Carlos Silva');
     fireEvent.click(screen.getAllByRole('button', { name: 'onboarding.reject' })[0]);
     expect(mockApi).not.toHaveBeenCalledWith('/academies/a1/reject/s1', expect.anything());
-    fireEvent.click(await screen.findByRole('button', { name: 'common.confirm' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'onboarding.rejectSubmit' }));
     await waitFor(() =>
       expect(mockApi).toHaveBeenCalledWith('/academies/a1/reject/s1', { method: 'POST' }),
     );

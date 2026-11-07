@@ -88,7 +88,7 @@ export default function ResultsPage() {
               value={effectiveSeasonId}
               onChange={(e) => setSeasonId(e.target.value)}
               aria-label={t('gamification.season')}
-              className="min-h-11 rounded-sm border border-border bg-card px-3 py-2 text-sm font-heading"
+              className="min-h-11 rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm font-heading"
             >
               {seasons.map((s) => (
                 <option key={s.id} value={s.id}>

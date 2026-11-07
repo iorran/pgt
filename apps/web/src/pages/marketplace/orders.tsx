@@ -27,6 +27,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
+import { QueryError } from '@/components/query-error';
 import { formatDate } from '@/lib/format';
 
 interface Order {
@@ -39,10 +40,10 @@ interface Order {
 }
 
 const statusClasses: Record<string, string> = {
-  requested: 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30 dark:text-yellow-400',
+  requested: 'bg-yellow-500/20 text-warning-text border-yellow-500/30',
   confirmed: 'bg-arena-cyan/20 text-arena-cyan border-arena-cyan/30',
   delivered: 'bg-primary/20 text-primary border-primary/30',
-  cancelled: 'bg-destructive/20 text-destructive border-destructive/30',
+  cancelled: 'bg-destructive/20 text-danger-text border-destructive/30',
 };
 
 export default function OrdersPage() {
@@ -60,7 +61,7 @@ export default function OrdersPage() {
     ? ['orders', user?.academyId]
     : ['orders', 'student', user?.id];
 
-  const { data: orders = [], isLoading } = useApiQuery<Order[]>(
+  const { data: orders = [], isLoading, isError, refetch } = useApiQuery<Order[]>(
     orderKey,
     orderUrl,
     !!user,
@@ -80,6 +81,26 @@ export default function OrdersPage() {
 
   if (isLoading) return <PageLoader />;
 
+  const orderActions = (o: Order) => (
+    <div className="flex flex-wrap gap-2">
+      {o.status === 'requested' && (
+        <>
+          <Button size="sm" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'confirmed' })}>
+            {t('marketplace.confirmOrder')}
+          </Button>
+          <Button size="sm" variant="destructive" onClick={() => setCancelling(o)}>
+            {t('marketplace.cancelOrder')}
+          </Button>
+        </>
+      )}
+      {o.status === 'confirmed' && (
+        <Button size="sm" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'delivered' })}>
+          {t('marketplace.deliver')}
+        </Button>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <TabsNav title={t('nav.marketplace')} items={[
@@ -87,7 +108,9 @@ export default function OrdersPage() {
         { to: '/marketplace/orders', label: t('marketplace.ordersPageTitle') },
       ]} />
 
-      {orders.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
           <ShoppingBag className="size-12" />
           <p className="text-lg font-heading">{t('marketplace.noOrders')}</p>
@@ -96,7 +119,27 @@ export default function OrdersPage() {
           </Link>
         </div>
       ) : (
-        <div className="rounded-sm border border-border overflow-hidden">
+        <>
+        <ul aria-label={t('marketplace.ordersPageTitle')} className="md:hidden divide-y divide-border rounded-sm border border-border">
+          {orders.map(o => (
+            <li key={o.id} className="space-y-2 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium break-words">
+                    {o.productName || '—'} <span className="font-mono text-muted-foreground">×{o.quantity}</span>
+                  </p>
+                  {isOwner(user) && <p className="text-sm text-muted-foreground break-words">{o.studentName || '—'}</p>}
+                  <p className="font-mono text-xs text-muted-foreground">{formatDate(o.createdAt, i18n.language)}</p>
+                </div>
+                <Badge className={statusClasses[o.status] || ''}>
+                  {t(`marketplace.orderStatus.${o.status}`)}
+                </Badge>
+              </div>
+              {isOwner(user) && orderActions(o)}
+            </li>
+          ))}
+        </ul>
+        <div className="hidden md:block rounded-sm border border-border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="border-border">
@@ -115,9 +158,9 @@ export default function OrdersPage() {
             <TableBody>
               {orders.map(o => (
                 <TableRow key={o.id} className="border-border">
-                  <TableCell>{o.productName || '-'}</TableCell>
+                  <TableCell>{o.productName || '—'}</TableCell>
                   {isOwner(user) && (
-                    <TableCell>{o.studentName || '-'}</TableCell>
+                    <TableCell>{o.studentName || '—'}</TableCell>
                   )}
                   <TableCell className="font-mono">{o.quantity}</TableCell>
                   <TableCell>
@@ -129,38 +172,21 @@ export default function OrdersPage() {
                     {formatDate(o.createdAt, i18n.language)}
                   </TableCell>
                   {isOwner(user) && (
-                    <TableCell>
-                      <div className="flex gap-2">
-                        {o.status === 'requested' && (
-                          <>
-                            <Button size="sm" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'confirmed' })}>
-                              {t('common.confirm')}
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => setCancelling(o)}>
-                              {t('common.cancel')}
-                            </Button>
-                          </>
-                        )}
-                        {o.status === 'confirmed' && (
-                          <Button size="sm" onClick={() => updateStatusMutation.mutate({ orderId: o.id, status: 'delivered' })}>
-                            {t('marketplace.deliver')}
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
+                    <TableCell>{orderActions(o)}</TableCell>
                   )}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </div>
+        </>
       )}
 
       <Dialog open={!!cancelling} onOpenChange={(open) => { if (!open) { setCancelling(null); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="font-heading uppercase">{t('marketplace.cancelOrder')}</DialogTitle>
-            <DialogDescription>{t('marketplace.confirmCancelOrder')}</DialogDescription>
+            <DialogDescription>{t('marketplace.confirmCancelOrder', { product: cancelling?.productName })}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCancelling(null)}>{t('common.back')}</Button>

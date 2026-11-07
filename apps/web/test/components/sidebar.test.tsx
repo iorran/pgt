@@ -40,6 +40,11 @@ describe('Sidebar', () => {
     });
   });
 
+  it('labels the sidebar navigation', () => {
+    renderSidebar();
+    expect(screen.getByRole('navigation', { name: 'nav.main' })).toBeInTheDocument();
+  });
+
   it('renders PGT branding', () => {
     renderSidebar();
     expect(screen.getByText('PGT')).toBeInTheDocument();

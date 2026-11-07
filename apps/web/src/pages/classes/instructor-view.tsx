@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
+import { errorKey } from '@/lib/api-errors';
 import { useApiQuery } from '@/hooks/use-api';
 import { useClassCalendar } from '@/hooks/use-class-calendar';
 import { ClassCalendar } from '@/components/schedule/class-calendar';
@@ -145,7 +146,7 @@ export function InstructorClassesView() {
                 });
               }
             } catch (err) {
-              toast.error((err as Error).message);
+              toast.error(t(errorKey(err)));
               throw err;
             } finally {
               queryClient.invalidateQueries({

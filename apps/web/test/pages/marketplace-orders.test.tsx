@@ -37,16 +37,28 @@ describe('OrdersPage', () => {
 
   it('styles requested status as warning and formats the date', async () => {
     renderWithProviders(<OrdersPage />);
-    const badge = await screen.findByText('marketplace.orderStatus.requested');
+    const list = await screen.findByRole('list', { name: 'marketplace.ordersPageTitle' });
+    const badge = within(list).getByText('marketplace.orderStatus.requested');
     expect(badge.className).toMatch(/yellow/);
-    expect(screen.getByText(formatDate('2026-04-23', 'pt-BR'))).toBeInTheDocument();
+    expect(within(list).getByText(formatDate('2026-04-23', 'pt-BR'))).toBeInTheDocument();
+  });
+
+  it('shows each order as a mobile card with its actions, and keeps the table for md+', async () => {
+    renderWithProviders(<OrdersPage />);
+    const list = await screen.findByRole('list', { name: 'marketplace.ordersPageTitle' });
+    const [card] = within(list).getAllByRole('listitem');
+    expect(card).toHaveTextContent('Gi');
+    expect(card).toHaveTextContent('Ana');
+    expect(within(card).getByRole('button', { name: 'marketplace.confirmOrder' })).toBeInTheDocument();
+    expect(within(card).getByRole('button', { name: 'marketplace.cancelOrder' })).toBeInTheDocument();
+    expect(within(screen.getByRole('table')).getByRole('button', { name: 'marketplace.confirmOrder' })).toBeInTheDocument();
   });
 
   it('asks for confirmation before cancelling an order', async () => {
     const user = userEvent.setup();
     renderWithProviders(<OrdersPage />);
-    await screen.findByText('Gi');
-    await user.click(screen.getByRole('button', { name: 'common.cancel' }));
+    const list = await screen.findByRole('list', { name: 'marketplace.ordersPageTitle' });
+    await user.click(within(list).getByRole('button', { name: 'marketplace.cancelOrder' }));
     const dialog = await screen.findByRole('dialog');
     expect(mockApi).not.toHaveBeenCalledWith('/orders/o1/status', expect.anything());
     await user.click(within(dialog).getByRole('button', { name: 'marketplace.cancelOrder' }));

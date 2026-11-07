@@ -4,6 +4,7 @@ import { Scanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useSession } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
+import { errorKey } from '@/lib/api-errors';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -50,7 +51,7 @@ export default function CheckinScanPage() {
       });
       setStatus('success');
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : String(err));
+      setErrorMsg(t(errorKey(err)));
       setStatus('error');
     }
   }
@@ -102,8 +103,7 @@ export default function CheckinScanPage() {
     } else if (!window.isSecureContext) {
       setErrorMsg(t('checkin.insecureContext'));
     } else {
-      const detail = e?.message ? ` (${e.message})` : '';
-      setErrorMsg(`${t('checkin.cameraUnavailable')}${detail}`);
+      setErrorMsg(t('checkin.cameraUnavailable'));
     }
     setStatus('error');
   }
@@ -126,21 +126,35 @@ export default function CheckinScanPage() {
     );
   }
 
+  // One persistent live region: screen readers only announce text changes inside an existing node.
+  const statusText: Partial<Record<Status, string>> = {
+    'camera-starting': t('checkin.cameraStarting'),
+    scanning: t('checkin.scanInstruction'),
+    processing: t('common.loading'),
+    success: t('classes.checkinSuccess'),
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center arena-stripes px-4 py-8">
+    <div className="min-h-dvh flex flex-col items-center justify-center arena-stripes px-4 py-8">
       <Card className="w-full max-w-md bg-card border-border">
         <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
           <h1 className="font-display text-4xl text-primary leading-none arena-glow">
             PGT
           </h1>
 
+          <p
+            role="status"
+            className={
+              status === 'success'
+                ? 'text-xl text-primary font-heading uppercase'
+                : 'text-sm text-muted-foreground'
+            }
+          >
+            {statusText[status]}
+          </p>
+
           {(status === 'camera-starting' || status === 'scanning') && (
             <>
-              <p className="text-sm text-muted-foreground">
-                {status === 'camera-starting'
-                  ? t('checkin.cameraStarting')
-                  : t('checkin.scanInstruction')}
-              </p>
               <div className="relative mx-auto w-full max-w-xs overflow-hidden rounded-xl border border-border">
                 <Scanner
                   onScan={handleScan}
@@ -163,15 +177,8 @@ export default function CheckinScanPage() {
             </>
           )}
 
-          {status === 'processing' && (
-            <p className="text-muted-foreground">{t('common.loading')}</p>
-          )}
-
           {status === 'success' && (
             <>
-              <p className="text-xl text-primary font-heading uppercase">
-                {t('classes.checkinSuccess')}
-              </p>
               <Button className="h-11" onClick={() => navigate('/')}>{t('common.back')}</Button>
             </>
           )}

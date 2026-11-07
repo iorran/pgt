@@ -8,9 +8,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import './index.css';
 import './i18n';
-import { applyTheme, getStoredTheme } from './lib/theme';
 import { createQueryClient } from './lib/query-client';
-applyTheme(getStoredTheme());
 
 const queryClient = createQueryClient();
 

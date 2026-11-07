@@ -79,7 +79,7 @@ export default function EntrarPage() {
     return (
       <div
         role="status"
-        className="min-h-screen flex items-center justify-center gap-2 arena-stripes text-muted-foreground"
+        className="min-h-dvh flex items-center justify-center gap-2 arena-stripes text-muted-foreground"
       >
         <Loader2 className="size-5 animate-spin" aria-hidden="true" />
         <p>{t('common.loading')}</p>
@@ -89,7 +89,7 @@ export default function EntrarPage() {
 
   if (loadError) {
     return (
-      <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
+      <div className="min-h-dvh flex items-center justify-center arena-stripes px-4">
         <Card className="w-full max-w-md bg-card border-border">
           <CardContent className="pt-8 pb-8 px-8 text-center">
             <h1 className="font-display text-6xl text-primary leading-none arena-glow mb-6">
@@ -108,7 +108,7 @@ export default function EntrarPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
+    <div className="min-h-dvh flex items-center justify-center arena-stripes px-4">
       <Card className="w-full max-w-lg bg-card border-border">
         <CardHeader className="text-center">
           <h1 className="font-display text-5xl text-primary leading-none arena-glow mb-4">

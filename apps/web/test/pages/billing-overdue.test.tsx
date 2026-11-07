@@ -83,6 +83,14 @@ describe('BillingOverduePage', () => {
     expect(labels.length).toBe(2);
   });
 
+  it('labels each card with a text tier, not color alone', async () => {
+    renderWithProviders(<BillingOverduePage />);
+    await screen.findByText('Carlos');
+    // Carlos: 5 days -> warning; Ana: 12 days -> critical
+    expect(screen.getAllByText('billing.tierWarning')).toHaveLength(1);
+    expect(screen.getAllByText('billing.tierCritical')).toHaveLength(1);
+  });
+
   it('shows empty state when no overdue', async () => {
     mockApi.mockResolvedValue([] as any);
     renderWithProviders(<BillingOverduePage />);
@@ -134,8 +142,8 @@ describe('BillingOverduePage', () => {
     it('renders one card per family with members, months and total', async () => {
       renderWithProviders(<BillingOverduePage />);
       expect(await screen.findByText('Família Silva')).toBeInTheDocument();
-      expect(screen.getByText('Bia, Leo')).toBeInTheDocument();
-      expect(screen.getAllByText('Bia, Leo')).toHaveLength(1);
+      expect(screen.getByText('Bia e Leo')).toBeInTheDocument();
+      expect(screen.getAllByText('Bia e Leo')).toHaveLength(1);
       expect(screen.getByText(formatMoney('140.00', 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
       expect(screen.getByText('20')).toBeInTheDocument();
       expect(screen.getAllByText('billing.missedMonths')).toHaveLength(3);

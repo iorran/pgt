@@ -7,10 +7,10 @@ export function StudentHeader() {
 
   return (
     <header
-      className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-[color:var(--pgt-green)] px-4 text-white"
+      className="sticky top-0 z-40 flex min-h-[calc(3.5rem+env(safe-area-inset-top))] items-center justify-between gap-3 border-b border-border bg-[color:var(--pgt-green)] px-4 text-white"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <img
           src="/pwa-192.png"
           alt=""
@@ -20,7 +20,7 @@ export function StudentHeader() {
         <span className="font-display text-2xl leading-none">PGT</span>
       </div>
       {userName ? (
-        <span className="font-heading text-sm uppercase tracking-wide truncate">
+        <span className="min-w-0 font-heading text-sm uppercase tracking-wide line-clamp-2 break-words text-right">
           {userName}
         </span>
       ) : null}

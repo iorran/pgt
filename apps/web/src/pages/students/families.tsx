@@ -12,7 +12,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { formatMoney } from '@/lib/format';
+import { QueryError } from '@/components/query-error';
+import { formatList, formatMoney } from '@/lib/format';
+import { toast } from '@/lib/toast';
 
 export interface FamilyMember {
   id: string;
@@ -45,7 +47,7 @@ interface StudentRow {
 
 type DialogState = { mode: 'create'; members: { id: string; name: string }[] } | { mode: 'edit'; familyId: string };
 
-const selectClass = 'flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-sm';
+const selectClass = 'flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm';
 
 // Every family change can move students, fees and overdue records.
 export function invalidateFamilyQueries(queryClient: ReturnType<typeof useQueryClient>) {
@@ -65,7 +67,7 @@ export default function FamiliesPage() {
   const queryClient = useQueryClient();
   const [dialog, setDialog] = useState<DialogState | null>(null);
 
-  const { data: families = [], isLoading } = useApiQuery<Family[]>(['families'], '/families');
+  const { data: families = [], isLoading, isError, refetch } = useApiQuery<Family[]>(['families'], '/families');
   const { data: suggestions = [] } = useApiQuery<Suggestion[]>(['family-suggestions'], '/families/suggestions');
   const { data: students = [] } = useApiQuery<StudentRow[]>(
     ['students', user?.academyId],
@@ -91,7 +93,9 @@ export default function FamiliesPage() {
 
       <Button onClick={() => setDialog({ mode: 'create', members: [] })}>{t('families.new')}</Button>
 
-      {families.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : families.length === 0 ? (
         <p className="text-muted-foreground text-center py-8">{t('families.empty')}</p>
       ) : (
         <ul className="grid gap-4 md:grid-cols-2">
@@ -102,7 +106,7 @@ export default function FamiliesPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 space-y-1">
                       <h2 className="font-heading text-lg uppercase">{f.name}</h2>
-                      <p className="text-sm text-muted-foreground">{f.members.map(m => m.name).join(', ')}</p>
+                      <p className="text-sm text-muted-foreground">{formatList(f.members.map(m => m.name), i18n.language)}</p>
                     </div>
                     <Button
                       variant="outline"
@@ -135,7 +139,7 @@ export default function FamiliesPage() {
                 className="flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border p-3"
               >
                 <div>
-                  <p className="font-medium">{s.students.map(st => st.name).join(', ')}</p>
+                  <p className="font-medium">{formatList(s.students.map(st => st.name), i18n.language)}</p>
                   <p className="text-sm text-muted-foreground font-mono">{s.phone}</p>
                 </div>
                 <div className="flex gap-2">
@@ -260,10 +264,16 @@ function FamilyForm({
   });
 
   const removeMemberMutation = useMutation({
-    mutationFn: (studentId: string) => api(`/families/${family!.id}/members/${studentId}`, { method: 'DELETE' }),
+    mutationFn: (member: { id: string; name: string }) =>
+      api(`/families/${family!.id}/members/${member.id}`, { method: 'DELETE' }),
     meta: { silent: true },
     onError,
-    onSuccess,
+    onSuccess: (_, member) => {
+      onSuccess();
+      toast(t('families.memberRemoved', { name: member.name }), {
+        action: { label: t('common.undo'), onClick: () => addMemberMutation.mutate(member.id) },
+      });
+    },
   });
 
   const deleteMutation = useMutation({
@@ -285,12 +295,13 @@ function FamilyForm({
     }
   }
 
-  function removeMember(id: string) {
+  function removeMember(member: { id: string; name: string }) {
+    const { id } = member;
     if (contactId === id) {
       setContactId('');
     }
     if (isEdit) {
-      removeMemberMutation.mutate(id);
+      removeMemberMutation.mutate(member);
     } else {
       setDraftMembers(ms => ms.filter(m => m.id !== id));
     }
@@ -313,7 +324,7 @@ function FamilyForm({
             {t('common.cancel')}
           </Button>
           <Button variant="destructive" loading={deleteMutation.isPending} onClick={() => deleteMutation.mutate()}>
-            {t('common.confirm')}
+            {t('families.deleteTitle')}
           </Button>
         </DialogFooter>
       </>
@@ -350,7 +361,7 @@ function FamilyForm({
                   variant="ghost"
                   size="sm"
                   aria-label={`${t('families.removeMember')} ${m.name}`}
-                  onClick={() => removeMember(m.id)}
+                  onClick={() => removeMember(m)}
                 >
                   {t('families.remove')}
                 </Button>

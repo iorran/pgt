@@ -49,7 +49,7 @@ export function Sidebar() {
   const { t } = useTranslation();
 
   return (
-    <nav className="hidden md:flex w-[220px] shrink-0 flex-col bg-sidebar min-h-dvh border-r border-border px-4 py-6">
+    <nav aria-label={t('nav.main')} className="hidden md:flex w-[220px] shrink-0 flex-col bg-sidebar min-h-dvh border-r border-border px-4 py-6">
       <div className="mb-6">
         <h2 className="font-display text-4xl text-primary leading-none">PGT</h2>
         <p className="text-xs text-muted-foreground mt-1">{t('app.tagline')}</p>

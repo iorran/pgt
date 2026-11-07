@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
 import { Button } from '@/components/ui/button';
+import { QueryError } from '@/components/query-error';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { formatMoney } from '@/lib/format';
 import { studentTabs } from './families';
@@ -57,7 +58,7 @@ export default function StudentsPage() {
   const [limit, setLimit] = useState(PAGE_SIZE);
   const [modalityId, setModalityId] = useState('');
 
-  const { data: students = [], isLoading } = useApiQuery<Student[]>(
+  const { data: students = [], isLoading, isError, refetch } = useApiQuery<Student[]>(
     ['students', user?.academyId],
     `/students?academyId=${user?.academyId}`,
     !!user?.academyId,
@@ -117,7 +118,9 @@ export default function StudentsPage() {
         </div>
       )}
 
-      {filtered.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : filtered.length === 0 ? (
         <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
       ) : (
         <>
@@ -133,7 +136,7 @@ export default function StudentsPage() {
                   </Link>
                   {s.familyName && <p className="text-xs text-muted-foreground truncate">{s.familyName}</p>}
                   <p className="text-sm text-muted-foreground truncate">
-                    {s.monthlyFee != null ? formatMoney(s.monthlyFee, i18n.language) : '-'}
+                    {s.monthlyFee != null ? formatMoney(s.monthlyFee, i18n.language) : '—'}
                     {s.dueDay != null && ` · ${t('students.dueDay')} ${s.dueDay}`}
                   </p>
                   <ModalityBadges modalities={s.modalities} />
@@ -172,9 +175,9 @@ export default function StudentsPage() {
                       <ModalityBadges modalities={s.modalities} />
                     </TableCell>
                     <TableCell className="arena-stat">
-                      {s.monthlyFee != null ? formatMoney(s.monthlyFee, i18n.language) : '-'}
+                      {s.monthlyFee != null ? formatMoney(s.monthlyFee, i18n.language) : '—'}
                     </TableCell>
-                    <TableCell className="font-mono">{s.dueDay ?? '-'}</TableCell>
+                    <TableCell className="font-mono">{s.dueDay ?? '—'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

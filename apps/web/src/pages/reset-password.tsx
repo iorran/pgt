@@ -38,7 +38,7 @@ export default function ResetPasswordPage() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center arena-stripes px-4">
+    <div className="min-h-dvh flex items-center justify-center arena-stripes px-4">
       <Card className="w-full max-w-md bg-card border-border">
         <CardContent className="pt-8 pb-8 px-8">
           <div className="text-center mb-8">

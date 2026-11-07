@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import PaymentsPage from '@/pages/billing/payments';
@@ -56,10 +56,19 @@ describe('PaymentsPage', () => {
 
   it('formats money and dates in the history table', async () => {
     renderWithProviders(<PaymentsPage />);
-    expect(await screen.findByText(formatMoney('45.00', 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
-    expect(screen.getByText(formatDate('2026-04-23', 'pt-BR'))).toBeInTheDocument();
+    const table = await screen.findByRole('table');
+    expect(await within(table).findByText(formatMoney('45.00', 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
+    expect(within(table).getByText(formatDate('2026-04-23', 'pt-BR'))).toBeInTheDocument();
     // student name resolved from the students list
-    expect(screen.getByRole('cell', { name: 'Ana Silva' })).toBeInTheDocument();
+    expect(await within(table).findByRole('cell', { name: 'Ana Silva' })).toBeInTheDocument();
+  });
+
+  it('lists recent payments as mobile cards', async () => {
+    renderWithProviders(<PaymentsPage />);
+    const list = await screen.findByRole('list', { name: 'billing.recentPayments' });
+    const [card] = within(list).getAllByRole('listitem');
+    await waitFor(() => expect(card).toHaveTextContent('Ana Silva'));
+    expect(card).toHaveTextContent(formatDate('2026-04-23', 'pt-BR'));
   });
 
   it('searches student by name, prefills the monthly fee, saves with toast', async () => {

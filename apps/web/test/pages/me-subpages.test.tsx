@@ -3,7 +3,6 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import BillingStatusPage from '@/pages/me/billing-status';
-import ThemePage from '@/pages/me/theme';
 import LanguagePage from '@/pages/me/language';
 
 vi.mock('@/lib/api', () => ({
@@ -46,24 +45,6 @@ describe('BillingStatusPage', () => {
     renderWithProviders(<BillingStatusPage />);
     expect(screen.getByRole('heading', { level: 1, name: 'me.billingStatus' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'common.back' })).toHaveAttribute('href', '/me');
-  });
-});
-
-describe('ThemePage', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
-
-  it('exposes options as a radiogroup with aria-checked', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<ThemePage />);
-    expect(screen.getByRole('heading', { level: 1, name: 'me.theme' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'common.back' })).toHaveAttribute('href', '/me');
-    expect(screen.getByRole('radiogroup')).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: 'me.themeSystem' })).toHaveAttribute('aria-checked', 'true');
-    await user.click(screen.getByRole('radio', { name: 'me.themeDark' }));
-    expect(screen.getByRole('radio', { name: 'me.themeDark' })).toHaveAttribute('aria-checked', 'true');
-    expect(screen.getByRole('radio', { name: 'me.themeSystem' })).toHaveAttribute('aria-checked', 'false');
   });
 });
 

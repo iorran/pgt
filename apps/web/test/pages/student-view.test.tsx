@@ -46,6 +46,7 @@ vi.mock('@/components/tabs-nav', () => ({
 
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { toast } from '@/lib/toast';
 import { StudentClassesView } from '@/pages/classes/student-view';
 
 const mockUseSession = vi.mocked(useSession);
@@ -193,5 +194,28 @@ describe('StudentClassesView', () => {
         }),
       );
     });
+  });
+
+  it.each([
+    [1, 'classes.locationDenied'],
+    [2, 'classes.locationUnavailable'],
+    [3, 'classes.locationUnavailable'],
+  ])('geolocation error code %i shows %s', async (code, key) => {
+    const user = userEvent.setup();
+    mockApi.mockResolvedValueOnce([makeActiveClass()] as any).mockResolvedValueOnce([] as any);
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
+      value: {
+        getCurrentPosition: vi.fn((_ok: any, fail: any) =>
+          fail({ code, PERMISSION_DENIED: 1, POSITION_UNAVAILABLE: 2, TIMEOUT: 3 }),
+        ),
+      },
+      configurable: true,
+    });
+
+    renderWithProviders(<StudentClassesView />);
+    await user.click(await screen.findByText('classes.checkinProximity'));
+
+    expect(toast.error).toHaveBeenCalledWith(key, ...(code === 1 ? [{ description: 'classes.locationDeniedHelp' }] : []));
+    expect(mockApi).not.toHaveBeenCalledWith('/checkins', expect.anything());
   });
 });

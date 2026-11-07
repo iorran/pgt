@@ -37,10 +37,17 @@ describe('StudentShell', () => {
     mockedUseSession.mockReset();
   });
 
+  it('starts with a skip link that targets main', () => {
+    renderShell();
+    const skip = screen.getByRole('link', { name: 'common.skipToContent' });
+    expect(skip).toHaveAttribute('href', '#main');
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main');
+  });
+
   it('renders header, outlet content, and bottom nav together', () => {
     renderShell();
     expect(screen.getByText('PGT')).toBeInTheDocument();
     expect(screen.getByText('classes-content')).toBeInTheDocument();
-    expect(screen.getByRole('navigation', { name: /student bottom navigation/i })).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'nav.studentBottom' })).toBeInTheDocument();
   });
 });

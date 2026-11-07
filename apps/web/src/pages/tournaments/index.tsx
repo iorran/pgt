@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { QueryError } from '@/components/query-error';
 import {
   Dialog,
   DialogTrigger,
@@ -56,7 +57,7 @@ export default function TournamentsPage() {
   const [rosterTournamentId, setRosterTournamentId] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
 
-  const { data: tournaments = [], isLoading } = useApiQuery<Tournament[]>(
+  const { data: tournaments = [], isLoading, isError, refetch } = useApiQuery<Tournament[]>(
     ['tournaments', user?.academyId],
     `/tournaments?academyId=${user?.academyId}`,
     !!user?.academyId,
@@ -221,7 +222,9 @@ export default function TournamentsPage() {
 
       {msg && <p className="text-sm font-bold text-primary">{msg}</p>}
 
-      {tournaments.length === 0 ? (
+      {isError ? (
+        <QueryError onRetry={() => void refetch()} />
+      ) : tournaments.length === 0 ? (
         <div className="text-center py-12 space-y-3">
           <Trophy className="size-12 text-muted-foreground mx-auto" aria-hidden />
           <p className="text-muted-foreground font-heading">{t('tournaments.empty')}</p>
@@ -305,7 +308,7 @@ export default function TournamentsPage() {
                     {roster.length === 0 ? (
                       <p className="text-sm text-muted-foreground">{t('common.noResults')}</p>
                     ) : (
-                      <div className="rounded-sm border border-border overflow-x-auto">
+                      <div className="rounded-sm border border-border">
                         <Table>
                           <TableHeader>
                             <TableRow className="border-border">

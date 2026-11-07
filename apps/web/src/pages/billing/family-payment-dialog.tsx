@@ -134,13 +134,13 @@ function FamilyPaymentForm({
                 <span className="ml-auto arena-stat">{formatMoney(m.fee, i18n.language)}</span>
               </label>
               {paid > 0 && (
-                <p className="text-xs text-yellow-500">
+                <p className="text-xs text-warning-text">
                   {t('billing.family.partlyPaid', { paid, total: billable.length })}
                 </p>
               )}
               <ul className="text-xs text-muted-foreground">
                 {m.members.map((s) => (
-                  <li key={s.studentId}>{`${names.get(s.studentId) ?? '-'} · ${t(`billing.family.status.${s.status}`)}`}</li>
+                  <li key={s.studentId}>{`${names.get(s.studentId) ?? '—'} · ${t(`billing.family.status.${s.status}`)}`}</li>
                 ))}
               </ul>
             </div>

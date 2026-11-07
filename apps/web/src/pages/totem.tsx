@@ -44,7 +44,7 @@ export default function TotemPage() {
   }, [refetch]);
 
   return (
-    <div className="relative min-h-screen bg-background p-8 flex flex-col items-center">
+    <div className="relative min-h-dvh bg-background p-8 flex flex-col items-center">
       <Link
         to="/"
         className="absolute top-2 left-2 inline-flex items-center gap-1 min-h-11 px-3 text-sm text-muted-foreground hover:text-foreground"

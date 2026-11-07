@@ -16,9 +16,9 @@ interface StudentRow {
 const FILTER_KEYS = ['all', 'active', 'slowing', 'drifting', 'inactive'] as const;
 
 const statusColor: Record<Status, string> = {
-  active: 'text-green-600',
-  slowing: 'text-amber-600',
-  drifting: 'text-red-600',
+  active: 'text-success-text',
+  slowing: 'text-warning-text',
+  drifting: 'text-danger-text',
   inactive: 'text-muted-foreground',
 };
 
@@ -68,6 +68,7 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
         <div key={s.id}>
           <button
             type="button"
+            aria-expanded={expandedId === s.id}
             className="w-full flex justify-between items-center px-2 py-3 hover:bg-muted/50 text-left"
             onClick={() => setExpandedId((id) => (id === s.id ? null : s.id))}
           >

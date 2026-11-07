@@ -34,12 +34,12 @@ function TrendArrow({ trend }: { trend: number | null }) {
   }
   if (trend >= 1.1) {
     return (
-      <span className="text-green-600">↑ +{Math.round((trend - 1) * 100)}%</span>
+      <span className="text-success-text">↑ +{Math.round((trend - 1) * 100)}%</span>
     );
   }
   if (trend < 0.9) {
     return (
-      <span className="text-red-600">↓ -{Math.round((1 - trend) * 100)}%</span>
+      <span className="text-danger-text">↓ -{Math.round((1 - trend) * 100)}%</span>
     );
   }
   return <span className="text-muted-foreground">→</span>;
@@ -116,6 +116,7 @@ export function ClassesList({
         <div key={c.classId}>
           <button
             type="button"
+            aria-expanded={expandedId === c.classId}
             className="w-full flex justify-between items-center px-2 py-3 hover:bg-muted/50 text-left"
             onClick={() =>
               setExpandedId((id) => (id === c.classId ? null : c.classId))
