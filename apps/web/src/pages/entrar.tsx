@@ -53,19 +53,18 @@ export default function EntrarPage() {
       setError('');
 
       try {
-        // Signup with academyId — databaseHook sets status to 'pending' automatically
         const { error } = await signUp.email({
           name: value.name,
           email: value.email,
           password: value.password,
           belt: value.belt,
-          role: 'student',
-          academyId: academy.id,
         } as any);
         if (error) {
           setError(t('common.genericError'));
           return;
         }
+        // The server assigns academy, role and status: joining sets the student as pending approval.
+        await api(`/academies/${academy.id}/join`, { method: 'POST' });
 
         // Force full reload so session reflects the pending status
         window.location.href = '/aguardando';

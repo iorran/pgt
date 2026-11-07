@@ -52,26 +52,16 @@ export const auth = betterAuth({
         before: async (session: any) => (await isDependent(session.userId) ? false : { data: session }),
       },
     },
-    user: {
-      create: {
-        before: async (userData: any) => {
-          // If signing up with an academyId, set status to pending (needs instructor approval)
-          if (userData.academyId) {
-            return { data: { ...userData, status: 'pending' } };
-          }
-          return { data: userData };
-        },
-      },
-    },
   },
   user: {
+    // academyId, role and status are authority: only server routes set them (academies create/join/approve).
     additionalFields: {
-      academyId: { type: 'string', required: false, input: true },
+      academyId: { type: 'string', required: false, input: false },
       phone: { type: 'string', required: false, input: true },
       dateOfBirth: { type: 'string', required: false, input: true },
       belt: { type: 'string', required: false, input: true, defaultValue: 'white' },
-      role: { type: 'string', required: false, input: true, defaultValue: 'student' },
-      status: { type: 'string', required: false, input: true, defaultValue: 'active' },
+      role: { type: 'string', required: false, input: false, defaultValue: 'student' },
+      status: { type: 'string', required: false, input: false, defaultValue: 'active' },
     },
   },
 });
