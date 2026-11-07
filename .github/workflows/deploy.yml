@@ -5,13 +5,17 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      deploy_all:
-        description: 'Deploy all (skip change detection)'
-        type: boolean
-        default: true
+      target:
+        description: 'Environment to deploy (manual runs deploy everything)'
+        type: choice
+        options: [production, staging]
+        default: production
 
+# Push to main -> staging. Production only via the manual "Run workflow" button.
+# Per-environment secrets/vars (DATABASE_URL, FLY_APP, VERCEL_PROJECT_ID, VITE_APP_URL)
+# live in GitHub Environments named `staging` and `production`.
 concurrency:
-  group: deploy
+  group: deploy-${{ github.event_name == 'push' && 'staging' || inputs.target }}
   cancel-in-progress: false
 
 jobs:
@@ -54,6 +58,7 @@ jobs:
     outputs:
       api: ${{ steps.filter.outputs.api }}
       web: ${{ steps.filter.outputs.web }}
+      target: ${{ github.event_name == 'push' && 'staging' || inputs.target }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -68,8 +73,9 @@ jobs:
               - 'packages/shared/**'
 
   migrate:
-    needs: test
+    needs: [test, detect-changes]
     runs-on: ubuntu-latest
+    environment: ${{ needs.detect-changes.outputs.target }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -85,19 +91,21 @@ jobs:
 
   deploy-api:
     needs: [test, detect-changes, migrate]
-    if: needs.detect-changes.outputs.api == 'true' || github.event.inputs.deploy_all == 'true'
+    if: needs.detect-changes.outputs.api == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    environment: ${{ needs.detect-changes.outputs.target }}
     steps:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --config apps/api/fly.toml
+      - run: flyctl deploy --config apps/api/fly.toml --app ${{ vars.FLY_APP }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
   deploy-web:
     needs: [test, detect-changes]
-    if: needs.detect-changes.outputs.web == 'true' || github.event.inputs.deploy_all == 'true'
+    if: needs.detect-changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    environment: ${{ needs.detect-changes.outputs.target }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -105,6 +113,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm install
+      - name: Point /api rewrite at this environment's Fly app
+        working-directory: apps/web
+        run: sed -i "s#https://pgt-api.fly.dev#https://${{ vars.FLY_APP }}.fly.dev#" vercel.json
       - name: Pull Vercel config
         working-directory: apps/web
         run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
@@ -126,8 +137,8 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   release:
-    needs: [deploy-api, deploy-web]
-    if: always() && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped')
+    needs: [detect-changes, deploy-api, deploy-web]
+    if: always() && needs.detect-changes.outputs.target == 'production' && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped') && (needs.deploy-web.result == 'success' || needs.deploy-web.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write
