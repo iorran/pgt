@@ -1,9 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { db } from './client.js';
-import { academy, user, studentMembership, badgeDefinition, modality, studentModality, season } from './schema/index.js';
+import { academy, user, studentMembership, badgeDefinition, modality, studentModality, season, family } from './schema/index.js';
 import { auth } from '../auth/index.js';
 import { parseRoster, normalizeName, DEFAULT_MODALITIES } from './roster-csv.js';
+import { parseCleanRoster, planImport, isCleanRosterCsv } from './clean-roster.js';
 
 // Student roster export. Contains personal data (phones, minors) and the repo is
 // public, so it lives in the gitignored seed-data/ folder, never in git.
@@ -18,6 +20,10 @@ const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || (isLocalDb ? ADMIN_EMA
 // Test student login, same rule: skipped on a remote DB unless SEED_STUDENT_PASSWORD is set.
 const STUDENT_EMAIL = 'aluno@aluno.com';
 const STUDENT_PASSWORD = process.env.SEED_STUDENT_PASSWORD || (isLocalDb ? STUDENT_EMAIL : undefined);
+
+// Staging: every real email (students and Responsibles) becomes a Gmail "+" alias of this address
+// (me+1@gmail.com, me+2@…), so all mail lands in one inbox and no real person is ever contacted.
+const EMAIL_ALIAS = process.env.SEED_EMAIL_ALIAS;
 
 const slugify = (s: string) => normalizeName(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
@@ -65,9 +71,101 @@ async function seed() {
   }
 
   if (existsSync(ROSTER_CSV)) {
-    const roster = parseRoster(readFileSync(ROSTER_CSV, 'utf8'));
+    const text = readFileSync(ROSTER_CSV, 'utf8');
+    if (isCleanRosterCsv(text)) {
+      await importCleanRoster(text);
+    } else {
+      await importOldRoster(text);
+    }
+  } else {
+    console.warn(`No roster at ${ROSTER_CSV}; seeded academy + owner only`);
+  }
 
-    // No emails in the sheet: placeholder addresses, no login. Owner replaces them later.
+  // The reviewed roster (seed-data/2027-ativo.limpo.csv): one login per Family (ADR 0004).
+  async function importCleanRoster(text: string) {
+    const students = parseCleanRoster(text);
+    const { families } = planImport(students);
+    const [aliasLocal, aliasDomain] = (EMAIL_ALIAS ?? '').split('@');
+    const aliases = new Map<string, string>();
+    const realEmail = (email: string) => {
+      if (!EMAIL_ALIAS) {
+        return email;
+      }
+      if (!aliases.has(email)) {
+        aliases.set(email, `${aliasLocal}+${aliases.size + 1}@${aliasDomain}`);
+      }
+      return aliases.get(email)!;
+    };
+
+    // Dependents never log in: a generated internal email only (Better Auth needs a unique one).
+    const usedEmails = new Set<string>([ADMIN_EMAIL.toLowerCase()]);
+    const rows = students.map((s) => {
+      const id = randomUUID();
+      // No own email (and not a Dependent): no login until the Owner adds one.
+      const placeholder = `${id}@${s.dependent ? 'dependente' : 'sem-email'}.pgt.invalid`;
+      let email = s.dependent || !s.email ? placeholder : realEmail(s.email);
+      if (usedEmails.has(email)) {
+        email = placeholder;
+      }
+      usedEmails.add(email);
+      return {
+        id,
+        academyId: acad.id,
+        email,
+        name: s.name,
+        phone: s.phone,
+        dateOfBirth: s.dateOfBirth,
+        belt: s.belt,
+        trainingNote: s.trainingNote,
+        role: 'student' as const,
+        status: 'active' as const,
+      };
+    });
+    await db.insert(user).values(rows);
+
+    for (const f of families) {
+      let responsibleUserId: string;
+      if (f.responsible.kind === 'member') {
+        const email = f.responsible.email;
+        responsibleUserId = rows[f.memberIndexes.find((i) => students[i].email === email && !students[i].dependent)!].id;
+      } else {
+        const [r] = await db.insert(user).values({
+          academyId: acad.id,
+          email: realEmail(f.responsible.email),
+          name: f.responsible.name,
+          role: 'responsible',
+          status: 'active',
+        }).returning({ id: user.id });
+        responsibleUserId = r.id;
+      }
+      const [fam] = await db.insert(family).values({ academyId: acad.id, name: f.name, responsibleUserId }).returning();
+      for (const i of f.memberIndexes) {
+        await db.update(user).set({ familyId: fam.id }).where(eq(user.id, rows[i].id));
+      }
+    }
+
+    // Muted: fees and payment history aren't verified yet; the owner unmutes per student.
+    await db.insert(studentMembership).values(students.map((s, i) => ({
+      studentId: rows[i].id,
+      monthlyFee: s.monthlyFee,
+      startDate: billingStart,
+      dueDay: 8,
+      notificationsMuted: true,
+    })));
+    const tags = students.flatMap((s, i) => s.modalities.map((name) => ({ studentId: rows[i].id, modalityId: modalityByName.get(name)! })));
+    if (tags.some((t) => !t.modalityId)) {
+      throw new Error('Unknown modality in roster');
+    }
+    if (tags.length > 0) {
+      await db.insert(studentModality).values(tags);
+    }
+    const responsibles = families.filter((f) => f.responsible.kind === 'new').length;
+    console.log(`Imported ${students.length} students (${students.filter((s) => s.dependent).length} dependents), ${families.length} families, ${responsibles} Responsibles who don't train, from ${ROSTER_CSV}`);
+  }
+
+  // The older sheet export: no emails, no families.
+  async function importOldRoster(text: string) {
+    const roster = parseRoster(text);
     const usedEmails = new Set<string>();
     const students = await db.insert(user).values(roster.map((s) => {
       const base = slugify(s.name) || 'aluno';
@@ -87,8 +185,6 @@ async function seed() {
         createdAt: new Date(Date.UTC(2026, s.joinMonth - 1, 1)),
       };
     })).returning({ id: user.id });
-
-    // Muted because placeholder emails can't receive overdue notices.
     await db.insert(studentMembership).values(roster.map((s, i) => ({
       studentId: students[i].id,
       monthlyFee: s.price,
@@ -100,10 +196,7 @@ async function seed() {
     if (tags.length > 0) {
       await db.insert(studentModality).values(tags);
     }
-    const tagCounts = DEFAULT_MODALITIES.map((name) => `${name} ${roster.filter((s) => s.modalities.includes(name)).length}`);
-    console.log(`Imported ${roster.length} students from ${ROSTER_CSV}; modalities: ${tagCounts.join(', ')}`);
-  } else {
-    console.warn(`No roster at ${ROSTER_CSV}; seeded academy + owner only`);
+    console.log(`Imported ${roster.length} students from ${ROSTER_CSV}`);
   }
 
   // Same as a new academy created in the app: a season for the current year so results count.
