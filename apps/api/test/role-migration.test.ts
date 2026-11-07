@@ -2,16 +2,16 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { sql } from 'drizzle-orm';
 import { testDb, cleanDb } from './helpers.js';
 
-describe('user_role enum after migration 0008', () => {
+describe('user_role enum (0008, + responsible in 0016)', () => {
   beforeEach(async () => { await cleanDb(); });
-  it('contains exactly student, owner', async () => {
+  it('contains exactly student, owner, responsible', async () => {
     const rows = await testDb.execute(sql`
       SELECT e.enumlabel AS label
       FROM pg_enum e JOIN pg_type t ON t.oid = e.enumtypid
       WHERE t.typname = 'user_role' ORDER BY 1
     `);
     const labels = (rows as unknown as { label: string }[]).map(r => r.label).sort();
-    expect(labels).toEqual(['owner', 'student']);
+    expect(labels).toEqual(['owner', 'responsible', 'student']);
   });
 
   it('rejects inserting role = instructor', async () => {

@@ -1,9 +1,15 @@
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
+import { wasProfileChosen } from '@/lib/profile';
 
 export function StudentHeader() {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as { name?: string } | undefined;
   const userName = user?.name ?? '';
+  // The picker only ran for a Family's Responsible, so this marks a login with several profiles.
+  const canSwitch = wasProfileChosen();
 
   return (
     <header
@@ -19,11 +25,21 @@ export function StudentHeader() {
         />
         <span className="font-display text-2xl leading-none">PGT</span>
       </div>
-      {userName ? (
-        <span className="font-heading text-sm uppercase tracking-wide truncate">
-          {userName}
-        </span>
-      ) : null}
+      <div className="flex min-w-0 items-center gap-3">
+        {userName ? (
+          <span className="font-heading text-sm uppercase tracking-wide truncate">
+            {userName}
+          </span>
+        ) : null}
+        {canSwitch && (
+          <Link
+            to="/perfis"
+            className="shrink-0 rounded-sm border border-white/40 px-2 py-1 text-xs uppercase tracking-wide text-white no-underline hover:bg-white/10"
+          >
+            {t('profiles.switch')}
+          </Link>
+        )}
+      </div>
     </header>
   );
 }

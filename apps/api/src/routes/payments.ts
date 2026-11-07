@@ -73,10 +73,13 @@ export async function paymentRoutes(app: FastifyInstance) {
   // Overdue dashboard: one item per student, family members grouped into one family item.
   app.get('/api/payments/overdue', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
     const now = new Date();
-    const [students, families] = await Promise.all([
+    const [students, families, responsibles] = await Promise.all([
       loadStudentBilling(eq(user.academyId, request.academyId)),
       db.select().from(family).where(and(eq(family.academyId, request.academyId), isNull(family.deletedAt))),
+      db.select({ id: user.id, phone: user.phone }).from(user).innerJoin(family, eq(family.responsibleUserId, user.id))
+        .where(and(eq(family.academyId, request.academyId), isNull(family.deletedAt))),
     ]);
+    const responsiblePhone = new Map(responsibles.map((r) => [r.id, r.phone]));
 
     const items: ({ daysOverdue: number } & Record<string, unknown>)[] = [];
     const familyIds = new Set(families.map((f) => f.id));
@@ -114,13 +117,14 @@ export async function paymentRoutes(app: FastifyInstance) {
         const owed = owedMonths(m, now);
         return owed.length > 0 ? [daysOverdue(owed[0], m.membership!.dueDay, now)] : [];
       });
-      const contact = members.find((m) => m.studentId === f.contactStudentId && m.phone);
+      // WhatsApp goes to the Responsible (ADR 0004); fall back to any member's phone.
+      const contactPhone = (f.responsibleUserId && responsiblePhone.get(f.responsibleUserId)) || members.find((m) => m.phone)?.phone || null;
       items.push({
         kind: 'family',
         familyId: f.id,
         familyName: f.name,
         members: members.map((m) => ({ studentId: m.studentId, name: m.name })),
-        phone: (contact ?? members.find((m) => m.phone))?.phone ?? null,
+        phone: contactPhone,
         daysOverdue: Math.max(...days),
         missedMonths: billing.suggestedMonths,
         amountDue: billing.suggestedAmount,
@@ -168,9 +172,17 @@ export async function paymentRoutes(app: FastifyInstance) {
   // Send overdue payment email notification (owner only)
   app.post('/api/payments/overdue/:studentId/notify', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
-    const [student] = await db.select({ email: user.email, name: user.name })
+    const [student] = await db.select({ email: user.email, name: user.name, familyId: user.familyId })
       .from(user).where(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
     if (!student) return reply.status(404).send({ error: 'Student not found' });
+    // A Dependent's mail goes to their Family's Responsible (ADR 0004).
+    let recipient = student.email;
+    if (student.familyId) {
+      const [resp] = await db.select({ email: user.email }).from(family)
+        .innerJoin(user, eq(user.id, family.responsibleUserId))
+        .where(and(eq(family.id, student.familyId), isNull(family.deletedAt)));
+      recipient = resp?.email ?? recipient;
+    }
 
     const [acad] = await db.select({ name: academy.name })
       .from(academy).where(eq(academy.id, request.academyId));
@@ -182,7 +194,7 @@ export async function paymentRoutes(app: FastifyInstance) {
       .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
 
     const daysOverdue = membership ? currentDay - membership.dueDay : 0;
-    await emailService.sendOverduePayment(student.email, student.name, acad?.name || 'PGT', daysOverdue);
+    await emailService.sendOverduePayment(recipient, student.name, acad?.name || 'PGT', daysOverdue);
 
     await db.update(studentMembership)
       .set({ lastOverdueEmailSentAt: now })
