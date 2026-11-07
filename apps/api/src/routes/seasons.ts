@@ -121,6 +121,7 @@ export async function seasonRoutes(app: FastifyInstance) {
       }
       return true;
     });
-    return withRanks(filtered.map((r) => ({ ...r, totalPoints: Number(r.totalPoints) })));
+    // dateOfBirth is only for the category filter: never sent to other members.
+    return withRanks(filtered.map(({ dateOfBirth: _dob, ...r }) => ({ ...r, totalPoints: Number(r.totalPoints) })));
   });
 }

@@ -13,7 +13,12 @@ export async function findDependent(responsibleId: string, dependentId: string) 
     .select({ id: user.id, role: user.role, academyId: user.academyId, status: user.status, name: user.name, email: user.email })
     .from(user)
     .innerJoin(family, eq(family.id, user.familyId))
-    .where(and(eq(user.id, dependentId), eq(family.responsibleUserId, responsibleId), isNull(family.deletedAt)));
+    .where(and(
+      eq(user.id, dependentId),
+      eq(user.academyId, family.academyId),
+      eq(family.responsibleUserId, responsibleId),
+      isNull(family.deletedAt),
+    ));
   return row ?? null;
 }
 

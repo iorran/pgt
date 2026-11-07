@@ -61,6 +61,9 @@ async function updateStreak(studentId: string, now: Date, academyTimezone: strin
 export async function checkinRoutes(app: FastifyInstance) {
   // POST /api/checkins — validated checkin pipeline
   app.post('/api/checkins', { preHandler: requireAuth }, async (request, reply) => {
+    if (request.user.status !== 'active') {
+      return reply.status(403).send({ error: 'MEMBERSHIP_NOT_ACTIVE' });
+    }
     const studentId = request.user.id;
     const { classId, source, latitude, longitude, token } = request.body as {
       classId: string;

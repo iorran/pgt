@@ -15,7 +15,12 @@ export async function meRoutes(app: FastifyInstance) {
       .select(profileFields)
       .from(user)
       .innerJoin(family, eq(family.id, user.familyId))
-      .where(and(eq(family.responsibleUserId, actorId), isNull(family.deletedAt), ne(user.id, actorId)))
+      .where(and(
+        eq(family.responsibleUserId, actorId),
+        isNull(family.deletedAt),
+        ne(user.id, actorId),
+        eq(user.academyId, family.academyId),
+      ))
       .orderBy(asc(user.name));
     const { role, ...selfProfile } = self;
     return {
