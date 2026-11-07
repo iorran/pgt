@@ -50,7 +50,7 @@ describe('academy scoping of list endpoints', () => {
 describe('student rows gain family and fee fields', () => {
   it('list and detail include familyId, familyName, monthlyFee', async () => {
     const { student, api } = await setup();
-    const fam = (await api('POST', '/api/families', { name: 'Família Ana', memberIds: [student.id] })).json();
+    const fam = (await api('POST', '/api/families', { name: 'Família Ana', responsibleId: student.id, memberIds: [student.id] })).json();
     const expected = { familyId: fam.id, familyName: 'Família Ana', monthlyFee: '35.00' };
 
     const list = (await api('GET', '/api/students')).json();

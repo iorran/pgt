@@ -1,4 +1,5 @@
-import { pgTable, uuid, varchar, decimal, date, timestamp, text, unique, type AnyPgColumn } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, decimal, date, timestamp, text, unique, uniqueIndex, type AnyPgColumn } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import { academy } from './academy';
 import { user } from './user';
 
@@ -7,14 +8,16 @@ export const family = pgTable('family', {
   id: uuid('id').primaryKey().defaultRandom(),
   academyId: uuid('academy_id').notNull().references(() => academy.id),
   name: varchar('name', { length: 255 }).notNull(),
-  contactStudentId: uuid('contact_student_id').references((): AnyPgColumn => user.id, { onDelete: 'set null' }),
+  // The one login that acts for every member (ADR 0004). Always set on active families;
+  // soft-deleted families may have none.
+  responsibleUserId: uuid('responsible_user_id').references((): AnyPgColumn => user.id),
   agreedPrice: decimal('agreed_price', { precision: 10, scale: 2 }),
   // Set when members change while an agreed price exists; cleared when the owner saves the price again.
   priceReviewNeeded: timestamp('price_review_needed'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   // Soft delete: family payments keep pointing here after the owner removes the family.
   deletedAt: timestamp('deleted_at'),
-});
+}, (t) => [uniqueIndex('family_responsible_active_uq').on(t.responsibleUserId).where(sql`${t.deletedAt} is null`)]);
 
 // One payment by a family covering whole months; per-member rows live in `payment` (ADR 0001).
 export const familyPayment = pgTable('family_payment', {
