@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { eq, inArray } from 'drizzle-orm';
 import { db as defaultDb } from './client.js';
 import * as schema from './schema/index.js';

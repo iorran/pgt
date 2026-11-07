@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { existsSync, readFileSync } from 'node:fs';
 import { eq } from 'drizzle-orm';
 import { db } from './client.js';

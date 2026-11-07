@@ -4,7 +4,7 @@ dist/
 .turbo/
 *.tsbuildinfo
 !package-lock.json
-.vercel
+.vercel*
 test-results/
 playwright-report/
 apps/api/seed-data/
