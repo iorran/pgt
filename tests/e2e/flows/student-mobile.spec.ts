@@ -26,7 +26,7 @@ test('student sees bottom nav and can navigate via tabs', async ({ browser }) =>
     const page = await context.newPage();
     await page.goto('/');
 
-    const nav = page.getByRole('navigation', { name: /student bottom navigation/i });
+    const nav = page.getByRole('navigation', { name: /navegação do aluno/i });
     await expect(nav).toBeVisible({ timeout: 10_000 });
 
     await nav.locator('a[href="/classes"]').click();
@@ -55,12 +55,12 @@ test('FAB navigates to fullscreen check-in without the shell', async ({ browser 
     const page = await context.newPage();
     await page.goto('/');
     await page
-      .getByRole('navigation', { name: /student bottom navigation/i })
+      .getByRole('navigation', { name: /navegação do aluno/i })
       .locator('a[href="/checkin"]')
       .click();
     await expect(page).toHaveURL(/\/checkin/);
     await expect(
-      page.getByRole('navigation', { name: /student bottom navigation/i }),
+      page.getByRole('navigation', { name: /navegação do aluno/i }),
     ).toHaveCount(0);
   } finally {
     await context.close();
@@ -76,7 +76,7 @@ test('instructor does NOT see the student bottom nav', async ({ browser }) => {
     const page = await context.newPage();
     await page.goto('/');
     await expect(
-      page.getByRole('navigation', { name: /student bottom navigation/i }),
+      page.getByRole('navigation', { name: /navegação do aluno/i }),
     ).toHaveCount(0);
   } finally {
     await context.close();

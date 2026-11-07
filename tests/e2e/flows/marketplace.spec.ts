@@ -83,9 +83,9 @@ test('21. student requests a product', async ({ browser }) => {
     // t('marketplace.request') = "Solicitar"
     await card.getByRole('button', { name: /solicitar/i }).click();
 
-    // t('marketplace.requestSuccess') = "Pedido realizado com sucesso!"
+    // t('marketplace.requestSuccess') = "Pedido feito. A academia vai confirmar."
     await expect(
-      page.getByText(/pedido realizado com sucesso/i),
+      page.getByText(/pedido feito/i),
     ).toBeVisible({ timeout: 10_000 });
   } finally {
     await context.close();

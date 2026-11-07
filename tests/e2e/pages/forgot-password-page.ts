@@ -23,7 +23,7 @@ export class ForgotPasswordPage {
   /** Confirmation text shown after submission */
   successMessage() {
     return this.page.getByText(
-      'Se o email existir em nossa base, enviaremos um link de recuperação.',
+      'Se o e-mail existir em nossa base, enviaremos um link de recuperação.',
     );
   }
 }
