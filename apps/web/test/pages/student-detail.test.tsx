@@ -80,9 +80,9 @@ describe('StudentDetailPage', () => {
     expect(screen.getAllByText(/45,00\s€/).length).toBeGreaterThan(0);
   });
 
-  it('asks for confirmation before paying the current month and toasts on success', async () => {
+  it('asks for confirmation before recording the monthly fee and toasts on success', async () => {
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: 'students.payCurrentMonth' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'students.payMonth' }));
     expect(api).not.toHaveBeenCalledWith('/payments/quick/s1', expect.anything());
     fireEvent.click(await screen.findByRole('button', { name: 'common.confirm' }));
     await waitFor(() => expect(api).toHaveBeenCalledWith('/payments/quick/s1', { method: 'POST' }));
@@ -156,7 +156,7 @@ describe('StudentDetailPage', () => {
     student = { ...baseStudent, monthlyFee: null, dueDay: null };
     renderPage();
     expect(await screen.findByText('students.fee.none')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'students.payCurrentMonth' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'students.payMonth' })).toBeNull();
     expect(screen.getByLabelText('students.fee.amount')).toHaveValue(null);
     expect(screen.getByLabelText('students.dueDay')).toHaveValue(8);
     await user.type(screen.getByLabelText('students.fee.amount'), '60');

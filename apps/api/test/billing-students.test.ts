@@ -147,11 +147,30 @@ describe('payments use Monthly Fee and Waived Months', () => {
     expect(status.json()).toEqual({ status: 'overdue', daysOverdue: 47 });
   });
 
-  it('quick pay uses the Monthly Fee', async () => {
+  it('quick pay uses the Monthly Fee and pays the oldest owed month first', async () => {
     const { student, api } = await setup();
+    const first = await api('POST', `/api/payments/quick/${student.id}`);
+    expect(first.statusCode).toBe(201);
+    expect(first.json()).toMatchObject({ amount: '35.00', referenceMonth: '2026-08' });
+    const second = await api('POST', `/api/payments/quick/${student.id}`);
+    expect(second.json()).toMatchObject({ referenceMonth: '2026-09' });
+    expect((await api('GET', '/api/payments/overdue')).json()).toHaveLength(0);
+  });
+
+  it('quick pay skips waived months', async () => {
+    const { student, api } = await setup();
+    await api('POST', `/api/students/${student.id}/waived-months`, { month: '2026-08' });
+    const res = await api('POST', `/api/payments/quick/${student.id}`);
+    expect(res.json()).toMatchObject({ referenceMonth: '2026-09' });
+  });
+
+  it('quick pay with nothing owed pays the next unpaid month', async () => {
+    const { student, api } = await setup();
+    await api('POST', `/api/payments/quick/${student.id}`);
+    await api('POST', `/api/payments/quick/${student.id}`);
     const res = await api('POST', `/api/payments/quick/${student.id}`);
     expect(res.statusCode).toBe(201);
-    expect(res.json()).toMatchObject({ amount: '35.00', referenceMonth: '2026-09' });
+    expect(res.json()).toMatchObject({ referenceMonth: '2026-10' });
   });
 
   it('quick pay 404 for another academy student', async () => {

@@ -44,7 +44,7 @@ From [[2026-09-26-families-design|Families design]]:
 
 ## Found while updating the user guides (2026-09-26)
 
-- **Quick pay records the current month** even when the overdue debt is an older month ("Registrar Pagamento" on an overdue card). Should pay the oldest owed month.
+- ~~**Quick pay records the current month** even when the overdue debt is an older month ("Registrar Pagamento" on an overdue card). Should pay the oldest owed month.~~ Fixed: pays the oldest owed month (else the next unpaid one); student page button is now "Registrar mensalidade".
 - **Family payment dialog over-suggests for partly paid months:** the pre-filled amount uses the whole month's Family Fee, including members who already paid individually; only unpaid members are charged.
 - **Configurações is empty for students** but still linked from Perfil.
 - **Owner's Histórico de Presença** shows the owner's own check-ins, not students'.

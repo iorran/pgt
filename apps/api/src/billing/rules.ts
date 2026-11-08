@@ -57,6 +57,20 @@ export function owedMonths(member: MemberBilling, today: Date): string[] {
   return owed;
 }
 
+// Month a one-tap payment settles: the oldest owed month, else the first unpaid, unwaived month from now on.
+export function monthToPay(member: MemberBilling, today: Date): string {
+  const owed = owedMonths(member, today);
+  if (owed.length > 0) {
+    return owed[0];
+  }
+  const start = member.membership?.startDate.slice(0, 7) ?? '';
+  let month = monthKey(today) > start ? monthKey(today) : start;
+  while (member.paid.has(month) || member.waived.has(month)) {
+    month = nextMonth(month);
+  }
+  return month;
+}
+
 export function daysOverdue(month: string, dueDay: number, today: Date): number {
   const [y, m] = month.split('-').map(Number);
   const dueDate = new Date(y, m - 1, dueDay);

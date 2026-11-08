@@ -203,11 +203,11 @@ export default function StudentDetailPage() {
           {isOwner(user) && student.monthlyFee != null && (
             <Dialog open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
               <DialogTrigger render={<Button variant="outline" className="w-full sm:w-auto" />}>
-                {t('students.payCurrentMonth')}
+                {t('students.payMonth')}
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{t('students.payCurrentMonth')}</DialogTitle>
+                  <DialogTitle>{t('students.payMonth')}</DialogTitle>
                   <DialogDescription>{t('students.payConfirm', { name: student.name })}</DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
