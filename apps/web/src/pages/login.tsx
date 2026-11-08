@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
@@ -83,9 +84,8 @@ export default function LoginPage() {
               {(field) => (
                 <div className="space-y-2">
                   <Label htmlFor="password">{t('auth.password')}</Label>
-                  <Input
+                  <PasswordInput
                     id="password"
-                    type="password"
                     autoComplete="current-password"
                     aria-invalid={!!error || undefined}
                     value={field.state.value}
