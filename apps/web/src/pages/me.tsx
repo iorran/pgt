@@ -4,6 +4,7 @@ import { signOut, useSession } from '@/lib/auth-client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { beltKey } from '@/lib/belts';
+import { isOwner } from '@/lib/roles';
 import {
   Receipt,
   Trophy,
@@ -17,13 +18,14 @@ type HubRow = {
   to: string;
   labelKey: string;
   Icon: typeof Receipt;
+  ownerOnly?: boolean;
 };
 
 const ROWS: HubRow[] = [
   { to: '/me/billing', labelKey: 'me.billingStatus', Icon: Receipt },
   { to: '/tournaments', labelKey: 'me.tournaments', Icon: Trophy },
   { to: '/me/language', labelKey: 'me.language', Icon: Languages },
-  { to: '/settings', labelKey: 'me.settings', Icon: Settings },
+  { to: '/settings', labelKey: 'me.settings', Icon: Settings, ownerOnly: true },
 ];
 
 export default function MePage() {
@@ -31,7 +33,7 @@ export default function MePage() {
   const { data: session } = useSession();
   const navigate = useNavigate();
   const user = session?.user as
-    | { name?: string; belt?: string; email?: string }
+    | { name?: string; belt?: string; email?: string; role?: string }
     | undefined;
 
   async function handleSignOut() {
@@ -58,7 +60,7 @@ export default function MePage() {
       </Card>
 
       <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-card">
-        {ROWS.map(({ to, labelKey, Icon }) => (
+        {ROWS.filter((row) => !row.ownerOnly || isOwner(user)).map(({ to, labelKey, Icon }) => (
           <Link
             key={to}
             to={to}

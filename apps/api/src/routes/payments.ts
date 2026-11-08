@@ -8,7 +8,7 @@ import { authorizeStudentRead } from '../middleware/student-access.js';
 import { emailService } from '../email/index.js';
 import { isAcademyStudent } from './students.js';
 import { loadStudentBilling } from '../billing/load.js';
-import { daysOverdue, familyBilling, fromCents, monthKey, owedMonths, toCents } from '../billing/rules.js';
+import { daysOverdue, familyBilling, fromCents, monthKey, monthToPay, owedMonths, toCents } from '../billing/rules.js';
 
 export async function paymentRoutes(app: FastifyInstance) {
   // Record a manual payment (owner only)
@@ -144,28 +144,20 @@ export async function paymentRoutes(app: FastifyInstance) {
     const { studentId } = request.params as { studentId: string };
 
     // Get the student's active membership and Monthly Fee
-    const [membership] = await db
-      .select({ monthlyFee: studentMembership.monthlyFee })
-      .from(studentMembership)
-      .innerJoin(user, eq(user.id, studentMembership.studentId))
-      .where(and(
-        eq(studentMembership.studentId, studentId),
-        eq(studentMembership.active, true),
-        eq(user.academyId, request.academyId),
-      ));
+    const [student] = await loadStudentBilling(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
 
-    if (!membership) {
+    if (!student?.membership) {
       return reply.status(404).send({ error: 'Active membership not found' });
     }
 
     const now = new Date();
-    const referenceMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const referenceMonth = monthToPay(student, now);
     const paymentDate = now.toISOString().split('T')[0];
 
     const [created] = await db.insert(payment).values({
       studentId,
       academyId: request.academyId,
-      amount: membership.monthlyFee,
+      amount: student.membership.fee,
       paymentDate,
       referenceMonth,
       recordedBy: request.user.id,
@@ -177,9 +169,15 @@ export async function paymentRoutes(app: FastifyInstance) {
   // Send overdue payment email notification (owner only)
   app.post('/api/payments/overdue/:studentId/notify', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
-    const [student] = await db.select({ email: user.email, name: user.name, familyId: user.familyId })
-      .from(user).where(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
-    if (!student) return reply.status(404).send({ error: 'Student not found' });
+    const [student] = await loadStudentBilling(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
+    if (!student) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
+    const now = new Date();
+    const owed = owedMonths(student, now);
+    if (owed.length === 0) {
+      return reply.status(409).send({ error: 'NOT_OVERDUE' });
+    }
     // A Dependent's mail goes to their Family's Responsible (ADR 0004).
     let recipient = student.email;
     if (student.familyId) {
@@ -192,14 +190,8 @@ export async function paymentRoutes(app: FastifyInstance) {
     const [acad] = await db.select({ name: academy.name })
       .from(academy).where(eq(academy.id, request.academyId));
 
-    const now = new Date();
-    const currentDay = now.getDate();
-    const [membership] = await db.select({ dueDay: studentMembership.dueDay })
-      .from(studentMembership)
-      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
-
-    const daysOverdue = membership ? currentDay - membership.dueDay : 0;
-    await emailService.sendOverduePayment(recipient, student.name, acad?.name || 'PGT', daysOverdue);
+    const days = daysOverdue(owed[0], student.membership!.dueDay, now);
+    await emailService.sendOverduePayment(recipient, student.name, acad?.name || 'PGT', days);
 
     await db.update(studentMembership)
       .set({ lastOverdueEmailSentAt: now })

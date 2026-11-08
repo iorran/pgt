@@ -79,7 +79,7 @@ test('8. instructor rejects a pending student', async ({ browser }) => {
   }
 });
 
-test('10. instructor uses "Pagar Mês Atual" quick-pay', async ({ browser }) => {
+test('10. instructor uses "Registrar mensalidade" quick-pay', async ({ browser }) => {
   const setup = await setupAcademy();
   academy = setup.academy;
   const student = await createStudent(setup.academy.id, {
@@ -93,9 +93,9 @@ test('10. instructor uses "Pagar Mês Atual" quick-pay', async ({ browser }) => 
     const detail = new StudentDetailPage(page);
     await detail.goto(student.id);
 
-    await expect(detail.payCurrentMonthButton).toBeVisible({ timeout: 10_000 });
+    await expect(detail.payMonthButton).toBeVisible({ timeout: 10_000 });
 
-    await detail.payCurrentMonth();
+    await detail.payMonth();
 
     // After quick-pay, the payment history shows one row at the student's
     // Monthly Fee (assignMembership sets 180.00).

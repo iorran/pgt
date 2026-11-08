@@ -15,22 +15,26 @@ import {
 import { TabsNav } from '@/components/tabs-nav';
 import { buttonVariants } from '@/components/ui/button';
 import { QueryError } from '@/components/query-error';
+import { isOwner } from '@/lib/roles';
 
 interface CheckinRecord {
   id: string;
   checkedInAt: string;
   date: string; // YYYY-MM-DD, TZ-formatted by API
   class: { id: string; name: string; type: string } | null;
+  student?: { id: string; name: string };
 }
 
 export default function CheckinHistoryPage() {
   const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
+  // The owner doesn't train here: their history is every student's check-ins.
+  const owner = isOwner(user);
 
   const { data: checkins = [], isLoading, isError, refetch } = useApiQuery<CheckinRecord[]>(
-    ['checkins', user?.id],
-    `/checkins/student/${user?.id}`,
+    owner ? ['checkins', 'academy'] : ['checkins', user?.id],
+    owner ? '/checkins/academy' : `/checkins/student/${user?.id}`,
     !!user?.id,
   );
 
@@ -48,10 +52,12 @@ export default function CheckinHistoryPage() {
       ) : checkins.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
           <CalendarCheck className="size-12" />
-          <p className="text-lg font-heading">{t('classes.noCheckins')}</p>
-          <Link to="/classes" className={buttonVariants({ variant: 'outline' })}>
-            {t('classes.viewSchedule')}
-          </Link>
+          <p className="text-lg font-heading">{t(owner ? 'classes.noAcademyCheckins' : 'classes.noCheckins')}</p>
+          {!owner && (
+            <Link to="/classes" className={buttonVariants({ variant: 'outline' })}>
+              {t('classes.viewSchedule')}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="rounded-sm border border-border">
@@ -59,6 +65,7 @@ export default function CheckinHistoryPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>{t('classes.date')}</TableHead>
+                {owner && <TableHead>{t('classes.student')}</TableHead>}
                 <TableHead>{t('classes.className')}</TableHead>
                 <TableHead>{t('classes.classType')}</TableHead>
               </TableRow>
@@ -67,6 +74,15 @@ export default function CheckinHistoryPage() {
               {checkins.map(c => (
                 <TableRow key={c.id}>
                   <TableCell className="font-mono">{c.date}</TableCell>
+                  {owner && (
+                    <TableCell>
+                      {c.student && (
+                        <Link to={`/students/${c.student.id}`} className="text-primary hover:underline">
+                          {c.student.name}
+                        </Link>
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell>{c.class?.name ?? '—'}</TableCell>
                   <TableCell>{c.class?.type ?? '—'}</TableCell>
                 </TableRow>

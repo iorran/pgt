@@ -31,8 +31,21 @@ describe('MePage', () => {
     expect(screen.getByText('me.tournaments')).toBeInTheDocument();
     expect(screen.getByText('me.language')).toBeInTheDocument();
     expect(screen.queryByText('me.theme')).not.toBeInTheDocument();
-    expect(screen.getByText('me.settings')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'me.signOut' })).toBeInTheDocument();
+  });
+
+  it('hides Configurações from students, whose settings page is empty', () => {
+    renderWithProviders(<MePage />);
+    expect(screen.queryByText('me.settings')).not.toBeInTheDocument();
+  });
+
+  it('shows Configurações to the owner', () => {
+    mockedUseSession.mockReturnValue({
+      data: { user: { id: 'o1', name: 'Dono', role: 'owner', belt: 'black' } },
+      isPending: false,
+    } as any);
+    renderWithProviders(<MePage />);
+    expect(screen.getByText('me.settings')).toBeInTheDocument();
   });
 
   it('calls signOut when the sign out button is clicked', async () => {

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vites
 import { eq } from 'drizzle-orm';
 import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import * as schema from '../src/db/schema/index';
+import { emailService } from '../src/email/index';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
@@ -147,11 +148,48 @@ describe('payments use Monthly Fee and Waived Months', () => {
     expect(status.json()).toEqual({ status: 'overdue', daysOverdue: 47 });
   });
 
-  it('quick pay uses the Monthly Fee', async () => {
+  it('quick pay uses the Monthly Fee and pays the oldest owed month first', async () => {
     const { student, api } = await setup();
+    const first = await api('POST', `/api/payments/quick/${student.id}`);
+    expect(first.statusCode).toBe(201);
+    expect(first.json()).toMatchObject({ amount: '35.00', referenceMonth: '2026-08' });
+    const second = await api('POST', `/api/payments/quick/${student.id}`);
+    expect(second.json()).toMatchObject({ referenceMonth: '2026-09' });
+    expect((await api('GET', '/api/payments/overdue')).json()).toHaveLength(0);
+  });
+
+  it('quick pay skips waived months', async () => {
+    const { student, api } = await setup();
+    await api('POST', `/api/students/${student.id}/waived-months`, { month: '2026-08' });
+    const res = await api('POST', `/api/payments/quick/${student.id}`);
+    expect(res.json()).toMatchObject({ referenceMonth: '2026-09' });
+  });
+
+  it('quick pay with nothing owed pays the next unpaid month', async () => {
+    const { student, api } = await setup();
+    await api('POST', `/api/payments/quick/${student.id}`);
+    await api('POST', `/api/payments/quick/${student.id}`);
     const res = await api('POST', `/api/payments/quick/${student.id}`);
     expect(res.statusCode).toBe(201);
-    expect(res.json()).toMatchObject({ amount: '35.00', referenceMonth: '2026-09' });
+    expect(res.json()).toMatchObject({ referenceMonth: '2026-10' });
+  });
+
+  it('overdue email counts days from the oldest owed month', async () => {
+    const { student, api } = await setup();
+    const spy = vi.spyOn(emailService, 'sendOverduePayment').mockResolvedValue();
+    expect((await api('POST', `/api/payments/overdue/${student.id}/notify`)).statusCode).toBe(200);
+    expect(spy).toHaveBeenCalledWith(student.email, 'Ana', expect.any(String), 47);
+    spy.mockRestore();
+  });
+
+  it('overdue email is refused when nothing is owed', async () => {
+    const { student, api } = await setup();
+    await api('POST', `/api/payments/quick/${student.id}`);
+    await api('POST', `/api/payments/quick/${student.id}`);
+    const spy = vi.spyOn(emailService, 'sendOverduePayment').mockResolvedValue();
+    expect((await api('POST', `/api/payments/overdue/${student.id}/notify`)).statusCode).toBe(409);
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it('quick pay 404 for another academy student', async () => {

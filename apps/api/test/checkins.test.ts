@@ -440,3 +440,40 @@ describe('GET /api/checkins/student/:studentId (enriched + TZ-aware)', () => {
     expect(res.statusCode).toBe(403);
   });
 });
+
+describe('GET /api/checkins/academy', () => {
+  it('owner sees the academy check-ins, newest first, with student and class', async () => {
+    const academy = await createTestAcademy({ timezone: 'Europe/Lisbon' });
+    const owner = await createTestOwner(academy.id);
+    const ana = await createTestUser(academy.id, { role: 'student', name: 'Ana' });
+    const leo = await createTestUser(academy.id, { role: 'student', name: 'Leo' });
+    const cls = await createTestClass(academy.id, { name: 'Gi 19:00', type: 'gi' });
+    await testDb.insert(schema.checkin).values([
+      { classId: cls.id, studentId: ana.id, checkedInAt: new Date('2026-04-20T18:00:00Z') },
+      { classId: cls.id, studentId: leo.id, checkedInAt: new Date('2026-04-22T23:30:00Z') },
+    ]);
+
+    const res = await app.inject({ method: 'GET', url: '/api/checkins/academy', headers: authHeaders(owner) });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual([
+      expect.objectContaining({ date: '2026-04-23', student: { id: leo.id, name: 'Leo' }, class: { id: cls.id, name: 'Gi 19:00', type: 'gi' } }),
+      expect.objectContaining({ date: '2026-04-20', student: { id: ana.id, name: 'Ana' } }),
+    ]);
+  });
+
+  it('is owner-only and scoped to the owner academy', async () => {
+    const a = await createTestAcademy();
+    const b = await createTestAcademy();
+    const ownerA = await createTestOwner(a.id);
+    const studentA = await createTestUser(a.id, { role: 'student' });
+    const studentB = await createTestUser(b.id, { role: 'student' });
+    const clsB = await createTestClass(b.id);
+    await testDb.insert(schema.checkin).values({ classId: clsB.id, studentId: studentB.id });
+
+    expect((await app.inject({ method: 'GET', url: '/api/checkins/academy' })).statusCode).toBe(401);
+    expect((await app.inject({ method: 'GET', url: '/api/checkins/academy', headers: authHeaders(studentA) })).statusCode).toBe(403);
+    const res = await app.inject({ method: 'GET', url: `/api/checkins/academy?academyId=${b.id}`, headers: authHeaders(ownerA) });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual([]);
+  });
+});

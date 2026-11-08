@@ -304,6 +304,39 @@ export async function checkinRoutes(app: FastifyInstance) {
     return db.select().from(checkin).where(eq(checkin.classId, classId));
   });
 
+  // Owner: the academy's latest check-ins across all students (TZ-aware).
+  app.get('/api/checkins/academy', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
+    const [acad] = await db.select({ tz: academy.timezone }).from(academy).where(eq(academy.id, request.academyId));
+    const tz = acad?.tz ?? DEFAULT_ACADEMY_TIMEZONE;
+
+    // ponytail: latest 200 only; add paging or a date filter if owners need older history.
+    const rows = await db
+      .select({
+        id: checkin.id,
+        checkedInAt: checkin.checkedInAt,
+        date: dayInTz(checkin.checkedInAt, tz).as('date'),
+        studentId: user.id,
+        studentName: user.name,
+        classId: bjjClass.id,
+        className: bjjClass.name,
+        classType: bjjClass.type,
+      })
+      .from(checkin)
+      .innerJoin(bjjClass, eq(bjjClass.id, checkin.classId))
+      .innerJoin(user, eq(user.id, checkin.studentId))
+      .where(eq(bjjClass.academyId, request.academyId))
+      .orderBy(desc(checkin.checkedInAt))
+      .limit(200);
+
+    return rows.map((r) => ({
+      id: r.id,
+      checkedInAt: r.checkedInAt,
+      date: r.date instanceof Date ? isoDateInTz(r.date, tz) : String(r.date),
+      student: { id: r.studentId, name: r.studentName },
+      class: { id: r.classId, name: r.className, type: r.classType },
+    }));
+  });
+
   // Get attendance history for a student (TZ-aware, enriched with class info)
   app.get('/api/checkins/student/:studentId', { preHandler: authorizeStudentRead('studentId') }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
