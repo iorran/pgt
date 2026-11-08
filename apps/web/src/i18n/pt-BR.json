@@ -27,6 +27,8 @@
     "logout": "Sair",
     "email": "E-mail",
     "password": "Senha",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
     "name": "Nome",
     "forgotPassword": "Esqueceu a senha?",
     "forgotPasswordTitle": "Recuperar senha",

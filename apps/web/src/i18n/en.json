@@ -27,6 +27,8 @@
     "logout": "Log out",
     "email": "Email",
     "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "name": "Name",
     "forgotPassword": "Forgot your password?",
     "forgotPasswordTitle": "Recover password",

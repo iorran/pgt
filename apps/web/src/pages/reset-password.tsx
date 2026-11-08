@@ -4,7 +4,7 @@ import { resetPassword } from '@/lib/auth-client';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
@@ -73,9 +73,8 @@ export default function ResetPasswordPage() {
                 {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor="newPassword">{t('auth.newPassword')}</Label>
-                    <Input
+                    <PasswordInput
                       id="newPassword"
-                      type="password"
                       autoComplete="new-password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -92,9 +91,8 @@ export default function ResetPasswordPage() {
                 {(field) => (
                   <div className="space-y-2">
                     <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
-                    <Input
+                    <PasswordInput
                       id="confirmPassword"
-                      type="password"
                       autoComplete="new-password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
