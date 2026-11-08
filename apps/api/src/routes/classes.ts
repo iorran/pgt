@@ -29,11 +29,17 @@ export async function classRoutes(app: FastifyInstance) {
   });
 
   // Update class
-  app.put('/api/classes/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
+  app.put('/api/classes/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const body = request.body as any;
+    const body = (request.body ?? {}) as Record<string, unknown>;
+    // instructorId, academyId and active are not editable here.
+    const editable = ['name', 'type', 'recurrence', 'dayOfWeek', 'date', 'startTime', 'endTime'];
+    const changes = Object.fromEntries(Object.entries(body).filter(([key]) => editable.includes(key)));
+    if (Object.keys(changes).length === 0) {
+      return reply.status(400).send({ error: 'Nothing to update' });
+    }
     const [updated] = await db.update(bjjClass)
-      .set({ ...body, id, academyId: request.academyId })
+      .set(changes)
       .where(and(eq(bjjClass.id, id), eq(bjjClass.academyId, request.academyId)))
       .returning();
     return updated;

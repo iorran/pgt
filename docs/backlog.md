@@ -50,7 +50,7 @@ From [[2026-09-26-families-design|Families design]]:
 - ~~**Owner's Histórico de Presença** shows the owner's own check-ins, not students'.~~ Fixed: the owner sees the academy's latest 200 check-ins with the student's name.
 - **Owner cannot check in** (no Check-in button in the owner's Aulas view) — confirm if intended.
 - **User guide screenshots are stale** (captured April 2026): regenerate with `npm run screenshots:capture` after updating `seed-guide` and the SHOTS list for families, modalities, fee card, phone menu, language page, camera retry. Delete `billing-plans.png`, `student-detail-plan.png`, `dashboard-instructor.png`.
-- **Some PUT routes accept arbitrary body fields** (e.g. class `instructorId`): add per-route field whitelists.
+- ~~**Some PUT routes accept arbitrary body fields** (e.g. class `instructorId`): add per-route field whitelists.~~ Fixed for classes. Products and seasons still spread the body but force `id`/`academyId` and have no other foreign keys.
 
 ## Found while updating the user guides (2026-09-27)
 
