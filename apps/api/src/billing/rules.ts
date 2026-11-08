@@ -108,9 +108,10 @@ export function familyFee(agreedPrice: string | null, members: MemberBilling[], 
 
 export function familyBilling(agreedPrice: string | null, members: MemberBilling[], today: Date) {
   const months = [...new Set(members.flatMap((m) => owedMonths(m, today)))].sort();
+  // A partly paid month charges only the members who still owe it (the Family Payment split charges no one else).
   const owed = months.map((month) => ({
     month,
-    fee: familyFee(agreedPrice, members, month),
+    fee: familyFee(agreedPrice, members.filter((m) => memberStatus(m, month) === 'owed'), month),
     members: members.map((m) => ({ studentId: m.studentId, status: memberStatus(m, month) })),
   }));
   return {
