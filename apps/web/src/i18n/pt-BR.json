@@ -178,6 +178,12 @@
     "beltForm": {
       "save": "Salvar faixa",
       "saved": "Faixa atualizada"
+    },
+    "birthDate": {
+      "label": "Data de nascimento",
+      "save": "Salvar data",
+      "saved": "Data de nascimento atualizada",
+      "hint": "Na faixa branca, define o ranking: Kids até 15 anos, Adultos a partir dos 16."
     }
   },
   "billing": {

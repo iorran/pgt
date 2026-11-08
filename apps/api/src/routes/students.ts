@@ -153,7 +153,29 @@ export async function studentRoutes(app: FastifyInstance) {
     return updated;
   });
 
-  app.put('/api/students/:id/training', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
+  // Birth date decides a white belt's Ranking Category (Kids under 16).
+  app.put('/api/students/:id/birth-date', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const { dateOfBirth } = (request.body ?? {}) as { dateOfBirth?: unknown };
+    const isRealPastDate = typeof dateOfBirth === 'string'
+      && DATE.test(dateOfBirth)
+      && new Date(Date.parse(`${dateOfBirth}T00:00:00Z`) || 0).toISOString().startsWith(dateOfBirth)
+      && dateOfBirth <= dateKey(new Date());
+    if (dateOfBirth !== null && !isRealPastDate) {
+      return reply.status(400).send({ error: 'dateOfBirth must be a past YYYY-MM-DD date or null' });
+    }
+    if (!(await isAcademyStudent(id, request.academyId))) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
+    const [updated] = await db
+      .update(user)
+      .set({ dateOfBirth: dateOfBirth as string | null, updatedAt: new Date() })
+      .where(eq(user.id, id))
+      .returning({ id: user.id, dateOfBirth: user.dateOfBirth });
+    return updated;
+  });
+
+  app.put('/api/students/:id/training',{ preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { modalityIds, trainingNote } = (request.body ?? {}) as { modalityIds?: unknown; trainingNote?: unknown };
     if (!Array.isArray(modalityIds) || !modalityIds.every((m) => typeof m === 'string')) {

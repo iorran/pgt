@@ -236,6 +236,40 @@ describe('StudentDetailPage', () => {
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('students.beltForm.saved'));
   });
 
+  it('lets the owner set the birth date, explaining it decides the ranking', async () => {
+    const user = userEvent.setup();
+    student = { ...baseStudent, dateOfBirth: null };
+    renderPage();
+    const input = await screen.findByLabelText('students.birthDate.label');
+    expect(input).toHaveValue('');
+    expect(input).toHaveAccessibleDescription('students.birthDate.hint');
+    fireEvent.change(input, { target: { value: '2012-05-03' } });
+    await user.click(screen.getByRole('button', { name: 'students.birthDate.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/students/s1/birth-date', {
+        method: 'PUT',
+        body: JSON.stringify({ dateOfBirth: '2012-05-03' }),
+      }),
+    );
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('students.birthDate.saved'));
+  });
+
+  it('clears the birth date when the field is emptied', async () => {
+    const user = userEvent.setup();
+    student = { ...baseStudent, dateOfBirth: '2012-05-03' };
+    renderPage();
+    const input = await screen.findByLabelText('students.birthDate.label');
+    expect(input).toHaveValue('2012-05-03');
+    fireEvent.change(input, { target: { value: '' } });
+    await user.click(screen.getByRole('button', { name: 'students.birthDate.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/students/s1/birth-date', {
+        method: 'PUT',
+        body: JSON.stringify({ dateOfBirth: null }),
+      }),
+    );
+  });
+
   it('shows a kids belt badge translated and hides the belt control from students', async () => {
     vi.mocked(useSession).mockReturnValue({
       ...session,
@@ -246,5 +280,6 @@ describe('StudentDetailPage', () => {
     expect(await screen.findByText('belts.grey-black')).toBeInTheDocument();
     expect(screen.queryByLabelText('students.belt')).toBeNull();
     expect(screen.queryByRole('button', { name: 'students.beltForm.save' })).toBeNull();
+    expect(screen.queryByLabelText('students.birthDate.label')).toBeNull();
   });
 });

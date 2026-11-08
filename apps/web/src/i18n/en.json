@@ -178,6 +178,12 @@
     "beltForm": {
       "save": "Save belt",
       "saved": "Belt updated"
+    },
+    "birthDate": {
+      "label": "Date of birth",
+      "save": "Save date",
+      "saved": "Date of birth updated",
+      "hint": "For a white belt, sets the ranking: Kids up to 15, Adultos from 16."
     }
   },
   "billing": {
