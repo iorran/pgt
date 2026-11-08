@@ -79,7 +79,7 @@ test('8. instructor rejects a pending student', async ({ browser }) => {
   }
 });
 
-test('10. instructor uses "Pagar Mês Atual" quick-pay', async ({ browser }) => {
+test('10. instructor uses "Registrar mensalidade" quick-pay', async ({ browser }) => {
   const setup = await setupAcademy();
   academy = setup.academy;
   const student = await createStudent(setup.academy.id, {
