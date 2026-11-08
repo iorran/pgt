@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, beforeAll, afterAll, vi } from 'vites
 import { eq } from 'drizzle-orm';
 import { createTestApp, cleanDb, createTestAcademy, createTestUser, createTestOwner, authHeaders, testDb } from './helpers';
 import * as schema from '../src/db/schema/index';
+import { emailService } from '../src/email/index';
 import type { FastifyInstance } from 'fastify';
 
 let app: FastifyInstance;
@@ -171,6 +172,24 @@ describe('payments use Monthly Fee and Waived Months', () => {
     const res = await api('POST', `/api/payments/quick/${student.id}`);
     expect(res.statusCode).toBe(201);
     expect(res.json()).toMatchObject({ referenceMonth: '2026-10' });
+  });
+
+  it('overdue email counts days from the oldest owed month', async () => {
+    const { student, api } = await setup();
+    const spy = vi.spyOn(emailService, 'sendOverduePayment').mockResolvedValue();
+    expect((await api('POST', `/api/payments/overdue/${student.id}/notify`)).statusCode).toBe(200);
+    expect(spy).toHaveBeenCalledWith(student.email, 'Ana', expect.any(String), 47);
+    spy.mockRestore();
+  });
+
+  it('overdue email is refused when nothing is owed', async () => {
+    const { student, api } = await setup();
+    await api('POST', `/api/payments/quick/${student.id}`);
+    await api('POST', `/api/payments/quick/${student.id}`);
+    const spy = vi.spyOn(emailService, 'sendOverduePayment').mockResolvedValue();
+    expect((await api('POST', `/api/payments/overdue/${student.id}/notify`)).statusCode).toBe(409);
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
   });
 
   it('quick pay 404 for another academy student', async () => {

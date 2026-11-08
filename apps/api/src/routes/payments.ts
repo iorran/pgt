@@ -169,9 +169,15 @@ export async function paymentRoutes(app: FastifyInstance) {
   // Send overdue payment email notification (owner only)
   app.post('/api/payments/overdue/:studentId/notify', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { studentId } = request.params as { studentId: string };
-    const [student] = await db.select({ email: user.email, name: user.name, familyId: user.familyId })
-      .from(user).where(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
-    if (!student) return reply.status(404).send({ error: 'Student not found' });
+    const [student] = await loadStudentBilling(and(eq(user.id, studentId), eq(user.academyId, request.academyId)));
+    if (!student) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
+    const now = new Date();
+    const owed = owedMonths(student, now);
+    if (owed.length === 0) {
+      return reply.status(409).send({ error: 'NOT_OVERDUE' });
+    }
     // A Dependent's mail goes to their Family's Responsible (ADR 0004).
     let recipient = student.email;
     if (student.familyId) {
@@ -184,14 +190,8 @@ export async function paymentRoutes(app: FastifyInstance) {
     const [acad] = await db.select({ name: academy.name })
       .from(academy).where(eq(academy.id, request.academyId));
 
-    const now = new Date();
-    const currentDay = now.getDate();
-    const [membership] = await db.select({ dueDay: studentMembership.dueDay })
-      .from(studentMembership)
-      .where(and(eq(studentMembership.studentId, studentId), eq(studentMembership.active, true)));
-
-    const daysOverdue = membership ? currentDay - membership.dueDay : 0;
-    await emailService.sendOverduePayment(recipient, student.name, acad?.name || 'PGT', daysOverdue);
+    const days = daysOverdue(owed[0], student.membership!.dueDay, now);
+    await emailService.sendOverduePayment(recipient, student.name, acad?.name || 'PGT', days);
 
     await db.update(studentMembership)
       .set({ lastOverdueEmailSentAt: now })
