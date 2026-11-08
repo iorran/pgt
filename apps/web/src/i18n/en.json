@@ -124,6 +124,8 @@
     "noClasses": "No classes yet",
     "classesCreated": "Classes created",
     "noCheckins": "You have no check-ins yet",
+    "noAcademyCheckins": "No student has checked in yet",
+    "student": "Student",
     "viewSchedule": "View class schedule",
     "moveSuccess": "Class rescheduled",
     "days": {

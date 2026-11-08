@@ -124,6 +124,8 @@
     "noClasses": "Nenhuma aula cadastrada ainda",
     "classesCreated": "Aulas criadas",
     "noCheckins": "Você ainda não tem presenças registradas",
+    "noAcademyCheckins": "Nenhum aluno fez check-in ainda",
+    "student": "Aluno",
     "viewSchedule": "Ver quadro de aulas",
     "moveSuccess": "Aula reagendada",
     "days": {
