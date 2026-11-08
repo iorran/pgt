@@ -46,7 +46,7 @@ From [[2026-09-26-families-design|Families design]]:
 
 - ~~**Quick pay records the current month** even when the overdue debt is an older month ("Registrar Pagamento" on an overdue card). Should pay the oldest owed month.~~ Fixed: pays the oldest owed month (else the next unpaid one); student page button is now "Registrar mensalidade".
 - ~~**Family payment dialog over-suggests for partly paid months:** the pre-filled amount uses the whole month's Family Fee, including members who already paid individually; only unpaid members are charged.~~ Fixed: a partly paid month suggests only the unpaid members' fees (dialog and overdue card); a Family Agreed Price is kept as is.
-- **Configurações is empty for students** but still linked from Perfil.
+- ~~**Configurações is empty for students** but still linked from Perfil.~~ Fixed: the row shows only for the owner.
 - **Owner's Histórico de Presença** shows the owner's own check-ins, not students'.
 - **Owner cannot check in** (no Check-in button in the owner's Aulas view) — confirm if intended.
 - **User guide screenshots are stale** (captured April 2026): regenerate with `npm run screenshots:capture` after updating `seed-guide` and the SHOTS list for families, modalities, fee card, phone menu, language page, camera retry. Delete `billing-plans.png`, `student-detail-plan.png`, `dashboard-instructor.png`.
