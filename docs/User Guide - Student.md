@@ -29,11 +29,20 @@ Acesse o PGT pelo navegador e faça login com seu e-mail e senha.
    <sub><em>On the login screen, enter your **Email** and **Password**</em></sub>
 2. Toque em **"Entrar"**
    <sub><em>Tap **"Entrar"**</em></sub>
-3. Você é levado à página **Aulas**
-   <sub><em>You land on the **Aulas** (Classes) page</em></sub>
+3. Você é levado à página **Aulas** (se você cuida de uma família, primeiro aparece **"Quem vai usar?"** — veja [Conta da Família](#Conta%20da%20Família))
+   <sub><em>You land on the **Aulas** (Classes) page (if you manage a family, "Quem vai usar?" — Who's using? — comes first; see Family Account)</em></sub>
 
-Caso ainda não tenha conta, toque em **"Criar Conta"** para se cadastrar.
-<sub><em>If you don't have an account yet, tap **"Criar Conta"** to sign up.</em></sub>
+Toque no ícone de olho no campo de senha para **mostrar** ou **ocultar** o que digitou.
+<sub><em>Tap the eye icon in the password field to show or hide what you typed.</em></sub>
+
+Caso ainda não tenha conta, toque em **"Criar conta"** para se cadastrar.
+<sub><em>If you don't have an account yet, tap **"Criar conta"** to sign up.</em></sub>
+
+### Primeiro Acesso
+<sub><em>First Access</em></sub>
+
+Use **"Primeiro acesso"** na tela de login quando a academia já te cadastrou mas você nunca criou senha (ex.: foi convidado como Responsável da família, ou saiu de uma família e ganhou login próprio). Digite seu e-mail, receba o link e crie a senha — os passos são os mesmos de [Recuperar Senha](#Recuperar%20Senha).
+<sub><em>Use "Primeiro acesso" on the login screen when the academy already registered you but you never set a password (e.g. invited as a family Responsible, or removed from a family with your own email). Enter your email, get the link and set the password — same steps as Recover Password.</em></sub>
 
 ### Recuperar Senha
 <sub><em>Recover Password</em></sub>
@@ -45,12 +54,12 @@ Se você esqueceu sua senha:
 
 1. Na tela de login, toque em **"Esqueceu a senha?"**
    <sub><em>On the login screen, tap **"Esqueceu a senha?"**</em></sub>
-2. Digite seu e-mail e toque em **"Enviar Link"**
-   <sub><em>Enter your email and tap **"Enviar Link"**</em></sub>
+2. Digite seu e-mail e toque em **"Enviar link"**
+   <sub><em>Enter your email and tap **"Enviar link"**</em></sub>
 3. Você receberá um e-mail com o link de redefinição — toque nele
    <sub><em>You'll receive a recovery email — tap the link in it</em></sub>
-4. Na tela **"Redefinir Senha"**, digite a nova senha, confirme e toque em **"Redefinir"**
-   <sub><em>On the **"Redefinir Senha"** screen, enter your new password, confirm it, and tap **"Redefinir"**</em></sub>
+4. Na tela **"Redefinir senha"**, digite a nova senha, confirme e toque em **"Redefinir"**
+   <sub><em>On the **"Redefinir senha"** screen, enter your new password, confirm it, and tap **"Redefinir"**</em></sub>
 
 > [!note] Link de expiração
 > O link de redefinição expira após um curto período. Se você ver "Link inválido ou expirado", toque em **"Solicitar novo link"** para receber outro.
@@ -64,10 +73,10 @@ Se você esqueceu sua senha:
 Você precisa de um código de acesso do dono da academia (ex.: `PGT-PONTINHA-CM7`).
 <sub><em>You need a join code from the academy owner (e.g., `PGT-PONTINHA-CM7`).</em></sub>
 
-1. Vá ao aplicativo e toque em **"Criar Conta"**
-   <sub><em>Go to the app and tap **"Criar Conta"** (Sign Up)</em></sub>
-2. Em **"Tenho um código"**, digite o código no campo **"Código de Acesso"**
-   <sub><em>Under **"Tenho um código"** (I have a code), enter the code in the **"Código de Acesso"** (Access Code) field</em></sub>
+1. Vá ao aplicativo e toque em **"Criar conta"**
+   <sub><em>Go to the app and tap **"Criar conta"** (Sign Up)</em></sub>
+2. Em **"Tenho um código"**, digite o código no campo **"Código de acesso"**
+   <sub><em>Under **"Tenho um código"** (I have a code), enter the code in the **"Código de acesso"** (Access Code) field</em></sub>
 3. Toque em **"Continuar"** — o sistema identifica sua academia
    <sub><em>Tap **"Continuar"** (Continue) — the system identifies your academy</em></sub>
 4. Preencha seus dados: **Nome**, **E-mail**, **Senha** (mínimo de 8 caracteres) e **Faixa**. A lista de faixas é agrupada em **Adulto** (Branca, Azul, Roxa, Marrom, Preta) e **Infantil** (Cinza e branca, Cinza, Cinza e preta; Amarela e branca, Amarela, Amarela e preta; Laranja e branca, Laranja, Laranja e preta; Verde e branca, Verde, Verde e preta)
@@ -84,11 +93,37 @@ Você precisa de um código de acesso do dono da academia (ex.: `PGT-PONTINHA-CM
 
 ![Tela de aguardando aprovação](./assets/user-guide/student/aguardando-screen.png)
 
-Após o cadastro, seu status é **Pendente**. O dono da academia precisa aprovar seu cadastro antes que você possa acessar as aulas. Você verá a tela **"Aguardando Aprovação"** com o botão **"Verificar status"** até lá.
-<sub><em>After signing up, your status is Pending. The academy owner needs to approve you before you can access classes. You'll see the **"Aguardando Aprovação"** (Waiting for Approval) screen with a **"Verificar status"** (Check status) button until then.</em></sub>
+Após o cadastro, seu status é **Pendente**. O dono da academia precisa aprovar seu cadastro antes que você possa acessar as aulas. Você verá a tela **"Aguardando aprovação"** com o botão **"Verificar status"** até lá.
+<sub><em>After signing up, your status is Pending. The academy owner needs to approve you before you can access classes. You'll see the **"Aguardando aprovação"** (Waiting for Approval) screen with a **"Verificar status"** (Check status) button until then.</em></sub>
 
 Para sair durante a espera, toque em **"Sair"**.
 <sub><em>To sign out while waiting, tap **"Sair"**.</em></sub>
+
+## Conta da Família
+<sub><em>Family Account</em></sub>
+
+![Quem vai usar?](./assets/user-guide/student/profile-picker.png)
+
+Se a academia juntou sua casa numa **família** (ex.: pais e filhos), só **uma pessoa entra no app: o Responsável**. Os outros membros (**Dependentes**) não têm senha — o Responsável usa o app por eles.
+<sub><em>If the academy grouped your household into a family (e.g. parents and kids), only one person logs in: the Responsible. The other members (Dependents) have no password — the Responsible uses the app for them.</em></sub>
+
+1. Entre com seu e-mail e senha
+   <sub><em>Log in with your email and password</em></sub>
+2. Na tela **"Quem vai usar?"**, toque no perfil: você (marcado **"Você"**, se você treina) ou um dependente
+   <sub><em>On "Quem vai usar?" (Who's using?), tap a profile: yourself (marked "Você", if you train) or a dependent</em></sub>
+3. O app funciona como se aquela pessoa tivesse entrado: check-in, mensalidade, progresso, resultados, campeonatos, loja
+   <sub><em>The app works as if that person had logged in: check-in, fees, progress, results, tournaments, shop</em></sub>
+4. Para mudar de pessoa, toque em **"Trocar perfil"** no topo da tela
+   <sub><em>To switch person, tap "Trocar perfil" (Switch profile) at the top of the screen</em></sub>
+
+> [!tip] Uma aba por filho
+> O perfil escolhido vale só para aquela aba do navegador. Dá para deixar uma aba aberta para cada filho.
+> <sub><em>The chosen profile applies only to that browser tab. You can keep one tab open per kid.</em></sub>
+
+- Avisos de atraso e e-mails de todos os membros chegam ao Responsável
+  <sub><em>Overdue notices and emails for every member go to the Responsible</em></sub>
+- Só a academia adiciona ou remove membros da família. Se alguém precisar de login próprio, peça ao dono da academia
+  <sub><em>Only the academy adds or removes family members. If someone needs their own login, ask the academy owner</em></sub>
 
 ## Instalar o PGT como aplicativo
 <sub><em>Install PGT as an app</em></sub>
@@ -117,8 +152,8 @@ Você pode instalar o PGT na tela inicial do seu celular e usá-lo como um aplic
 ## Navegando no app
 <sub><em>Navigating the app</em></sub>
 
-A navegação principal fica na barra inferior, sempre visível. A aba em que você está fica destacada em verde — inclusive nas páginas dentro dela (ex.: **Torneios** e **Idioma** mantêm **Perfil** destacado).
-<sub><em>The main navigation lives in the bottom bar, always visible. The tab you're in is highlighted in green — including the pages inside it (e.g., **Torneios** and **Idioma** keep **Perfil** highlighted).</em></sub>
+A navegação principal fica na barra inferior, sempre visível. A aba em que você está fica destacada em verde — inclusive nas páginas dentro dela (ex.: **Campeonatos** e **Idioma** mantêm **Perfil** destacado).
+<sub><em>The main navigation lives in the bottom bar, always visible. The tab you're in is highlighted in green — including the pages inside it (e.g., **Campeonatos** and **Idioma** keep **Perfil** highlighted).</em></sub>
 
 - **Aulas** — o quadro de aulas e seu histórico de presenças.
   <sub><em>**Classes** — the class schedule and your attendance history.</em></sub>
@@ -148,8 +183,8 @@ Você pode fazer check-in de duas formas. Ambas são igualmente válidas.
    <sub><em>On a class that's happening now, tap **"Check-in"**</em></sub>
 3. Seu celular solicitará permissão de localização — aprove
    <sub><em>Your phone will ask for location permission — approve it</em></sub>
-4. O sistema verifica se você está na academia (dentro de 250m) e registra sua presença ("Check-in realizado com sucesso!")
-   <sub><em>The system verifies you're at the gym (within 250m) and logs your attendance ("Check-in realizado com sucesso!" — Check-in successful!)</em></sub>
+4. O sistema verifica se você está na academia (dentro de 250m) e registra sua presença ("Check-in feito")
+   <sub><em>The system verifies you're at the gym (within 250m) and logs your attendance ("Check-in feito" — Check-in successful!)</em></sub>
 
 > [!warning] Você precisa estar fisicamente na academia
 > O sistema usa o GPS do seu celular. Se você não estiver dentro de 250 metros da academia, o check-in será recusado.
@@ -180,8 +215,8 @@ Aponte a câmera do celular para o QR Code do totem na academia (ou use o [Check
 ### Ver Seu Histórico de Check-ins
 <sub><em>View Your Check-in History</em></sub>
 
-Barra inferior → **Aulas** → aba **Histórico de Presença**. Veja todos os seus check-ins anteriores com data, nome da aula e tipo.
-<sub><em>Bottom nav → Classes → **Histórico de Presença** tab. See all your past check-ins with date, class name, and type.</em></sub>
+Barra inferior → **Aulas** → aba **Histórico de presença**. Veja todos os seus check-ins anteriores com data, nome da aula e tipo.
+<sub><em>Bottom nav → Classes → **Histórico de presença** tab. See all your past check-ins with date, class name, and type.</em></sub>
 
 ## Check-in rápido
 <sub><em>Quick check-in</em></sub>
@@ -244,12 +279,10 @@ A aba **Perfil** reúne tudo que é seu.
 
 - **Mensalidade** — se seu pagamento está em dia ou atrasado (veja [Página Mensalidade](#Página%20Mensalidade)).
   <sub><em>**Membership** — whether your payment is up to date or overdue (see Membership Page).</em></sub>
-- **Torneios** — campeonatos e inscrições.
+- **Campeonatos** — campeonatos e inscrições.
   <sub><em>**Tournaments** — tournaments and sign-ups.</em></sub>
 - **Idioma** — escolha **Português** ou **English**. O app muda na hora e a escolha fica salva neste dispositivo.
   <sub><em>**Language** — choose **Português** or **English**. The app switches right away and the choice is saved on this device.</em></sub>
-- **Tema** — **Claro**, **Escuro** ou **Sistema** (segue o celular).
-  <sub><em>**Theme** — **Claro** (Light), **Escuro** (Dark), or **Sistema** (System — follows your phone).</em></sub>
 - **Configurações** — página de configurações (por enquanto sem opções para alunos).
   <sub><em>**Settings** — settings page (no options for students yet).</em></sub>
 - **Sair** — botão vermelho no fim da página; encerra a sessão neste dispositivo.
@@ -263,8 +296,8 @@ A aba **Perfil** reúne tudo que é seu.
 
 ![Perfil de gamificação do aluno](./assets/user-guide/student/gamification-profile.png)
 
-Barra inferior → **Progresso** (abre a aba **Perfil**, página **Perfil de Gamificação**). Veja:
-<sub><em>Bottom nav → Progress (opens the **Perfil** (Profile) tab, the **Perfil de Gamificação** (Gamification Profile) page). See your:</em></sub>
+Barra inferior → **Progresso** (abre a aba **Perfil**, página **Perfil de gamificação**). Veja:
+<sub><em>Bottom nav → Progress (opens the **Perfil** (Profile) tab, the **Perfil de gamificação** (Gamification Profile) page). See your:</em></sub>
 
 - Total de XP
   <sub><em>Total XP</em></sub>
@@ -281,8 +314,8 @@ Barra inferior → **Progresso** (abre a aba **Perfil**, página **Perfil de Gam
 Quando você competir em um campeonato, envie seu resultado para ganhar pontos.
 <sub><em>When you compete in a tournament, submit your result for points.</em></sub>
 
-1. Barra inferior → **Progresso** → toque em **"Enviar Resultado"** no topo da **Classificação** (o mesmo botão está na aba **Perfil**)
-   <sub><em>Bottom nav → Progress → tap **"Enviar Resultado"** (Submit Result) at the top of **Classificação** (Leaderboard); the same button is on the **Perfil** (Profile) tab</em></sub>
+1. Barra inferior → **Progresso** → toque em **"Enviar resultado"** no topo da **Classificação** (o mesmo botão está na aba **Perfil**)
+   <sub><em>Bottom nav → Progress → tap **"Enviar resultado"** (Submit Result) at the top of **Classificação** (Leaderboard); the same button is on the **Perfil** (Profile) tab</em></sub>
 2. Preencha:
    <sub><em>Fill in:</em></sub>
    - **Competição**: nome do campeonato
@@ -339,12 +372,12 @@ Barra inferior → **Loja**. Veja quimonos, equipamentos e outros itens que sua 
 
 ![Inscrição em campeonato pelo aluno](./assets/user-guide/student/tournaments-student.png)
 
-1. Barra inferior → **Perfil** → **Torneios**
+1. Barra inferior → **Perfil** → **Campeonatos**
    <sub><em>Bottom nav → Me → Tournaments</em></sub>
 2. Encontre o campeonato que deseja participar
    <sub><em>Find the tournament you want to attend</em></sub>
-3. Toque em **"Inscrever-se"** e informe sua **Categoria de Peso**
-   <sub><em>Tap **"Inscrever-se"** (Sign Up) and enter your **Categoria de Peso** (weight class)</em></sub>
+3. Toque em **"Inscrever-se"** e informe sua **Categoria de peso**
+   <sub><em>Tap **"Inscrever-se"** (Sign Up) and enter your **Categoria de peso** (weight class)</em></sub>
 4. Toque em **"Confirmar"** — você aparecerá na lista de inscritos
    <sub><em>Tap **"Confirmar"** — you'll appear on the roster</em></sub>
 

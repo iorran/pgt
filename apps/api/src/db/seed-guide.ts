@@ -18,6 +18,9 @@ export const DEMO_STUDENTS = {
   brancaPending: 'lucas.branca.pending@demo.pgt',
 } as const;
 
+// Family account (ADR 0004): a Responsible who doesn't train, acting for two kids.
+export const DEMO_RESPONSIBLE_EMAIL = 'paula.lima@demo.pgt';
+
 type Db = typeof defaultDb;
 
 interface SeedGuideOptions {
@@ -75,6 +78,13 @@ export async function seedGuide(
       .where(eq(schema.studentModality.studentId, u.id));
   }
 
+  await db
+    .update(schema.user)
+    .set({ familyId: null })
+    .where(eq(schema.user.academyId, demoId));
+  await db
+    .delete(schema.family)
+    .where(eq(schema.family.academyId, demoId));
   await db
     .delete(schema.modality)
     .where(eq(schema.modality.academyId, demoId));
@@ -193,6 +203,30 @@ export async function seedGuide(
       },
     })
     .returning();
+
+  // 4b. Família Lima — Paula (login only, doesn't train) acts for Alice and Afonso.
+  //     Dependents have no login and an internal email that is never shown.
+  const familyValues = [
+    { email: DEMO_RESPONSIBLE_EMAIL, name: 'Paula Lima', role: 'responsible' as const, belt: 'white' as const, dateOfBirth: '1984-02-10' },
+    { email: 'alice.lima@dependente.pgt.invalid', name: 'Alice Lima', role: 'student' as const, belt: 'grey' as const, dateOfBirth: '2016-05-03' },
+    { email: 'afonso.lima@dependente.pgt.invalid', name: 'Afonso Lima', role: 'student' as const, belt: 'yellow' as const, dateOfBirth: '2014-09-12' },
+  ].map((v) => ({ ...v, academyId: acad.id, status: 'active' as const, emailVerified: false }));
+  const [responsible, ...dependents] = await db
+    .insert(schema.user)
+    .values(familyValues)
+    .onConflictDoUpdate({
+      target: schema.user.email,
+      set: { academyId: acad.id, status: schema.user.status },
+    })
+    .returning();
+  const [lima] = await db
+    .insert(schema.family)
+    .values({ academyId: acad.id, name: 'Família Lima', responsibleUserId: responsible.id })
+    .returning();
+  await db
+    .update(schema.user)
+    .set({ familyId: lima.id })
+    .where(inArray(schema.user.id, dependents.map((d) => d.id)));
 
   // 5. Modalities — João trains Jiu-Jitsu, Maria Jiu-Jitsu and MMA.
   const [jiuJitsu, mma] = await db

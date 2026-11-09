@@ -20,12 +20,14 @@ const STUDENT_AZUL = 'joao.azul@demo.pgt';
 const STUDENT_ROXA = 'maria.roxa@demo.pgt';
 const STUDENT_OVERDUE = 'pedro.branca.overdue@demo.pgt';
 const STUDENT_PENDING = 'lucas.branca.pending@demo.pgt';
+const RESPONSIBLE = 'paula.lima@demo.pgt';
 
 /**
  * Shot list derived from docs/user-guide-audit.md ## Screenshot Shot List.
  * Each entry: { slug, role, path, viewport, login, prep? }
  *   - login: demo email string, or null for unauthenticated pages.
  *   - prep:  string comment describing manual/seed prep needed (not executed by this script).
+ *   - action: optional async (page) => void run before the screenshot (e.g., open a dialog).
  */
 const SHOTS = [
   // ── Unauthenticated ─────────────────────────────────────────────────────────
@@ -237,14 +239,6 @@ const SHOTS = [
     login: STUDENT_AZUL,
     // prep: none — billing detail showing current plan and payment status
   },
-  {
-    slug: 'student-theme',
-    role: 'student',
-    path: '/me/theme',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: none — theme toggle (light / dark / system)
-  },
   // ── Student check-in scanner ─────────────────────────────────────────────────
   // Camera permission is requested; if the scanner throws or stalls without a
   // real camera, the shot is skipped gracefully rather than failing the run.
@@ -336,6 +330,23 @@ const SHOTS = [
     // prep: none — class cards with pencil (edit) and trash (delete) icon buttons
   },
 
+  // ── Families (ADR 0004) ─────────────────────────────────────────────────────
+  {
+    slug: 'profile-picker',
+    role: 'student',
+    path: '/perfis',
+    viewport: 'mobile',
+    login: RESPONSIBLE,
+  },
+  {
+    slug: 'family-dialog',
+    role: 'instructor',
+    path: '/students/families',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    action: (page) => page.getByRole('button', { name: 'Editar' }).first().click(),
+  },
+
   // ── Owner dashboard ─────────────────────────────────────────────────────────
   // The demo instructor (instrutor@demo.pgt) is seeded as the academy owner
   // with role='owner' (see apps/api/src/db/seed-guide.ts), so these shots
@@ -414,6 +425,9 @@ async function captureShot(browser, shot) {
       await page.waitForLoadState('networkidle', { timeout: 5_000 });
     } catch {
       // Polling pages never idle; proceed with a longer settle.
+    }
+    if (shot.action) {
+      await shot.action(page);
     }
     await page.waitForTimeout(1_000);
 

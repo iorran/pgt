@@ -11,6 +11,7 @@ import {
   payment,
   tournament,
   product,
+  family,
 } from '../src/db/schema/index';
 import { eq, and } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
@@ -98,7 +99,7 @@ describe('seedGuide', () => {
     expect(counts.academy).not.toBeNull();
     expect(counts.academy?.name).toBe('Academia Demo PGT');
     expect(counts.academy?.city).toBe('Lisboa');
-    expect(counts.users).toBe(5); // 1 instructor + 4 students
+    expect(counts.users).toBe(8); // 1 instructor + 4 students + family (Responsible + 2 Dependents)
     expect(counts.classes).toBeGreaterThanOrEqual(2);
     expect(counts.classes).toBeLessThanOrEqual(3);
     expect(counts.modalities).toBe(2);
@@ -156,5 +157,26 @@ describe('seedGuide', () => {
       );
     expect(instructor).toBeDefined();
     expect(instructor.status).toBe('active');
+  });
+
+  it('creates a demo Family whose non-training Responsible acts for two Dependents', async () => {
+    await seedGuide({ db: testDb });
+
+    const families = await testDb.select().from(family).where(eq(family.name, 'Família Lima'));
+    expect(families).toHaveLength(1);
+    const [responsible] = await testDb.select().from(user).where(eq(user.id, families[0].responsibleUserId!));
+    expect(responsible.email).toBe('paula.lima@demo.pgt');
+    expect(responsible.role).toBe('responsible');
+    const members = await testDb.select().from(user).where(eq(user.familyId, families[0].id));
+    expect(members.map((m) => m.name).sort()).toEqual(['Afonso Lima', 'Alice Lima']);
+    expect(members.every((m) => m.email.endsWith('@dependente.pgt.invalid'))).toBe(true);
+  });
+
+  it('keeps a single demo Family across runs', async () => {
+    await seedGuide({ db: testDb });
+    await seedGuide({ db: testDb });
+
+    const families = await testDb.select().from(family).where(eq(family.name, 'Família Lima'));
+    expect(families).toHaveLength(1);
   });
 });
