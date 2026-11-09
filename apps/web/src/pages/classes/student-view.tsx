@@ -9,6 +9,7 @@ import { ClassCalendar } from '@/components/schedule/class-calendar';
 import { PageLoader } from '@/components/page-loader';
 import { Button } from '@/components/ui/button';
 import { TabsNav } from '@/components/tabs-nav';
+import { FirstCheckinNotice } from '@/components/first-checkin-notice';
 import type { ClassItem, CalendarEvent } from '@/lib/schedule';
 
 function isActiveNow(cls: ClassItem): boolean {
@@ -32,7 +33,7 @@ export function StudentClassesView() {
     !!user?.academyId,
   );
 
-  const { data: myCheckins = [] } = useApiQuery<any[]>(
+  const { data: myCheckins = [], isSuccess: checkinsLoaded } = useApiQuery<any[]>(
     ['my-checkins', user?.id],
     `/checkins/student/${user?.id}`,
     !!user?.id,
@@ -130,6 +131,7 @@ export function StudentClassesView() {
           { to: '/classes/history', label: t('classes.checkinHistory') },
         ]}
       />
+      {checkinsLoaded && myCheckins.length === 0 && <FirstCheckinNotice />}
       {calendar.events.length > 0 ? (
         <ClassCalendar
           events={calendar.events}

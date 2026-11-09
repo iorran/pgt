@@ -8,6 +8,7 @@ import { QueryError } from '@/components/query-error';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Trophy } from 'lucide-react';
+import { InfoTip } from '@/components/info-tip';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { formatDate } from '@/lib/format';
 import { isOwner, isStudent } from '@/lib/roles';
@@ -81,7 +82,10 @@ export default function LeaderboardPage() {
       )}
       {activeSeason && (
         <div className="text-center space-y-2">
-          <p className="font-heading text-lg text-muted-foreground">{activeSeason.name}</p>
+          <p className="flex items-center justify-center font-heading text-lg text-muted-foreground">
+            {activeSeason.name}
+            <InfoTip label={t('infoTip.ranking.label')} text={t('infoTip.ranking.text')} section="Gamificação" />
+          </p>
           {activeSeason.startDate && activeSeason.endDate && (
             <p className="font-mono text-sm text-muted-foreground">
               {formatDate(activeSeason.startDate, i18n.language)} - {formatDate(activeSeason.endDate, i18n.language)}

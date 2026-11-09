@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useApiQuery } from '@/hooks/use-api';
 import { beltKey } from '@/lib/belts';
+import { InfoTip } from '@/components/info-tip';
 
 type ClassType = 'gi' | 'no-gi' | 'open-mat' | 'kids';
 
@@ -80,8 +81,9 @@ export function ClassesList({
   return (
     <div className="divide-y">
       <div className="flex flex-wrap items-center justify-between gap-2 px-2 py-2">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="flex items-center text-sm font-medium text-muted-foreground">
           {t('owner.classes.title')}
+          <InfoTip label={t('infoTip.trend.label')} text={t('infoTip.trend.text')} section="Painel da Academia" />
         </span>
         <div className="flex flex-wrap gap-2">
           {typeFilters.map((f) => (

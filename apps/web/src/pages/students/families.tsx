@@ -8,12 +8,14 @@ import { PageLoader } from '@/components/page-loader';
 import { TabsNav } from '@/components/tabs-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { QueryError } from '@/components/query-error';
 import { formatList, formatMoney } from '@/lib/format';
+import { EmptyState } from '@/components/empty-state';
 
 export interface FamilyMember {
   id: string;
@@ -107,12 +109,22 @@ export default function FamiliesPage() {
     <div className="space-y-6">
       <TabsNav title={t('nav.students')} items={studentTabs(t)} />
 
-      <Button onClick={() => setDialog({ mode: 'create', members: [] })}>{t('families.new')}</Button>
+      {families.length > 0 && (
+        <Button onClick={() => setDialog({ mode: 'create', members: [] })}>{t('families.new')}</Button>
+      )}
 
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
       ) : families.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">{t('families.empty')}</p>
+        <EmptyState
+          icon={Users}
+          title={t('families.empty')}
+          description={t('emptyState.families.description')}
+          action={
+            <Button onClick={() => setDialog({ mode: 'create', members: [] })}>{t('emptyState.families.action')}</Button>
+          }
+          help="Criar uma Família"
+        />
       ) : (
         <ul className="grid gap-4 md:grid-cols-2">
           {families.map(f => (

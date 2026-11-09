@@ -103,6 +103,23 @@ describe('StudentClassesView', () => {
     mockUseSession.mockReturnValue(studentSession);
   });
 
+  it('shows the first check-in notice while the student has zero check-ins', async () => {
+    mockApi.mockImplementation(async (path: string) => (path.startsWith('/classes') ? mockClasses : []) as any);
+    renderWithProviders(<StudentClassesView />);
+    expect(await screen.findByText('firstAccess.noticeTitle')).toBeInTheDocument();
+  });
+
+  it('hides the first check-in notice once the student has check-ins', async () => {
+    mockApi.mockImplementation(
+      async (path: string) => (path.startsWith('/classes') ? mockClasses : [{ id: 'ck1', checkedInAt: '2026-01-01T10:00:00Z', class: null }]) as any,
+    );
+    renderWithProviders(<StudentClassesView />);
+    await waitFor(() => expect(capturedProps.events).toBeDefined());
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/checkins/student/u2'));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(screen.queryByText('firstAccess.noticeTitle')).not.toBeInTheDocument();
+  });
+
   it("today's classes are passed to the calendar as events", async () => {
     mockApi
       .mockResolvedValueOnce(mockClasses as any)

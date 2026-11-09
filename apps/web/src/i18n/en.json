@@ -1,4 +1,92 @@
 {
+  "infoTip": {
+    "learnMore": "Learn more",
+    "status": {
+      "label": "What does the student status mean?",
+      "text": "Status comes from the days since the last check-in: Active up to 6 days, Slowing 7 to 13, Drifting 14 to 29, and Inactive 30 or more (or never trained)."
+    },
+    "aderencia": {
+      "label": "What is adherence?",
+      "text": "Adherence is the total check-ins per class in the period. Tap a bar to see unique students, average per class and trend."
+    },
+    "trend": {
+      "label": "What is the trend?",
+      "text": "The arrow compares the class’s average attendance with the average of its last 4 occurrences: ↑ 10% or more above, ↓ 10% or more below, → within range, and — not enough history."
+    },
+    "ranking": {
+      "label": "How does the ranking work?",
+      "text": "The ranking adds up each student’s points in the season: competition results approved by the academy (podium) and point adjustments. Adults and Kids are ranked separately."
+    },
+    "seasons": {
+      "label": "What is a season?",
+      "text": "A season is the ranking period, with start and end dates and the points for 1st, 2nd and 3rd place. Each result goes into a season by its competition date."
+    },
+    "xp": {
+      "label": "What is XP?",
+      "text": "XP is your accumulated experience: each approved ranking point is worth 10 XP, and badges give XP too. Unlike points, XP doesn’t reset each season."
+    }
+  },
+  "emptyState": {
+    "learnMore": "Learn more in the guide",
+    "students": {
+      "title": "No students yet",
+      "description": "All the academy’s students live here, with belt, fee and modalities. They join using the academy’s access code.",
+      "action": "Share access code"
+    },
+    "families": {
+      "description": "Group siblings, parents and kids into a family to charge one fee, paid by a responsible member.",
+      "action": "Create family"
+    },
+    "pending": {
+      "description": "Anyone who joins with the academy code shows up here until you approve them."
+    },
+    "tournaments": {
+      "description": "Post upcoming tournaments here and see who from the academy is competing."
+    },
+    "marketplace": {
+      "description": "The academy shop: gis, belts and other products students order through the app."
+    },
+    "orders": {
+      "description": "Shop orders show up here, with the status of each one."
+    },
+    "overdue": {
+      "description": "Everyone is up to date! Anyone late on their fee shows up here so you can follow up."
+    },
+    "payments": {
+      "description": "Record each fee you receive in the form above to know who is up to date."
+    },
+    "classes": {
+      "description": "Build the academy’s schedule: students check in to the classes you create."
+    },
+    "checkins": {
+      "description": "Your check-ins show up here so you can track your attendance.",
+      "ownerDescription": "Every student check-in shows up here, newest first."
+    }
+  },
+  "setupChecklist": {
+    "title": "Getting started",
+    "subtitle": "Get your academy ready for students.",
+    "howTo": "How to",
+    "done": "Done",
+    "pending": "Pending",
+    "steps": {
+      "modality": "Add a modality",
+      "class": "Create a class on the schedule",
+      "student": "Have at least one student",
+      "checkin": "Open the totem and record the first check-in"
+    }
+  },
+  "firstAccess": {
+    "nextTitle": "What happens now",
+    "nextApprove": "The academy owner reviews and approves your registration.",
+    "nextRefresh": "Tap \"Check status\" to see if you’ve been approved.",
+    "nextCheckin": "Once approved, you can see the classes and check in when you train.",
+    "noticeTitle": "Do your first check-in",
+    "noticeBody": "At the academy, during class, tap Check-in on the class in the schedule or scan the QR code at the entrance.",
+    "noticeCheckin": "Check in",
+    "noticeGuide": "How check-in works",
+    "noticeDismiss": "Dismiss notice"
+  },
   "app": {
     "name": "PGT",
     "tagline": "BJJ academy management"

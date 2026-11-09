@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from '@/lib/toast';
 import { CalendarPlus } from 'lucide-react';
 import type { ClassItem } from '@/lib/schedule';
+import { EmptyState } from '@/components/empty-state';
 
 export function InstructorClassesView() {
   const { t } = useTranslation();
@@ -160,11 +161,13 @@ export function InstructorClassesView() {
       </div>
 
       {classes.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-3">
-          <CalendarPlus className="size-12" />
-          <p className="text-lg font-heading">{t('classes.noClasses')}</p>
-          <Button onClick={() => setCreateOpen(true)}>{t('classes.createClass')}</Button>
-        </div>
+        <EmptyState
+          icon={CalendarPlus}
+          title={t('classes.noClasses')}
+          description={t('emptyState.classes.description')}
+          action={<Button onClick={() => setCreateOpen(true)}>{t('classes.createClass')}</Button>}
+          help="Criar uma Aula"
+        />
       )}
 
       <ClassCalendar

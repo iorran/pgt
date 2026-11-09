@@ -8,6 +8,7 @@ import { Award, Flame } from 'lucide-react';
 import { isStudent } from '@/lib/roles';
 import { formatDate, signedPoints } from '@/lib/format';
 import { GamificationTabs } from './gamification-tabs';
+import { InfoTip } from '@/components/info-tip';
 import { PODIUM, SubmitResultDialog } from './submit-result-dialog';
 
 // GET /api/gamification/profile/:id (xp is a SQL SUM, so it may arrive as a string)
@@ -65,7 +66,10 @@ export default function GamificationProfilePage() {
         <div className="font-display text-5xl md:text-6xl text-primary arena-glow">
           {totalXp.toLocaleString(i18n.language)}
         </div>
-        <p className="font-heading text-lg text-muted-foreground uppercase">{t('gamification.totalXp')}</p>
+        <p className="flex items-center justify-center font-heading text-lg text-muted-foreground uppercase">
+          {t('gamification.totalXp')}
+          <InfoTip label={t('infoTip.xp.label')} text={t('infoTip.xp.text')} section="Gamificação" />
+        </p>
       </div>
 
       {/* Stats Row */}

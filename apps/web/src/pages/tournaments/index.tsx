@@ -31,6 +31,7 @@ import {
 import { MapPin, Calendar, Trophy } from 'lucide-react';
 import { beltKey } from '@/lib/belts';
 import { formatDate } from '@/lib/format';
+import { EmptyState } from '@/components/empty-state';
 
 interface Tournament {
   id: string;
@@ -143,9 +144,11 @@ export default function TournamentsPage() {
 
         {isOwner(user) && (
           <Dialog open={createDialogOpen} onOpenChange={(open) => { setCreateDialogOpen(open); if (!open) { createForm.reset(); } }}>
-            <DialogTrigger render={<Button />}>
-              {t('tournaments.createTournament')}
-            </DialogTrigger>
+            {tournaments.length > 0 && (
+              <DialogTrigger render={<Button />}>
+                {t('tournaments.createTournament')}
+              </DialogTrigger>
+            )}
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="font-heading text-xl uppercase">{t('tournaments.createTournament')}</DialogTitle>
@@ -225,13 +228,16 @@ export default function TournamentsPage() {
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
       ) : tournaments.length === 0 ? (
-        <div className="text-center py-12 space-y-3">
-          <Trophy className="size-12 text-muted-foreground mx-auto" aria-hidden />
-          <p className="text-muted-foreground font-heading">{t('tournaments.empty')}</p>
-          {isOwner(user) && (
-            <Button onClick={() => setCreateDialogOpen(true)}>{t('tournaments.createTournament')}</Button>
-          )}
-        </div>
+        <EmptyState
+          icon={Trophy}
+          title={t('tournaments.empty')}
+          description={t('emptyState.tournaments.description')}
+          action={
+            isOwner(user) && <Button onClick={() => setCreateDialogOpen(true)}>{t('tournaments.createTournament')}</Button>
+          }
+          help="Campeonatos"
+          studentHelp="Inscrever-se em um Evento"
+        />
       ) : (
         <div className="space-y-4">
           {tournaments.map(tr => (

@@ -1,5 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTranslation } from 'react-i18next';
+import { InfoTip } from '@/components/info-tip';
 
 interface ClassRow {
   classId: string;
@@ -77,6 +78,9 @@ export function AderenciaChart({ data }: { data: ClassRow[] }) {
   }
   return (
     <div className="w-full h-72" data-testid="aderencia-chart">
+      <div className="flex justify-end">
+        <InfoTip label={t('infoTip.aderencia.label')} text={t('infoTip.aderencia.text')} section="Painel da Academia" />
+      </div>
       <ResponsiveContainer>
         <BarChart data={data} margin={{ top: 10, right: 10, bottom: 30, left: 0 }}>
           <XAxis

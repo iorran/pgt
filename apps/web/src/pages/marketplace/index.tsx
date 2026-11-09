@@ -25,6 +25,7 @@ import {
 import { TabsNav } from '@/components/tabs-nav';
 import { QueryError } from '@/components/query-error';
 import { formatMoney } from '@/lib/format';
+import { EmptyState } from '@/components/empty-state';
 
 interface Product {
   id: string;
@@ -219,11 +220,14 @@ export default function MarketplacePage() {
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
       ) : products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-          <Package className="size-12" />
-          <p className="text-lg font-heading">{t('marketplace.noProducts')}</p>
-          {isOwner(user) && <Button onClick={openCreate}>{t('marketplace.addProduct')}</Button>}
-        </div>
+        <EmptyState
+          icon={Package}
+          title={t('marketplace.noProducts')}
+          description={t('emptyState.marketplace.description')}
+          action={isOwner(user) && <Button onClick={openCreate}>{t('marketplace.addProduct')}</Button>}
+          help="Adicionar e Editar Produtos"
+          studentHelp="Explorar Produtos"
+        />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {products.map(p => (

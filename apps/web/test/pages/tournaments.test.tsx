@@ -66,7 +66,8 @@ describe('TournamentsPage', () => {
     mockApi.mockResolvedValue([] as any);
     renderWithProviders(<TournamentsPage />);
     expect(await screen.findByText('tournaments.empty')).toBeInTheDocument();
-    expect(screen.getAllByRole('button', { name: 'tournaments.createTournament' })).toHaveLength(2);
+    // Only the empty-state CTA: the header button would duplicate it.
+    expect(screen.getAllByRole('button', { name: 'tournaments.createTournament' })).toHaveLength(1);
   });
 
   it('empty state has no create CTA for students', async () => {

@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/dialog';
 import { beltKey } from '@/lib/belts';
 import { studentTabs } from '@/pages/students/families';
+import { EmptyState } from '@/components/empty-state';
+import { UserCheck } from 'lucide-react';
 
 interface PendingStudent {
   id: string;
@@ -73,7 +75,12 @@ export default function PendingStudentsPage() {
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
       ) : students.length === 0 ? (
-        <p className="text-muted-foreground">{t('onboarding.noPending')}</p>
+        <EmptyState
+          icon={UserCheck}
+          title={t('onboarding.noPending')}
+          description={t('emptyState.pending.description')}
+          help="Aprovar Novos Alunos"
+        />
       ) : (
         <div className="grid gap-4">
           {students.map(student => (

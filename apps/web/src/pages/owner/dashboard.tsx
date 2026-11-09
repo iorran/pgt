@@ -8,6 +8,7 @@ import { PeriodToggle } from './components/period-toggle';
 import { AderenciaChart } from './components/aderencia-chart';
 import { ClassesList } from './components/classes-list';
 import { StudentsList } from './components/students-list';
+import { SetupChecklist } from './components/setup-checklist';
 
 type Period = 'day' | 'week' | 'month';
 
@@ -79,6 +80,7 @@ export default function OwnerDashboardPage() {
         <h1 className="text-2xl font-semibold">{t('owner.title')}</h1>
         <PeriodToggle value={period} onChange={(p) => setParams({ period: p })} />
       </div>
+      <SetupChecklist />
       <Card className="p-4">
         <AderenciaChart data={aderencia?.classes ?? []} />
       </Card>

@@ -114,7 +114,8 @@ describe('FamiliesPage', () => {
       return [];
     });
     renderWithProviders(<FamiliesPage />);
-    await user.click(await screen.findByRole('button', { name: 'families.new' }));
+    // No families yet: the create dialog opens from the empty state.
+    await user.click(await screen.findByRole('button', { name: 'emptyState.families.action' }));
     await user.type(screen.getByLabelText('families.name'), 'X');
     await user.type(screen.getByLabelText('families.searchMembers'), 'Car');
     await user.click(screen.getByRole('button', { name: /Carlos/ }));
@@ -267,5 +268,20 @@ describe('FamiliesPage', () => {
     renderWithProviders(<FamiliesPage />);
     await user.click(await screen.findByRole('button', { name: 'common.edit Família Silva' }));
     expect(screen.getByRole('button', { name: 'families.removeMember Bia' })).toBeDisabled();
+  });
+  it('teaches what families are for when there are none, with a create action and guide link', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api).mockImplementation(async (path: string) => (path === '/families' ? [] : []));
+    renderWithProviders(<FamiliesPage />);
+    expect(await screen.findByRole('heading', { name: 'families.empty' })).toBeInTheDocument();
+    expect(screen.getByText('emptyState.families.description')).toBeInTheDocument();
+    // Only the empty-state CTA: the header button would duplicate it.
+    expect(screen.queryByRole('button', { name: 'families.new' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'emptyState.learnMore' })).toHaveAttribute(
+      'href',
+      `/ajuda#${encodeURIComponent('Criar uma Família')}`,
+    );
+    await user.click(screen.getByRole('button', { name: 'emptyState.families.action' }));
+    expect(screen.getByLabelText('families.name')).toBeInTheDocument();
   });
 });
