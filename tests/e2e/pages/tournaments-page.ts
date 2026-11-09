@@ -8,13 +8,11 @@ export class TournamentsPage {
   constructor(page: Page) {
     this.page = page;
     // t('tournaments.createTournament') = "Criar Campeonato"
-    // The page header renders this as the create-dialog trigger
-    // (aria-expanded); the empty state repeats the same CTA as a plain button.
-    // expanded:false picks the header trigger only.
-    this.createTournamentButton = page.getByRole('button', {
-      name: /criar campeonato/i,
-      expanded: false,
-    });
+    // With no tournaments only the empty state's CTA is shown; otherwise the
+    // header trigger is. Both open the same create dialog.
+    this.createTournamentButton = page
+      .getByRole('button', { name: /criar campeonato/i })
+      .first();
     // t('common.create') = "Criar" — the submit button in the create form
     this.saveButton = page.getByRole('button', { name: /^criar$/i });
   }
