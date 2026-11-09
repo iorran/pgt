@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { NotificationBell } from '@/components/notification-bell';
+import { HelpLink } from '@/components/help-link';
 import { NavLinks } from './sidebar';
 
 export function Header() {
@@ -33,6 +34,7 @@ export function Header() {
       <div className="hidden md:block" />
 
       <div className="flex items-center gap-1 md:gap-3">
+        <HelpLink guide="owner" className="text-muted-foreground hover:text-foreground" />
         <NotificationBell />
         <div className="flex items-center" role="group" aria-label={t('me.language')}>
           <Button

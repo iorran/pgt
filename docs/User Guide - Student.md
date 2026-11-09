@@ -163,8 +163,8 @@ A navegação principal fica na barra inferior, sempre visível. A aba em que vo
   <sub><em>**Check-in (center green button)** — opens the QR code scanner full-screen.</em></sub>
 - **Loja** — produtos da academia.
   <sub><em>**Shop** — academy products.</em></sub>
-- **Perfil** — mensalidade, torneios, idioma, tema, sair.
-  <sub><em>**Me** — monthly fee, tournaments, language, theme, sign out.</em></sub>
+- **Perfil** — mensalidade, campeonatos, idioma, sair.
+  <sub><em>**Me** — monthly fee, tournaments, language, sign out.</em></sub>
 
 ## Fazer Check-in nas Aulas
 <sub><em>Checking In to Classes</em></sub>

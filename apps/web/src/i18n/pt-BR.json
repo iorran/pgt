@@ -605,5 +605,12 @@
     "title": "Quem vai usar?",
     "you": "Você",
     "switch": "Trocar perfil"
+  },
+  "help": {
+    "title": "Ajuda",
+    "search": "Buscar no guia",
+    "noResults": "Nenhuma seção encontrada. Tente outra palavra.",
+    "ownerGuide": "Guia do dono",
+    "studentGuide": "Guia do aluno"
   }
 }

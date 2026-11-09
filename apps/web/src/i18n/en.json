@@ -605,5 +605,12 @@
     "title": "Who is using the app?",
     "you": "You",
     "switch": "Switch profile"
+  },
+  "help": {
+    "title": "Help",
+    "search": "Search the guide",
+    "noResults": "No section found. Try another word.",
+    "ownerGuide": "Owner guide",
+    "studentGuide": "Student guide"
   }
 }
