@@ -15,6 +15,23 @@ Guia completo para gerenciar sua academia de BJJ com o PGT. O **Dono** é o úni
 > - [Guia do Aluno](./User%20Guide%20-%20Student.md)
 > - [Glossário](./CONTEXT.md)
 
+## Roteiro Rápido
+<sub><em>Quick Path</em></sub>
+
+O que fazer no dia a dia, em ordem. Cada item leva à seção com o passo a passo.
+<sub><em>What to do day to day, in order. Each item links to its step-by-step section.</em></sub>
+
+| Quando | O quê | Onde |
+|---|---|---|
+| Uma vez | Localização da academia, modalidades, código de acesso | [Primeiros Passos](#Primeiros%20Passos) |
+| Aluno novo se cadastrou | Aprovar, definir mensalidade e faixa | [Gerenciando Alunos](#Gerenciando%20Alunos) |
+| Pais e filhos / casal | Criar família e escolher o Responsável | [Famílias](#Famílias) |
+| Toda semana | Ajustar o quadro de aulas | [Aulas](#Aulas) |
+| Antes da aula | Deixar o totem com QR code aberto | [Sistema de Check-in](#Sistema%20de%20Check-in) |
+| Aluno pagou | Registrar pagamento (ou "Registrar mensalidade" na página do aluno) | [Financeiro](#Financeiro) |
+| Sino com número | Cobrar atrasados por WhatsApp/e-mail | [Notificações](#Notificações) |
+| Depois de campeonato | Aprovar resultados → ranking | [Gamificação](#Gamificação) |
+
 ## Primeiros Passos
 <sub><em>Getting Started</em></sub>
 
@@ -28,7 +45,7 @@ Acesse o PGT pelo navegador. A tela de login pede e-mail e senha.
    <sub><em>Fill in Email and Password</em></sub>
 2. Toque em **"Entrar"**
    <sub><em>Tap "Entrar" (Log In)</em></sub>
-3. Você é levado ao **Painel da Academia**
+3. Você é levado ao **Painel da academia**
    <sub><em>You land on the Academy Dashboard</em></sub>
 
 Esqueceu a senha? Toque em **"Esqueceu a senha?"** na tela de login para receber um link de recuperação no seu e-mail.
@@ -39,28 +56,28 @@ Esqueceu a senha? Toque em **"Esqueceu a senha?"** na tela de login para receber
 
 1. Na tela de login, toque em **"Esqueceu a senha?"**
    <sub><em>On the login screen, tap "Esqueceu a senha?" (Forgot your password?)</em></sub>
-2. Digite seu e-mail e toque em **"Enviar Link"**
-   <sub><em>Enter your email and tap "Enviar Link" (Send Link)</em></sub>
-3. Se o e-mail existir no sistema, você receberá um link de recuperação (mensagem: "Se o email existir em nossa base, enviaremos um link de recuperação.")
+2. Digite seu e-mail e toque em **"Enviar link"**
+   <sub><em>Enter your email and tap "Enviar link" (Send Link)</em></sub>
+3. Se o e-mail existir no sistema, você receberá um link de recuperação (mensagem: "Se o e-mail existir em nossa base, enviaremos um link de recuperação.")
    <sub><em>If the email exists in the system, you will receive a recovery link (message: "If the email exists in our system, we'll send a recovery link.")</em></sub>
-4. Clique no link recebido por e-mail para abrir a página **"Redefinir Senha"**
-   <sub><em>Click the link in your email to open the "Redefinir Senha" (Reset Password) page</em></sub>
-5. Preencha **"Nova Senha"** e **"Confirmar Senha"**, depois toque em **"Redefinir"**
-   <sub><em>Fill in "Nova Senha" (New Password) and "Confirmar Senha" (Confirm Password), then tap "Redefinir" (Reset)</em></sub>
-6. Após o sucesso, toque em **"Voltar ao Login"**
-   <sub><em>After success, tap "Voltar ao Login" (Back to Login)</em></sub>
+4. Clique no link recebido por e-mail para abrir a página **"Redefinir senha"**
+   <sub><em>Click the link in your email to open the "Redefinir senha" (Reset Password) page</em></sub>
+5. Preencha **"Nova senha"** e **"Confirmar senha"**, depois toque em **"Redefinir"**
+   <sub><em>Fill in "Nova senha" (New Password) and "Confirmar senha" (Confirm Password), then tap "Redefinir" (Reset)</em></sub>
+6. Após o sucesso, toque em **"Voltar ao login"**
+   <sub><em>After success, tap "Voltar ao login" (Back to Login)</em></sub>
 
 ### Criar Sua Academia
 <sub><em>Create Your Academy</em></sub>
 
-1. Na tela de login, toque em **"Criar Conta"**
-   <sub><em>On the login screen, tap "Criar Conta" (Sign Up)</em></sub>
-2. Na tela seguinte, escolha **"Criar Academia"**
-   <sub><em>On the next screen, choose "Criar Academia" (Create Academy)</em></sub>
-3. Em **Seus Dados**, preencha nome, e-mail e senha; em **Sua Academia**, preencha o nome da academia e a cidade
+1. Na tela de login, toque em **"Criar conta"**
+   <sub><em>On the login screen, tap "Criar conta" (Sign Up)</em></sub>
+2. Na tela seguinte, escolha **"Criar academia"**
+   <sub><em>On the next screen, choose "Criar academia" (Create Academy)</em></sub>
+3. Em **Seus dados**, preencha nome, e-mail e senha; em **Sua academia**, preencha o nome da academia e a cidade
    <sub><em>Under Seus Dados (Your Details), fill in name, email and password; under Sua Academia (Your Academy), fill in the academy name and city</em></sub>
-4. Toque em **"Criar Academia"** — você se torna o dono da nova academia
-   <sub><em>Tap "Criar Academia" — you become the owner of the new academy</em></sub>
+4. Toque em **"Criar academia"** — você se torna o dono da nova academia
+   <sub><em>Tap "Criar academia" — you become the owner of the new academy</em></sub>
 
 ### Navegar no App
 <sub><em>Navigating the App</em></sub>
@@ -112,10 +129,10 @@ Os alunos precisam de um código de acesso para se cadastrar na sua academia.
 
 1. Menu → **Configurações**
    <sub><em>Menu → Configurações (Settings)</em></sub>
-2. O código aparece no cartão com o nome da sua academia (ex.: `PGT-PONTINHA-CM7`), abaixo do rótulo **"Código de Acesso"**
-   <sub><em>The code appears in the card with your academy name (e.g., `PGT-PONTINHA-CM7`), below the "Código de Acesso" (Access Code) label</em></sub>
-3. Toque em **"Copiar"** (muda para **"Copiado!"**) ou em **"Compartilhar no WhatsApp"** — a mensagem leva um link que já abre o cadastro com o código preenchido
-   <sub><em>Tap "Copiar" (Copy — changes to "Copiado!") or "Compartilhar no WhatsApp" (Share on WhatsApp) — the message carries a link that opens sign-up with the code already filled in</em></sub>
+2. O código aparece no cartão com o nome da sua academia (ex.: `PGT-PONTINHA-CM7`), abaixo do rótulo **"Código de acesso"**
+   <sub><em>The code appears in the card with your academy name (e.g., `PGT-PONTINHA-CM7`), below the "Código de acesso" (Access Code) label</em></sub>
+3. Toque em **"Copiar"** (muda para **"Copiado"**) ou em **"Compartilhar no WhatsApp"** — a mensagem leva um link que já abre o cadastro com o código preenchido
+   <sub><em>Tap "Copiar" (Copy — changes to "Copiado") or "Compartilhar no WhatsApp" (Share on WhatsApp) — the message carries a link that opens sign-up with the code already filled in</em></sub>
 
 ## Gerenciando Alunos
 <sub><em>Managing Students</em></sub>
@@ -135,8 +152,8 @@ Quando um aluno entra com seu código, ele aparece como **Pendente**.
    <sub><em>Menu → Alunos → Pendentes tab</em></sub>
 2. Toque em **"Aprovar"** para liberar o acesso
    <sub><em>Tap "Aprovar" (Approve) to grant access</em></sub>
-3. Para recusar, toque em **"Rejeitar"** e confirme em **"Confirmar"** ("Rejeitar o cadastro de …?")
-   <sub><em>To decline, tap "Rejeitar" (Reject) and confirm with "Confirmar" ("Reject …'s sign-up?")</em></sub>
+3. Para recusar, toque em **"Recusar"** e confirme em **"Confirmar"** ("Recusar o cadastro de …?")
+   <sub><em>To decline, tap "Recusar" (Reject) and confirm with "Confirmar" ("Reject …'s sign-up?")</em></sub>
 
 ### Lista de Alunos
 <sub><em>Students List</em></sub>
@@ -145,7 +162,7 @@ Quando um aluno entra com seu código, ele aparece como **Pendente**.
 
 1. Menu → **Alunos** (a aba **Alunos** estará ativa)
    <sub><em>Menu → Alunos (the Alunos tab will be active)</em></sub>
-2. Cada aluno mostra nome (e o nome da família, se tiver), faixa, **Modalidades**, **Mensalidade** e **Dia Vencimento**
+2. Cada aluno mostra nome (e o nome da família, se tiver), faixa, **Modalidades**, **Mensalidade** e **Dia de vencimento**
    <sub><em>Each student shows name (and family name, if any), belt, Modalities, Monthly Fee, and Due Day</em></sub>
 3. Use **Buscar** para filtrar por nome
    <sub><em>Use Buscar (Search) to filter by name</em></sub>
@@ -157,7 +174,7 @@ Quando um aluno entra com seu código, ele aparece como **Pendente**.
 ### Página do Aluno
 <sub><em>Student Page</em></sub>
 
-A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade**, o campo **Faixa** e os cartões **Treino**, **Meses isentos** e **Histórico de Pagamentos**.
+A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade**, o campo **Faixa** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
 <sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card, the Faixa (Belt) field, and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
 
 ### Definir a Mensalidade
@@ -170,7 +187,7 @@ Não existem planos: cada aluno tem a sua própria **Mensalidade**, digitada por
    <sub><em>Open the student page → Mensalidade card</em></sub>
 2. Digite o valor em **"Mensalidade (€)"** ou toque em um dos **valores sugeridos**: **45,00 €**, **65,00 €**, **60,00 €** ou **35,00 €**
    <sub><em>Type the amount in "Mensalidade (€)" (Monthly fee) or tap one of the suggested amounts: €45.00, €65.00, €60.00, or €35.00</em></sub>
-3. Ajuste o **Dia Vencimento** (1 a 28; padrão 8)
+3. Ajuste o **Dia de vencimento** (1 a 28; padrão 8)
    <sub><em>Adjust the Dia Vencimento (Due Day) (1 to 28; default 8)</em></sub>
 4. Toque em **"Salvar mensalidade"**
    <sub><em>Tap "Salvar mensalidade" (Save monthly fee)</em></sub>
@@ -272,8 +289,8 @@ Na página do aluno, abaixo do telefone:
 Uma **Família** reúne alunos da mesma casa cujas mensalidades são pagas juntas (ex.: pais e filhos). Cada aluno pertence a **no máximo uma** família. O preço continua sendo por aluno; a família só junta a cobrança.
 <sub><em>A Family groups students of the same household whose monthly fees are paid together (e.g., parents and kids). Each student belongs to at most one family. Pricing stays per student; the family only groups the billing.</em></sub>
 
-Os alunos não veem nada sobre famílias no app deles.
-<sub><em>Students see nothing about families in their app.</em></sub>
+Cada família tem **um só login**: o do **Responsável**. Os demais membros são **Dependentes** — não têm senha e não entram no app; o Responsável entra e escolhe o perfil de quem vai usar (veja [Responsável da Família](#Responsável%20da%20Família)). Todo e-mail sobre qualquer membro vai para o Responsável.
+<sub><em>Each family has a single login: the Responsible's. The other members are Dependents — no password, no login; the Responsible logs in and picks whose profile to use (see Family Responsible). All email about any member goes to the Responsible.</em></sub>
 
 ### Criar uma Família
 <sub><em>Create a Family</em></sub>
@@ -286,8 +303,8 @@ Os alunos não veem nada sobre famílias no app deles.
    <sub><em>Fill in "Nome da família" (Family name) — you choose the name; surnames may differ</em></sub>
 4. Em **"Buscar alunos sem família"**, digite um nome e toque no aluno (**+ Nome**) para adicioná-lo aos **Membros**. Só aparecem alunos que ainda não têm família
    <sub><em>In "Buscar alunos sem família" (Search students without a family), type a name and tap the student (+ Name) to add them to Membros (Members). Only students without a family are listed</em></sub>
-5. Opcional: escolha o **Contato da família** e o **Preço acordado da família** (veja abaixo)
-   <sub><em>Optional: choose the Contato da família (Family contact) and the Preço acordado da família (Family agreed price) (see below)</em></sub>
+5. Escolha o **Responsável** (obrigatório) e, se quiser, o **Preço acordado da família** (veja abaixo)
+   <sub><em>Choose the Responsável (Responsible, required) and, optionally, the Preço acordado da família (Family agreed price) (see below)</em></sub>
 6. Toque em **"Criar"**
    <sub><em>Tap "Criar" (Create)</em></sub>
 
@@ -299,19 +316,48 @@ Cada família aparece como um cartão com o nome, os membros e o valor mensal da
 
 1. No cartão da família, toque em **"Editar"**
    <sub><em>On the family card, tap "Editar" (Edit)</em></sub>
-2. Adicionar (pela busca) ou **"Remover"** membros vale na hora; nome, contato e preço acordado são salvos ao tocar em **"Salvar"**
-   <sub><em>Adding (via search) or "Remover" (Remove) on members applies immediately; name, contact, and agreed price are saved when you tap "Salvar" (Save)</em></sub>
+2. Adicionar (pela busca) ou **"Remover"** membros vale na hora; nome, responsável e preço acordado são salvos ao tocar em **"Salvar"**
+   <sub><em>Adding (via search) or "Remover" (Remove) on members applies immediately; name, Responsible, and agreed price are saved when you tap "Salvar" (Save)</em></sub>
 3. Para excluir, toque em **"Excluir"** e depois em **"Confirmar"** ("Os alunos saem da família. O histórico de pagamentos é mantido.")
    <sub><em>To delete, tap "Excluir" (Delete) and then "Confirmar" (Confirm) ("Students leave the family. Payment history is kept.")</em></sub>
 
 Remover um membro ou excluir a família nunca altera o histórico de pagamentos. Tentar colocar um aluno em uma segunda família é recusado ("Um dos alunos já pertence a uma família").
 <sub><em>Removing a member or deleting the family never changes payment history. Adding a student to a second family is refused ("Um dos alunos já pertence a uma família" — One of the students already belongs to a family).</em></sub>
 
-### Contato da Família
-<sub><em>Family Contact</em></sub>
+### Responsável da Família
+<sub><em>Family Responsible</em></sub>
 
-O **Contato da família** é o membro com quem você prefere falar sobre os pagamentos (o telefone de uma criança costuma ser o do pai ou da mãe). É opcional: com **"Nenhum (qualquer membro)"**, o WhatsApp usa o primeiro membro que tiver telefone.
-<sub><em>The Family Contact is the member you prefer to reach about payments (a kid's phone is usually the parent's). It's optional: with "Nenhum (qualquer membro)" (None — any member), WhatsApp uses the first member with a phone number.</em></sub>
+![Família — Responsável](./assets/user-guide/instructor/family-dialog.png)
+
+O **Responsável** é a única pessoa da família que entra no app. Ele escolhe um perfil ("Quem vai usar?") e faz tudo pelo membro escolhido: check-in, mensalidade, ranking, resultados, campeonatos, loja. Os avisos de atraso, recibos e WhatsApp de cobrança vão para ele.
+<sub><em>The Responsible is the only family member who logs in. They pick a profile ("Quem vai usar?" — Who's using?) and do everything for that member: check-in, fees, ranking, results, tournaments, shop. Overdue notices, receipts and billing WhatsApp go to them.</em></sub>
+
+No campo **"Responsável"** do formulário da família:
+<sub><em>In the family form's "Responsável" field:</em></sub>
+
+- **Um membro que treina** — escolha o nome na lista. Ele continua aluno normal e vê o próprio perfil + os dos dependentes
+  <sub><em>A member who trains — pick their name. They stay a normal student and see their own profile plus the dependents'</em></sub>
+- **"Nova pessoa (não treina)"** — ex.: pai/mãe que não treina. Preencha **"Nome do responsável"** e **"Email do responsável"**. Essa pessoa não aparece na lista de alunos, nem no ranking, nem na cobrança
+  <sub><em>"Nova pessoa (não treina)" (New person, doesn't train) — e.g. a parent who doesn't train. Fill in name and email. This person never shows in the student list, ranking or billing</em></sub>
+- **"Enviar convite"** — manda ao Responsável um link para criar a senha (mesmo fluxo de "Esqueceu a senha?")
+  <sub><em>"Enviar convite" (Send invite) — emails the Responsible a link to set their password (same flow as "Forgot password?")</em></sub>
+
+> [!warning] Trocar o Responsável
+> Ao trocar, o app avisa: **"O responsável atual deixa de ter login próprio e passa a ser gerido pelo novo."** O histórico não muda. Depois, envie o convite ao novo Responsável.
+> <sub><em>When you change it, the app warns: the current Responsible loses their own login and becomes managed by the new one. History is untouched. Then send the invite to the new Responsible.</em></sub>
+
+#### Remover alguém da família
+<sub><em>Removing someone from the family</em></sub>
+
+Só o Dono mexe nos membros — o Responsável não consegue. Ao tocar em **"Remover"** num membro, abre uma janela:
+<sub><em>Only the Owner changes members — the Responsible can't. Tapping "Remover" on a member opens a dialog:</em></sub>
+
+- A pessoa vira **aluno independente** e mantém todo o histórico
+  <sub><em>The person becomes an independent student and keeps all history</em></sub>
+- **"Email próprio (opcional)"** — se preencher, a pessoa cria o login sozinha em **"Primeiro acesso"** na tela de login. Sem e-mail, ela fica sem login até você adicionar um
+  <sub><em>"Email próprio (opcional)" (Own email, optional) — if filled in, the person creates their login alone via "Primeiro acesso" (First access) on the login screen. Without it, they have no login until you add one</em></sub>
+- O Responsável não pode ser removido: primeiro escolha outro ("Escolha outro responsável antes de remover este membro")
+  <sub><em>The Responsible can't be removed: choose another one first</em></sub>
 
 ### Preço Acordado da Família
 <sub><em>Family Agreed Price</em></sub>
@@ -339,7 +385,7 @@ As famílias não são criadas automaticamente. Na aba **Famílias**, a seção 
 
 ![Painel da Academia](./assets/user-guide/instructor/owner-dashboard-overview.png)
 
-O **Painel da Academia** (Menu → **Painel**) é a página inicial do dono: uma visão da presença dos alunos e do engajamento nas aulas.
+O **Painel da academia** (Menu → **Painel**) é a página inicial do dono: uma visão da presença dos alunos e do engajamento nas aulas.
 <sub><em>The Academy Dashboard (Menu → Painel) is the owner's home page: an overview of student attendance and class engagement.</em></sub>
 
 ### Filtrar por Período
@@ -433,7 +479,7 @@ Toque em **Todos** para ver todos, ou em outro filtro para filtrar. Toque em um 
 ## Aulas
 <sub><em>Classes</em></sub>
 
-A página **Aulas** tem as abas **Quadro de Aulas** (um calendário com as visões **Mês**, **Semana**, **Dia** e **Agenda**, e os botões **Hoje**, **Anterior** e **Próximo**) e **Histórico de Presença**.
+A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visões **Mês**, **Semana**, **Dia** e **Agenda**, e os botões **Hoje**, **Anterior** e **Próximo**) e **Histórico de presença**.
 <sub><em>The Aulas (Classes) page has the Quadro de Aulas (Class Schedule) tab — a calendar with Mês / Semana / Dia / Agenda (Month / Week / Day / Agenda) views and Hoje / Anterior / Próximo (Today / Back / Next) buttons — and the Histórico de Presença (Attendance History) tab.</em></sub>
 
 ### Criar uma Aula
@@ -443,9 +489,9 @@ A página **Aulas** tem as abas **Quadro de Aulas** (um calendário com as visõ
 
 1. Menu → **Aulas**
    <sub><em>Menu → Aulas (Classes)</em></sub>
-2. Toque em **"Criar Aula"**
-   <sub><em>Tap "Criar Aula" (Create Class)</em></sub>
-3. Preencha **Nome da Aula**, **Tipo** (Gi / No-Gi / Open Mat / Kids), **Dias da Semana** (toque em um ou mais dias), **Horário Início** e **Horário Fim**
+2. Toque em **"Criar aula"**
+   <sub><em>Tap "Criar aula" (Create Class)</em></sub>
+3. Preencha **Nome da aula**, **Tipo** (Gi / No-Gi / Open Mat / Kids), **Dias da semana** (toque em um ou mais dias), **Horário de início** e **Horário de fim**
    <sub><em>Fill in Nome da Aula (Class Name), Tipo (Type: Gi / No-Gi / Open Mat / Kids), Dias da Semana (Days of the Week — tap one or more days), Horário Início (Start Time), and Horário Fim (End Time)</em></sub>
 4. Toque em **"Salvar"** — é criada uma aula semanal para cada dia escolhido
    <sub><em>Tap "Salvar" (Save) — one weekly class is created for each day you picked</em></sub>
@@ -455,19 +501,19 @@ A página **Aulas** tem as abas **Quadro de Aulas** (um calendário com as visõ
 
 ![Editar e excluir aulas](./assets/user-guide/instructor/classes-edit-delete.png)
 
-- Toque em uma aula no calendário para abrir **"Editar Aula"**; altere nome, tipo, dia da semana ou horários e toque em **"Salvar"**
-  <sub><em>Tap a class on the calendar to open "Editar Aula" (Edit Class); change name, type, day of the week, or times, and tap "Salvar" (Save)</em></sub>
+- Toque em uma aula no calendário para abrir **"Editar aula"**; altere nome, tipo, dia da semana ou horários e toque em **"Salvar"**
+  <sub><em>Tap a class on the calendar to open "Editar aula" (Edit Class); change name, type, day of the week, or times, and tap "Salvar" (Save)</em></sub>
 - Para mudar o horário rapidamente, arraste a aula para outro dia/horário no calendário ("Aula reagendada")
   <sub><em>To reschedule quickly, drag the class to another day/time on the calendar ("Aula reagendada" — Class rescheduled)</em></sub>
-- Para excluir, no mesmo diálogo toque em **"Excluir Aula"** e confirme em **"Excluir Aula"** novamente. Os check-ins antigos são preservados
-  <sub><em>To delete, in the same dialog tap "Excluir Aula" (Delete Class) and confirm with "Excluir Aula" again. Past check-ins are kept</em></sub>
+- Para excluir, no mesmo diálogo toque em **"Excluir aula"** e confirme em **"Excluir aula"** novamente. Os check-ins antigos são preservados
+  <sub><em>To delete, in the same dialog tap "Excluir aula" (Delete Class) and confirm with "Excluir aula" again. Past check-ins are kept</em></sub>
 
 ### Histórico de Presença
 <sub><em>Attendance History</em></sub>
 
 ![Histórico de check-ins](./assets/user-guide/instructor/checkin-history.png)
 
-Menu → **Aulas** → aba **Histórico de Presença** lista os check-ins mais recentes **de todos os alunos** da academia (data, aluno, aula e tipo), do mais novo para o mais antigo. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
+Menu → **Aulas** → aba **Histórico de presença** lista os check-ins mais recentes **de todos os alunos** da academia (data, aluno, aula e tipo), do mais novo para o mais antigo. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
 <sub><em>Menu → Aulas → Histórico de Presença tab lists the latest check-ins of every student in the academy (date, student, class, and type), newest first. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
 
 ## Sistema de Check-in
@@ -518,16 +564,16 @@ A página **Financeiro** tem as abas **Inadimplentes** e **Pagamentos**. O valor
 
 1. Menu → **Financeiro** → aba **Pagamentos**
    <sub><em>Menu → Financeiro → Pagamentos (Payments) tab</em></sub>
-2. O formulário **"Registrar Pagamento"** já aparece no topo da página
-   <sub><em>The "Registrar Pagamento" (Record Payment) form is already shown at the top of the page</em></sub>
+2. O formulário **"Registrar pagamento"** já aparece no topo da página
+   <sub><em>The "Registrar pagamento" (Record Payment) form is already shown at the top of the page</em></sub>
 3. Em **"Selecione um aluno"**, digite o nome e escolha o aluno na lista — o **Valor** é preenchido com a mensalidade dele
    <sub><em>In "Selecione um aluno" (Select a student), type the name and pick the student from the list — Valor (Amount) is filled in with their Monthly Fee</em></sub>
-4. Confira o **Valor**, a **Data** (hoje, por padrão) e o **Mês Referência** (mês atual, por padrão — qual mês o pagamento cobre)
+4. Confira o **Valor**, a **Data** (hoje, por padrão) e o **Mês de referência** (mês atual, por padrão — qual mês o pagamento cobre)
    <sub><em>Check the Valor (Amount), the Data (Date — today by default), and the Mês Referência (Reference Month — current month by default; which month the payment covers)</em></sub>
 5. Toque em **"Salvar"**
    <sub><em>Tap "Salvar" (Save)</em></sub>
-6. Os pagamentos registrados aparecem em **"Pagamentos Recentes"**, abaixo do formulário
-   <sub><em>Recorded payments appear under "Pagamentos Recentes" (Recent Payments), below the form</em></sub>
+6. Os pagamentos registrados aparecem em **"Pagamentos recentes"**, abaixo do formulário
+   <sub><em>Recorded payments appear under "Pagamentos recentes" (Recent Payments), below the form</em></sub>
 
 ### Acompanhar Inadimplentes
 <sub><em>Track Overdue Payments</em></sub>
@@ -546,13 +592,13 @@ A página **Financeiro** tem as abas **Inadimplentes** e **Pagamentos**. O valor
 Em cada cartão de aluno:
 <sub><em>On each student card:</em></sub>
 
-- **"Registrar Pagamento"** — pagamento rápido: registra na hora o **mês em aberto mais antigo** com o valor da mensalidade do aluno
-  <sub><em>"Registrar Pagamento" (Record Payment) — quick pay: immediately records the oldest unpaid month at the student's Monthly Fee</em></sub>
+- **"Registrar pagamento"** — pagamento rápido: registra na hora o **mês em aberto mais antigo** com o valor da mensalidade do aluno
+  <sub><em>"Registrar pagamento" (Record Payment) — quick pay: immediately records the oldest unpaid month at the student's Monthly Fee</em></sub>
 - **WhatsApp** — abre uma conversa com o aluno (só aparece se ele tiver telefone)
   <sub><em>WhatsApp — opens a chat with the student (only shown when they have a phone number)</em></sub>
 
 > [!note]
-> O pagamento rápido cobre um mês por toque, sempre o mais antigo em aberto. Para escolher outro mês ou outro valor, use a aba **Pagamentos** e escolha o **Mês Referência**.
+> O pagamento rápido cobre um mês por toque, sempre o mais antigo em aberto. Para escolher outro mês ou outro valor, use a aba **Pagamentos** e escolha o **Mês de referência**.
 > <sub><em>Quick pay covers one month per tap, always the oldest unpaid one. To pick a different month or amount, use the Pagamentos tab and pick the Mês Referência (Reference Month).</em></sub>
 
 ### Pagamento da Família
@@ -561,8 +607,8 @@ Em cada cartão de aluno:
 Um cartão de família tem o selo **"Família"**, o nome da família, os membros, os meses em aberto, o total e os dias de atraso. A família fica na lista enquanto algum membro dever um mês não isento.
 <sub><em>A family card has the "Família" (Family) badge, the family name, members, unpaid months, total, and days overdue. The family stays on the list while any member owes a non-waived month.</em></sub>
 
-- **WhatsApp** — abre a conversa com o **Contato da família** ou, se não houver, com o primeiro membro que tiver telefone
-  <sub><em>WhatsApp — opens a chat with the Family Contact or, if none, with the first member who has a phone</em></sub>
+- **WhatsApp** — abre a conversa com o **Responsável** da família ou, se ele não tiver telefone, com o primeiro membro que tiver
+  <sub><em>WhatsApp — opens a chat with the family's Responsible or, if they have no phone, with the first member who has one</em></sub>
 - **"Registrar pagamento da família"** — abre o diálogo **Pagamento da família**
   <sub><em>"Registrar pagamento da família" (Record family payment) — opens the Pagamento da família (Family payment) dialog</em></sub>
 
@@ -599,13 +645,13 @@ Toque no sino para ver cada inadimplente com o valor devido e os dias de atraso.
 
 - **Enviar lembrete** — abre o WhatsApp com uma mensagem de cobrança pré-preenchida (só aparece se houver telefone)
   <sub><em>Enviar lembrete (Send reminder) — opens WhatsApp with a pre-filled payment reminder (only shown when there's a phone number)</em></sub>
-- **Enviar email** — envia um e-mail de cobrança; o botão muda para **"Email enviado"** e fica desativado
-  <sub><em>Enviar email (Send email) — sends a payment reminder email; the button changes to "Email enviado" (Email sent) and disables</em></sub>
+- **Enviar e-mail** — envia um e-mail de cobrança; o botão muda para **"E-mail enviado"** e fica desativado
+  <sub><em>Enviar email (Send email) — sends a payment reminder email; the button changes to "E-mail enviado" (Email sent) and disables</em></sub>
 - **Silenciar** (ícone de sino riscado, sem texto) — tira o aluno da lista de notificações
   <sub><em>Mute (crossed-out bell icon, no text label) — removes the student from the notification list</em></sub>
 
-Para uma **família**, só há **Enviar lembrete** (WhatsApp para o contato da família ou o primeiro membro com telefone).
-<sub><em>For a family, there's only Enviar lembrete (WhatsApp to the family contact or the first member with a phone).</em></sub>
+Para uma **família**, só há **Enviar lembrete** (WhatsApp para o Responsável ou o primeiro membro com telefone).
+<sub><em>For a family, there's only Enviar lembrete (WhatsApp to the Responsible or the first member with a phone).</em></sub>
 
 ### Silenciar um Aluno
 <sub><em>Mute a Student</em></sub>
@@ -627,9 +673,9 @@ Se um aluno tiver um acordo especial (ex.: ajuda a limpar a academia em troca de
 
 1. Menu → **Loja** (a aba **LOJA** já estará ativa)
    <sub><em>Menu → Loja (Marketplace) — the LOJA (Store) tab is already active</em></sub>
-2. Toque em **"Adicionar Produto"**
-   <sub><em>Tap "Adicionar Produto" (Add Product)</em></sub>
-3. Preencha **Nome do Produto**, **Descrição**, **Preço** e **Estoque**
+2. Toque em **"Adicionar produto"**
+   <sub><em>Tap "Adicionar produto" (Add Product)</em></sub>
+3. Preencha **Nome do produto**, **Descrição**, **Preço** e **Estoque**
    <sub><em>Fill in Nome do Produto (Product Name), Descrição (Description), Preço (Price), and Estoque (Stock)</em></sub>
 4. Toque em **"Salvar"**
    <sub><em>Tap "Salvar" (Save)</em></sub>
@@ -664,9 +710,9 @@ A página **Ranking** tem as abas **Classificação**, **Temporadas** e **Result
 
 1. Menu → **Ranking** → aba **Temporadas**
    <sub><em>Menu → Ranking → Temporadas tab</em></sub>
-2. Toque em **"Criar Temporada"**
-   <sub><em>Tap "Criar Temporada" (Create Season)</em></sub>
-3. Defina **Nome da Temporada**, **Data Início**, **Data Fim**, **Premiação** (opcional) e a **Pontuação (1º / 2º / 3º)**
+2. Toque em **"Criar temporada"**
+   <sub><em>Tap "Criar temporada" (Create Season)</em></sub>
+3. Defina **Nome da temporada**, **Data de início**, **Data de fim**, **Premiação** (opcional) e a **Pontuação (1º / 2º / 3º)**
    <sub><em>Set Nome da Temporada (Season Name), Data Início (Start Date), Data Fim (End Date), Premiação (Prize, optional), and Pontuação (1º / 2º / 3º) (Points for 1st / 2nd / 3rd)</em></sub>
 4. Toque em **"Criar"** para salvar
    <sub><em>Tap "Criar" (Create) to save</em></sub>
@@ -699,8 +745,8 @@ Cada resultado mostra aluno, competição, data, colocação (ou **Ajuste**, par
 ### Aprovar ou Rejeitar Resultados
 <sub><em>Approve or Reject Results</em></sub>
 
-Quando os alunos enviam resultados, eles aparecem em **Pendentes**. Toque em **"Aprovar"** para conceder os pontos (e o XP) ou **"Rejeitar"** para recusar.
-<sub><em>When students submit results, they show under Pendentes. Tap "Aprovar" (Approve) to award the points (and XP) or "Rejeitar" (Reject) to decline.</em></sub>
+Quando os alunos enviam resultados, eles aparecem em **Pendentes**. Toque em **"Aprovar"** para conceder os pontos (e o XP) ou **"Recusar"** para recusar.
+<sub><em>When students submit results, they show under Pendentes. Tap "Aprovar" (Approve) to award the points (and XP) or "Recusar" (Reject) to decline.</em></sub>
 
 ### Editar um Resultado
 <sub><em>Edit a Result</em></sub>
@@ -798,10 +844,10 @@ Adolescentes com faixa adulta ou branca competem em **Adultos**. Para corrigir u
 
 1. Menu → **Campeonatos**
    <sub><em>Menu → Campeonatos (Tournaments)</em></sub>
-2. Toque em **"Criar Campeonato"**, preencha **Nome do Campeonato**, **Data**, **Local** e **Federação** e toque em **"Criar"**
-   <sub><em>Tap "Criar Campeonato" (Create Tournament), fill in Nome do Campeonato (Tournament Name), Data (Date), Local (Location), and Federação (Federation), and tap "Criar" (Create)</em></sub>
-3. Para ver os inscritos, toque em **"Ver Inscritos"** em qualquer campeonato — a lista abre com nome, faixa e categoria de peso
-   <sub><em>To see participants, tap "Ver Inscritos" (View Roster) on any tournament — the list opens with name, belt, and weight class</em></sub>
+2. Toque em **"Criar campeonato"**, preencha **Nome do campeonato**, **Data**, **Local** e **Federação** e toque em **"Criar"**
+   <sub><em>Tap "Criar campeonato" (Create Tournament), fill in Nome do Campeonato (Tournament Name), Data (Date), Local (Location), and Federação (Federation), and tap "Criar" (Create)</em></sub>
+3. Para ver os inscritos, toque em **"Ver inscritos"** em qualquer campeonato — a lista abre com nome, faixa e categoria de peso
+   <sub><em>To see participants, tap "Ver inscritos" (View Roster) on any tournament — the list opens with name, belt, and weight class</em></sub>
 4. Os alunos se inscrevem por conta própria, informando a categoria de peso
    <sub><em>Students sign up themselves, entering their weight class</em></sub>
 
