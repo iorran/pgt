@@ -229,7 +229,16 @@
     },
     "locationDenied": "Location permission denied. Check-in needs your location to confirm you’re at the academy.",
     "locationDeniedHelp": "Tap the lock icon in the address bar, allow location, then try again.",
-    "locationUnavailable": "Couldn’t get your location. Turn on location services and try again."
+    "locationUnavailable": "Couldn’t get your location. Turn on location services and try again.",
+    "viewMode": "View mode",
+    "viewList": "List",
+    "viewCalendar": "Calendar",
+    "now": "Now",
+    "presentCount_zero": "No one has checked in yet",
+    "presentCount_one": "{{count}} checked in",
+    "presentCount_other": "{{count}} checked in",
+    "noClassesOnDay": "No classes on this day",
+    "openTotem": "Open kiosk"
   },
   "students": {
     "title": "Students",

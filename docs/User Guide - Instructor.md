@@ -28,6 +28,7 @@ O que fazer no dia a dia, em ordem. Cada item leva à seção com o passo a pass
 | Pais e filhos / casal | Criar família e escolher o Responsável | [Famílias](#Famílias) |
 | Toda semana | Ajustar o quadro de aulas | [Aulas](#Aulas) |
 | Antes da aula | Deixar o totem com QR code aberto | [Sistema de Check-in](#Sistema%20de%20Check-in) |
+| Durante a aula | Ver quem já fez check-in | [Aulas do Dia](#Aulas%20do%20Dia) |
 | Aluno pagou | Registrar pagamento (ou "Registrar mensalidade" na página do aluno) | [Financeiro](#Financeiro) |
 | Sino com número | Cobrar atrasados por WhatsApp/e-mail | [Notificações](#Notificações) |
 | Depois de campeonato | Aprovar resultados → ranking | [Gamificação](#Gamificação) |
@@ -479,8 +480,24 @@ Toque em **Todos** para ver todos, ou em outro filtro para filtrar. Toque em um 
 ## Aulas
 <sub><em>Classes</em></sub>
 
-A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visões **Mês**, **Semana**, **Dia** e **Agenda**, e os botões **Hoje**, **Anterior** e **Próximo**) e **Histórico de presença**.
-<sub><em>The Aulas (Classes) page has the Quadro de Aulas (Class Schedule) tab — a calendar with Mês / Semana / Dia / Agenda (Month / Week / Day / Agenda) views and Hoje / Anterior / Próximo (Today / Back / Next) buttons — and the Histórico de Presença (Attendance History) tab.</em></sub>
+A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença**. O quadro abre em **Lista**: as aulas de um dia por vez, pensado para o celular e o tablet. Se preferir ver a semana inteira, toque em **Calendário** (visões **Mês**, **Semana** e **Dia**); o aparelho lembra a sua escolha.
+<sub><em>The Aulas (Classes) page has the Quadro de Aulas (Class Schedule) and Histórico de Presença (Attendance History) tabs. The schedule opens in Lista (List): one day's classes at a time, built for phones and tablets. To see the whole week, tap Calendário (Calendar — Month / Week / Day views); the device remembers your choice.</em></sub>
+
+### Aulas do Dia
+<sub><em>Today's Classes</em></sub>
+
+![Aulas do dia](./assets/user-guide/instructor/classes-edit-delete.png)
+
+1. Menu → **Aulas**. A lista abre no dia de hoje
+   <sub><em>Menu → Aulas (Classes). The list opens on today</em></sub>
+2. Toque em um dia (**Seg** … **Dom**) para ver as aulas daquele dia, em ordem de horário
+   <sub><em>Tap a day (Mon … Sun) to see that day's classes, in time order</em></sub>
+3. Nas aulas de hoje, cada card mostra quantos alunos fizeram check-in e os nomes deles. A lista se atualiza sozinha a cada minuto
+   <sub><em>On today's classes, each card shows how many students checked in and their names. It refreshes by itself every minute</em></sub>
+4. A aula que está acontecendo ganha o selo **Agora**
+   <sub><em>The class happening now gets the Agora (Now) badge</em></sub>
+5. Toque em **"Abrir totem"** para mostrar o QR code de check-in (veja [Totem com QR Code](#Método%202:%20Totem%20com%20QR%20Code))
+   <sub><em>Tap "Abrir totem" (Open kiosk) to show the check-in QR code (see QR Code Totem)</em></sub>
 
 ### Criar uma Aula
 <sub><em>Create a Class</em></sub>
@@ -499,12 +516,10 @@ A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visõ
 ### Editar, Mover ou Excluir uma Aula
 <sub><em>Edit, Move, or Delete a Class</em></sub>
 
-![Editar e excluir aulas](./assets/user-guide/instructor/classes-edit-delete.png)
-
-- Toque em uma aula no calendário para abrir **"Editar aula"**; altere nome, tipo, dia da semana ou horários e toque em **"Salvar"**
-  <sub><em>Tap a class on the calendar to open "Editar aula" (Edit Class); change name, type, day of the week, or times, and tap "Salvar" (Save)</em></sub>
-- Para mudar o horário rapidamente, arraste a aula para outro dia/horário no calendário ("Aula reagendada")
-  <sub><em>To reschedule quickly, drag the class to another day/time on the calendar ("Aula reagendada" — Class rescheduled)</em></sub>
+- Toque em uma aula (na lista ou no calendário) para abrir **"Editar aula"**; altere nome, tipo, dia da semana ou horários e toque em **"Salvar"**
+  <sub><em>Tap a class (in the list or on the calendar) to open "Editar aula" (Edit Class); change name, type, day of the week, or times, and tap "Salvar" (Save)</em></sub>
+- No **Calendário**, você também pode arrastar a aula para outro dia/horário ("Aula reagendada")
+  <sub><em>In Calendário (Calendar) view you can also drag the class to another day/time ("Aula reagendada" — Class rescheduled)</em></sub>
 - Para excluir, no mesmo diálogo toque em **"Excluir aula"** e confirme em **"Excluir aula"** novamente. Os check-ins antigos são preservados
   <sub><em>To delete, in the same dialog tap "Excluir aula" (Delete Class) and confirm with "Excluir aula" again. Past check-ins are kept</em></sub>
 
@@ -536,8 +551,8 @@ O aluno toca em **"Check-in"** na aula, no celular. O sistema verifica se ele es
 O totem de QR Code transforma qualquer tablet em uma estação de check-in.
 <sub><em>The QR code totem turns any tablet into a check-in station.</em></sub>
 
-1. Num tablet na entrada da academia, entre com a sua conta e abra Menu → **Totem** (ou o endereço `/totem`)
-   <sub><em>On a tablet at your gym entrance, log in with your account and open Menu → Totem (Kiosk) (or the `/totem` address)</em></sub>
+1. Num tablet na entrada da academia, entre com a sua conta e abra Menu → **Totem**, o botão **"Abrir totem"** em Aulas, ou o endereço `/totem`
+   <sub><em>On a tablet at your gym entrance, log in with your account and open Menu → Totem (Kiosk), the "Abrir totem" (Open kiosk) button in Aulas, or the `/totem` address</em></sub>
 2. A página mostra os QR Codes de todas as aulas que estão acontecendo; fora do horário aparece "Nenhuma aula no momento"
    <sub><em>The page shows QR codes for all classes currently happening; outside class times it shows "Nenhuma aula no momento" (No classes right now)</em></sub>
 3. Os códigos são atualizados a cada **4 minutos**
