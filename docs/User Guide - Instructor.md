@@ -174,8 +174,8 @@ Quando um aluno entra com seu código, ele aparece como **Pendente**.
 ### Página do Aluno
 <sub><em>Student Page</em></sub>
 
-A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade**, o campo **Faixa** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
-<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card, the Faixa (Belt) field, and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
+A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade**, um cartão com **Faixa** e **Data de nascimento** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
+<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card, a card with Faixa (Belt) and Data de nascimento (Birth Date), and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
 
 ### Definir a Mensalidade
 <sub><em>Set the Monthly Fee</em></sub>
@@ -399,8 +399,8 @@ No topo há os botões **Dia / Semana / Mês**. O padrão é **Semana** (semana 
 
 ![Gráfico de aderência](./assets/user-guide/instructor/owner-aderencia-chart.png)
 
-O gráfico de barras mostra o total de check-ins por aula no período. Cada barra é uma aula ativa, da maior para a menor. Passe o mouse (ou toque) sobre uma barra para ver:
-<sub><em>The bar chart shows total check-ins per class for the period. Each bar is one active class, highest to lowest. Hover (or tap) a bar to see:</em></sub>
+O gráfico de barras horizontais mostra o total de check-ins por aula no período, com o nome da aula à esquerda. Cada barra é uma aula ativa, da maior para a menor. Passe o mouse (ou toque) sobre uma barra para ver:
+<sub><em>The horizontal bar chart shows total check-ins per class for the period, with the class name on the left. Each bar is one active class, highest to lowest. Hover (or tap) a bar to see:</em></sub>
 
 - **Total** — check-ins totais no período
   <sub><em>Total — total check-ins in the period</em></sub>

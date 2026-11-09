@@ -151,27 +151,27 @@ export default function StudentDetailPage() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card>
-          <CardContent className="pt-4 text-center">
-            <p className="arena-stat text-3xl text-primary">{checkins.length}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
+          <CardContent className="px-2 pt-4 text-center sm:px-4">
+            <p className="arena-stat text-2xl text-primary sm:text-3xl">{checkins.length}</p>
+            <p className="mt-1 text-[0.6875rem] leading-tight text-muted-foreground uppercase tracking-wider sm:text-xs">
               {t('students.totalClasses')}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-4 text-center">
-            <p className="arena-stat text-3xl text-primary">{profile?.streak?.currentStreak ?? 0}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">
+          <CardContent className="px-2 pt-4 text-center sm:px-4">
+            <p className="arena-stat text-2xl text-primary sm:text-3xl">{profile?.streak?.currentStreak ?? 0}</p>
+            <p className="mt-1 text-[0.6875rem] leading-tight text-muted-foreground uppercase tracking-wider sm:text-xs">
               {t('students.currentStreak')}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-4 text-center">
-            <p className="arena-stat text-3xl text-primary">{profile?.xp ?? 0}</p>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mt-1">XP</p>
+          <CardContent className="px-2 pt-4 text-center sm:px-4">
+            <p className="arena-stat text-2xl text-primary sm:text-3xl">{profile?.xp ?? 0}</p>
+            <p className="mt-1 text-[0.6875rem] leading-tight text-muted-foreground uppercase tracking-wider sm:text-xs">XP</p>
           </CardContent>
         </Card>
       </div>
@@ -223,14 +223,17 @@ export default function StudentDetailPage() {
         </CardContent>
       </Card>
 
-      {isOwner(user) && <BeltForm key={`${student.id}-${student.belt}`} studentId={student.id} belt={student.belt} />}
-
       {isOwner(user) && (
-        <BirthDateForm
-          key={`${student.id}-${student.dateOfBirth}`}
-          studentId={student.id}
-          dateOfBirth={student.dateOfBirth ?? null}
-        />
+        <Card>
+          <CardContent className="space-y-6 pt-4">
+            <BeltForm key={`${student.id}-${student.belt}`} studentId={student.id} belt={student.belt} />
+            <BirthDateForm
+              key={`${student.id}-${student.dateOfBirth}`}
+              studentId={student.id}
+              dateOfBirth={student.dateOfBirth ?? null}
+            />
+          </CardContent>
+        </Card>
       )}
 
       {isOwner(user) && (
