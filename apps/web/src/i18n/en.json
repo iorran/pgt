@@ -229,7 +229,9 @@
     },
     "locationDenied": "Location permission denied. Check-in needs your location to confirm you’re at the academy.",
     "locationDeniedHelp": "Tap the lock icon in the address bar, allow location, then try again.",
-    "locationUnavailable": "Couldn’t get your location. Turn on location services and try again."
+    "locationUnavailable": "Couldn’t get your location. Turn on location services and try again.",
+    "studentCount_one": "{{count}} student",
+    "studentCount_other": "{{count}} students"
   },
   "students": {
     "title": "Students",

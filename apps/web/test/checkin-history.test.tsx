@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import CheckinHistoryPage from '@/pages/classes/checkin';
@@ -62,8 +62,39 @@ describe('CheckinHistoryPage', () => {
       </QueryClientProvider>,
     );
     expect(await screen.findByRole('link', { name: 'Ana Souza' })).toHaveAttribute('href', '/students/stu-9');
-    expect(screen.getByRole('columnheader', { name: 'classes.student' })).toBeInTheDocument();
     expect(api).toHaveBeenCalledWith('/checkins/academy');
+  });
+
+  it('groups the owner history by day, then class, with a student count', async () => {
+    role = 'owner';
+    const ck = (id: string, date: string, cls: string, name: string) => ({
+      id,
+      checkedInAt: `${date}T19:00:00.000Z`,
+      date,
+      student: { id: `s-${id}`, name },
+      class: { id: cls, name: cls === 'gi' ? 'Gi Noite' : 'No-Gi', type: cls },
+    });
+    vi.mocked(api).mockResolvedValueOnce([
+      ck('1', '2026-04-23', 'gi', 'Ana'),
+      ck('2', '2026-04-23', 'gi', 'Bruno'),
+      ck('3', '2026-04-23', 'no-gi', 'Carla'),
+      ck('4', '2026-04-22', 'gi', 'Davi'),
+    ]);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter><CheckinHistoryPage /></MemoryRouter>
+      </QueryClientProvider>,
+    );
+    const days = await screen.findAllByRole('heading', { level: 2 });
+    expect(days).toHaveLength(2);
+    expect(days[0]).toHaveTextContent('23/04');
+    expect(days[1]).toHaveTextContent('22/04');
+    const giNight = screen.getAllByRole('article', { name: /Gi Noite/ });
+    expect(giNight).toHaveLength(2);
+    expect(within(giNight[0]).getByText('classes.studentCount')).toBeInTheDocument();
+    expect(within(giNight[0]).getByRole('link', { name: 'Bruno' })).toBeInTheDocument();
+    expect(within(giNight[1]).getByRole('link', { name: 'Davi' })).toBeInTheDocument();
+    expect(screen.queryByRole('table')).toBeNull();
   });
 
   it('gives the owner an empty state about students, not about themself', async () => {

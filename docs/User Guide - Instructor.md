@@ -513,8 +513,8 @@ A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visõ
 
 ![Histórico de check-ins](./assets/user-guide/instructor/checkin-history.png)
 
-Menu → **Aulas** → aba **Histórico de presença** lista os check-ins mais recentes **de todos os alunos** da academia (data, aluno, aula e tipo), do mais novo para o mais antigo. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
-<sub><em>Menu → Aulas → Histórico de Presença tab lists the latest check-ins of every student in the academy (date, student, class, and type), newest first. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
+Menu → **Aulas** → aba **Histórico de presença** mostra os check-ins mais recentes **de todos os alunos** da academia, do mais novo para o mais antigo, agrupados por **dia** e por **aula**. Cada aula mostra quantos alunos vieram e o nome de cada um. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
+<sub><em>Menu → Aulas → Histórico de Presença tab shows the latest check-ins of every student in the academy, newest first, grouped by day and by class. Each class shows how many students came and each one's name. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
 
 ## Sistema de Check-in
 <sub><em>Check-in System</em></sub>

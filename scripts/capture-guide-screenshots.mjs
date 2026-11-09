@@ -276,7 +276,7 @@ const SHOTS = [
     slug: 'checkin-history',
     role: 'instructor',
     path: '/classes/history',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: INSTRUCTOR,
     // prep: Click "Histórico de Presença" tab
   },
