@@ -46,6 +46,8 @@ export default defineConfig({
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,ico}'] },
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+        // Guide screenshots (~3 MB) load on demand in /ajuda; don't make every install download them.
+        globIgnores: ['assets/*.png'],
         target: 'esnext',
       },
     }),

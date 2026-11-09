@@ -46,6 +46,7 @@ import { Toaster } from './components/ui/sonner';
 // Lazy-loaded: recharts-heavy owner dashboard ships in its own chunk so it's
 // only fetched when an owner navigates to /owner/dashboard.
 const OwnerDashboardPage = lazy(() => import('./pages/owner/dashboard'));
+const HelpPage = lazy(() => import('./pages/help'));
 
 function RejectedView() {
   const { t } = useTranslation();
@@ -217,6 +218,14 @@ function AppRoutes() {
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/language" element={<LanguagePage />} />
+        <Route
+          path="/ajuda"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <HelpPage />
+            </Suspense>
+          }
+        />
       </Route>
       <Route path="*" element={<Navigate to={owner ? '/' : studentHome} replace />} />
     </Routes>

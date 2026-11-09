@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
 import { wasProfileChosen } from '@/lib/profile';
+import { HelpLink } from '@/components/help-link';
 
 export function StudentHeader() {
   const { t } = useTranslation();
@@ -31,6 +32,7 @@ export function StudentHeader() {
             {userName}
           </span>
         ) : null}
+        <HelpLink guide="student" className="text-white hover:bg-white/10" />
         {canSwitch && (
           <Link
             to="/perfis"
