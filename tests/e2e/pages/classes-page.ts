@@ -24,7 +24,12 @@ export class ClassesPage {
     this.saveButton = page.getByRole('button', { name: /^salvar$/i });
   }
 
+  /**
+   * Create/edit flows drive the calendar view, which is optional since the
+   * day list became the default; the choice is remembered in localStorage.
+   */
   async goto() {
+    await this.page.addInitScript(() => localStorage.setItem('pgt.classesView', 'calendar'));
     await this.page.goto('/classes');
     await expect(this.page.locator('body')).toBeVisible({ timeout: 10_000 });
   }

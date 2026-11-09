@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
+import { StaffBottomNav } from './staff-bottom-nav';
 
 export function StaffShell() {
   const { t } = useTranslation();
@@ -16,10 +17,11 @@ export function StaffShell() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
-        <main id="main" tabIndex={-1} className="flex-1 p-4 md:p-6 arena-stripes outline-none">
+        <main id="main" tabIndex={-1} className="flex-1 p-4 pb-[calc(env(safe-area-inset-bottom)+88px)] md:p-6 arena-stripes outline-none">
           <Outlet />
         </main>
       </div>
+      <StaffBottomNav />
     </div>
   );
 }

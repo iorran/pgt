@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 
@@ -95,6 +95,8 @@ describe('InstructorClassesView', () => {
     capturedProps = {};
     createProps = {};
     mockUseSession.mockReturnValue(instructorSession);
+    // These tests drive the optional calendar view.
+    localStorage.setItem('pgt.classesView', 'calendar');
     // Default: first call resolves with classes (query), subsequent ones resolve OK
     mockApi.mockResolvedValue(mockClasses as any);
     // Override the global matchMedia stub (returns false) so useClassCalendar
@@ -296,5 +298,75 @@ describe('InstructorClassesView', () => {
     await expect(createProps.onSubmit(createValues)).rejects.toThrow('boom');
     expect(toast.error).toHaveBeenCalledWith('common.genericError');
     expect(toast.success).not.toHaveBeenCalled();
+  });
+});
+
+// Day order of the list view's chips: Monday first.
+const chipIndex = (dayOfWeek: number) => (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+const todayIso = [
+  now.getFullYear(),
+  String(now.getMonth() + 1).padStart(2, '0'),
+  String(now.getDate()).padStart(2, '0'),
+].join('-');
+
+describe('InstructorClassesView — list view (default)', () => {
+  const checkins = [
+    { id: 'k1', checkedInAt: now.toISOString(), date: todayIso, student: { id: 's1', name: 'Ana Souza' }, class: { id: 'c1', name: 'Morning Gi', type: 'gi' } },
+    { id: 'k2', checkedInAt: now.toISOString(), date: '2020-01-01', student: { id: 's2', name: 'Old Timer' }, class: { id: 'c1', name: 'Morning Gi', type: 'gi' } },
+    { id: 'k3', checkedInAt: now.toISOString(), date: todayIso, student: { id: 's3', name: 'Other Class' }, class: { id: 'c2', name: 'No-Gi Night', type: 'no-gi' } },
+  ];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+    capturedProps = {};
+    mockUseSession.mockReturnValue(instructorSession);
+    mockApi.mockImplementation(async (path: string) =>
+      (path.startsWith('/checkins/academy') ? checkins : mockClasses) as any,
+    );
+  });
+
+  it('opens on today, listing only today’s classes, without the calendar', async () => {
+    renderWithProviders(<InstructorClassesView />);
+    expect(await screen.findByText('Morning Gi')).toBeInTheDocument();
+    expect(screen.queryByText('No-Gi Night')).toBeNull();
+    expect(screen.queryByTestId('class-calendar')).toBeNull();
+    const today = screen.getByRole('button', { name: `classes.days.${DAY_KEYS[now.getDay()]}` });
+    expect(today).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('switches day when a weekday chip is tapped', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<InstructorClassesView />);
+    await screen.findByText('Morning Gi');
+    const days = within(screen.getByRole('group', { name: 'classes.daysOfWeek' })).getAllByRole('button');
+    expect(days).toHaveLength(7);
+    await user.click(days[chipIndex(mockClasses[1].dayOfWeek)]);
+    expect(await screen.findByText('No-Gi Night')).toBeInTheDocument();
+    expect(screen.queryByText('Morning Gi')).toBeNull();
+  });
+
+  it('shows who checked in today on today’s class', async () => {
+    renderWithProviders(<InstructorClassesView />);
+    expect(await screen.findByText('Ana Souza')).toBeInTheDocument();
+    expect(screen.queryByText('Old Timer')).toBeNull();
+    expect(screen.queryByText('Other Class')).toBeNull();
+  });
+
+  it('tapping a class opens the edit dialog', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<InstructorClassesView />);
+    await user.click(await screen.findByRole('button', { name: /Morning Gi/ }));
+    expect(await screen.findByDisplayValue('Morning Gi')).toBeInTheDocument();
+  });
+
+  it('can switch to the calendar and remembers the choice', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<InstructorClassesView />);
+    await screen.findByText('Morning Gi');
+    await user.click(screen.getByRole('button', { name: 'classes.viewCalendar' }));
+    expect(await screen.findByTestId('class-calendar')).toBeInTheDocument();
+    expect(localStorage.getItem('pgt.classesView')).toBe('calendar');
   });
 });

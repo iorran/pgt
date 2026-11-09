@@ -21,6 +21,38 @@ test.afterEach(async () => {
  * Drag-to-reschedule is covered by unit tests (hook + mutation); e2e DnD is
  * too brittle to exercise against live library internals.
  */
+test('instructor sees today’s classes in the default day list and taps one to edit', async ({
+  browser,
+}) => {
+  const setup = await setupAcademy();
+  academy = setup.academy;
+
+  const cls = await createClass(setup.academy.id, setup.instructor.id, {
+    name: 'E2E Today Class',
+    type: 'gi',
+    dayOfWeek: new Date().getDay(),
+    startTime: '09:00',
+    endTime: '10:00',
+  });
+
+  const context = await impersonateAs(browser, setup.instructor.email);
+  try {
+    const page = await context.newPage();
+    await page.goto('/classes');
+
+    const card = page.getByRole('button', { name: new RegExp(cls.name, 'i') });
+    await expect(card).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('.rbc-calendar')).toHaveCount(0);
+
+    await card.click();
+    await expect(
+      page.getByRole('dialog').getByText(/editar aula|edit class/i),
+    ).toBeVisible({ timeout: 5_000 });
+  } finally {
+    await context.close();
+  }
+});
+
 test('instructor visits /classes, clicks an event, edit dialog opens', async ({
   browser,
 }) => {
@@ -41,6 +73,9 @@ test('instructor visits /classes, clicks an event, edit dialog opens', async ({
     const page = await context.newPage();
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/classes');
+
+    // The day list is the default; the calendar is one tap away.
+    await page.getByRole('button', { name: /^(calendário|calendar)$/i }).click();
 
     // Confirm week view is active in the RBC toolbar.
     await expect(

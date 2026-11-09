@@ -28,6 +28,7 @@ O que fazer no dia a dia, em ordem. Cada item leva à seção com o passo a pass
 | Pais e filhos / casal | Criar família e escolher o Responsável | [Famílias](#Famílias) |
 | Toda semana | Ajustar o quadro de aulas | [Aulas](#Aulas) |
 | Antes da aula | Deixar o totem com QR code aberto | [Sistema de Check-in](#Sistema%20de%20Check-in) |
+| Durante a aula | Ver quem já fez check-in | [Aulas do Dia](#Aulas%20do%20Dia) |
 | Aluno pagou | Registrar pagamento (ou "Registrar mensalidade" na página do aluno) | [Financeiro](#Financeiro) |
 | Sino com número | Cobrar atrasados por WhatsApp/e-mail | [Notificações](#Notificações) |
 | Depois de campeonato | Aprovar resultados → ranking | [Gamificação](#Gamificação) |
@@ -85,15 +86,13 @@ Esqueceu a senha? Toque em **"Esqueceu a senha?"** na tela de login para receber
 O menu tem: **Painel**, **Aulas**, **Alunos**, **Financeiro**, **Loja**, **Ranking**, **Campeonatos**, **Configurações** e **Totem**.
 <sub><em>The menu has: Painel (Dashboard), Aulas (Classes), Alunos (Students), Financeiro (Billing), Loja (Marketplace), Ranking, Campeonatos (Tournaments), Configurações (Settings), and Totem (Kiosk).</em></sub>
 
-- **No computador**: o menu fica fixo na lateral esquerda
-  <sub><em>On a computer: the menu is fixed on the left side</em></sub>
-- **No celular**: toque no botão **Menu** (☰) no canto superior esquerdo para abrir o menu; ao escolher uma página ele fecha sozinho
-  <sub><em>On a phone: tap the Menu button (☰) in the top-left corner to open the menu; it closes by itself when you pick a page</em></sub>
-- No cabeçalho ficam o **sino de notificações**, a troca de idioma **PT / EN** (a escolha fica salva no dispositivo) e o botão **"Sair"**
-  <sub><em>The header holds the notification bell, the PT / EN language switch (the choice is saved on the device), and the "Sair" (Log Out) button</em></sub>
+- **No computador e no tablet**: o menu fica fixo na lateral esquerda. No cabeçalho ficam o **sino de notificações**, a troca de idioma **PT / EN** (a escolha fica salva no dispositivo) e o botão **"Sair"**
+  <sub><em>On a computer or tablet: the menu is fixed on the left side. The header holds the notification bell, the PT / EN language switch (the choice is saved on the device), and the "Sair" (Log Out) button</em></sub>
+- **No celular**: a barra de baixo leva direto a **Painel**, **Aulas**, **Alunos** e **Financeiro**. Toque em **Mais** (☰) para o menu completo, a troca de idioma **PT / EN** e o botão **"Sair"**. O sino de notificações fica no topo
+  <sub><em>On a phone: the bottom bar goes straight to Painel, Aulas, Alunos and Financeiro. Tap Mais (More, ☰) for the full menu, the PT / EN language switch, and the "Sair" (Log Out) button. The notification bell stays at the top</em></sub>
 
-Neste guia, "Menu → X" significa abrir o item X pelo menu (lateral ou ☰).
-<sub><em>In this guide, "Menu → X" means opening item X from the menu (sidebar or ☰).</em></sub>
+Neste guia, "Menu → X" significa abrir o item X pelo menu (lateral no computador e no tablet; barra de baixo ou **Mais** no celular).
+<sub><em>In this guide, "Menu → X" means opening item X from the menu (sidebar on a computer or tablet; bottom bar or Mais on a phone).</em></sub>
 
 Valores em euro aparecem no formato de Portugal, por exemplo **45,00 €**.
 <sub><em>Euro amounts are shown Portugal-style in Portuguese, e.g. 45,00 € (€45.00 in English).</em></sub>
@@ -479,8 +478,24 @@ Toque em **Todos** para ver todos, ou em outro filtro para filtrar. Toque em um 
 ## Aulas
 <sub><em>Classes</em></sub>
 
-A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visões **Mês**, **Semana**, **Dia** e **Agenda**, e os botões **Hoje**, **Anterior** e **Próximo**) e **Histórico de presença**.
-<sub><em>The Aulas (Classes) page has the Quadro de Aulas (Class Schedule) tab — a calendar with Mês / Semana / Dia / Agenda (Month / Week / Day / Agenda) views and Hoje / Anterior / Próximo (Today / Back / Next) buttons — and the Histórico de Presença (Attendance History) tab.</em></sub>
+A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença**. O quadro abre em **Lista**: as aulas de um dia por vez, pensado para o celular e o tablet. Se preferir ver a semana inteira, toque em **Calendário** (visões **Mês**, **Semana** e **Dia**); o aparelho lembra a sua escolha.
+<sub><em>The Aulas (Classes) page has the Quadro de Aulas (Class Schedule) and Histórico de Presença (Attendance History) tabs. The schedule opens in Lista (List): one day's classes at a time, built for phones and tablets. To see the whole week, tap Calendário (Calendar — Month / Week / Day views); the device remembers your choice.</em></sub>
+
+### Aulas do Dia
+<sub><em>Today's Classes</em></sub>
+
+![Aulas do dia](./assets/user-guide/instructor/classes-edit-delete.png)
+
+1. Menu → **Aulas**. A lista abre no dia de hoje
+   <sub><em>Menu → Aulas (Classes). The list opens on today</em></sub>
+2. Toque em um dia (**Seg** … **Dom**) para ver as aulas daquele dia, em ordem de horário
+   <sub><em>Tap a day (Mon … Sun) to see that day's classes, in time order</em></sub>
+3. Nas aulas de hoje, cada card mostra quantos alunos fizeram check-in e os nomes deles. A lista se atualiza sozinha a cada minuto
+   <sub><em>On today's classes, each card shows how many students checked in and their names. It refreshes by itself every minute</em></sub>
+4. A aula que está acontecendo ganha o selo **Agora**
+   <sub><em>The class happening now gets the Agora (Now) badge</em></sub>
+5. Toque em **"Abrir totem"** para mostrar o QR code de check-in (veja [Totem com QR Code](#Método%202:%20Totem%20com%20QR%20Code))
+   <sub><em>Tap "Abrir totem" (Open kiosk) to show the check-in QR code (see QR Code Totem)</em></sub>
 
 ### Criar uma Aula
 <sub><em>Create a Class</em></sub>
@@ -499,12 +514,10 @@ A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visõ
 ### Editar, Mover ou Excluir uma Aula
 <sub><em>Edit, Move, or Delete a Class</em></sub>
 
-![Editar e excluir aulas](./assets/user-guide/instructor/classes-edit-delete.png)
-
-- Toque em uma aula no calendário para abrir **"Editar aula"**; altere nome, tipo, dia da semana ou horários e toque em **"Salvar"**
-  <sub><em>Tap a class on the calendar to open "Editar aula" (Edit Class); change name, type, day of the week, or times, and tap "Salvar" (Save)</em></sub>
-- Para mudar o horário rapidamente, arraste a aula para outro dia/horário no calendário ("Aula reagendada")
-  <sub><em>To reschedule quickly, drag the class to another day/time on the calendar ("Aula reagendada" — Class rescheduled)</em></sub>
+- Toque em uma aula (na lista ou no calendário) para abrir **"Editar aula"**; altere nome, tipo, dia da semana ou horários e toque em **"Salvar"**
+  <sub><em>Tap a class (in the list or on the calendar) to open "Editar aula" (Edit Class); change name, type, day of the week, or times, and tap "Salvar" (Save)</em></sub>
+- No **Calendário**, você também pode arrastar a aula para outro dia/horário ("Aula reagendada")
+  <sub><em>In Calendário (Calendar) view you can also drag the class to another day/time ("Aula reagendada" — Class rescheduled)</em></sub>
 - Para excluir, no mesmo diálogo toque em **"Excluir aula"** e confirme em **"Excluir aula"** novamente. Os check-ins antigos são preservados
   <sub><em>To delete, in the same dialog tap "Excluir aula" (Delete Class) and confirm with "Excluir aula" again. Past check-ins are kept</em></sub>
 
@@ -513,8 +526,8 @@ A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visõ
 
 ![Histórico de check-ins](./assets/user-guide/instructor/checkin-history.png)
 
-Menu → **Aulas** → aba **Histórico de presença** lista os check-ins mais recentes **de todos os alunos** da academia (data, aluno, aula e tipo), do mais novo para o mais antigo. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
-<sub><em>Menu → Aulas → Histórico de Presença tab lists the latest check-ins of every student in the academy (date, student, class, and type), newest first. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
+Menu → **Aulas** → aba **Histórico de presença** mostra os check-ins mais recentes **de todos os alunos** da academia, do mais novo para o mais antigo, agrupados por **dia** e por **aula**. Cada aula mostra quantos alunos vieram e o nome de cada um. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
+<sub><em>Menu → Aulas → Histórico de Presença tab shows the latest check-ins of every student in the academy, newest first, grouped by day and by class. Each class shows how many students came and each one's name. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
 
 ## Sistema de Check-in
 <sub><em>Check-in System</em></sub>
@@ -536,8 +549,8 @@ O aluno toca em **"Check-in"** na aula, no celular. O sistema verifica se ele es
 O totem de QR Code transforma qualquer tablet em uma estação de check-in.
 <sub><em>The QR code totem turns any tablet into a check-in station.</em></sub>
 
-1. Num tablet na entrada da academia, entre com a sua conta e abra Menu → **Totem** (ou o endereço `/totem`)
-   <sub><em>On a tablet at your gym entrance, log in with your account and open Menu → Totem (Kiosk) (or the `/totem` address)</em></sub>
+1. Num tablet na entrada da academia, entre com a sua conta e abra Menu → **Totem**, o botão **"Abrir totem"** em Aulas, ou o endereço `/totem`
+   <sub><em>On a tablet at your gym entrance, log in with your account and open Menu → Totem (Kiosk), the "Abrir totem" (Open kiosk) button in Aulas, or the `/totem` address</em></sub>
 2. A página mostra os QR Codes de todas as aulas que estão acontecendo; fora do horário aparece "Nenhuma aula no momento"
    <sub><em>The page shows QR codes for all classes currently happening; outside class times it shows "Nenhuma aula no momento" (No classes right now)</em></sub>
 3. Os códigos são atualizados a cada **4 minutos**

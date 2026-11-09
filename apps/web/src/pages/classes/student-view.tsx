@@ -10,16 +10,7 @@ import { PageLoader } from '@/components/page-loader';
 import { Button } from '@/components/ui/button';
 import { TabsNav } from '@/components/tabs-nav';
 import { FirstCheckinNotice } from '@/components/first-checkin-notice';
-import type { ClassItem, CalendarEvent } from '@/lib/schedule';
-
-function isActiveNow(cls: ClassItem): boolean {
-  const now = new Date();
-  if (cls.dayOfWeek !== now.getDay()) return false;
-  const [sh, sm] = cls.startTime.split(':').map(Number);
-  const [eh, em] = cls.endTime.split(':').map(Number);
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  return nowMin >= sh * 60 + sm - 15 && nowMin <= eh * 60 + em + 60;
-}
+import { isActiveNow, type ClassItem, type CalendarEvent } from '@/lib/schedule';
 
 export function StudentClassesView() {
   const { t } = useTranslation();

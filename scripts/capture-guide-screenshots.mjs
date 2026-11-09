@@ -276,7 +276,7 @@ const SHOTS = [
     slug: 'checkin-history',
     role: 'instructor',
     path: '/classes/history',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: INSTRUCTOR,
     // prep: Click "Histórico de Presença" tab
   },
@@ -325,9 +325,9 @@ const SHOTS = [
     slug: 'classes-edit-delete',
     role: 'instructor',
     path: '/classes',
-    viewport: 'desktop',
+    viewport: 'mobile',
     login: INSTRUCTOR,
-    // prep: none — class cards with pencil (edit) and trash (delete) icon buttons
+    // prep: none — default list view: weekday chips, today's class cards with check-in counts
   },
 
   // ── Families (ADR 0004) ─────────────────────────────────────────────────────
