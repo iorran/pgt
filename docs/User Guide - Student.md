@@ -283,8 +283,6 @@ A aba **Perfil** reúne tudo que é seu.
   <sub><em>**Tournaments** — tournaments and sign-ups.</em></sub>
 - **Idioma** — escolha **Português** ou **English**. O app muda na hora e a escolha fica salva neste dispositivo.
   <sub><em>**Language** — choose **Português** or **English**. The app switches right away and the choice is saved on this device.</em></sub>
-- **Configurações** — página de configurações (por enquanto sem opções para alunos).
-  <sub><em>**Settings** — settings page (no options for students yet).</em></sub>
 - **Sair** — botão vermelho no fim da página; encerra a sessão neste dispositivo.
   <sub><em>**Sign out** — red button at the bottom of the page; ends the session on this device.</em></sub>
 

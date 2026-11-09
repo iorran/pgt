@@ -28,7 +28,7 @@ O que fazer no dia a dia, em ordem. Cada item leva à seção com o passo a pass
 | Pais e filhos / casal | Criar família e escolher o Responsável | [Famílias](#Famílias) |
 | Toda semana | Ajustar o quadro de aulas | [Aulas](#Aulas) |
 | Antes da aula | Deixar o totem com QR code aberto | [Sistema de Check-in](#Sistema%20de%20Check-in) |
-| Aluno pagou | Registrar pagamento (ou "Pagar mês atual") | [Financeiro](#Financeiro) |
+| Aluno pagou | Registrar pagamento (ou "Registrar mensalidade" na página do aluno) | [Financeiro](#Financeiro) |
 | Sino com número | Cobrar atrasados por WhatsApp/e-mail | [Notificações](#Notificações) |
 | Depois de campeonato | Aprovar resultados → ranking | [Gamificação](#Gamificação) |
 
@@ -196,11 +196,11 @@ Não existem planos: cada aluno tem a sua própria **Mensalidade**, digitada por
 > Os valores sugeridos são só atalhos (1 modalidade 45 €, 2 modalidades 65 €, trânsito livre 60 €, kids 35 €). Descontos são simplesmente uma mensalidade menor. Quando um aluno recebe mensalidade pela primeira vez, a cobrança começa no mês seguinte.
 > <sub><em>Suggested amounts are only shortcuts (1 modality €45, 2 modalities €65, open access €60, kids €35). Discounts are simply a lower Monthly Fee. When a student gets a Monthly Fee for the first time, billing starts the following month.</em></sub>
 
-### Pagar o Mês Atual
-<sub><em>Pay the Current Month</em></sub>
+### Registrar Mensalidade
+<sub><em>Record the Monthly Fee</em></sub>
 
-Quando o aluno tem mensalidade, o botão **"Pagar mês atual"** aparece no cartão **Mensalidade**. Toque nele e confirme em **"Confirmar"** ("Registrar o pagamento do mês atual de …?") para registrar o mês corrente com o valor da mensalidade, sem sair da página.
-<sub><em>When the student has a Monthly Fee, the "Pagar mês atual" (Pay Current Month) button appears on the Mensalidade card. Tap it and confirm with "Confirmar" ("Record this month's payment for …?") to record the current month at the Monthly Fee, without leaving the page.</em></sub>
+Quando o aluno tem mensalidade, o botão **"Registrar mensalidade"** aparece no cartão **Mensalidade**. Toque nele e confirme em **"Confirmar"** para registrar, com o valor da mensalidade e sem sair da página, o **mês em aberto mais antigo** — ou o próximo mês, se o aluno estiver em dia. Meses isentos são pulados.
+<sub><em>When the student has a Monthly Fee, the "Registrar mensalidade" (Record monthly fee) button appears on the Mensalidade card. Tap it and confirm with "Confirmar" to record, at the Monthly Fee and without leaving the page, the oldest unpaid month — or the next month if the student is up to date. Waived months are skipped.</em></sub>
 
 ### Mudar a Faixa
 <sub><em>Change the Belt</em></sub>
@@ -215,6 +215,12 @@ Para registrar uma graduação, abaixo do cartão **Mensalidade**:
 
 A faixa define em qual ranking o aluno aparece (**Adultos** ou **Kids**) — veja **Gamificação → Categorias: Adultos e Kids**.
 <sub><em>The belt decides which ranking the student appears in (Adultos or Kids) — see Gamificação → Categories: Adults and Kids.</em></sub>
+
+### Data de Nascimento
+<sub><em>Date of Birth</em></sub>
+
+Logo abaixo da faixa, preencha **Data de nascimento** e toque em **"Salvar data"** — aparece "Data de nascimento atualizada". Para apagar, esvazie o campo e salve. Na faixa branca, a data decide o ranking: **Kids** até 15 anos, **Adultos** a partir dos 16.
+<sub><em>Right below the belt, fill in Data de nascimento (Date of birth) and tap "Salvar data" (Save date) — "Data de nascimento atualizada" (Date of birth updated) appears. To clear it, empty the field and save. For a white belt, the date decides the ranking: Kids up to 15, Adultos from 16.</em></sub>
 
 ### Treino: Modalidades e Observação
 <sub><em>Training: Modalities and Note</em></sub>
@@ -507,8 +513,8 @@ A página **Aulas** tem as abas **Quadro de aulas** (um calendário com as visõ
 
 ![Histórico de check-ins](./assets/user-guide/instructor/checkin-history.png)
 
-Menu → **Aulas** → aba **Histórico de presença** lista os check-ins **da sua própria conta** (data, aula e tipo). Para ver a presença dos alunos, use o [Painel da Academia](#Painel%20da%20Academia).
-<sub><em>Menu → Aulas → Histórico de Presença tab lists your own account's check-ins (date, class, and type). To see student attendance, use the Academy Dashboard.</em></sub>
+Menu → **Aulas** → aba **Histórico de presença** lista os check-ins mais recentes **de todos os alunos** da academia (data, aluno, aula e tipo), do mais novo para o mais antigo. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
+<sub><em>Menu → Aulas → Histórico de Presença tab lists the latest check-ins of every student in the academy (date, student, class, and type), newest first. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
 
 ## Sistema de Check-in
 <sub><em>Check-in System</em></sub>
@@ -586,14 +592,14 @@ A página **Financeiro** tem as abas **Inadimplentes** e **Pagamentos**. O valor
 Em cada cartão de aluno:
 <sub><em>On each student card:</em></sub>
 
-- **"Registrar pagamento"** — pagamento rápido: registra na hora o **mês atual** com o valor da mensalidade do aluno
-  <sub><em>"Registrar pagamento" (Record Payment) — quick pay: immediately records the current month at the student's Monthly Fee</em></sub>
+- **"Registrar pagamento"** — pagamento rápido: registra na hora o **mês em aberto mais antigo** com o valor da mensalidade do aluno
+  <sub><em>"Registrar pagamento" (Record Payment) — quick pay: immediately records the oldest unpaid month at the student's Monthly Fee</em></sub>
 - **WhatsApp** — abre uma conversa com o aluno (só aparece se ele tiver telefone)
   <sub><em>WhatsApp — opens a chat with the student (only shown when they have a phone number)</em></sub>
 
 > [!note]
-> O pagamento rápido cobre só o mês atual. Para pagar um mês anterior, use a aba **Pagamentos** e escolha o **Mês de referência**.
-> <sub><em>Quick pay covers only the current month. To pay an earlier month, use the Pagamentos tab and pick the Mês Referência (Reference Month).</em></sub>
+> O pagamento rápido cobre um mês por toque, sempre o mais antigo em aberto. Para escolher outro mês ou outro valor, use a aba **Pagamentos** e escolha o **Mês de referência**.
+> <sub><em>Quick pay covers one month per tap, always the oldest unpaid one. To pick a different month or amount, use the Pagamentos tab and pick the Mês Referência (Reference Month).</em></sub>
 
 ### Pagamento da Família
 <sub><em>Family Payment</em></sub>

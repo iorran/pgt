@@ -270,6 +270,7 @@ describe('logins', () => {
 describe('billing mail and contact go to the Responsible', () => {
   it('overdue notify for a Dependent emails the Responsible', async () => {
     const { owner, paula, alice, as, api } = await setup();
+    await testDb.insert(schema.studentMembership).values({ studentId: alice.id, monthlyFee: '35.00', startDate: '2020-01-01', dueDay: 1 });
     const spy = vi.spyOn(emailService, 'sendOverduePayment').mockResolvedValue();
     const res = await api('POST', `/api/payments/overdue/${alice.id}/notify`, as(owner));
     expect(res.statusCode).toBe(200);

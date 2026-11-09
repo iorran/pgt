@@ -78,15 +78,29 @@ describe('familyBilling', () => {
     const members = [member('bia', '35.00'), member('leo', '35.00', { paid: ['2026-08'] })];
     const billing = familyBilling(null, members, today);
     expect(billing.suggestedMonths).toEqual(['2026-08', '2026-09']);
-    expect(billing.suggestedAmount).toBe('140.00');
+    expect(billing.suggestedAmount).toBe('105.00');
     expect(billing.owedMonths[0]).toEqual({
       month: '2026-08',
-      fee: '70.00',
+      fee: '35.00',
       members: [
         { studentId: 'bia', status: 'owed' },
         { studentId: 'leo', status: 'paid' },
       ],
     });
+  });
+  it('charges a partly paid month only for the members who still owe it', () => {
+    const members = [member('bia', '35.00'), member('leo', '45.00', { paid: ['2026-08'] })];
+    const billing = familyBilling(null, members, today);
+    expect(billing.owedMonths.map((o) => o.fee)).toEqual(['35.00', '80.00']);
+    const split = splitFamilyPayment(billing.suggestedAmount, [
+      { month: '2026-08', members: [{ studentId: 'bia', fee: '35.00' }] },
+      { month: '2026-09', members: [{ studentId: 'bia', fee: '35.00' }, { studentId: 'leo', fee: '45.00' }] },
+    ]);
+    expect(split.map((r) => r.amount)).toEqual(['35.00', '35.00', '45.00']);
+  });
+  it('keeps a Family Agreed Price for a partly paid month', () => {
+    const members = [member('bia', '35.00'), member('leo', '35.00', { paid: ['2026-08'] })];
+    expect(familyBilling('60.00', members, today).owedMonths[0].fee).toBe('60.00');
   });
   it('is empty when nobody owes', () => {
     const billing = familyBilling(null, [member('a', '35.00', { paid: ['2026-08', '2026-09'] })], today);

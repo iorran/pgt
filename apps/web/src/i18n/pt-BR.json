@@ -126,6 +126,8 @@
     "noClasses": "Nenhuma aula cadastrada ainda",
     "classesCreated": "Aulas criadas",
     "noCheckins": "Você ainda não tem presenças registradas",
+    "noAcademyCheckins": "Nenhum aluno fez check-in ainda",
+    "student": "Aluno",
     "viewSchedule": "Ver quadro de aulas",
     "moveSuccess": "Aula reagendada",
     "days": {
@@ -152,8 +154,8 @@
     "paymentHistory": "Histórico de pagamentos",
     "totalClasses": "Total de aulas",
     "currentStreak": "Sequência atual",
-    "payCurrentMonth": "Pagar mês atual",
-    "payConfirm": "Registrar o pagamento do mês atual de {{name}}?",
+    "payMonth": "Registrar mensalidade",
+    "payConfirm": "Registrar a mensalidade de {{name}}? Vale para o mês em aberto mais antigo.",
     "paySuccess": "Pagamento registrado",
     "showMore": "Mostrar mais",
     "count_one": "{{count}} aluno",
@@ -178,6 +180,12 @@
     "beltForm": {
       "save": "Salvar faixa",
       "saved": "Faixa atualizada"
+    },
+    "birthDate": {
+      "label": "Data de nascimento",
+      "save": "Salvar data",
+      "saved": "Data de nascimento atualizada",
+      "hint": "Na faixa branca, define o ranking: Kids até 15 anos, Adultos a partir dos 16."
     }
   },
   "billing": {

@@ -90,3 +90,28 @@ describe('becoming a Dependent ends existing logins (ADR 0004)', () => {
     expect(r.familyId).toBe(fam.id);
   });
 });
+
+describe('class PUT only writes editable fields', () => {
+  async function setup() {
+    const academy = await createTestAcademy();
+    const owner = await createTestOwner(academy.id);
+    const other = await createTestOwner((await createTestAcademy()).id);
+    return { academy, owner, other };
+  }
+
+  it('class: keeps instructorId, edits the schedule', async () => {
+    const { academy, owner, other } = await setup();
+    const cls = await createTestClass(academy.id, { instructorId: owner.id });
+    const res = await call('PUT', `/api/classes/${cls.id}`, owner, { instructorId: other.id, startTime: '20:00', name: 'Gi noite' });
+    expect(res.statusCode).toBe(200);
+    const [row] = await testDb.select().from(schema.bjjClass).where(eq(schema.bjjClass.id, cls.id));
+    expect(row).toMatchObject({ instructorId: owner.id, startTime: '20:00:00', name: 'Gi noite' });
+  });
+
+
+  it('class: 400 when nothing editable is sent', async () => {
+    const { academy, owner, other } = await setup();
+    const cls = await createTestClass(academy.id, { instructorId: owner.id });
+    expect((await call('PUT', `/api/classes/${cls.id}`, owner, { instructorId: other.id })).statusCode).toBe(400);
+  });
+});

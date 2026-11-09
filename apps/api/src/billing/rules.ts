@@ -57,6 +57,20 @@ export function owedMonths(member: MemberBilling, today: Date): string[] {
   return owed;
 }
 
+// Month a one-tap payment settles: the oldest owed month, else the first unpaid, unwaived month from now on.
+export function monthToPay(member: MemberBilling, today: Date): string {
+  const owed = owedMonths(member, today);
+  if (owed.length > 0) {
+    return owed[0];
+  }
+  const start = member.membership?.startDate.slice(0, 7) ?? '';
+  let month = monthKey(today) > start ? monthKey(today) : start;
+  while (member.paid.has(month) || member.waived.has(month)) {
+    month = nextMonth(month);
+  }
+  return month;
+}
+
 export function daysOverdue(month: string, dueDay: number, today: Date): number {
   const [y, m] = month.split('-').map(Number);
   const dueDate = new Date(y, m - 1, dueDay);
@@ -94,9 +108,10 @@ export function familyFee(agreedPrice: string | null, members: MemberBilling[], 
 
 export function familyBilling(agreedPrice: string | null, members: MemberBilling[], today: Date) {
   const months = [...new Set(members.flatMap((m) => owedMonths(m, today)))].sort();
+  // A partly paid month charges only the members who still owe it (the Family Payment split charges no one else).
   const owed = months.map((month) => ({
     month,
-    fee: familyFee(agreedPrice, members, month),
+    fee: familyFee(agreedPrice, members.filter((m) => memberStatus(m, month) === 'owed'), month),
     members: members.map((m) => ({ studentId: m.studentId, status: memberStatus(m, month) })),
   }));
   return {

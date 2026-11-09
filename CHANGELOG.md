@@ -1,3 +1,29 @@
+# [1.18.0](https://github.com/iorran/pgt/compare/v1.17.0...v1.18.0) (2026-11-08)
+
+
+### Bug Fixes
+
+* **api:** class update writes only schedule fields ([c7a7a33](https://github.com/iorran/pgt/commit/c7a7a3304c0f29181bc6af70c56b68ed33d50087))
+* **api:** enforce approval, scope family members to their academy, trim leaderboard ([e115b61](https://github.com/iorran/pgt/commit/e115b6112be0e45541f0419dd72a32b5f26d3eb3))
+* **api:** family billing charges only unpaid members of a partly paid month ([a2801de](https://github.com/iorran/pgt/commit/a2801de5d599d6faea0b7324157155ba361d3671))
+* **api:** overdue email counts days from the oldest owed month ([51dc90e](https://github.com/iorran/pgt/commit/51dc90e7317ea206bd36b467fda859e64d627c32))
+* **api:** quick pay settles the oldest owed month ([4dcd7ca](https://github.com/iorran/pgt/commit/4dcd7caebbad1264a13c49d1dc2cebf8e9b6cab1))
+* **api:** require check-in proof, escape email names, end Dependent sessions ([2914a10](https://github.com/iorran/pgt/commit/2914a10cbff586d12713f945489de6eb09538083))
+* **api:** trusted client IP for auth rate limits; billing state per academy ([8d2e73c](https://github.com/iorran/pgt/commit/8d2e73c5022abfa25c1a8430ef4345f71508ff95))
+* **auth:** make role, academy and status server-assigned only ([0e8c890](https://github.com/iorran/pgt/commit/0e8c890a9d488f2ca4dcfea9eb7f78b7c5ead3a0))
+* **web:** hide the empty Configurações row from students ([2e557e5](https://github.com/iorran/pgt/commit/2e557e5eeaa81a73dcc6782f397ec2892bdfec79))
+* **web:** interface audit — accessibility, layout, contrast, copy ([d4fee21](https://github.com/iorran/pgt/commit/d4fee210bce3e55c6c42232c74de73f170a88abf))
+
+
+### Features
+
+* **api:** family Responsible, acting as Dependents, profiles ([863e0ae](https://github.com/iorran/pgt/commit/863e0ae8f769fed72c8681b32541a54255675675))
+* **api:** import the reviewed roster with one login per Family ([78790c0](https://github.com/iorran/pgt/commit/78790c0ca6991245113f7aaf3b2a6271e6367d26))
+* **checkins:** owner's Histórico de presença lists students' check-ins ([e0030e2](https://github.com/iorran/pgt/commit/e0030e2983897f01247c05cafccab7e83089376d))
+* **students:** owner sets a student's date of birth ([8cce2aa](https://github.com/iorran/pgt/commit/8cce2aa052d31a01e89a329b505047fc44a73aa9))
+* **web:** password visibility toggle and higher-contrast muted text ([e3603a1](https://github.com/iorran/pgt/commit/e3603a17577b0887539d36e82ebaee2c21b791aa)), closes [#888](https://github.com/iorran/pgt/issues/888) [#a3a3a3](https://github.com/iorran/pgt/issues/a3a3a3)
+* **web:** profile picker, acting as Dependents, Responsible in family dialog ([99a5628](https://github.com/iorran/pgt/commit/99a562846dff40a165a12d558b8154fd0dd2a06c))
+
 # [1.17.0](https://github.com/iorran/pgt/compare/v1.16.0...v1.17.0) (2026-09-27)
 
 

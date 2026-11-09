@@ -48,6 +48,7 @@ interface Student {
   monthlyFee?: string | null;
   modalities?: Modality[];
   trainingNote?: string | null;
+  dateOfBirth?: string | null;
 }
 
 interface Modality {
@@ -203,11 +204,11 @@ export default function StudentDetailPage() {
           {isOwner(user) && student.monthlyFee != null && (
             <Dialog open={payConfirmOpen} onOpenChange={setPayConfirmOpen}>
               <DialogTrigger render={<Button variant="outline" className="w-full sm:w-auto" />}>
-                {t('students.payCurrentMonth')}
+                {t('students.payMonth')}
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{t('students.payCurrentMonth')}</DialogTitle>
+                  <DialogTitle>{t('students.payMonth')}</DialogTitle>
                   <DialogDescription>{t('students.payConfirm', { name: student.name })}</DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
@@ -223,6 +224,14 @@ export default function StudentDetailPage() {
       </Card>
 
       {isOwner(user) && <BeltForm key={`${student.id}-${student.belt}`} studentId={student.id} belt={student.belt} />}
+
+      {isOwner(user) && (
+        <BirthDateForm
+          key={`${student.id}-${student.dateOfBirth}`}
+          studentId={student.id}
+          dateOfBirth={student.dateOfBirth ?? null}
+        />
+      )}
 
       {isOwner(user) && (
         <TrainingCard
@@ -475,6 +484,54 @@ function BeltForm({ studentId, belt }: { studentId: string; belt: string }) {
       <Button type="submit" variant="outline" loading={mutation.isPending}>
         {t('students.beltForm.save')}
       </Button>
+    </form>
+  );
+}
+
+function BirthDateForm({ studentId, dateOfBirth }: { studentId: string; dateOfBirth: string | null }) {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const [value, setValue] = useState(dateOfBirth?.slice(0, 10) ?? '');
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      api(`/students/${studentId}/birth-date`, {
+        method: 'PUT',
+        body: JSON.stringify({ dateOfBirth: value || null }),
+      }),
+    meta: { successMessage: t('students.birthDate.saved') },
+    onSuccess: () => {
+      for (const key of ['student', 'students', 'leaderboard']) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
+    },
+  });
+
+  return (
+    <form
+      className="flex flex-wrap items-end gap-2"
+      onSubmit={e => {
+        e.preventDefault();
+        mutation.mutate();
+      }}
+    >
+      <div className="space-y-2">
+        <Label htmlFor="student-birth-date">{t('students.birthDate.label')}</Label>
+        <Input
+          id="student-birth-date"
+          type="date"
+          value={value}
+          max={new Date().toISOString().slice(0, 10)}
+          onChange={e => setValue(e.target.value)}
+          aria-describedby="student-birth-date-hint"
+        />
+      </div>
+      <Button type="submit" variant="outline" loading={mutation.isPending}>
+        {t('students.birthDate.save')}
+      </Button>
+      <p id="student-birth-date-hint" className="w-full text-xs text-muted-foreground">
+        {t('students.birthDate.hint')}
+      </p>
     </form>
   );
 }

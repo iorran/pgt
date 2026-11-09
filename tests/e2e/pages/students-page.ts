@@ -79,19 +79,19 @@ export async function confirmDialog(page: Page, name: RegExp = /^confirmar$/i) {
 
 export class StudentDetailPage {
   readonly page: Page;
-  readonly payCurrentMonthButton: Locator;
+  readonly payMonthButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    // t('students.payCurrentMonth') = "Pagar Mês Atual"
-    this.payCurrentMonthButton = page.getByRole('button', {
-      name: /pagar.*mês.*atual/i,
+    // t('students.payMonth') = "Registrar mensalidade"
+    this.payMonthButton = page.getByRole('button', {
+      name: /registrar mensalidade/i,
     });
   }
 
-  /** Quick-pay the current month at the student's Monthly Fee (confirmed). */
-  async payCurrentMonth() {
-    await this.payCurrentMonthButton.click();
+  /** Quick-pay the oldest unpaid month at the student's Monthly Fee (confirmed). */
+  async payMonth() {
+    await this.payMonthButton.click();
     await confirmDialog(this.page);
   }
 
