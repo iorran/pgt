@@ -8,3 +8,11 @@ dist/
 test-results/
 playwright-report/
 apps/api/seed-data/
+
+# Local tool state
+docs/.obsidian/workspace.json
+.playwright-mcp/
+.superpowers/
+.agents/
+.mcp.json
+skills-lock.json
