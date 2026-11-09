@@ -94,3 +94,13 @@ export function classesToCalendarEvents(
   }
   return events;
 }
+
+// Check-in window: from 15 min before start until 1 h after the end.
+export function isActiveNow(cls: ClassItem): boolean {
+  const now = new Date();
+  if (cls.dayOfWeek !== now.getDay()) return false;
+  const [sh, sm] = cls.startTime.split(':').map(Number);
+  const [eh, em] = cls.endTime.split(':').map(Number);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  return nowMin >= sh * 60 + sm - 15 && nowMin <= eh * 60 + em + 60;
+}

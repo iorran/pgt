@@ -7,15 +7,29 @@ import { errorKey } from '@/lib/api-errors';
 import { useApiQuery } from '@/hooks/use-api';
 import { useClassCalendar } from '@/hooks/use-class-calendar';
 import { ClassCalendar } from '@/components/schedule/class-calendar';
+import { ClassDayList } from '@/components/schedule/class-day-list';
 import { ClassCreateDialog } from '@/components/schedule/class-create-dialog';
 import { ClassEditDialog } from '@/components/schedule/class-edit-dialog';
 import { PageLoader } from '@/components/page-loader';
 import { TabsNav } from '@/components/tabs-nav';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { toast } from '@/lib/toast';
-import { CalendarPlus } from 'lucide-react';
+import { CalendarDays, CalendarPlus, List, QrCode } from 'lucide-react';
 import type { ClassItem } from '@/lib/schedule';
 import { EmptyState } from '@/components/empty-state';
+
+type ViewMode = 'list' | 'calendar';
+const VIEW_KEY = 'pgt.classesView';
+
+// Remembered per device; storage can throw in private mode.
+function readViewMode(): ViewMode {
+  try {
+    return localStorage.getItem(VIEW_KEY) === 'calendar' ? 'calendar' : 'list';
+  } catch {
+    return 'list';
+  }
+}
 
 export function InstructorClassesView() {
   const { t } = useTranslation();
@@ -24,6 +38,16 @@ export function InstructorClassesView() {
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<ClassItem | null>(null);
+  const [mode, setModeState] = useState<ViewMode>(readViewMode);
+
+  function setMode(next: ViewMode) {
+    setModeState(next);
+    try {
+      localStorage.setItem(VIEW_KEY, next);
+    } catch {
+      // per-device convenience only
+    }
+  }
 
   const { data: classes = [], isLoading } = useApiQuery<ClassItem[]>(
     ['classes', user?.academyId],
@@ -122,10 +146,15 @@ export function InstructorClassesView() {
           { to: '/classes/history', label: t('classes.checkinHistory') },
         ]}
       />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-muted-foreground">
           {t('classes.classCount', { count: classes.length })}
         </span>
+        <div className="flex items-center gap-2">
+          <Link to="/totem" className={buttonVariants({ variant: 'outline' })}>
+            <QrCode aria-hidden />
+            {t('classes.openTotem')}
+          </Link>
         <ClassCreateDialog
           open={createOpen}
           onOpenChange={setCreateOpen}
@@ -158,6 +187,7 @@ export function InstructorClassesView() {
             setCreateOpen(false);
           }}
         />
+        </div>
       </div>
 
       {classes.length === 0 && (
@@ -170,15 +200,43 @@ export function InstructorClassesView() {
         />
       )}
 
-      <ClassCalendar
-        events={calendar.events}
-        view={calendar.view}
-        date={calendar.date}
-        onViewChange={calendar.setView}
-        onDateChange={calendar.setDate}
-        onEventDrop={calendar.onEventDrop}
-        onEventClick={calendar.onEventClick}
-      />
+      {classes.length > 0 && (
+        <div role="group" aria-label={t('classes.viewMode')} className="inline-flex rounded-sm border border-border p-0.5">
+          {([
+            ['list', List, 'classes.viewList'],
+            ['calendar', CalendarDays, 'classes.viewCalendar'],
+          ] as const).map(([value, Icon, label]) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={mode === value}
+              onClick={() => setMode(value)}
+              className={`inline-flex min-h-11 items-center gap-2 rounded-sm px-3 font-heading text-sm uppercase tracking-wide transition-colors ${
+                mode === value ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className="size-4" aria-hidden />
+              {t(label)}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {classes.length > 0 && mode === 'list' && (
+        <ClassDayList classes={classes} onSelect={setEditing} />
+      )}
+
+      {mode === 'calendar' && (
+        <ClassCalendar
+          events={calendar.events}
+          view={calendar.view}
+          date={calendar.date}
+          onViewChange={calendar.setView}
+          onDateChange={calendar.setDate}
+          onEventDrop={calendar.onEventDrop}
+          onEventClick={calendar.onEventClick}
+        />
+      )}
 
       <ClassEditDialog
         cls={editing}

@@ -229,7 +229,16 @@
     },
     "locationDenied": "Permissão de localização negada. O check-in precisa da sua localização para confirmar que você está na academia.",
     "locationDeniedHelp": "Toque no ícone de cadeado na barra de endereço, permita a localização e tente novamente.",
-    "locationUnavailable": "Não foi possível obter sua localização. Ative a localização do aparelho e tente novamente."
+    "locationUnavailable": "Não foi possível obter sua localização. Ative a localização do aparelho e tente novamente.",
+    "viewMode": "Modo de exibição",
+    "viewList": "Lista",
+    "viewCalendar": "Calendário",
+    "now": "Agora",
+    "presentCount_zero": "Ninguém fez check-in ainda",
+    "presentCount_one": "{{count}} presente",
+    "presentCount_other": "{{count}} presentes",
+    "noClassesOnDay": "Nenhuma aula neste dia",
+    "openTotem": "Abrir totem"
   },
   "students": {
     "title": "Alunos",
