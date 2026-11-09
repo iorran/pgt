@@ -86,15 +86,13 @@ Esqueceu a senha? Toque em **"Esqueceu a senha?"** na tela de login para receber
 O menu tem: **Painel**, **Aulas**, **Alunos**, **Financeiro**, **Loja**, **Ranking**, **Campeonatos**, **Configurações** e **Totem**.
 <sub><em>The menu has: Painel (Dashboard), Aulas (Classes), Alunos (Students), Financeiro (Billing), Loja (Marketplace), Ranking, Campeonatos (Tournaments), Configurações (Settings), and Totem (Kiosk).</em></sub>
 
-- **No computador**: o menu fica fixo na lateral esquerda
-  <sub><em>On a computer: the menu is fixed on the left side</em></sub>
-- **No celular**: toque no botão **Menu** (☰) no canto superior esquerdo para abrir o menu; ao escolher uma página ele fecha sozinho
-  <sub><em>On a phone: tap the Menu button (☰) in the top-left corner to open the menu; it closes by itself when you pick a page</em></sub>
-- No cabeçalho ficam o **sino de notificações**, a troca de idioma **PT / EN** (a escolha fica salva no dispositivo) e o botão **"Sair"**
-  <sub><em>The header holds the notification bell, the PT / EN language switch (the choice is saved on the device), and the "Sair" (Log Out) button</em></sub>
+- **No computador e no tablet**: o menu fica fixo na lateral esquerda. No cabeçalho ficam o **sino de notificações**, a troca de idioma **PT / EN** (a escolha fica salva no dispositivo) e o botão **"Sair"**
+  <sub><em>On a computer or tablet: the menu is fixed on the left side. The header holds the notification bell, the PT / EN language switch (the choice is saved on the device), and the "Sair" (Log Out) button</em></sub>
+- **No celular**: a barra de baixo leva direto a **Painel**, **Aulas**, **Alunos** e **Financeiro**. Toque em **Mais** (☰) para o menu completo, a troca de idioma **PT / EN** e o botão **"Sair"**. O sino de notificações fica no topo
+  <sub><em>On a phone: the bottom bar goes straight to Painel, Aulas, Alunos and Financeiro. Tap Mais (More, ☰) for the full menu, the PT / EN language switch, and the "Sair" (Log Out) button. The notification bell stays at the top</em></sub>
 
-Neste guia, "Menu → X" significa abrir o item X pelo menu (lateral ou ☰).
-<sub><em>In this guide, "Menu → X" means opening item X from the menu (sidebar or ☰).</em></sub>
+Neste guia, "Menu → X" significa abrir o item X pelo menu (lateral no computador e no tablet; barra de baixo ou **Mais** no celular).
+<sub><em>In this guide, "Menu → X" means opening item X from the menu (sidebar on a computer or tablet; bottom bar or Mais on a phone).</em></sub>
 
 Valores em euro aparecem no formato de Portugal, por exemplo **45,00 €**.
 <sub><em>Euro amounts are shown Portugal-style in Portuguese, e.g. 45,00 € (€45.00 in English).</em></sub>
