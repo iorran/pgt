@@ -71,6 +71,9 @@ jobs:
             web:
               - 'apps/web/**'
               - 'packages/shared/**'
+              # The in-app help page bundles the user guides and their screenshots.
+              - 'docs/User Guide - *.md'
+              - 'docs/assets/user-guide/**'
 
   migrate:
     needs: [test, detect-changes]
