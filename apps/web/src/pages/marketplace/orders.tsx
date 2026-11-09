@@ -29,6 +29,7 @@ import {
 import { TabsNav } from '@/components/tabs-nav';
 import { QueryError } from '@/components/query-error';
 import { formatDate } from '@/lib/format';
+import { EmptyState } from '@/components/empty-state';
 
 interface Order {
   id: string;
@@ -111,13 +112,18 @@ export default function OrdersPage() {
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
       ) : orders.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-          <ShoppingBag className="size-12" />
-          <p className="text-lg font-heading">{t('marketplace.noOrders')}</p>
-          <Link to="/marketplace" className={buttonVariants({ variant: 'outline' })}>
-            {t('marketplace.browseProducts')}
-          </Link>
-        </div>
+        <EmptyState
+          icon={ShoppingBag}
+          title={t('marketplace.noOrders')}
+          description={t('emptyState.orders.description')}
+          action={
+            <Link to="/marketplace" className={buttonVariants({ variant: 'outline' })}>
+              {t('marketplace.browseProducts')}
+            </Link>
+          }
+          help="Gerenciar Pedidos"
+          studentHelp="Fazer um Pedido"
+        />
       ) : (
         <>
         <ul aria-label={t('marketplace.ordersPageTitle')} className="md:hidden divide-y divide-border rounded-sm border border-border">

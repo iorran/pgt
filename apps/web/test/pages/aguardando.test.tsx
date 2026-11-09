@@ -30,4 +30,12 @@ describe('AguardandoPage', () => {
     renderWithProviders(<AguardandoPage />);
     expect(screen.getByText('auth.logout')).toBeInTheDocument();
   });
+
+  it('explains what happens next: owner approves, then check in', () => {
+    renderWithProviders(<AguardandoPage />);
+    expect(screen.getByText('firstAccess.nextTitle')).toBeInTheDocument();
+    expect(screen.getByText('firstAccess.nextApprove')).toBeInTheDocument();
+    expect(screen.getByText('firstAccess.nextRefresh')).toBeInTheDocument();
+    expect(screen.getByText('firstAccess.nextCheckin')).toBeInTheDocument();
+  });
 });

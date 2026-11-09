@@ -21,6 +21,8 @@ import {
 import { TabsNav } from '@/components/tabs-nav';
 import { QueryError } from '@/components/query-error';
 import { formatDate, formatMoney, todayYmd as today } from '@/lib/format';
+import { EmptyState } from '@/components/empty-state';
+import { Receipt } from 'lucide-react';
 
 interface Payment {
   id: string;
@@ -196,7 +198,12 @@ export default function PaymentsPage() {
         {isError ? (
           <QueryError onRetry={() => void refetch()} />
         ) : payments.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">{t('billing.noPayments')}</p>
+          <EmptyState
+            icon={Receipt}
+            title={t('billing.noPayments')}
+            description={t('emptyState.payments.description')}
+            help="Registrar um Pagamento"
+          />
         ) : (
           <>
             <ul aria-label={t('billing.recentPayments')} className="md:hidden divide-y divide-border rounded-sm border border-border">

@@ -109,4 +109,14 @@ describe('StudentsPage', () => {
     expect(rows[0]).not.toHaveTextContent('Família');
     expect(screen.getByRole('link', { name: 'families.title' })).toHaveAttribute('href', '/students/families');
   });
+  it('teaches how students join when the academy has none yet', async () => {
+    vi.mocked(api).mockResolvedValue([] as any);
+    renderWithProviders(<StudentsPage />);
+    expect(await screen.findByRole('heading', { name: 'emptyState.students.title' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'emptyState.students.action' })).toHaveAttribute('href', '/settings');
+    expect(screen.getByRole('link', { name: 'emptyState.learnMore' })).toHaveAttribute(
+      'href',
+      `/ajuda#${encodeURIComponent('Compartilhar Seu Código de Acesso')}`,
+    );
+  });
 });

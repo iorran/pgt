@@ -14,6 +14,7 @@ import { QueryError } from '@/components/query-error';
 import { beltKey } from '@/lib/belts';
 import { formatList, formatMoney } from '@/lib/format';
 import FamilyPaymentDialog from './family-payment-dialog';
+import { EmptyState } from '@/components/empty-state';
 
 function isCritical(days: number) {
   return days >= 8;
@@ -118,10 +119,12 @@ export default function BillingOverduePage() {
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
       ) : records.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-          <CheckCircle2 className="h-12 w-12 text-primary" />
-          <p className="text-lg font-heading">{t('billing.noOverdue')}</p>
-        </div>
+        <EmptyState
+          icon={CheckCircle2}
+          title={t('billing.noOverdue')}
+          description={t('emptyState.overdue.description')}
+          help="Acompanhar Inadimplentes"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {records.map(r => r.kind === 'family' ? (

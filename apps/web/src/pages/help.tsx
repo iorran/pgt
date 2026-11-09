@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Markdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useSession } from '@/lib/auth-client';
+import { api } from '@/lib/api';
 import { isOwner } from '@/lib/roles';
 import { findSection, GUIDES, matches, parseGuide, type GuideKind } from '@/lib/guide';
 import { ChevronDown } from 'lucide-react';
@@ -29,6 +30,11 @@ function decodeHash(hash: string) {
   } catch {
     return hash.slice(1);
   }
+}
+
+// Help usage signal for the team (logged by the API); never allowed to affect the page.
+function track(type: 'search_miss' | 'section_open', guide: GuideKind, value: string) {
+  api('/help/events', { method: 'POST', body: JSON.stringify({ type, guide, value }) }).catch(() => {});
 }
 
 function markdownComponents(search: string, owner: boolean): Components {
@@ -105,10 +111,23 @@ export default function HelpPage() {
   const searching = query.trim() !== '';
   const visible = searching ? sections.filter((s) => matches(s, query)) : sections;
 
+  // Log only the settled query: one event per search the guide can't answer.
+  useEffect(() => {
+    const settled = query.trim().slice(0, 100);
+    if (settled.length < 2 || sections.some((s) => matches(s, settled))) {
+      return;
+    }
+    const timer = setTimeout(() => track('search_miss', guide, settled), 1000);
+    return () => clearTimeout(timer);
+  }, [query, sections, guide]);
+
   function toggled(id: string, isOpen: boolean) {
     // While searching every match is forced open; don't let that leak into the user's choices.
     if (searching) {
       return;
+    }
+    if (isOpen && !open.has(id)) {
+      track('section_open', guide, id);
     }
     setOpen((o) => {
       const next = new Set(o);

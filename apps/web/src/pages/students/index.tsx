@@ -15,11 +15,14 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { QueryError } from '@/components/query-error';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { formatMoney } from '@/lib/format';
 import { studentTabs } from './families';
+import { EmptyState } from '@/components/empty-state';
+import { Users } from 'lucide-react';
+import { isOwner } from '@/lib/roles';
 
 interface Student {
   id: string;
@@ -120,6 +123,20 @@ export default function StudentsPage() {
 
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
+      ) : students.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title={t('emptyState.students.title')}
+          description={t('emptyState.students.description')}
+          action={
+            isOwner(user) && (
+              <Link to="/settings" className={buttonVariants({ variant: 'outline' })}>
+                {t('emptyState.students.action')}
+              </Link>
+            )
+          }
+          help="Compartilhar Seu Código de Acesso"
+        />
       ) : filtered.length === 0 ? (
         <p className="text-muted-foreground text-center py-8">{t('common.noResults')}</p>
       ) : (

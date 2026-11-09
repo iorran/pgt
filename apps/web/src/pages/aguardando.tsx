@@ -33,6 +33,17 @@ export default function AguardandoPage() {
             {t('onboarding.waitingMessage')}
           </p>
 
+          <div className="text-left space-y-2">
+            <h3 className="font-heading text-sm uppercase text-foreground">
+              {t('firstAccess.nextTitle')}
+            </h3>
+            <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
+              <li>{t('firstAccess.nextApprove')}</li>
+              <li>{t('firstAccess.nextRefresh')}</li>
+              <li>{t('firstAccess.nextCheckin')}</li>
+            </ol>
+          </div>
+
           <div className="flex flex-col gap-3">
             <Button
               variant="outline"

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useApiQuery } from '@/hooks/use-api';
 import { beltKey } from '@/lib/belts';
+import { InfoTip } from '@/components/info-tip';
 
 type Status = 'active' | 'slowing' | 'drifting' | 'inactive';
 interface StudentRow {
@@ -40,8 +41,9 @@ export function StudentsList({ students }: { students: StudentRow[] }) {
   return (
     <div className="divide-y">
       <div className="flex flex-wrap items-center justify-between gap-2 px-2 py-2">
-        <span className="text-sm font-medium text-muted-foreground">
+        <span className="flex items-center text-sm font-medium text-muted-foreground">
           {t('owner.students.title')}
+          <InfoTip label={t('infoTip.status.label')} text={t('infoTip.status.text')} section="Painel da Academia" />
         </span>
         <div className="flex flex-wrap gap-2">
           {FILTER_KEYS.map((key) => (

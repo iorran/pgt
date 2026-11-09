@@ -16,6 +16,7 @@ import { TabsNav } from '@/components/tabs-nav';
 import { buttonVariants } from '@/components/ui/button';
 import { QueryError } from '@/components/query-error';
 import { isOwner } from '@/lib/roles';
+import { EmptyState } from '@/components/empty-state';
 
 interface CheckinRecord {
   id: string;
@@ -50,15 +51,20 @@ export default function CheckinHistoryPage() {
       {isError ? (
         <QueryError onRetry={() => void refetch()} />
       ) : checkins.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-          <CalendarCheck className="size-12" />
-          <p className="text-lg font-heading">{t(owner ? 'classes.noAcademyCheckins' : 'classes.noCheckins')}</p>
-          {!owner && (
-            <Link to="/classes" className={buttonVariants({ variant: 'outline' })}>
-              {t('classes.viewSchedule')}
-            </Link>
-          )}
-        </div>
+        <EmptyState
+          icon={CalendarCheck}
+          title={t(owner ? 'classes.noAcademyCheckins' : 'classes.noCheckins')}
+          description={t(owner ? 'emptyState.checkins.ownerDescription' : 'emptyState.checkins.description')}
+          action={
+            !owner && (
+              <Link to="/classes" className={buttonVariants({ variant: 'outline' })}>
+                {t('classes.viewSchedule')}
+              </Link>
+            )
+          }
+          help="Histórico de Presença"
+          studentHelp="Ver Seu Histórico de Check-ins"
+        />
       ) : (
         <div className="rounded-sm border border-border">
           <Table>

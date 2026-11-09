@@ -26,6 +26,7 @@ import { toast } from '@/lib/toast';
 import { CalendarPlus } from 'lucide-react';
 import { formatDate } from '@/lib/format';
 import { GamificationTabs } from './gamification-tabs';
+import { InfoTip } from '@/components/info-tip';
 import { invalidateRanking } from './result-control';
 
 interface Season {
@@ -79,6 +80,7 @@ export default function SeasonsPage() {
             </DialogContent>
           </Dialog>
         )}
+        <InfoTip label={t('infoTip.seasons.label')} text={t('infoTip.seasons.text')} section="Gamificação" />
       </div>
 
       {isError ? (

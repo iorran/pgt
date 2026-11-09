@@ -1,4 +1,92 @@
 {
+  "infoTip": {
+    "learnMore": "Saiba mais",
+    "status": {
+      "label": "O que significa o status do aluno?",
+      "text": "O status vem dos dias desde o último check-in: Ativo até 6 dias, Desacelerando de 7 a 13, Afastando de 14 a 29 e Inativo com 30 ou mais (ou se nunca treinou)."
+    },
+    "aderencia": {
+      "label": "O que é aderência?",
+      "text": "Aderência é o total de check-ins de cada aula no período. Toque numa barra para ver alunos únicos, média por aula e tendência."
+    },
+    "trend": {
+      "label": "O que é a tendência?",
+      "text": "A seta compara a média de alunos da aula com a média das últimas 4 ocorrências: ↑ 10% ou mais acima, ↓ 10% ou mais abaixo, → dentro da faixa e — sem histórico suficiente."
+    },
+    "ranking": {
+      "label": "Como funciona o ranking?",
+      "text": "O ranking soma os pontos de cada aluno na temporada: resultados de campeonato aprovados pela academia (pódio) e ajustes de pontos. Adultos e Kids são classificados separadamente."
+    },
+    "seasons": {
+      "label": "O que é uma temporada?",
+      "text": "Uma temporada é o período do ranking, com datas de início e fim e a pontuação de 1º, 2º e 3º lugar. Cada resultado entra na temporada pela data da competição."
+    },
+    "xp": {
+      "label": "O que é XP?",
+      "text": "XP é sua experiência acumulada: cada ponto aprovado no ranking vale 10 XP, e conquistas também dão XP. Diferente dos pontos, o XP não zera a cada temporada."
+    }
+  },
+  "emptyState": {
+    "learnMore": "Saiba mais no guia",
+    "students": {
+      "title": "Nenhum aluno ainda",
+      "description": "Aqui ficam todos os alunos da academia, com faixa, mensalidade e modalidades. Para entrar, eles usam o código de acesso da academia.",
+      "action": "Compartilhar código de acesso"
+    },
+    "families": {
+      "description": "Junte irmãos, pais e filhos numa família para cobrar uma mensalidade só, paga por um responsável.",
+      "action": "Cadastrar família"
+    },
+    "pending": {
+      "description": "Quem entra com o código da academia aparece aqui até você aprovar."
+    },
+    "tournaments": {
+      "description": "Divulgue aqui os campeonatos que vêm por aí e veja quem da academia vai competir."
+    },
+    "marketplace": {
+      "description": "A loja da academia: kimonos, faixas e outros produtos que os alunos pedem pelo app."
+    },
+    "orders": {
+      "description": "Os pedidos feitos na loja aparecem aqui, com o status de cada um."
+    },
+    "overdue": {
+      "description": "Tudo em dia! Quem atrasar a mensalidade aparece aqui para você cobrar."
+    },
+    "payments": {
+      "description": "Registre cada mensalidade recebida no formulário acima para saber quem está em dia."
+    },
+    "classes": {
+      "description": "Monte o quadro de horários da academia: os alunos fazem check-in nas aulas que você criar."
+    },
+    "checkins": {
+      "description": "Seus check-ins aparecem aqui para você acompanhar sua frequência.",
+      "ownerDescription": "Cada check-in dos alunos aparece aqui, do mais recente ao mais antigo."
+    }
+  },
+  "setupChecklist": {
+    "title": "Primeiros passos",
+    "subtitle": "Deixe sua academia pronta para receber os alunos.",
+    "howTo": "Como fazer",
+    "done": "Concluído",
+    "pending": "Pendente",
+    "steps": {
+      "modality": "Cadastre uma modalidade",
+      "class": "Crie uma turma no quadro de aulas",
+      "student": "Tenha pelo menos um aluno",
+      "checkin": "Abra o totem e faça o primeiro check-in"
+    }
+  },
+  "firstAccess": {
+    "nextTitle": "O que acontece agora",
+    "nextApprove": "O dono da academia analisa e aprova seu cadastro.",
+    "nextRefresh": "Toque em \"Verificar status\" para ver se já foi aprovado.",
+    "nextCheckin": "Depois da aprovação, você acessa as aulas e já pode fazer check-in no treino.",
+    "noticeTitle": "Faça seu primeiro check-in",
+    "noticeBody": "Na academia, durante a aula, toque em Check-in na aula do quadro ou escaneie o QR code da entrada.",
+    "noticeCheckin": "Fazer check-in",
+    "noticeGuide": "Como funciona o check-in",
+    "noticeDismiss": "Dispensar aviso"
+  },
   "app": {
     "name": "PGT",
     "tagline": "Gestão de academia BJJ"
