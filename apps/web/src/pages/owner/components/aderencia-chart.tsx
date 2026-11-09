@@ -76,25 +76,23 @@ export function AderenciaChart({ data }: { data: ClassRow[] }) {
   if (data.length === 0) {
     return <p className="text-muted-foreground text-sm">{t('owner.chart.empty')}</p>;
   }
+  // Horizontal bars: class names sit on the y axis at full width instead of
+  // overlapping under each other on a phone.
   return (
-    <div className="w-full h-72" data-testid="aderencia-chart">
+    <div className="w-full" data-testid="aderencia-chart">
       <div className="flex justify-end">
         <InfoTip label={t('infoTip.aderencia.label')} text={t('infoTip.aderencia.text')} section="Painel da Academia" />
       </div>
-      <ResponsiveContainer>
-        <BarChart data={data} margin={{ top: 10, right: 10, bottom: 30, left: 0 }}>
-          <XAxis
-            dataKey="name"
-            tick={{ fontSize: 12 }}
-            interval={0}
-            angle={-15}
-            textAnchor="end"
-          />
-          <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-          <Tooltip content={<AderenciaTooltip />} />
-          <Bar dataKey="totalCheckins" shape={<BarShape />} isAnimationActive={false} />
-        </BarChart>
-      </ResponsiveContainer>
+      <div style={{ height: data.length * 44 + 32 }}>
+        <ResponsiveContainer>
+          <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
+            <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+            <YAxis type="category" dataKey="name" width={128} tick={{ fontSize: 12 }} interval={0} />
+            <Tooltip content={<AderenciaTooltip />} cursor={{ fill: 'var(--muted)' }} />
+            <Bar dataKey="totalCheckins" shape={<BarShape />} barSize={24} isAnimationActive={false} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

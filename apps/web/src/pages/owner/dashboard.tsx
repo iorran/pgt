@@ -77,7 +77,7 @@ export default function OwnerDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{t('owner.title')}</h1>
+        <h1 className="font-heading text-2xl uppercase tracking-wide">{t('owner.title')}</h1>
         <PeriodToggle value={period} onChange={(p) => setParams({ period: p })} />
       </div>
       <SetupChecklist />
