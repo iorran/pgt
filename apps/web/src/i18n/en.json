@@ -107,7 +107,8 @@
     "me": "Me",
     "checkin": "Check-in",
     "totem": "Kiosk",
-    "menu": "Menu"
+    "staffBottom": "Academy navigation",
+    "more": "More"
   },
   "auth": {
     "login": "Log in",

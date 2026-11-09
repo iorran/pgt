@@ -107,7 +107,8 @@
     "me": "Perfil",
     "checkin": "Check-in",
     "totem": "Totem",
-    "menu": "Menu"
+    "staffBottom": "Navegação da academia",
+    "more": "Mais"
   },
   "auth": {
     "login": "Entrar",
