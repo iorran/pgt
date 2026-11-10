@@ -488,13 +488,15 @@ A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença*
 
 1. Menu → **Aulas**. A lista abre no dia de hoje
    <sub><em>Menu → Aulas (Classes). The list opens on today</em></sub>
-2. Toque em um dia (**Seg** … **Dom**) para ver as aulas daquele dia, em ordem de horário
-   <sub><em>Tap a day (Mon … Sun) to see that day's classes, in time order</em></sub>
-3. Nas aulas de hoje, cada card mostra quantos alunos fizeram check-in e os nomes deles. A lista se atualiza sozinha a cada minuto
+2. O dia aparece como uma linha do tempo: horários à esquerda e um card por aula, em ordem de horário. Toque em um dia (**Seg** … **Dom**) para ver o próximo dia da semana com esse nome. Um ponto âmbar no dia indica um seminário
+   <sub><em>The day shows as a timeline: times on the left and one card per class, in time order. Tap a day (Mon … Sun) to see the next day with that name. An amber dot on a day means a seminar</em></sub>
+3. Cada card mostra o professor da aula: **Professor** (faixa preta), **Instrutor** (faixa roxa ou marrom) ou só o nome
+   <sub><em>Each card shows the class's teacher: Professor (black belt), Instrutor (purple or brown belt), or just the name</em></sub>
+4. Nas aulas de hoje, cada card mostra quantos alunos fizeram check-in e os nomes deles. A lista se atualiza sozinha a cada minuto
    <sub><em>On today's classes, each card shows how many students checked in and their names. It refreshes by itself every minute</em></sub>
-4. A aula que está acontecendo ganha o selo **Agora** e sobe para o topo da lista
-   <sub><em>The class happening now gets the Agora (Now) badge and moves to the top of the list</em></sub>
-5. Toque em **"Abrir totem"** para mostrar o QR code de check-in (veja [Totem com QR Code](#Método%202:%20Totem%20com%20QR%20Code))
+5. A aula que está acontecendo ganha o selo **Agora** e uma barra de progresso ("Começou há 20 min"); a página abre nela. Sem aula no momento, uma linha **Agora** marca onde você está no dia. Aulas que já passaram ficam apagadas
+   <sub><em>The class happening now gets the Agora (Now) badge and a progress bar ("Começou há 20 min" — started 20 min ago); the page opens on it. With no class on, an Agora line marks where you are in the day. Past classes are faded</em></sub>
+6. Toque em **"Abrir totem"** para mostrar o QR code de check-in (veja [Totem com QR Code](#Método%202:%20Totem%20com%20QR%20Code))
    <sub><em>Tap "Abrir totem" (Open kiosk) to show the check-in QR code (see QR Code Totem)</em></sub>
 
 ### Criar uma Aula
@@ -506,20 +508,66 @@ A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença*
    <sub><em>Menu → Aulas (Classes)</em></sub>
 2. Toque em **"Criar aula"**
    <sub><em>Tap "Criar aula" (Create Class)</em></sub>
-3. Preencha **Nome da aula**, **Tipo** (Gi / No-Gi / Open Mat / Kids), **Dias da semana** (toque em um ou mais dias), **Horário de início** e **Horário de fim**
-   <sub><em>Fill in Nome da Aula (Class Name), Tipo (Type: Gi / No-Gi / Open Mat / Kids), Dias da Semana (Days of the Week — tap one or more days), Horário Início (Start Time), and Horário Fim (End Time)</em></sub>
-4. Toque em **"Salvar"** — é criada uma aula semanal para cada dia escolhido
-   <sub><em>Tap "Salvar" (Save) — one weekly class is created for each day you picked</em></sub>
+3. Preencha **Nome da aula** e **Tipo** (Gi / No-Gi / Open Mat / Kids)
+   <sub><em>Fill in Nome da Aula (Class Name) and Tipo (Type: Gi / No-Gi / Open Mat / Kids)</em></sub>
+4. Escolha **"Toda semana"** e toque em um ou mais **dias da semana**, ou **"Data única"** e escolha a data (uma aula extra, só nesse dia)
+   <sub><em>Pick "Toda semana" (Every week) and tap one or more days of the week, or "Data única" (Single date) and pick the date (an extra class, on that day only)</em></sub>
+5. Preencha **Horário de início** e **Horário de fim**
+   <sub><em>Fill in Horário Início (Start Time) and Horário Fim (End Time)</em></sub>
+6. Em **Professor**, escolha quem dá a aula (opcional). A lista mostra todos os alunos com a faixa; faixas roxa, marrom e preta aparecem primeiro, com o título que a faixa dá (**Instrutor** ou **Professor**). Faixa errada? Corrija no perfil do aluno
+   <sub><em>In Professor (Teacher), pick who teaches the class (optional). The list shows every student with their belt; purple, brown and black belts come first, with the title the belt gives (Instrutor or Professor). Wrong belt? Fix it on the student's profile</em></sub>
+
+![Escolher o professor da aula](./assets/user-guide/instructor/class-teacher-picker.png)
+
+7. Toque em **"Salvar"** — é criada uma aula semanal para cada dia escolhido (ou uma aula na data única)
+   <sub><em>Tap "Salvar" (Save) — one weekly class is created for each day you picked (or one class on the single date)</em></sub>
 
 ### Editar, Mover ou Excluir uma Aula
 <sub><em>Edit, Move, or Delete a Class</em></sub>
 
-- Toque em uma aula (na lista ou no calendário) para abrir **"Editar aula"**; altere nome, tipo, dia da semana ou horários e toque em **"Salvar"**
-  <sub><em>Tap a class (in the list or on the calendar) to open "Editar aula" (Edit Class); change name, type, day of the week, or times, and tap "Salvar" (Save)</em></sub>
+- Toque em uma aula (na lista ou no calendário) para abrir **"Editar aula"**; altere nome, tipo, dia da semana (ou data), horários ou professor e toque em **"Salvar"**
+  <sub><em>Tap a class (in the list or on the calendar) to open "Editar aula" (Edit Class); change name, type, day of the week (or date), times, or teacher, and tap "Salvar" (Save)</em></sub>
 - No **Calendário**, você também pode arrastar a aula para outro dia/horário ("Aula reagendada")
   <sub><em>In Calendário (Calendar) view you can also drag the class to another day/time ("Aula reagendada" — Class rescheduled)</em></sub>
 - Para excluir, no mesmo diálogo toque em **"Excluir aula"** e confirme em **"Excluir aula"** novamente. Os check-ins antigos são preservados
   <sub><em>To delete, in the same dialog tap "Excluir aula" (Delete Class) and confirm with "Excluir aula" again. Past check-ins are kept</em></sub>
+
+### Seminários
+<sub><em>Seminars</em></sub>
+
+Um seminário é uma aula de um dia só, normalmente com um professor de fora, aberta a quem não é da academia e paga à parte da mensalidade. No app ele aparece em âmbar, com o selo **Seminário**.
+<sub><em>A seminar is a one-day class, usually with an outside teacher, open to people outside the academy and paid separately from the monthly fee. In the app it shows in amber, with the Seminário badge.</em></sub>
+
+![Criar seminário](./assets/user-guide/instructor/seminar-create.png)
+
+1. Menu → **Aulas** → **"Novo seminário"**
+   <sub><em>Menu → Aulas (Classes) → "Novo seminário" (New seminar)</em></sub>
+2. Preencha nome, tipo, data, horários e os dois preços: **Preço alunos** e **Preço externos** (podem ser iguais)
+   <sub><em>Fill in name, type, date, times, and both prices: Preço alunos (Student price) and Preço externos (Outsider price) — they can be the same</em></sub>
+3. Em **Professor**, escolha um aluno ou escreva o nome de um **Professor convidado** e toque em **"Usar professor convidado"**
+   <sub><em>In Professor, pick a student or type a Professor convidado (Guest teacher) name and tap "Usar professor convidado" (Use a guest teacher)</em></sub>
+4. Toque em **"Salvar"**. Os alunos veem o seminário na data e podem tocar em **"Quero participar"**
+   <sub><em>Tap "Salvar" (Save). Students see the seminar on its date and can tap "Quero participar" (Join)</em></sub>
+
+![Página do seminário](./assets/user-guide/instructor/seminar-page.png)
+
+Toque no seminário na linha do tempo para abrir a página dele:
+<sub><em>Tap the seminar on the timeline to open its page:</em></sub>
+
+- No topo: participantes, total **recebido** e total **pendente**
+  <sub><em>At the top: participants, total received (recebido), and total pending (pendente)</em></sub>
+- **"+ Aluno"** adiciona um aluno da academia; **"+ Externo"** adiciona alguém de fora pelo nome (telefone opcional). O valor já vem do preço certo
+  <sub><em>"+ Aluno" adds a student of the academy; "+ Externo" adds an outsider by name (phone optional). The amount comes from the right price</em></sub>
+- **"Marcar pago"** registra o pagamento com a data de hoje; toque em **Pago** para voltar a pendente
+  <sub><em>"Marcar pago" (Mark paid) records the payment with today's date; tap Pago (Paid) to set it back to pending</em></sub>
+- Toque no nome para mudar o valor (desconto, cortesia a 0 €) ou remover a pessoa
+  <sub><em>Tap a name to change the amount (discount, free place at €0) or remove the person</em></sub>
+- **"Editar"** muda data, horários, professor ou preços
+  <sub><em>"Editar" (Edit) changes the date, times, teacher, or prices</em></sub>
+
+> [!note] Pagamentos de seminário ficam à parte
+> Não entram na mensalidade nem no Financeiro: cada participante é pago ou pendente, sem pagamento parcial nem pagamento de família. O check-in no dia é como numa aula normal (botão ou totem).
+> <sub><em>Seminar payments are separate. They're not part of the monthly fee or Financeiro: each participant is paid or pending, with no partial or family payment. Check-in on the day works like a normal class (button or kiosk).</em></sub>
 
 ### Histórico de Presença
 <sub><em>Attendance History</em></sub>
@@ -551,8 +599,8 @@ O totem de QR Code transforma qualquer tablet em uma estação de check-in.
 
 1. Num tablet na entrada da academia, entre com a sua conta e abra Menu → **Totem**, o botão **"Abrir totem"** em Aulas, ou o endereço `/totem`
    <sub><em>On a tablet at your gym entrance, log in with your account and open Menu → Totem (Kiosk), the "Abrir totem" (Open kiosk) button in Aulas, or the `/totem` address</em></sub>
-2. A página mostra os QR Codes de todas as aulas que estão acontecendo; fora do horário aparece "Nenhuma aula no momento"
-   <sub><em>The page shows QR codes for all classes currently happening; outside class times it shows "Nenhuma aula no momento" (No classes right now)</em></sub>
+2. A página mostra os QR Codes de todas as aulas que estão acontecendo, cada uma com o professor e o horário (seminários em âmbar); fora do horário aparece "Nenhuma aula no momento"
+   <sub><em>The page shows QR codes for all classes currently happening, each with its teacher and time (seminars in amber); outside class times it shows "Nenhuma aula no momento" (No classes right now)</em></sub>
 3. Os códigos são atualizados sozinhos a cada poucos minutos — o QR na tela está sempre válido
    <sub><em>Codes refresh on their own every few minutes — the QR on screen is always valid</em></sub>
 4. Os alunos escaneiam com a câmera do celular (ou pelo botão central de check-in do app) → o check-in é concluído automaticamente

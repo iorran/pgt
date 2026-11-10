@@ -14,3 +14,4 @@ export * from './tournament';
 export * from './gamification';
 export * from './family';
 export * from './modality';
+export * from './seminar-participant';

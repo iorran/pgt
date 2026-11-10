@@ -109,6 +109,9 @@ export async function seedGuide(
     await db
       .delete(schema.checkin)
       .where(inArray(schema.checkin.classId, classIds));
+    await db
+      .delete(schema.seminarParticipant)
+      .where(inArray(schema.seminarParticipant.classId, classIds));
   }
   await db
     .delete(schema.bjjClass)
@@ -317,6 +320,7 @@ export async function seedGuide(
     {
       academyId: acad.id,
       instructorId: instructor.id,
+      teacherId: instructor.id,
       name: 'Gi Manhã',
       type: 'gi' as const,
       recurrence: 'weekly' as const,
@@ -327,6 +331,7 @@ export async function seedGuide(
     {
       academyId: acad.id,
       instructorId: instructor.id,
+      teacherId: roxa.id,
       name: 'No-Gi Noite',
       type: 'no-gi' as const,
       recurrence: 'weekly' as const,
@@ -337,6 +342,7 @@ export async function seedGuide(
     {
       academyId: acad.id,
       instructorId: instructor.id,
+      teacherId: instructor.id,
       name: 'Fundamentos (Demo)',
       type: 'gi' as const,
       recurrence: 'weekly' as const,
@@ -344,6 +350,34 @@ export async function seedGuide(
       startTime: `${pad(startHour)}:00`,
       endTime: `${pad(endHour)}:00`,
     },
+  ]);
+
+  // 8b. A Seminar three days from now with a Guest Teacher: one Student pending, one paid, one outsider paid.
+  const seminarDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3);
+  const seminarDate = `${seminarDay.getFullYear()}-${pad(seminarDay.getMonth() + 1)}-${pad(seminarDay.getDate())}`;
+  const todayDate = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const [seminar] = await db
+    .insert(schema.bjjClass)
+    .values({
+      academyId: acad.id,
+      instructorId: instructor.id,
+      guestTeacherName: 'Ricardo Almeida',
+      name: 'Passagem de guarda',
+      type: 'gi' as const,
+      recurrence: 'once' as const,
+      dayOfWeek: seminarDay.getDay(),
+      date: seminarDate,
+      startTime: '10:00',
+      endTime: '13:00',
+      isSeminar: true,
+      studentPrice: '40.00',
+      outsiderPrice: '50.00',
+    })
+    .returning();
+  await db.insert(schema.seminarParticipant).values([
+    { classId: seminar.id, studentId: azul.id, amount: '40.00' },
+    { classId: seminar.id, studentId: roxa.id, amount: '40.00', paidAt: todayDate },
+    { classId: seminar.id, name: 'Marta Sousa', phone: '912 345 678', amount: '50.00', paidAt: todayDate },
   ]);
 
   // 9. Tournament — no createdBy column in the schema; only academyId, name, date, location, federation.

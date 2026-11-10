@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import type { ClassItem } from '@/lib/schedule';
+import { TeacherField } from './teacher-field';
 
 const DAY_KEYS = [
   'classes.days.sun',
@@ -23,16 +24,23 @@ const DAY_KEYS = [
   'classes.days.sat',
 ];
 
+export interface ClassEditPatch {
+  name: string;
+  type: string;
+  dayOfWeek?: number;
+  date?: string;
+  startTime: string;
+  endTime: string;
+  teacherId: string | null;
+  guestTeacherName: string | null;
+  studentPrice?: string;
+  outsiderPrice?: string;
+}
+
 export interface ClassEditDialogProps {
   cls: ClassItem | null;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (patch: {
-    name: string;
-    type: string;
-    dayOfWeek: number;
-    startTime: string;
-    endTime: string;
-  }) => Promise<void> | void;
+  onSubmit: (patch: ClassEditPatch) => Promise<void> | void;
   onDelete?: (classId: string) => Promise<void> | void;
 }
 
@@ -45,17 +53,28 @@ export function ClassEditDialog({
   const { t } = useTranslation();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const once = cls?.recurrence === 'once';
 
   const form = useForm({
     defaultValues: {
       name: '',
       type: '',
       dayOfWeek: 0,
+      date: '',
       startTime: '',
       endTime: '',
+      teacherId: null as string | null,
+      guestTeacherName: null as string | null,
+      studentPrice: '',
+      outsiderPrice: '',
     },
     onSubmit: async ({ value }) => {
-      await onSubmit(value);
+      const { dayOfWeek, date, studentPrice, outsiderPrice, ...rest } = value;
+      await onSubmit({
+        ...rest,
+        ...(once ? { date } : { dayOfWeek }),
+        ...(cls?.isSeminar ? { studentPrice, outsiderPrice } : {}),
+      });
     },
   });
 
@@ -70,6 +89,11 @@ export function ClassEditDialog({
     form.setFieldValue('dayOfWeek', cls.dayOfWeek);
     form.setFieldValue('startTime', cls.startTime);
     form.setFieldValue('endTime', cls.endTime);
+    form.setFieldValue('date', cls.date ?? '');
+    form.setFieldValue('teacherId', cls.teacher?.id ?? null);
+    form.setFieldValue('guestTeacherName', cls.guestTeacherName ?? null);
+    form.setFieldValue('studentPrice', cls.studentPrice ?? '');
+    form.setFieldValue('outsiderPrice', cls.outsiderPrice ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cls]);
 
@@ -89,7 +113,7 @@ export function ClassEditDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-heading uppercase tracking-wider">
-            {t('classes.editClass')}
+            {cls?.isSeminar ? t('seminars.edit') : t('classes.editClass')}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -133,6 +157,22 @@ export function ClassEditDialog({
               </div>
             )}
           </form.Field>
+          {once ? (
+            <form.Field name="date">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="class-edit-date">{t('classes.date')}</Label>
+                  <Input
+                    id="class-edit-date"
+                    type="date"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+            </form.Field>
+          ) : (
           <form.Field name="dayOfWeek">
             {(field) => (
               <div className="space-y-2">
@@ -158,6 +198,7 @@ export function ClassEditDialog({
               </div>
             )}
           </form.Field>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <form.Field name="startTime">
               {(field) => (
@@ -188,6 +229,44 @@ export function ClassEditDialog({
               )}
             </form.Field>
           </div>
+          <form.Subscribe
+            selector={(state) => ({ teacherId: state.values.teacherId, guestTeacherName: state.values.guestTeacherName })}
+          >
+            {(teacher) => (
+              <TeacherField
+                id="class-edit-teacher"
+                value={teacher}
+                allowGuest={!!cls?.isSeminar}
+                onChange={(next) => {
+                  form.setFieldValue('teacherId', next.teacherId);
+                  form.setFieldValue('guestTeacherName', next.guestTeacherName);
+                }}
+              />
+            )}
+          </form.Subscribe>
+          {cls?.isSeminar && (
+            <div className="grid grid-cols-2 gap-4">
+              {(['studentPrice', 'outsiderPrice'] as const).map((name) => (
+                <form.Field key={name} name={name}>
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor={`class-edit-${name}`}>{t(`seminars.${name}`)}</Label>
+                      <Input
+                        id={`class-edit-${name}`}
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        step="0.01"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+              ))}
+            </div>
+          )}
           <form.Subscribe selector={(state) => state.isSubmitting}>
             {(isSubmitting) => (
               <Button

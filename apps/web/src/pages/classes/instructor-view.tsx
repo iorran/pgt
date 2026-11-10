@@ -7,13 +7,13 @@ import { errorKey } from '@/lib/api-errors';
 import { useApiQuery } from '@/hooks/use-api';
 import { useClassCalendar } from '@/hooks/use-class-calendar';
 import { ClassCalendar } from '@/components/schedule/class-calendar';
-import { ClassDayList } from '@/components/schedule/class-day-list';
-import { ClassCreateDialog } from '@/components/schedule/class-create-dialog';
-import { ClassEditDialog } from '@/components/schedule/class-edit-dialog';
+import { ClassTimeline } from '@/components/schedule/class-timeline';
+import { ClassCreateDialog, type ClassCreateValues } from '@/components/schedule/class-create-dialog';
+import { ClassEditDialog, type ClassEditPatch } from '@/components/schedule/class-edit-dialog';
 import { PageLoader } from '@/components/page-loader';
 import { TabsNav } from '@/components/tabs-nav';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/lib/toast';
 import { CalendarDays, CalendarPlus, List, QrCode } from 'lucide-react';
 import type { ClassItem } from '@/lib/schedule';
@@ -36,7 +36,9 @@ export function InstructorClassesView() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [createOpen, setCreateOpen] = useState(false);
+  const [seminarOpen, setSeminarOpen] = useState(false);
   const [editing, setEditing] = useState<ClassItem | null>(null);
   const [mode, setModeState] = useState<ViewMode>(readViewMode);
 
@@ -98,16 +100,7 @@ export function InstructorClassesView() {
   });
 
   const editMutation = useMutation({
-    mutationFn: (vars: {
-      id: string;
-      patch: {
-        name: string;
-        type: string;
-        dayOfWeek: number;
-        startTime: string;
-        endTime: string;
-      };
-    }) =>
+    mutationFn: (vars: { id: string; patch: ClassEditPatch }) =>
       api(`/classes/${vars.id}`, {
         method: 'PUT',
         body: JSON.stringify(vars.patch),
@@ -128,6 +121,43 @@ export function InstructorClassesView() {
     },
     meta: { successMessage: t('classes.classDeleted') },
   });
+
+  async function createClasses(values: ClassCreateValues, close: () => void, seminar: boolean) {
+    const common = {
+      name: values.name,
+      type: values.type,
+      recurrence: values.recurrence,
+      startTime: values.startTime,
+      endTime: values.endTime,
+      teacherId: values.teacherId,
+      guestTeacherName: values.guestTeacherName,
+      academyId: user.academyId,
+    };
+    const bodies =
+      values.recurrence === 'once'
+        ? [{ ...common, date: values.date }]
+        : values.daysOfWeek.map((dayOfWeek) => ({ ...common, dayOfWeek }));
+    // ponytail: sequential POSTs; a mid-way failure leaves earlier days created (shown after refetch).
+    try {
+      for (const body of bodies) {
+        await api('/classes', {
+          method: 'POST',
+          body: JSON.stringify(
+            seminar
+              ? { ...body, isSeminar: true, studentPrice: values.studentPrice, outsiderPrice: values.outsiderPrice }
+              : body,
+          ),
+        });
+      }
+    } catch (err) {
+      toast.error(t(errorKey(err)));
+      throw err;
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ['classes', user.academyId] });
+    }
+    toast.success(t(seminar ? 'seminars.created' : 'classes.classesCreated'));
+    close();
+  }
 
   const calendar = useClassCalendar({
     classes,
@@ -158,34 +188,13 @@ export function InstructorClassesView() {
         <ClassCreateDialog
           open={createOpen}
           onOpenChange={setCreateOpen}
-          onSubmit={async (values) => {
-            // ponytail: sequential POSTs; a mid-way failure leaves earlier days created (shown after refetch).
-            try {
-              for (const day of values.daysOfWeek) {
-                await api('/classes', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    name: values.name,
-                    type: values.type,
-                    recurrence: values.recurrence,
-                    dayOfWeek: day,
-                    startTime: values.startTime,
-                    endTime: values.endTime,
-                    academyId: user.academyId,
-                  }),
-                });
-              }
-            } catch (err) {
-              toast.error(t(errorKey(err)));
-              throw err;
-            } finally {
-              queryClient.invalidateQueries({
-                queryKey: ['classes', user.academyId],
-              });
-            }
-            toast.success(t('classes.classesCreated'));
-            setCreateOpen(false);
-          }}
+          onSubmit={(values) => createClasses(values, () => setCreateOpen(false), false)}
+        />
+        <ClassCreateDialog
+          seminar
+          open={seminarOpen}
+          onOpenChange={setSeminarOpen}
+          onSubmit={(values) => createClasses(values, () => setSeminarOpen(false), true)}
         />
         </div>
       </div>
@@ -223,7 +232,10 @@ export function InstructorClassesView() {
       )}
 
       {classes.length > 0 && mode === 'list' && (
-        <ClassDayList classes={classes} onSelect={setEditing} />
+        <ClassTimeline
+          classes={classes}
+          onSelect={(cls) => (cls.isSeminar ? navigate(`/classes/seminars/${cls.id}`) : setEditing(cls))}
+        />
       )}
 
       {mode === 'calendar' && (

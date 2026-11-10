@@ -16,8 +16,36 @@ Management app for a BJJ academy: who trains, who pays, and what the academy sel
 ### People
 
 **Owner**:
-The person who runs the academy and uses the app to manage it. The only staff role; there is no separate instructor access for now.
-_Avoid_: Instructor, professor, admin, staff
+The person who owns the academy and configures everything in the app. The only role with management access.
+_Avoid_: Admin, staff, manager
+
+**Professor**:
+A black belt who teaches classes at the academy. Teaching gives no management access.
+_Avoid_: Mestre, coach, teacher (as a title)
+
+**Instructor**:
+A purple or brown belt who teaches classes at the academy. Teaching gives no management access.
+_Avoid_: Assistant, monitor, coach
+
+**Class Teacher**:
+Who teaches a given class: a Student or the Owner chosen by the Owner, or a Guest Teacher. Shown as Professor or Instructor by their belt, or by name only when the belt says neither.
+_Avoid_: Instructor (as the generic word), coach, responsável da aula
+
+**Guest Teacher**:
+Someone from outside the academy who teaches a Seminar; known only by the name the Owner typed, never a user of the app (in the UI: "Professor convidado").
+_Avoid_: Visitor, external instructor
+
+**Seminar**:
+A one-off class on a single date, usually with a Guest Teacher, open to people outside the academy and paid separately from the Monthly Fee. Students may check in; outside attendees are not tracked.
+_Avoid_: Event (that word is for tournaments), workshop, aulão
+
+**Seminar Participant**:
+A person on a Seminar's list: a Student, or an outsider known only by name (and optionally a phone). Each has their own payment status for that Seminar, separate from Monthly Fees.
+_Avoid_: Attendee, registrant, inscrito (in code/specs), guest (for outsiders)
+
+**Seminar Price**:
+What a Seminar Participant is asked to pay: the Seminar's Student price or its outsider price, which the Owner may change per participant (discount, free place). A participant is either pending or paid in full; there are no partial or Family payments for Seminars.
+_Avoid_: Fee, Monthly Fee, ticket
 
 **Student**:
 A person who trains at the academy and belongs to it, adult or kid.

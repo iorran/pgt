@@ -4,6 +4,7 @@ import cookie from '@fastify/cookie';
 import { env } from './env.js';
 import { authRoutes } from './routes/auth.js';
 import { classRoutes } from './routes/classes.js';
+import { seminarRoutes } from './routes/seminars.js';
 import { checkinRoutes } from './routes/checkins.js';
 import { modalityRoutes } from './routes/modalities.js';
 import { studentRoutes } from './routes/students.js';
@@ -40,6 +41,7 @@ export async function buildApp() {
   await app.register(cookie);
   await app.register(authRoutes);
   await app.register(classRoutes);
+  await app.register(seminarRoutes);
   await app.register(checkinRoutes);
   await app.register(modalityRoutes);
   await app.register(studentRoutes);

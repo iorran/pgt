@@ -40,6 +40,22 @@ describe('BillingStatusPage', () => {
     expect(screen.queryByText('me.billingUpToDate')).not.toBeInTheDocument();
   });
 
+  it('lists the student\'s seminars, pending and paid, apart from the monthly fee', async () => {
+    mockApi.mockImplementation(async (path: string) =>
+      (path === '/seminars/mine'
+        ? [
+            { classId: 's1', name: 'Passagem de guarda', date: '2026-11-14', startTime: '10:00', endTime: '13:00', teacher: null, guestTeacherName: 'Ricardo Almeida', amount: '40.00', paidAt: null },
+            { classId: 's2', name: 'Leg locks', date: '2026-10-18', startTime: '10:00', endTime: '12:00', teacher: null, guestTeacherName: null, amount: '35.00', paidAt: '2026-10-18' },
+          ]
+        : { status: 'ok' }) as any,
+    );
+    renderWithProviders(<BillingStatusPage />);
+    expect(await screen.findByText('seminars.sectionTitle')).toBeInTheDocument();
+    expect(screen.getByText('Passagem de guarda')).toBeInTheDocument();
+    expect(screen.getByText('seminars.pending')).toBeInTheDocument();
+    expect(screen.getByText('seminars.paidOn')).toBeInTheDocument();
+  });
+
   it('has an h1 and a back link to /me', async () => {
     mockApi.mockResolvedValue({ status: 'ok' } as any);
     renderWithProviders(<BillingStatusPage />);

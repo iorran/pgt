@@ -56,6 +56,16 @@ describe('TotemPage', () => {
     expect(Number(qr.dataset.margin)).toBeGreaterThanOrEqual(4);
   });
 
+  it('shows who teaches each class, with the title from the belt', async () => {
+    mockApi.mockResolvedValue([
+      { classId: 'c1', className: 'Fundamentos', classType: 'gi', startTime: '19:00:00', endTime: '20:30:00', token: 'token-1', expiresAt: '2026-04-07T07:35:00Z', teacher: { name: 'Ana Ribeiro', belt: 'black' }, guestTeacherName: null, isSeminar: false },
+    ] as any);
+
+    renderWithProviders(<TotemPage />);
+    expect(await screen.findByText('classes.teacher.asProfessor')).toBeInTheDocument();
+    expect(screen.getByText('19:00 – 20:30')).toBeInTheDocument();
+  });
+
   it('shows no classes message when empty', async () => {
     mockApi.mockResolvedValue([] as any);
 

@@ -10,7 +10,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Check, Medal } from 'lucide-react';
+import { TeacherField } from './teacher-field';
 
 const DAY_KEYS = [
   'classes.days.sun',
@@ -22,34 +23,51 @@ const DAY_KEYS = [
   'classes.days.sat',
 ];
 
+export interface ClassCreateValues {
+  name: string;
+  type: string;
+  recurrence: 'weekly' | 'once';
+  daysOfWeek: number[];
+  date: string;
+  startTime: string;
+  endTime: string;
+  teacherId: string | null;
+  guestTeacherName: string | null;
+  studentPrice: string;
+  outsiderPrice: string;
+}
+
 export interface ClassCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: {
-    name: string;
-    type: string;
-    recurrence: string;
-    daysOfWeek: number[];
-    startTime: string;
-    endTime: string;
-  }) => Promise<void> | void;
+  onSubmit: (values: ClassCreateValues) => Promise<void> | void;
+  // A Seminar: always a single date, with prices and possibly a Guest Teacher.
+  seminar?: boolean;
 }
 
 export function ClassCreateDialog({
   open,
   onOpenChange,
   onSubmit,
+  seminar = false,
 }: ClassCreateDialogProps) {
   const { t } = useTranslation();
+  const idp = seminar ? 'seminar-create' : 'class-create';
+  const title = seminar ? t('seminars.new') : t('classes.createClass');
 
   const form = useForm({
     defaultValues: {
       name: '',
       type: '',
-      recurrence: 'weekly',
+      recurrence: (seminar ? 'once' : 'weekly') as 'weekly' | 'once',
       daysOfWeek: [] as number[],
+      date: '',
       startTime: '',
       endTime: '',
+      teacherId: null as string | null,
+      guestTeacherName: null as string | null,
+      studentPrice: '',
+      outsiderPrice: '',
     },
     onSubmit: async ({ value }) => {
       try {
@@ -63,13 +81,22 @@ export function ClassCreateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger render={<Button />}>
-        {t('classes.createClass')}
+      <DialogTrigger
+        render={
+          seminar ? (
+            <Button variant="outline" className="border-seminar text-seminar hover:bg-seminar/10 hover:text-seminar" />
+          ) : (
+            <Button />
+          )
+        }
+      >
+        {seminar && <Medal aria-hidden />}
+        {title}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-heading uppercase tracking-wider">
-            {t('classes.createClass')}
+            {title}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -82,9 +109,9 @@ export function ClassCreateDialog({
           <form.Field name="name">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor="class-create-name">{t('classes.className')}</Label>
+                <Label htmlFor={`${idp}-name`}>{t('classes.className')}</Label>
                 <Input
-                  id="class-create-name"
+                  id={`${idp}-name`}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   onBlur={field.handleBlur}
@@ -96,9 +123,9 @@ export function ClassCreateDialog({
           <form.Field name="type">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor="class-create-type">{t('classes.classType')}</Label>
+                <Label htmlFor={`${idp}-type`}>{t('classes.classType')}</Label>
                 <select
-                  id="class-create-type"
+                  id={`${idp}-type`}
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                   required
@@ -113,11 +140,50 @@ export function ClassCreateDialog({
               </div>
             )}
           </form.Field>
+          {!seminar && (
+            <form.Field name="recurrence">
+              {(field) => (
+                <div role="group" aria-label={t('classes.recurrence.weekly')} className="grid grid-cols-2 gap-1 rounded-sm border border-border p-0.5">
+                  {(['weekly', 'once'] as const).map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      aria-pressed={field.state.value === r}
+                      onClick={() => field.handleChange(r)}
+                      className={`min-h-11 rounded-sm font-heading text-sm uppercase tracking-wide ${
+                        field.state.value === r ? 'bg-muted text-primary' : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {t(`classes.recurrence.${r}`)}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </form.Field>
+          )}
+          <form.Subscribe selector={(state) => state.values.recurrence}>
+            {(recurrence) =>
+              recurrence === 'once' ? (
+                <form.Field name="date">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor={`${idp}-date`}>{t('classes.date')}</Label>
+                      <Input
+                        id={`${idp}-date`}
+                        type="date"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+              ) : (
           <form.Field name="daysOfWeek">
             {(field) => (
               <div className="space-y-2">
-                <Label id="class-create-days">{t('classes.daysOfWeek')}</Label>
-                <div role="group" aria-labelledby="class-create-days" className="flex flex-wrap gap-2">
+                <Label id={`${idp}-days`}>{t('classes.daysOfWeek')}</Label>
+                <div role="group" aria-labelledby={`${idp}-days`} className="flex flex-wrap gap-2">
                   {DAY_KEYS.map((k, i) => (
                     <button
                       key={i}
@@ -145,13 +211,16 @@ export function ClassCreateDialog({
               </div>
             )}
           </form.Field>
+              )
+            }
+          </form.Subscribe>
           <div className="grid grid-cols-2 gap-4">
             <form.Field name="startTime">
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor="class-create-startTime">{t('classes.startTime')}</Label>
+                  <Label htmlFor={`${idp}-startTime`}>{t('classes.startTime')}</Label>
                   <Input
-                    id="class-create-startTime"
+                    id={`${idp}-startTime`}
                     type="time"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -164,9 +233,9 @@ export function ClassCreateDialog({
             <form.Field name="endTime">
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor="class-create-endTime">{t('classes.endTime')}</Label>
+                  <Label htmlFor={`${idp}-endTime`}>{t('classes.endTime')}</Label>
                   <Input
-                    id="class-create-endTime"
+                    id={`${idp}-endTime`}
                     type="time"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
@@ -178,15 +247,54 @@ export function ClassCreateDialog({
             </form.Field>
           </div>
           <form.Subscribe
+            selector={(state) => ({ teacherId: state.values.teacherId, guestTeacherName: state.values.guestTeacherName })}
+          >
+            {(teacher) => (
+              <TeacherField
+                id={`${idp}-teacher`}
+                value={teacher}
+                allowGuest={seminar}
+                onChange={(next) => {
+                  form.setFieldValue('teacherId', next.teacherId);
+                  form.setFieldValue('guestTeacherName', next.guestTeacherName);
+                }}
+              />
+            )}
+          </form.Subscribe>
+          {seminar && (
+            <div className="grid grid-cols-2 gap-4">
+              {(['studentPrice', 'outsiderPrice'] as const).map((name) => (
+                <form.Field key={name} name={name}>
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor={`${idp}-${name}`}>{t(`seminars.${name}`)}</Label>
+                      <Input
+                        id={`${idp}-${name}`}
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        step="0.01"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
+              ))}
+            </div>
+          )}
+          <form.Subscribe
             selector={(state) => ({
               daysOfWeek: state.values.daysOfWeek,
+              recurrence: state.values.recurrence,
               isSubmitting: state.isSubmitting,
             })}
           >
-            {({ daysOfWeek, isSubmitting }) => (
+            {({ daysOfWeek, recurrence, isSubmitting }) => (
               <Button
                 type="submit"
-                disabled={daysOfWeek.length === 0}
+                disabled={recurrence === 'weekly' && daysOfWeek.length === 0}
                 loading={isSubmitting}
               >
                 {t('common.save')}
