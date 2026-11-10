@@ -37,9 +37,9 @@ export default function TotemPage() {
     !!user?.academyId,
   );
 
-  // Poll every 4 minutes to refresh tokens
+  // Poll every minute; the API swaps the token before it gets within 2 min of expiry.
   useEffect(() => {
-    const interval = setInterval(() => refetch(), 4 * 60 * 1000);
+    const interval = setInterval(() => refetch(), 60 * 1000);
     return () => clearInterval(interval);
   }, [refetch]);
 
