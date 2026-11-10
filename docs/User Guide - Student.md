@@ -182,10 +182,10 @@ Você pode fazer check-in de duas formas. Ambas são igualmente válidas.
 
 ![Tela de aulas com botões de check-in do aluno](./assets/user-guide/student/classes-student-checkin.png)
 
-1. Barra inferior → **Aulas** — o quadro mostra as aulas de hoje
-   <sub><em>Bottom nav → Classes — the schedule shows today's classes</em></sub>
-2. Numa aula que está acontecendo agora, toque em **"Check-in"**
-   <sub><em>On a class that's happening now, tap **"Check-in"**</em></sub>
+1. Barra inferior → **Aulas** — a lista mostra as aulas de hoje, por horário (toque noutro dia da semana para ver as aulas desse dia)
+   <sub><em>Bottom nav → Classes — the list shows today's classes by time (tap another weekday to see that day's classes)</em></sub>
+2. A aula que está acontecendo aparece no topo, marcada **"Agora"** — toque em **"Check-in"**
+   <sub><em>The class happening now is pinned to the top, marked **"Agora"** (Now) — tap **"Check-in"**</em></sub>
 3. Seu celular solicitará permissão de localização — aprove
    <sub><em>Your phone will ask for location permission — approve it</em></sub>
 4. O sistema verifica se você está na academia (dentro de 250m) e registra sua presença ("Check-in feito")

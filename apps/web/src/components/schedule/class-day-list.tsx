@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
@@ -25,12 +25,27 @@ function localIsoDate(d: Date): string {
   ].join('-');
 }
 
+// Owner: cards open the class (onSelect) and list who is present today.
+// Student: renderAction draws the card's own controls (check-in) instead.
+// A button when the card opens something; a plain block when it holds its own buttons.
+function Card({ onClick, className, children }: { onClick?: () => void; className: string; children: ReactNode }) {
+  return onClick ? (
+    <button type="button" onClick={onClick} className={className}>
+      {children}
+    </button>
+  ) : (
+    <div className={className}>{children}</div>
+  );
+}
+
 export function ClassDayList({
   classes,
   onSelect,
+  renderAction,
 }: {
   classes: ClassItem[];
-  onSelect: (cls: ClassItem) => void;
+  onSelect?: (cls: ClassItem) => void;
+  renderAction?: (cls: ClassItem, live: boolean) => ReactNode;
 }) {
   const { t } = useTranslation();
   const today = new Date().getDay();
@@ -41,7 +56,7 @@ export function ClassDayList({
   const { data: checkins = [] } = useQuery<AcademyCheckin[]>({
     queryKey: ['checkins', 'academy'],
     queryFn: () => api<AcademyCheckin[]>('/checkins/academy'),
-    enabled: isToday,
+    enabled: isToday && !renderAction,
     refetchInterval: 60_000,
   });
   const todayIso = localIsoDate(new Date());
@@ -50,7 +65,9 @@ export function ClassDayList({
 
   const dayClasses = classes
     .filter((c) => c.dayOfWeek === day)
-    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    .sort((a, b) => a.startTime.localeCompare(b.startTime))
+    // The class on the mats right now goes first.
+    .sort((a, b) => Number(isToday && isActiveNow(b)) - Number(isToday && isActiveNow(a)));
 
   return (
     <div className="space-y-4">
@@ -93,12 +110,11 @@ export function ClassDayList({
             const live = isToday && isActiveNow(cls);
             return (
               <li key={cls.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelect(cls)}
-                  className={`w-full rounded-sm border bg-card p-4 text-left transition-colors hover:bg-muted/50 ${
-                    live ? 'border-primary' : 'border-border'
-                  }`}
+                <Card
+                  onClick={onSelect && (() => onSelect(cls))}
+                  className={`w-full rounded-sm border bg-card p-4 text-left ${
+                    onSelect ? 'transition-colors hover:bg-muted/50' : ''
+                  } ${live ? 'border-primary' : 'border-border'}`}
                 >
                   <span className="flex items-start justify-between gap-3">
                     <span className="min-w-0">
@@ -112,7 +128,10 @@ export function ClassDayList({
                       <Badge variant="outline">{cls.type}</Badge>
                     </span>
                   </span>
-                  {isToday && (
+                  {isToday && renderAction && (
+                    <span className="mt-3 block">{renderAction(cls, live)}</span>
+                  )}
+                  {isToday && !renderAction && (
                     <span className="mt-3 block space-y-2">
                       <span className="block text-sm text-muted-foreground">
                         {t('classes.presentCount', { count: present.length })}
@@ -128,7 +147,7 @@ export function ClassDayList({
                       )}
                     </span>
                   )}
-                </button>
+                </Card>
               </li>
             );
           })}

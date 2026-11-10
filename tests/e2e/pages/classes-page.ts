@@ -106,11 +106,16 @@ export class ClassesPage {
   }
 
   /**
-   * Click the check-in button rendered inside a calendar event block
-   * (student view, day calendar with inline renderEvent).
+   * Card for a class in the student's day list.
    */
-  async clickCheckinOnEvent(name: string) {
-    const event = this.classEvent(name).first();
-    await event.getByRole('button', { name: /^check-in$/i }).click();
+  classCard(name: string) {
+    return this.page.locator('li').filter({ hasText: new RegExp(name, 'i') });
+  }
+
+  /**
+   * Click the check-in button on a class card (student day list).
+   */
+  async clickCheckinOnCard(name: string) {
+    await this.classCard(name).first().getByRole('button', { name: /^check-in$/i }).click();
   }
 }

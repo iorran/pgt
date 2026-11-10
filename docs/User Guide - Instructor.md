@@ -492,8 +492,8 @@ A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença*
    <sub><em>Tap a day (Mon … Sun) to see that day's classes, in time order</em></sub>
 3. Nas aulas de hoje, cada card mostra quantos alunos fizeram check-in e os nomes deles. A lista se atualiza sozinha a cada minuto
    <sub><em>On today's classes, each card shows how many students checked in and their names. It refreshes by itself every minute</em></sub>
-4. A aula que está acontecendo ganha o selo **Agora**
-   <sub><em>The class happening now gets the Agora (Now) badge</em></sub>
+4. A aula que está acontecendo ganha o selo **Agora** e sobe para o topo da lista
+   <sub><em>The class happening now gets the Agora (Now) badge and moves to the top of the list</em></sub>
 5. Toque em **"Abrir totem"** para mostrar o QR code de check-in (veja [Totem com QR Code](#Método%202:%20Totem%20com%20QR%20Code))
    <sub><em>Tap "Abrir totem" (Open kiosk) to show the check-in QR code (see QR Code Totem)</em></sub>
 

@@ -11,35 +11,6 @@ vi.mock('@/lib/api', () => ({
   api: vi.fn(),
 }));
 
-// Mock ClassCalendar — captures the latest props so tests can inspect `events`
-// and trigger the rendered event buttons without mounting RBC.
-//
-// capturedProps is module-level because the vi.mock() factory is hoisted above
-// imports; the `beforeEach` reset below keeps within-file tests isolated.
-// Vitest's per-file worker model handles cross-file isolation.
-//
-// Uses <div> (not <button>) for the event wrapper because renderEvent returns
-// a <Button> for active classes — nesting buttons is invalid HTML.
-let capturedProps: any = {};
-vi.mock('@/components/schedule/class-calendar', () => ({
-  ClassCalendar: (props: any) => {
-    capturedProps = props;
-    return (
-      <div data-testid="class-calendar">
-        {props.events.map((e: any) => (
-          <div
-            key={e.id}
-            data-testid={`event-${e.id}`}
-            onClick={() => props.onEventClick && props.onEventClick(e.id)}
-          >
-            {props.renderEvent ? props.renderEvent(e) : e.title}
-          </div>
-        ))}
-      </div>
-    );
-  },
-}));
-
 vi.mock('@/components/tabs-nav', () => ({
   TabsNav: () => null,
 }));
@@ -99,7 +70,6 @@ const mockClasses = [
 describe('StudentClassesView', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    capturedProps = {};
     mockUseSession.mockReturnValue(studentSession);
   });
 
@@ -114,47 +84,79 @@ describe('StudentClassesView', () => {
       async (path: string) => (path.startsWith('/classes') ? mockClasses : [{ id: 'ck1', checkedInAt: '2026-01-01T10:00:00Z', class: null }]) as any,
     );
     renderWithProviders(<StudentClassesView />);
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
+    await screen.findByText('Morning Gi');
     await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/checkins/student/u2'));
     await new Promise((r) => setTimeout(r, 0));
     expect(screen.queryByText('firstAccess.noticeTitle')).not.toBeInTheDocument();
   });
 
-  it("today's classes are passed to the calendar as events", async () => {
-    mockApi
-      .mockResolvedValueOnce(mockClasses as any)
-      .mockResolvedValueOnce([] as any);
-
+  it("lists today's classes as cards, like the owner's day list", async () => {
+    mockApi.mockImplementation(async (path: string) => (path.startsWith('/classes') ? mockClasses : []) as any);
     renderWithProviders(<StudentClassesView />);
 
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
-
-    // Student view uses 'day' view by default → only today's classes appear
-    const eventIds = capturedProps.events.map((e: any) => e.id);
-    expect(eventIds).toContain('c1'); // c1 has today's dayOfWeek
-    // c2 is 3 days away → should NOT appear in day view
-    expect(eventIds).not.toContain('c2');
+    expect(await screen.findByText('Morning Gi')).toBeInTheDocument();
+    expect(screen.queryByText('No-Gi Night')).not.toBeInTheDocument();
+    // The owner-only attendance feed is never requested for a student.
+    expect(mockApi).not.toHaveBeenCalledWith('/checkins/academy');
   });
 
-  it('shows no-results message and no calendar when no classes today', async () => {
-    // All classes on a different day — none match today
-    const otherDow = (now.getDay() + 4) % 7;
-    const noTodayClasses = [
-      { id: 'x1', name: 'Future Gi', type: 'gi', dayOfWeek: otherDow, startTime: '10:00', endTime: '11:00' },
-    ];
-    mockApi
-      .mockResolvedValueOnce(noTodayClasses as any)
-      .mockResolvedValueOnce([] as any);
+  it('another day shows its classes without a check-in button', async () => {
+    const user = userEvent.setup();
+    mockApi.mockImplementation(async (path: string) => (path.startsWith('/classes') ? [makeActiveClass(), mockClasses[1]] : []) as any);
+    renderWithProviders(<StudentClassesView />);
+    await screen.findByText('classes.checkinProximity');
 
+    const keys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    await user.click(screen.getByRole('button', { name: `classes.days.${keys[mockClasses[1].dayOfWeek]}` }));
+
+    expect(screen.getByText('No-Gi Night')).toBeInTheDocument();
+    expect(screen.queryByText('classes.checkinProximity')).not.toBeInTheDocument();
+  });
+
+  it('shows checked-in instead of the button once the student is present', async () => {
+    const activeClass = makeActiveClass();
+    mockApi.mockImplementation(async (path: string) =>
+      (path.startsWith('/classes')
+        ? [activeClass]
+        : [{ id: 'k1', checkedInAt: new Date().toISOString(), class: { id: activeClass.id } }]) as any,
+    );
     renderWithProviders(<StudentClassesView />);
 
-    await waitFor(() => {
-      expect(screen.queryByTestId('class-calendar')).not.toBeInTheDocument();
-      expect(screen.getByText('common.noResults')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('classes.checkedIn')).toBeInTheDocument();
+    expect(screen.queryByText('classes.checkinProximity')).not.toBeInTheDocument();
   });
 
-  it('active class renders check-in button inside event', async () => {
+  it('pins the live class above earlier classes of the day', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 10, 19, 15)); // Tuesday evening
+    try {
+      const day = new Date().getDay();
+      mockApi.mockImplementation(async (path: string) =>
+        (path.startsWith('/classes')
+          ? [
+              { id: 'm', name: 'Morning Gi', type: 'gi', dayOfWeek: day, startTime: '07:00', endTime: '08:00' },
+              { id: 'e', name: 'Evening Gi', type: 'gi', dayOfWeek: day, startTime: '19:00', endTime: '20:00' },
+            ]
+          : []) as any,
+      );
+      renderWithProviders(<StudentClassesView />);
+
+      await screen.findByText('Evening Gi');
+      const names = screen.getAllByRole('listitem').map((li) => li.textContent);
+      expect(names[0]).toContain('Evening Gi');
+      expect(names[1]).toContain('Morning Gi');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('shows no-results message when the academy has no classes', async () => {
+    mockApi.mockResolvedValue([] as any);
+    renderWithProviders(<StudentClassesView />);
+    expect(await screen.findByText('common.noResults')).toBeInTheDocument();
+  });
+
+  it('active class renders a check-in button on its card', async () => {
     const activeClass = makeActiveClass();
     mockApi
       .mockResolvedValueOnce([activeClass] as any)
@@ -162,9 +164,6 @@ describe('StudentClassesView', () => {
 
     renderWithProviders(<StudentClassesView />);
 
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
-
-    // The calendar renders each event via props.renderEvent; find the checkin button
     await waitFor(() => {
       expect(screen.getByText('classes.checkinProximity')).toBeInTheDocument();
     });
@@ -191,8 +190,6 @@ describe('StudentClassesView', () => {
     });
 
     renderWithProviders(<StudentClassesView />);
-
-    await waitFor(() => expect(capturedProps.events).toBeDefined());
 
     const checkinBtn = await screen.findByText('classes.checkinProximity');
     await user.click(checkinBtn);
