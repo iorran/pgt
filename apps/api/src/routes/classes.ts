@@ -8,7 +8,8 @@ import { injectAcademyId } from '../middleware/tenant.js';
 export async function classRoutes(app: FastifyInstance) {
   // List classes for academy
   app.get('/api/classes', { preHandler: [requireAuth, injectAcademyId] }, async (request) => {
-    return db.select().from(bjjClass).where(eq(bjjClass.academyId, request.academyId));
+    return db.select().from(bjjClass)
+      .where(and(eq(bjjClass.academyId, request.academyId), eq(bjjClass.active, true)));
   });
 
   // Create class (owner only)

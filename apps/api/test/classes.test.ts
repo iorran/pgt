@@ -192,6 +192,37 @@ describe('DELETE /api/classes/:id', () => {
     expect(res.json().active).toBe(false);
   });
 
+  it('deleted class no longer appears in the class list', async () => {
+    const acad = await createTestAcademy();
+    const instructor = await createTestOwner(acad.id);
+
+    const [cls] = await testDb.insert(bjjClass).values({
+      academyId: acad.id,
+      instructorId: instructor.id,
+      name: 'To Delete',
+      type: 'gi',
+      recurrence: 'weekly',
+      dayOfWeek: 1,
+      startTime: '07:00',
+      endTime: '08:30',
+    }).returning();
+
+    await app.inject({
+      method: 'DELETE',
+      url: `/api/classes/${cls.id}`,
+      headers: authHeaders(instructor),
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/classes?academyId=${acad.id}`,
+      headers: authHeaders(instructor),
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toHaveLength(0);
+  });
+
   it('student cannot delete a class (403)', async () => {
     const acad = await createTestAcademy();
     const instructor = await createTestOwner(acad.id);
