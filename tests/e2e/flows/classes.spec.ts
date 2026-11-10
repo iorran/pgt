@@ -166,14 +166,14 @@ test('18. student taps check-in with mocked geolocation', async ({ browser }) =>
     const classesPage = new ClassesPage(page);
     await classesPage.goto();
 
-    // Class event should be visible on the day calendar
-    await expect(classesPage.classEvent(cls.name).first()).toBeVisible({
+    // Class card should be visible in today's list
+    await expect(classesPage.classCard(cls.name).first()).toBeVisible({
       timeout: 10_000,
     });
 
-    // The check-in button is rendered inside the event block when
-    // isActiveNow() === true and the student hasn't checked in yet.
-    await classesPage.clickCheckinOnEvent(cls.name);
+    // The check-in button is on the card when isActiveNow() === true
+    // and the student hasn't checked in yet.
+    await classesPage.clickCheckinOnCard(cls.name);
 
     // After a successful check-in, the UI shows t('classes.checkedIn') = "Presente"
     // on the card, or t('classes.checkinSuccess') as a paragraph message

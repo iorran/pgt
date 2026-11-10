@@ -4,13 +4,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { useApiQuery } from '@/hooks/use-api';
-import { useClassCalendar } from '@/hooks/use-class-calendar';
-import { ClassCalendar } from '@/components/schedule/class-calendar';
+import { ClassDayList } from '@/components/schedule/class-day-list';
 import { PageLoader } from '@/components/page-loader';
 import { Button } from '@/components/ui/button';
 import { TabsNav } from '@/components/tabs-nav';
 import { FirstCheckinNotice } from '@/components/first-checkin-notice';
-import { isActiveNow, type ClassItem, type CalendarEvent } from '@/lib/schedule';
+import type { ClassItem } from '@/lib/schedule';
 
 export function StudentClassesView() {
   const { t } = useTranslation();
@@ -74,40 +73,17 @@ export function StudentClassesView() {
     );
   }
 
-  const calendar = useClassCalendar({
-    classes,
-    onMove: () => {},
-    onSelect: () => {},
-    initialView: 'day',
-    readOnly: true,
-  });
-
-  function renderEvent(event: CalendarEvent) {
-    const cls = event.resource;
-    const active = isActiveNow(cls);
-    const checkedIn = isCheckedIn(cls.id);
+  function renderAction(cls: ClassItem, live: boolean) {
+    if (isCheckedIn(cls.id)) {
+      return <span className="font-heading uppercase text-primary">{t('classes.checkedIn')}</span>;
+    }
+    if (!live) {
+      return null;
+    }
     return (
-      <div className="flex flex-col gap-1 p-1 text-xs">
-        <span className="font-heading uppercase">{cls.name}</span>
-        <span>
-          {cls.startTime} – {cls.endTime}
-        </span>
-        {active && !checkedIn && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCheckin(cls.id);
-            }}
-          >
-            {t('classes.checkinProximity')}
-          </Button>
-        )}
-        {checkedIn && (
-          <span className="text-primary font-bold">{t('classes.checkedIn')}</span>
-        )}
-      </div>
+      <Button className="h-11 w-full" onClick={() => handleCheckin(cls.id)}>
+        {t('classes.checkinProximity')}
+      </Button>
     );
   }
 
@@ -123,19 +99,8 @@ export function StudentClassesView() {
         ]}
       />
       {checkinsLoaded && myCheckins.length === 0 && <FirstCheckinNotice />}
-      {calendar.events.length > 0 ? (
-        <ClassCalendar
-          events={calendar.events}
-          view={calendar.view}
-          date={calendar.date}
-          onViewChange={calendar.setView}
-          onDateChange={calendar.setDate}
-          onEventDrop={calendar.onEventDrop}
-          onEventClick={calendar.onEventClick}
-          readOnly
-          toolbar={false}
-          renderEvent={renderEvent}
-        />
+      {classes.length > 0 ? (
+        <ClassDayList classes={classes} renderAction={renderAction} />
       ) : (
         <p className="text-muted-foreground text-center py-8">
           {t('common.noResults')}
