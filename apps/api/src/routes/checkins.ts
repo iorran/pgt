@@ -244,14 +244,16 @@ export async function checkinRoutes(app: FastifyInstance) {
       for (const cls of activeClasses) {
         const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
 
-        // Check for an existing valid token
+        // Reuse a token only if it outlives the totem's next poll (every 1 min),
+        // so the QR on screen is never expired. Older tokens stay valid until
+        // they expire, for students who scanned just before the swap.
         const [existing] = await db
           .select()
           .from(checkinToken)
           .where(
             and(
               eq(checkinToken.classId, cls.id),
-              gte(checkinToken.expiresAt, now),
+              gte(checkinToken.expiresAt, new Date(now.getTime() + 2 * 60 * 1000)),
             ),
           )
           .limit(1);

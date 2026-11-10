@@ -180,6 +180,30 @@ describe('GET /api/checkins/tokens — active classes', () => {
     expect(body).toHaveLength(1);
     expect(body[0].token).toBe(existingToken);
   });
+
+  // The totem shows whatever this returns until its next poll. Handing back a
+  // token about to expire left an expired QR on screen until the next poll.
+  it('mints a fresh token when the existing one is about to expire', async () => {
+    const { instructor, cls } = await setupActiveClass();
+
+    const staleToken = crypto.randomUUID();
+    await testDb.insert(checkinToken).values({
+      classId: cls.id,
+      token: staleToken,
+      expiresAt: new Date(Date.now() + 60 * 1000), // 1 min left
+    });
+
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/checkins/tokens',
+      headers: authHeaders(instructor),
+    });
+
+    expect(res.statusCode).toBe(200);
+    const [served] = res.json();
+    expect(served.token).not.toBe(staleToken);
+    expect(new Date(served.expiresAt).getTime() - Date.now()).toBeGreaterThan(2 * 60 * 1000);
+  });
 });
 
 describe('POST /api/checkins — QR token validation', () => {

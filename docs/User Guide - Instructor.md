@@ -553,8 +553,8 @@ O totem de QR Code transforma qualquer tablet em uma estação de check-in.
    <sub><em>On a tablet at your gym entrance, log in with your account and open Menu → Totem (Kiosk), the "Abrir totem" (Open kiosk) button in Aulas, or the `/totem` address</em></sub>
 2. A página mostra os QR Codes de todas as aulas que estão acontecendo; fora do horário aparece "Nenhuma aula no momento"
    <sub><em>The page shows QR codes for all classes currently happening; outside class times it shows "Nenhuma aula no momento" (No classes right now)</em></sub>
-3. Os códigos são atualizados a cada **4 minutos**
-   <sub><em>Codes refresh every 4 minutes</em></sub>
+3. Os códigos são atualizados sozinhos a cada poucos minutos — o QR na tela está sempre válido
+   <sub><em>Codes refresh on their own every few minutes — the QR on screen is always valid</em></sub>
 4. Os alunos escaneiam com a câmera do celular (ou pelo botão central de check-in do app) → o check-in é concluído automaticamente
    <sub><em>Students scan with their phone camera (or with the app's center check-in button) → check-in completes automatically</em></sub>
 5. Para sair do totem, toque em **"Voltar"**
