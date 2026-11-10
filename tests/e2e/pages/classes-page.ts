@@ -75,9 +75,9 @@ export class ClassesPage {
     // Type — native <select>
     await dialog.locator('select').first().selectOption(opts.type);
 
-    // Day-of-week toggle buttons (0-indexed, matching DAY_KEYS order)
-    // The buttons are in a flex-wrap row of 7 day buttons
-    const dayButtons = dialog.locator('button[type="button"]');
+    // Day-of-week toggle buttons (0-indexed, matching DAY_KEYS order), inside the
+    // "Dias da semana" group — the dialog also has the Toda semana / Data única toggle.
+    const dayButtons = dialog.getByRole('group', { name: /dias da semana/i }).getByRole('button');
     await dayButtons.nth(opts.dayIndex).click();
 
     // Start and end time inputs (type="time")
