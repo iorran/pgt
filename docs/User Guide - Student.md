@@ -115,6 +115,8 @@ Se a academia juntou sua casa numa **família** (ex.: pais e filhos), só **uma 
    <sub><em>The app works as if that person had logged in: check-in, fees, progress, results, tournaments, shop</em></sub>
 4. Para mudar de pessoa, toque em **"Trocar perfil"** no topo da tela
    <sub><em>To switch person, tap "Trocar perfil" (Switch profile) at the top of the screen</em></sub>
+   Mudou de ideia? Toque na seta **‹** ao lado do título para voltar sem trocar
+   <sub><em>Changed your mind? Tap the ‹ arrow next to the title to go back without switching</em></sub>
 
 > [!tip] Uma aba por filho
 > O perfil escolhido vale só para aquela aba do navegador. Dá para deixar uma aba aberta para cada filho.
@@ -154,6 +156,9 @@ Você pode instalar o PGT na tela inicial do seu celular e usá-lo como um aplic
 
 A navegação principal fica na barra inferior, sempre visível. A aba em que você está fica destacada em verde — inclusive nas páginas dentro dela (ex.: **Campeonatos** e **Idioma** mantêm **Perfil** destacado).
 <sub><em>The main navigation lives in the bottom bar, always visible. The tab you're in is highlighted in green — including the pages inside it (e.g., **Campeonatos** and **Idioma** keep **Perfil** highlighted).</em></sub>
+
+Páginas que não são abas (ex.: **Campeonatos**, **Mensalidade**, **Idioma**, **Ajuda**, **Trocar perfil**) têm uma seta **‹** ao lado do título para voltar à tela anterior.
+<sub><em>Pages that aren't tabs (e.g., **Campeonatos**, **Mensalidade**, **Idioma**, **Ajuda**, **Trocar perfil**) have a **‹** arrow next to the title to go back to the previous screen.</em></sub>
 
 - **Aulas** — o quadro de aulas e seu histórico de presenças.
   <sub><em>**Classes** — the class schedule and your attendance history.</em></sub>

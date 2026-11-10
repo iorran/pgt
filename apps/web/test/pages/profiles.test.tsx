@@ -56,6 +56,20 @@ describe('ProfilesPage — Quem vai usar?', () => {
     expect(wasProfileChosen()).toBe(true);
   });
 
+  it('offers a way back when switching profiles from inside the app', async () => {
+    mockProfiles({ id: 'r1', name: 'Rafael Costa', belt: 'purple', image: null });
+    renderWithProviders(<ProfilesPage canGoBack />);
+    await screen.findByRole('button', { name: /Livia Costa/ });
+    expect(screen.getByRole('link', { name: 'common.back' })).toHaveAttribute('href', '/');
+  });
+
+  it('has no way back when picking a profile is required', async () => {
+    mockProfiles({ id: 'r1', name: 'Rafael Costa', belt: 'purple', image: null });
+    renderWithProviders(<ProfilesPage />);
+    await screen.findByRole('button', { name: /Livia Costa/ });
+    expect(screen.queryByRole('link', { name: 'common.back' })).toBeNull();
+  });
+
   it('a Responsible who does not train only sees Dependents', async () => {
     mockProfiles(null);
     renderWithProviders(<ProfilesPage />);

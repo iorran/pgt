@@ -26,6 +26,13 @@ describe('HelpPage', () => {
     expect(screen.queryByRole('link', { name: 'help.ownerGuide' })).toBeNull();
   });
 
+  it('has a back link home', () => {
+    as('student');
+    renderWithRoute(<HelpPage />, ['/ajuda']);
+    expect(screen.getByRole('heading', { level: 1, name: 'help.title' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'common.back' })).toHaveAttribute('href', '/');
+  });
+
   it('shows the owner guide to the owner, with a switch to the student guide', () => {
     as('owner');
     renderWithRoute(<HelpPage />, ['/ajuda']);

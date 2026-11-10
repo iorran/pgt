@@ -9,6 +9,7 @@ import { isOwner } from '@/lib/roles';
 import { findSection, GUIDES, matches, parseGuide, type GuideKind } from '@/lib/guide';
 import { ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { SubpageHeader } from '@/components/subpage-header';
 
 // Screenshots stay in the vault; Vite turns each into a hashed URL, fetched only when shown.
 const IMAGES = import.meta.glob('../../../../docs/assets/user-guide/**/*.png', {
@@ -147,7 +148,7 @@ export default function HelpPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-3 font-heading text-2xl uppercase tracking-wide">{t('help.title')}</h1>
+      <SubpageHeader title={t('help.title')} to="/" className="mb-3" />
       {owner && (
         <nav aria-label={t('help.title')} className="mb-4 flex gap-1 border-b border-border">
           <Link to="/ajuda" aria-current={guide === 'owner' ? 'page' : undefined} className={tabClass(guide === 'owner')}>

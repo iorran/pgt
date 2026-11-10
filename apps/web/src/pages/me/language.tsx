@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SubpageHeader } from './subpage-header';
+import { SubpageHeader } from '@/components/subpage-header';
 import { RadioOptions } from './options';
 
 type Language = 'pt-BR' | 'en';
