@@ -182,10 +182,10 @@ Você pode fazer check-in de duas formas. Ambas são igualmente válidas.
 
 ![Tela de aulas com botões de check-in do aluno](./assets/user-guide/student/classes-student-checkin.png)
 
-1. Barra inferior → **Aulas** — a lista mostra as aulas de hoje, por horário (toque noutro dia da semana para ver as aulas desse dia)
-   <sub><em>Bottom nav → Classes — the list shows today's classes by time (tap another weekday to see that day's classes)</em></sub>
-2. A aula que está acontecendo aparece no topo, marcada **"Agora"** — toque em **"Check-in"**
-   <sub><em>The class happening now is pinned to the top, marked **"Agora"** (Now) — tap **"Check-in"**</em></sub>
+1. Barra inferior → **Aulas** — o dia aparece como uma linha do tempo, por horário, com o professor de cada aula. A página abre na aula que está acontecendo (toque noutro dia da semana para ver as aulas desse dia)
+   <sub><em>Bottom nav → Classes — the day shows as a timeline, by time, with each class's teacher. The page opens on the class happening now (tap another weekday to see that day's classes)</em></sub>
+2. Na aula marcada **"Agora"**, toque em **"Check-in"**. Se duas aulas acontecem ao mesmo tempo, aparece "2 aulas agora · escolha a sua": faça check-in só numa delas
+   <sub><em>On the class marked "Agora" (Now), tap "Check-in". If two classes run at the same time, you'll see "2 aulas agora · escolha a sua" (2 classes now · pick yours): check in to one of them only</em></sub>
 3. Seu celular solicitará permissão de localização — aprove
    <sub><em>Your phone will ask for location permission — approve it</em></sub>
 4. O sistema verifica se você está na academia (dentro de 250m) e registra sua presença ("Check-in feito")
@@ -197,6 +197,10 @@ Você pode fazer check-in de duas formas. Ambas são igualmente válidas.
 
 Após o check-in, o botão é substituído por **"Presente"**.
 <sub><em>After checking in, the button is replaced by **"Presente"**.</em></sub>
+
+> [!tip] Esqueceu do check-in?
+> Até 1 hora depois do fim da aula ela continua com um botão **"Check-in"** (com contorno), marcada "Terminou · check-in aberto até…". Se você faz duas aulas seguidas, pode fazer check-in nas duas.
+> <sub><em>Forgot to check in? Until 1 hour after a class ends it keeps an outlined "Check-in" button, marked "Terminou · check-in aberto até…" (Ended · check-in open until…). If you train two classes in a row, you can check in to both.</em></sub>
 
 ### Método 2: Escanear o QR Code do Totem
 <sub><em>Method 2: Scan the Totem QR Code</em></sub>
@@ -222,6 +226,26 @@ Aponte a câmera do celular para o QR Code do totem na academia (ou use o [Check
 
 Barra inferior → **Aulas** → aba **Histórico de presença**. Veja todos os seus check-ins anteriores com data, nome da aula e tipo.
 <sub><em>Bottom nav → Classes → **Histórico de presença** tab. See all your past check-ins with date, class name, and type.</em></sub>
+
+## Seminários
+<sub><em>Seminars</em></sub>
+
+![Seminário no quadro de aulas](./assets/user-guide/student/seminar-student.png)
+
+Seminários são aulas especiais de um dia, normalmente com um professor convidado, pagas à parte da mensalidade. Aparecem em âmbar, com o selo **Seminário**, na data deles (o dia da semana ganha um ponto âmbar).
+<sub><em>Seminars are special one-day classes, usually with a guest teacher, paid separately from the monthly fee. They show in amber with the Seminário badge, on their date (the weekday gets an amber dot).</em></sub>
+
+1. Toque em **"Quero participar"** para se inscrever. O card passa a mostrar **"Inscrito · 40,00 € pendente"**
+   <sub><em>Tap "Quero participar" (Join) to sign up. The card then shows "Inscrito · 40,00 € pendente" (Signed up · €40.00 pending)</em></sub>
+2. Pague na academia; a academia marca como **Pago**
+   <sub><em>Pay at the academy; they mark it as Pago (Paid)</em></sub>
+3. Mudou de ideia? Enquanto estiver pendente, toque em **"Cancelar"**. Depois de pago, fale com a academia
+   <sub><em>Changed your mind? While it's pending, tap "Cancelar" (Cancel). Once paid, talk to the academy</em></sub>
+4. No dia, o check-in é como numa aula normal (botão ou QR code)
+   <sub><em>On the day, check-in works like a normal class (button or QR code)</em></sub>
+
+Os seus seminários, pendentes e pagos, também aparecem em **Perfil → Mensalidade**, na seção **Seminários**.
+<sub><em>Your seminars, pending and paid, also show in Perfil → Mensalidade (Profile → Monthly fee), in the Seminários section.</em></sub>
 
 ## Check-in rápido
 <sub><em>Quick check-in</em></sub>

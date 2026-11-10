@@ -29,6 +29,9 @@ const RESPONSIBLE = 'paula.lima@demo.pgt';
  *   - prep:  string comment describing manual/seed prep needed (not executed by this script).
  *   - action: optional async (page) => void run before the screenshot (e.g., open a dialog).
  */
+// The guide seed puts its Seminar 3 days from now; the timeline's weekday button opens that day.
+const SEMINAR_DAY = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][new Date(Date.now() + 3 * 864e5).getDay()];
+
 const SHOTS = [
   // ── Unauthenticated ─────────────────────────────────────────────────────────
   {
@@ -328,6 +331,55 @@ const SHOTS = [
     viewport: 'mobile',
     login: INSTRUCTOR,
     // prep: none — default list view: weekday chips, today's class cards with check-in counts
+  },
+
+  // ── Seminars (seed-guide puts one 3 days from now, with a Guest Teacher) ────
+  {
+    slug: 'seminar-student',
+    role: 'student',
+    path: '/classes',
+    viewport: 'mobile',
+    login: STUDENT_AZUL,
+    action: async (page) => {
+      await page.getByRole('button', { name: SEMINAR_DAY, exact: true }).click();
+      await page.getByText('Passagem de guarda').first().scrollIntoViewIfNeeded();
+    },
+  },
+  {
+    slug: 'seminar-page',
+    role: 'instructor',
+    path: '/classes',
+    viewport: 'mobile',
+    login: INSTRUCTOR,
+    action: async (page) => {
+      await page.getByRole('button', { name: SEMINAR_DAY, exact: true }).click();
+      await page.getByText('Passagem de guarda').first().click();
+      await page.getByText('Marta Sousa').waitFor();
+    },
+  },
+  {
+    slug: 'seminar-create',
+    role: 'instructor',
+    path: '/classes',
+    viewport: 'mobile',
+    login: INSTRUCTOR,
+    action: async (page) => {
+      await page.getByRole('button', { name: 'Novo seminário' }).click();
+      await page.getByRole('dialog').waitFor();
+    },
+  },
+  {
+    slug: 'class-teacher-picker',
+    role: 'instructor',
+    path: '/classes',
+    viewport: 'mobile',
+    login: INSTRUCTOR,
+    action: async (page) => {
+      await page.getByRole('button', { name: 'Criar aula' }).click();
+      await page.getByRole('dialog').waitFor();
+      await page.getByLabel('Professor', { exact: true }).click();
+      await page.getByText('Faixas roxa, marrom e preta').waitFor();
+    },
   },
 
   // ── Families (ADR 0004) ─────────────────────────────────────────────────────

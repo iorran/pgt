@@ -1,11 +1,23 @@
+export interface ClassTeacher {
+  id: string;
+  name: string;
+  belt: string;
+}
+
 export interface ClassItem {
   id: string;
   name: string;
   type: string;
+  recurrence?: 'weekly' | 'once';
   dayOfWeek: number;
+  date?: string | null; // YYYY-MM-DD, one-off classes only
   startTime: string; // HH:mm
   endTime: string;   // HH:mm
-  instructor?: string;
+  teacher?: ClassTeacher | null;
+  guestTeacherName?: string | null;
+  isSeminar?: boolean;
+  studentPrice?: string | null;
+  outsiderPrice?: string | null;
 }
 
 export interface CalendarEvent {
@@ -62,16 +74,16 @@ export function classesToCalendarEvents(
     const base = new Date(anchor);
     base.setHours(0, 0, 0, 0);
     return classes
-      .filter((c) => c.dayOfWeek === dayDow)
+      .filter((c) => c.dayOfWeek === dayDow && occursOn(c, base))
       .map((c) => buildEvent(c, base));
   }
 
   if (range === 'week') {
     const monday = mondayOf(anchor);
-    return classes.map((c) => {
+    return classes.flatMap((c) => {
       const date = new Date(monday);
       date.setDate(monday.getDate() + offsetFromMonday(c.dayOfWeek));
-      return buildEvent(c, date);
+      return occursOn(c, date) ? [buildEvent(c, date)] : [];
     });
   }
 
@@ -88,19 +100,115 @@ export function classesToCalendarEvents(
     for (const c of classes) {
       const date = new Date(cursor);
       date.setDate(cursor.getDate() + offsetFromMonday(c.dayOfWeek));
-      events.push(buildEvent(c, date));
+      if (occursOn(c, date)) {
+        events.push(buildEvent(c, date));
+      }
     }
     cursor.setDate(cursor.getDate() + 7);
   }
   return events;
 }
 
+export function isoDate(d: Date): string {
+  return [
+    d.getFullYear(),
+    String(d.getMonth() + 1).padStart(2, '0'),
+    String(d.getDate()).padStart(2, '0'),
+  ].join('-');
+}
+
+// A one-off class happens only on its date; a weekly one on its weekday.
+function occursOn(cls: ClassItem, day: Date): boolean {
+  if (cls.recurrence === 'once') {
+    return cls.date === isoDate(day);
+  }
+  return cls.dayOfWeek === day.getDay();
+}
+
+const toMin = (hhmm: string) => {
+  const { h, m } = parseHHmm(hhmm);
+  return h * 60 + m;
+};
+
+export const BEFORE_START_MIN = 15;
+export const AFTER_END_MIN = 60;
+
+// Where a class of today stands at `now`. Check-in is open in soon, live and open-after.
+export type SlotState = 'upcoming' | 'soon' | 'live' | 'open-after' | 'past';
+
+export function slotState(cls: ClassItem, now: Date = new Date()): SlotState {
+  const n = now.getHours() * 60 + now.getMinutes();
+  const start = toMin(cls.startTime);
+  const end = toMin(cls.endTime);
+  if (n < start - BEFORE_START_MIN) {
+    return 'upcoming';
+  }
+  if (n < start) {
+    return 'soon';
+  }
+  if (n < end) {
+    return 'live';
+  }
+  if (n <= end + AFTER_END_MIN) {
+    return 'open-after';
+  }
+  return 'past';
+}
+
 // Check-in window: from 15 min before start until 1 h after the end.
-export function isActiveNow(cls: ClassItem): boolean {
-  const now = new Date();
-  if (cls.dayOfWeek !== now.getDay()) return false;
-  const [sh, sm] = cls.startTime.split(':').map(Number);
-  const [eh, em] = cls.endTime.split(':').map(Number);
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  return nowMin >= sh * 60 + sm - 15 && nowMin <= eh * 60 + em + 60;
+export function isActiveNow(cls: ClassItem, now: Date = new Date()): boolean {
+  if (!occursOn(cls, now)) {
+    return false;
+  }
+  const state = slotState(cls, now);
+  return state === 'soon' || state === 'live' || state === 'open-after';
+}
+
+// The next date (today included) that falls on `dow`.
+export function dateForWeekday(dow: number, today: Date = new Date()): Date {
+  const d = new Date(today);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + ((dow - d.getDay() + 7) % 7));
+  return d;
+}
+
+export function classesOn(classes: ClassItem[], day: Date): ClassItem[] {
+  return classes.filter((c) => occursOn(c, day));
+}
+
+// Classes that start together share a slot on the timeline.
+export function groupByStart(classes: ClassItem[]): ClassItem[][] {
+  const sorted = [...classes].sort(
+    (a, b) => a.startTime.localeCompare(b.startTime) || a.name.localeCompare(b.name),
+  );
+  const groups: ClassItem[][] = [];
+  for (const c of sorted) {
+    const last = groups[groups.length - 1];
+    if (last && last[0].startTime === c.startTime) {
+      last.push(c);
+    } else {
+      groups.push([c]);
+    }
+  }
+  return groups;
+}
+
+// Glossary: black belt = Professor, purple/brown = Instructor; other belts teach without a title.
+export function teacherTitle(belt?: string | null): 'Professor' | 'Instructor' | null {
+  if (belt === 'black') {
+    return 'Professor';
+  }
+  if (belt === 'purple' || belt === 'brown') {
+    return 'Instructor';
+  }
+  return null;
+}
+
+export function minutesSince(hhmm: string, now: Date = new Date()): number {
+  return now.getHours() * 60 + now.getMinutes() - toMin(hhmm);
+}
+
+export function addMinutes(hhmm: string, minutes: number): string {
+  const total = (((toMin(hhmm) + minutes) % 1440) + 1440) % 1440;
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }

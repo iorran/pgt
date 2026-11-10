@@ -71,6 +71,8 @@
   --color-success-text: var(--success-text);
   --color-danger-text: var(--danger-text);
   --color-warning-text: var(--warning-text);
+  --color-seminar: var(--seminar);
+  --color-seminar-foreground: var(--seminar-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -137,6 +139,10 @@
   --success-text: #4ADE80; /* 9.99 card / 11.36 bg */
   --danger-text: #FF7A70;  /* 6.85 card / 7.80 bg / 4.70 on hover tint destructive/30 */
   --warning-text: #FACC15; /* 11.36 card / 12.93 bg */
+
+  /* Seminars — amber, darker than the lime primary so the two differ in lightness too */
+  --seminar: #F59E0B; /* 8.0 card */
+  --seminar-foreground: #0a0a0a;
 
   /* Borders & Inputs */
   --border: #2a2a2a;

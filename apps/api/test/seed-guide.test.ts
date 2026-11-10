@@ -101,7 +101,7 @@ describe('seedGuide', () => {
     expect(counts.academy?.city).toBe('Lisboa');
     expect(counts.users).toBe(8); // 1 instructor + 4 students + family (Responsible + 2 Dependents)
     expect(counts.classes).toBeGreaterThanOrEqual(2);
-    expect(counts.classes).toBeLessThanOrEqual(3);
+    expect(counts.classes).toBeLessThanOrEqual(4); // 3 weekly + the guide Seminar
     expect(counts.modalities).toBe(2);
     expect(counts.studentModalities).toBe(3);
     expect(counts.fees).toEqual(['180.00', '180.00', '180.00']);

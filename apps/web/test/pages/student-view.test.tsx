@@ -126,28 +126,107 @@ describe('StudentClassesView', () => {
     expect(screen.queryByText('classes.checkinProximity')).not.toBeInTheDocument();
   });
 
-  it('pins the live class above earlier classes of the day', async () => {
-    vi.useFakeTimers({ toFake: ['Date'] });
-    vi.setSystemTime(new Date(2026, 10, 10, 19, 15)); // Tuesday evening
-    try {
-      const day = new Date().getDay();
-      mockApi.mockImplementation(async (path: string) =>
-        (path.startsWith('/classes')
-          ? [
-              { id: 'm', name: 'Morning Gi', type: 'gi', dayOfWeek: day, startTime: '07:00', endTime: '08:00' },
-              { id: 'e', name: 'Evening Gi', type: 'gi', dayOfWeek: day, startTime: '19:00', endTime: '20:00' },
-            ]
-          : []) as any,
-      );
-      renderWithProviders(<StudentClassesView />);
+  describe('timeline on a Tuesday evening', () => {
+    // Tuesday 10 Nov 2026
+    const at = (h: number, m: number) => new Date(2026, 10, 10, h, m);
+    const tue = (id: string, name: string, startTime: string, endTime: string, extra: object = {}) => ({
+      id, name, type: 'gi', recurrence: 'weekly', dayOfWeek: 2, date: null, startTime, endTime, ...extra,
+    });
 
-      await screen.findByText('Evening Gi');
-      const names = screen.getAllByRole('listitem').map((li) => li.textContent);
-      expect(names[0]).toContain('Evening Gi');
-      expect(names[1]).toContain('Morning Gi');
-    } finally {
-      vi.useRealTimers();
+    function serve(classes: object[], checkins: object[] = [], seminars: object[] = []) {
+      mockApi.mockImplementation(async (path: string) =>
+        (path.startsWith('/classes') ? classes : path === '/seminars/mine' ? seminars : path.startsWith('/checkins/student') ? checkins : {}) as any,
+      );
     }
+
+    async function at_(time: Date, run: () => Promise<void>) {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(time);
+      try {
+        await run();
+      } finally {
+        vi.useRealTimers();
+      }
+    }
+
+    it('keeps the day in time order with the live class in place', async () => {
+      await at_(at(19, 15), async () => {
+        serve([tue('e', 'Evening Gi', '19:00', '20:00'), tue('m', 'Morning Gi', '07:00', '08:00')]);
+        renderWithProviders(<StudentClassesView />);
+        await screen.findByText('Evening Gi');
+        const names = screen.getAllByRole('listitem').map((li) => li.textContent);
+        expect(names[0]).toContain('Morning Gi');
+        expect(names[1]).toContain('Evening Gi');
+        expect(screen.getByText('classes.timeline.startedAgo')).toBeInTheDocument();
+      });
+    });
+
+    it('shows the now line between classes when nothing is on', async () => {
+      await at_(at(17, 40), async () => {
+        serve([tue('e', 'Evening Gi', '19:00', '20:00'), tue('m', 'Morning Gi', '07:00', '08:00')]);
+        renderWithProviders(<StudentClassesView />);
+        expect(await screen.findByText('classes.timeline.nextIn')).toBeInTheDocument();
+        expect(screen.getByText('classes.timeline.opensAt')).toBeInTheDocument();
+        expect(screen.queryByText('classes.checkinProximity')).not.toBeInTheDocument();
+      });
+    });
+
+    it('two classes at the same time: after checking into one, the other explains why it has no button', async () => {
+      await at_(at(19, 10), async () => {
+        serve(
+          [tue('gi', 'Adulto Gi', '19:00', '20:00'), tue('kids', 'Kids', '19:00', '20:00')],
+          [{ id: 'k1', checkedInAt: at(19, 5).toISOString(), class: { id: 'gi' } }],
+        );
+        renderWithProviders(<StudentClassesView />);
+        expect(await screen.findByText('classes.timeline.manyChoose')).toBeInTheDocument();
+        expect(screen.getByText('classes.checkedIn')).toBeInTheDocument();
+        expect(screen.getByText('classes.timeline.sameSlot')).toBeInTheDocument();
+        expect(screen.queryByText('classes.checkinProximity')).not.toBeInTheDocument();
+      });
+    });
+
+    it('back-to-back classes: the ended one keeps a check-in until an hour after it ends', async () => {
+      await at_(at(20, 10), async () => {
+        serve([tue('a', 'Adulto Gi', '19:00', '20:00'), tue('b', 'Avançado No-Gi', '20:00', '21:00')]);
+        renderWithProviders(<StudentClassesView />);
+        expect(await screen.findByText('classes.timeline.endedOpen')).toBeInTheDocument();
+        expect(screen.getAllByText('classes.checkinProximity')).toHaveLength(2);
+      });
+    });
+
+    it('a one-off class only shows on its own date', async () => {
+      await at_(at(9, 0), async () => {
+        serve([tue('o', 'Aulão', '19:00', '20:00', { recurrence: 'once', date: '2026-11-17' })]);
+        renderWithProviders(<StudentClassesView />);
+        expect(await screen.findByText('classes.noClassesOnDay')).toBeInTheDocument();
+      });
+    });
+
+    it('a seminar offers sign-up and posts it', async () => {
+      const user = userEvent.setup();
+      await at_(at(9, 0), async () => {
+        serve([tue('s', 'Passagem de guarda', '19:00', '21:00', { recurrence: 'once', date: '2026-11-10', isSeminar: true, studentPrice: '40.00', guestTeacherName: 'Ricardo Almeida' })]);
+        renderWithProviders(<StudentClassesView />);
+        expect(await screen.findByText('classes.teacher.guest')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'seminars.join' }));
+        expect(mockApi).toHaveBeenCalledWith('/seminars/s/signup', { method: 'POST' });
+      });
+    });
+
+    it('a signed-up seminar shows the pending amount and can be cancelled', async () => {
+      const user = userEvent.setup();
+      await at_(at(9, 0), async () => {
+        serve(
+          [tue('s', 'Passagem de guarda', '19:00', '21:00', { recurrence: 'once', date: '2026-11-10', isSeminar: true, studentPrice: '40.00' })],
+          [],
+          [{ classId: 's', name: 'Passagem de guarda', date: '2026-11-10', startTime: '19:00', endTime: '21:00', teacher: null, guestTeacherName: null, amount: '40.00', paidAt: null }],
+        );
+        renderWithProviders(<StudentClassesView />);
+        expect(await screen.findByText('seminars.signedUp')).toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: 'seminars.cancel' }));
+        expect(mockApi).toHaveBeenCalledWith('/seminars/s/signup', { method: 'DELETE' });
+      });
+    });
   });
 
   it('shows no-results message when the academy has no classes', async () => {

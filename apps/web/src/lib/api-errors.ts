@@ -12,6 +12,13 @@ const KEYS: Record<string, string> = {
   STUDENT_IN_FAMILY: 'families.errors.studentInFamily',
   RESPONSIBLE_OF_FAMILY: 'onboarding.responsibleOfFamily',
   'Academy not found': 'onboarding.academyNotFound',
+  ALREADY_PARTICIPANT: 'seminars.errors.alreadyParticipant',
+  SEMINAR_PAST: 'seminars.errors.past',
+  SEMINAR_ALREADY_PAID: 'seminars.errors.alreadyPaid',
+  SEMINAR_PRICE_REQUIRED: 'seminars.errors.priceRequired',
+  DATE_REQUIRED: 'seminars.errors.dateRequired',
+  INVALID_TEACHER: 'seminars.errors.invalidTeacher',
+  NAME_REQUIRED: 'seminars.errors.nameRequired',
 };
 
 export function errorKey(err: unknown): string {

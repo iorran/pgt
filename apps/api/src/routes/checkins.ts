@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { checkin, streak, bjjClass, academy, checkinToken, user } from '../db/schema/index.js';
-import { eq, and, gte, lt, ne, desc } from 'drizzle-orm';
+import { eq, and, gte, lt, ne, desc, inArray } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { authorizeStudentRead } from '../middleware/student-access.js';
@@ -239,6 +239,19 @@ export async function checkinRoutes(app: FastifyInstance) {
       // Filter to currently active classes (time window evaluated in academy TZ)
       const activeClasses = classes.filter((cls) => isClassActiveNow(cls, tz, now));
 
+      const teacherIds = activeClasses.map((c) => c.teacherId).filter((id): id is string => Boolean(id));
+      const teachers = teacherIds.length
+        ? await db.select({ id: user.id, name: user.name, belt: user.belt }).from(user).where(inArray(user.id, teacherIds))
+        : [];
+      const teacherOf = (cls: typeof activeClasses[number]) => {
+        const t = teachers.find((row) => row.id === cls.teacherId);
+        return {
+          teacher: t ? { name: t.name, belt: t.belt } : null,
+          guestTeacherName: cls.guestTeacherName,
+          isSeminar: cls.isSeminar,
+        };
+      };
+
       const results = [];
 
       for (const cls of activeClasses) {
@@ -267,6 +280,7 @@ export async function checkinRoutes(app: FastifyInstance) {
             endTime: cls.endTime,
             token: existing.token,
             expiresAt: existing.expiresAt,
+            ...teacherOf(cls),
           });
         } else {
           const newToken = crypto.randomUUID();
@@ -287,6 +301,7 @@ export async function checkinRoutes(app: FastifyInstance) {
             endTime: cls.endTime,
             token: created.token,
             expiresAt: created.expiresAt,
+            ...teacherOf(cls),
           });
         }
       }

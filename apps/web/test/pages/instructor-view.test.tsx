@@ -44,9 +44,14 @@ vi.mock('@/components/schedule/class-calendar', () => ({
 
 // Stub dialogs — we only care about the edit dialog for click/delete tests
 let createProps: any = {};
+let seminarProps: any = {};
 vi.mock('@/components/schedule/class-create-dialog', () => ({
   ClassCreateDialog: (props: any) => {
-    createProps = props;
+    if (props.seminar) {
+      seminarProps = props;
+    } else {
+      createProps = props;
+    }
     return null;
   },
 }));
@@ -94,6 +99,7 @@ describe('InstructorClassesView', () => {
     vi.clearAllMocks();
     capturedProps = {};
     createProps = {};
+    seminarProps = {};
     mockUseSession.mockReturnValue(instructorSession);
     // These tests drive the optional calendar view.
     localStorage.setItem('pgt.classesView', 'calendar');
@@ -289,6 +295,33 @@ describe('InstructorClassesView', () => {
     await createProps.onSubmit(createValues);
     expect(mockApi).toHaveBeenCalledWith('/classes', expect.objectContaining({ method: 'POST' }));
     expect(toast.success).toHaveBeenCalledWith('classes.classesCreated');
+  });
+
+  it('creating a seminar posts one single-date class with its prices and guest teacher', async () => {
+    renderWithProviders(<InstructorClassesView />);
+    await waitFor(() => expect(seminarProps.onSubmit).toBeDefined());
+    mockApi.mockResolvedValue({} as any);
+    await seminarProps.onSubmit({
+      ...createValues,
+      recurrence: 'once',
+      daysOfWeek: [],
+      date: '2026-11-21',
+      teacherId: null,
+      guestTeacherName: 'Ricardo Almeida',
+      studentPrice: '40',
+      outsiderPrice: '50',
+    });
+    const posts = mockApi.mock.calls.filter(([path, init]: any) => path === '/classes' && init?.method === 'POST');
+    expect(posts).toHaveLength(1);
+    expect(JSON.parse((posts[0][1] as any).body)).toMatchObject({
+      recurrence: 'once',
+      date: '2026-11-21',
+      isSeminar: true,
+      guestTeacherName: 'Ricardo Almeida',
+      studentPrice: '40',
+      outsiderPrice: '50',
+    });
+    expect(toast.success).toHaveBeenCalledWith('seminars.created');
   });
 
   it('a failing POST shows an error toast and keeps the dialog open', async () => {

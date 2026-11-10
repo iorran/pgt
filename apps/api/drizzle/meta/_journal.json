@@ -134,6 +134,13 @@
       "when": 1794090233684,
       "tag": "0018_waived_month_academy",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794342312916,
+      "tag": "0019_class_teacher_and_seminars",
+      "breakpoints": true
     }
   ]
 }

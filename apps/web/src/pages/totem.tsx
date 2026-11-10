@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { SeminarLabel, TeacherLine } from '@/components/schedule/class-timeline';
 
 interface TokenData {
   classId: string;
@@ -16,6 +17,9 @@ interface TokenData {
   endTime: string;
   token: string;
   expiresAt: string;
+  teacher: { id?: string; name: string; belt: string } | null;
+  guestTeacherName: string | null;
+  isSeminar: boolean;
 }
 
 const APP_URL = import.meta.env.VITE_APP_URL || window.location.origin;
@@ -63,14 +67,16 @@ export default function TotemPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
           {tokens.map((tk) => (
-            <Card key={tk.classId} className="text-center">
+            <Card key={tk.classId} className={`text-center ${tk.isSeminar ? 'border-seminar' : ''}`}>
               <CardContent className="pt-6 space-y-4">
+                {tk.isSeminar && <SeminarLabel className="justify-center" />}
                 <div className="flex items-center justify-center gap-2">
                   <h2 className="font-heading text-2xl uppercase">{tk.className}</h2>
                   <Badge variant="outline">{tk.classType}</Badge>
                 </div>
+                <TeacherLine teacher={tk.teacher} guestTeacherName={tk.guestTeacherName} className="justify-center text-base" />
                 <p className="font-mono text-lg text-muted-foreground">
-                  {tk.startTime} - {tk.endTime}
+                  {tk.startTime.slice(0, 5)} – {tk.endTime.slice(0, 5)}
                 </p>
                 <div className="flex justify-center">
                   <QRCodeSVG
