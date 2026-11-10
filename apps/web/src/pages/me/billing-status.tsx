@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent } from '@/components/ui/card';
-import { SubpageHeader } from './subpage-header';
+import { SubpageHeader } from '@/components/subpage-header';
 
 type PaymentStatus = {
   status: 'ok' | 'overdue' | 'upcoming';

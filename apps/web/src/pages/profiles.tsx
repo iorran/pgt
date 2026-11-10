@@ -4,10 +4,12 @@ import { markProfileChosen, setActingAs, type Profile } from '@/lib/profile';
 import { PageLoader } from '@/components/page-loader';
 import { useProfiles } from '@/hooks/use-profiles';
 import { Button } from '@/components/ui/button';
+import { SubpageHeader } from '@/components/subpage-header';
 
 
 // "Quem vai usar?" — the Responsible picks themself or a Dependent (ADR 0004).
-export default function ProfilesPage() {
+// `canGoBack` when opened via "Trocar perfil"; a required pick has nowhere to go back to.
+export default function ProfilesPage({ canGoBack = false }: { canGoBack?: boolean }) {
   const { t } = useTranslation();
   const { data, isLoading } = useProfiles();
 
@@ -26,7 +28,11 @@ export default function ProfilesPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-8 px-4 arena-stripes">
-      <h1 className="font-heading text-3xl uppercase tracking-wider">{t('profiles.title')}</h1>
+      {canGoBack ? (
+        <SubpageHeader title={t('profiles.title')} to="/" />
+      ) : (
+        <h1 className="font-heading text-3xl uppercase tracking-wider">{t('profiles.title')}</h1>
+      )}
       <ul className="grid w-full max-w-md grid-cols-2 gap-4">
         {profiles.map(({ profile, isSelf }) => (
           <li key={profile.id}>

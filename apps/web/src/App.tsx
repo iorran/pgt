@@ -190,7 +190,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/totem" element={<TotemPage />} />
-      <Route path="/perfis" element={<ProfilesPage />} />
+      <Route path="/perfis" element={<ProfilesPage canGoBack />} />
       <Route path="/checkin" element={<CheckinScanPage />} />
       <Route element={<Shell />}>
         <Route

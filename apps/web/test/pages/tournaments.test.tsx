@@ -48,6 +48,13 @@ describe('TournamentsPage', () => {
     expect(screen.getByText('Rio')).toBeInTheDocument();
   });
 
+  it('has a back link to the Me hub', async () => {
+    mockUseSession.mockReturnValue(studentSession);
+    renderWithProviders(<TournamentsPage />);
+    expect(await screen.findByRole('heading', { level: 1, name: 'tournaments.pageTitle' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'common.back' })).toHaveAttribute('href', '/me');
+  });
+
   it('shows signup button for students', async () => {
     mockUseSession.mockReturnValue(studentSession);
     renderWithProviders(<TournamentsPage />);

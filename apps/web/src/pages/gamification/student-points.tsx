@@ -6,7 +6,7 @@ import { isOwner, isStudent } from '@/lib/roles';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { PageLoader } from '@/components/page-loader';
 import { Badge } from '@/components/ui/badge';
-import { SubpageHeader } from '../me/subpage-header';
+import { SubpageHeader } from '@/components/subpage-header';
 import { AdjustPointsDialog, ResultRow, type CompetitionResult } from './result-control';
 
 interface Season {
