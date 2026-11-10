@@ -12,7 +12,9 @@ vi.mock('@/lib/api', () => ({
 }));
 
 vi.mock('qrcode.react', () => ({
-  QRCodeSVG: ({ value }: { value: string }) => <div data-testid="qr-code">{value}</div>,
+  QRCodeSVG: ({ value, marginSize }: { value: string; marginSize?: number }) => (
+    <div data-testid="qr-code" data-margin={marginSize ?? 0}>{value}</div>
+  ),
 }));
 
 import { useSession } from '@/lib/auth-client';
@@ -40,6 +42,18 @@ describe('TotemPage', () => {
     renderWithProviders(<TotemPage />);
     expect(await screen.findByText('Morning Gi')).toBeInTheDocument();
     expect(screen.getByTestId('qr-code')).toBeInTheDocument();
+  });
+
+  // The totem card is dark; without the spec's 4-module quiet zone the in-app
+  // scanner (zxing) cannot find the finder patterns, while phone cameras can.
+  it('draws the QR with a quiet zone so the in-app scanner can read it', async () => {
+    mockApi.mockResolvedValue([
+      { classId: 'c1', className: 'Morning Gi', classType: 'gi', startTime: '07:00', endTime: '08:30', token: 'token-1', expiresAt: '2026-04-07T07:35:00Z' },
+    ] as any);
+
+    renderWithProviders(<TotemPage />);
+    const qr = await screen.findByTestId('qr-code');
+    expect(Number(qr.dataset.margin)).toBeGreaterThanOrEqual(4);
   });
 
   it('shows no classes message when empty', async () => {

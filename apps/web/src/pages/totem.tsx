@@ -77,6 +77,7 @@ export default function TotemPage() {
                     value={`${APP_URL}/checkin?token=${tk.token}&classId=${tk.classId}`}
                     size={250}
                     level="M"
+                    marginSize={4}
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">{t('totem.scanToCheckin')}</p>
