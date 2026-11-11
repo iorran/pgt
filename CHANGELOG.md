@@ -1,3 +1,30 @@
+# [1.19.0](https://github.com/iorran/pgt/compare/v1.18.0...v1.19.0) (2026-11-11)
+
+
+### Bug Fixes
+
+* align web and API contracts (families, seasons, billing errors, keys, classes) ([5882c12](https://github.com/iorran/pgt/commit/5882c1228e27f00a6f18f8f3441dc560caef58ed))
+* **api:** hide deleted classes from the class list ([13198b0](https://github.com/iorran/pgt/commit/13198b060e3c9c4ac9726bd0acc806ce4f52c813))
+* **api:** list approved students only in Alunos and the pickers ([e6f48b2](https://github.com/iorran/pgt/commit/e6f48b2f8c41ad6fb0c577a8169ed64c1a9d64f0))
+* **aulas:** one tap rule, Seminários tab, safer seminar payments ([eed86be](https://github.com/iorran/pgt/commit/eed86be597a1030862c54b3dc17be83769d19a94))
+* edge cases in teacher picker, seminar errors, academy-day check-ins, join with existing account ([815c198](https://github.com/iorran/pgt/commit/815c198667228b2ff6fcb03d9ffeb5e159b9d339))
+* list students in the seminar's "Adicionar aluno" ([b3792d4](https://github.com/iorran/pgt/commit/b3792d4210b895f6668f4ae11ad02f515f158061))
+* never show an expired check-in QR on the totem ([1ba45c1](https://github.com/iorran/pgt/commit/1ba45c1ab0fb7c64207a47aaf54c8bde8af49eb8))
+* **web:** add back buttons to student sub-pages ([0dabbdf](https://github.com/iorran/pgt/commit/0dabbdf34ae5a0a911804019aa4bf1c31768f192))
+* **web:** give the totem QR a quiet zone so the in-app scanner reads it ([825c6cb](https://github.com/iorran/pgt/commit/825c6cb1dba8c41c67d81d6f9cb397de01120051)), closes [#1a1a1a](https://github.com/iorran/pgt/issues/1a1a1a)
+
+
+### Features
+
+* class timeline, Class Teacher and paid Seminars ([ecfbd90](https://github.com/iorran/pgt/commit/ecfbd9098878f18bdbcd3d5bd3e9cfaad3a52f8a))
+* **web:** bottom nav and slim header for staff on phones ([77e610f](https://github.com/iorran/pgt/commit/77e610f2a907bb4178d12f1b65d564d9c2f99043))
+* **web:** day list as the instructor's default class view ([9a14f6c](https://github.com/iorran/pgt/commit/9a14f6c57b840ac1d2e96606f3dcd5638a6c08fb))
+* **web:** day list for students, with the live class pinned on top ([6b70c86](https://github.com/iorran/pgt/commit/6b70c86db12ac9c6d074e8bec00c63fc580729b4))
+* **web:** group the owner's attendance history by day and class ([5ff7ffa](https://github.com/iorran/pgt/commit/5ff7ffa62d10d585ed941a137f470d02d4b3a657))
+* **web:** in-app help page built from the user guides ([1b4bf8d](https://github.com/iorran/pgt/commit/1b4bf8d3aef0a8eefbe8013853a0a2eaa3c93ff2))
+* **web:** readable dashboard chart and compact student page on phones ([0ab65f7](https://github.com/iorran/pgt/commit/0ab65f772e642aa45c335261c80541d2ec3944bf))
+* **web:** teach the app in place ([980dfe5](https://github.com/iorran/pgt/commit/980dfe5c9fd7702625e0de5f6883655202dcc4b5))
+
 # [1.18.0](https://github.com/iorran/pgt/compare/v1.17.0...v1.18.0) (2026-11-08)
 
 
