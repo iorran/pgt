@@ -12,7 +12,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { TabsNav } from '@/components/tabs-nav';
+import { ClassesTabs } from '@/components/schedule/classes-tabs';
 import { buttonVariants } from '@/components/ui/button';
 import { QueryError } from '@/components/query-error';
 import { isOwner } from '@/lib/roles';
@@ -99,10 +99,7 @@ export default function CheckinHistoryPage() {
 
   return (
     <div className="space-y-6">
-      <TabsNav title={t('nav.classes')} items={[
-        { to: '/classes', label: t('classes.title') },
-        { to: '/classes/history', label: t('classes.checkinHistory') },
-      ]} />
+      <ClassesTabs />
 
       {isError ? (
         <QueryError onRetry={() => void refetch()} />

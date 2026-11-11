@@ -3,6 +3,7 @@ import {
   isActiveNow,
   slotState,
   dateForWeekday,
+  nextDays,
   classesOn,
   groupByStart,
   teacherTitle,
@@ -47,6 +48,14 @@ describe('isActiveNow', () => {
     const once = cls({ recurrence: 'once', date: '2026-11-17', dayOfWeek: 2 });
     expect(isActiveNow(once, tue(19, 10))).toBe(false);
     expect(isActiveNow(once, new Date(2026, 10, 17, 19, 10))).toBe(true);
+  });
+});
+
+describe('nextDays', () => {
+  it('is today and the following days, in order, at midnight', () => {
+    const days = nextDays(7, tue(21, 30));
+    expect(days.map((d) => d.getDate())).toEqual([10, 11, 12, 13, 14, 15, 16]);
+    expect(days[0].getHours()).toBe(0);
   });
 });
 

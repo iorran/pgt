@@ -11,7 +11,7 @@ export class ClassesPage {
     this.page = page;
     // TabsNav renders <Link> → <a> elements
     this.classesTab = page.getByRole('link', { name: /quadro de aulas/i });
-    this.historyTab = page.getByRole('link', { name: /histórico de presença/i });
+    this.historyTab = page.getByRole('link', { name: /^histórico$/i });
     // t('classes.createClass') = "Criar Aula"
     // The page header renders this as the create-dialog trigger
     // (aria-expanded); the empty state repeats the same CTA as a plain button.

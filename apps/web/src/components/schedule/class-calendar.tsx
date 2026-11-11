@@ -33,11 +33,17 @@ function i18nToCulture(language: string | undefined): 'en-US' | 'pt-BR' {
   return language.toLowerCase().startsWith('en') ? 'en-US' : 'pt-BR';
 }
 
-// Tag events shorter than 1 hour so the CSS can hide their time label
-// — the duration is too tight to read both lines.
-function eventPropGetter(event: CalendarEvent) {
+// Seminars get the amber look; events shorter than 1 hour hide their time
+// label in CSS — the duration is too tight to read both lines.
+export function eventPropGetter(event: CalendarEvent): { className?: string } {
   const durationMin = (event.end.getTime() - event.start.getTime()) / 60_000;
-  return durationMin < 60 ? { className: 'cc-event-short' } : {};
+  const classes = [event.resource.isSeminar && 'cc-event-seminar', durationMin < 60 && 'cc-event-short'].filter(Boolean);
+  return classes.length ? { className: classes.join(' ') } : {};
+}
+
+// A single-date class (every Seminar) keeps its date: the API ignores a new weekday for it.
+export function isDraggable(event: CalendarEvent): boolean {
+  return event.resource.recurrence !== 'once';
 }
 
 export interface ClassCalendarProps {
@@ -105,8 +111,9 @@ export function ClassCalendar(props: ClassCalendarProps) {
       views={['month', 'week', 'day']}
       toolbar={toolbar}
       startAccessor="start"
+      titleAccessor={(e: CalendarEvent) => (e.resource.isSeminar ? `${t('seminars.label')} · ${e.title}` : e.title)}
       endAccessor="end"
-      draggableAccessor={() => !readOnly}
+      draggableAccessor={(e: CalendarEvent) => !readOnly && isDraggable(e)}
       resizable={false}
       onEventDrop={(args: EventInteractionArgs<CalendarEvent>) => {
         if (readOnly) return;

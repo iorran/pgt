@@ -189,6 +189,14 @@
     transform: translateY(-1px);
   }
 }
+/* Seminars keep their amber meaning here too (the title also says "Seminário"). */
+.rbc-event.cc-event-seminar {
+  border-left: 3px solid var(--seminar) !important;
+}
+.rbc-event.cc-event-seminar .rbc-event-content {
+  color: var(--seminar);
+}
+
 .rbc-event:focus,
 .rbc-event.rbc-selected {
   outline: 2px solid var(--primary);

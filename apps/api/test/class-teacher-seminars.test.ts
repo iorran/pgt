@@ -340,6 +340,43 @@ describe('Seminar participants (owner)', () => {
   });
 });
 
+describe('GET /api/seminars (owner list)', () => {
+  it('lists active seminars by date with participant and money totals', async () => {
+    const { owner, student } = await setup();
+    const later = await createSeminar(owner, { name: 'Leg locks', date: isoDaysFromToday(25), guestTeacherName: null, teacherId: student.id });
+    const sem = await createSeminar(owner);
+    const gone = await createSeminar(owner, { name: 'Apagado' });
+    await call('DELETE', `/api/classes/${gone.id}`, owner);
+    await call('POST', '/api/classes', owner, weekly);
+    const paid = (await call('POST', `/api/seminars/${sem.id}/participants`, owner, { studentId: student.id })).json();
+    await call('POST', `/api/seminars/${sem.id}/participants`, owner, { name: 'Marta' });
+    await call('PATCH', `/api/seminar-participants/${paid.id}`, owner, { paid: true });
+
+    const res = await call('GET', '/api/seminars', owner);
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual([
+      {
+        classId: sem.id, name: 'Passagem de guarda', date: sem.date, startTime: '10:00:00', endTime: '13:00:00',
+        teacher: null, guestTeacherName: 'Ricardo Almeida',
+        participants: 2, paidCount: 1, received: '40.00', pending: '50.00',
+      },
+      {
+        classId: later.id, name: 'Leg locks', date: later.date, startTime: '10:00:00', endTime: '13:00:00',
+        teacher: { id: student.id, name: 'Ana Ribeiro', belt: 'black' }, guestTeacherName: null,
+        participants: 0, paidCount: 0, received: '0.00', pending: '0.00',
+      },
+    ]);
+  });
+
+  it('is owner only and scoped to the academy', async () => {
+    const { owner, student } = await setup();
+    await createSeminar(owner);
+    expect((await call('GET', '/api/seminars', student)).statusCode).toBe(403);
+    const otherOwner = await createTestOwner((await createTestAcademy()).id);
+    expect((await call('GET', '/api/seminars', otherOwner)).json()).toEqual([]);
+  });
+});
+
 describe('Seminar sign-up (student)', () => {
   it('signs up pending at the student price, shows in mine, and cancels', async () => {
     const { owner, student } = await setup();

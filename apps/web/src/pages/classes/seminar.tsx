@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Check } from 'lucide-react';
+import { Check, ChevronRight, Pencil } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -36,6 +36,7 @@ export default function SeminarPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [adding, setAdding] = useState<Adding>(null);
   const [editingSeminar, setEditingSeminar] = useState(false);
   const [editing, setEditing] = useState<SeminarParticipant | null>(null);
@@ -69,10 +70,20 @@ export default function SeminarPage() {
       setEditing(null);
     },
   });
+  const deleteSeminar = useMutation({
+    mutationFn: () => api(`/classes/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['classes', user.academyId] });
+      queryClient.invalidateQueries({ queryKey: ['seminars'] });
+      navigate('/classes/seminars', { replace: true });
+    },
+    meta: { successMessage: t('seminars.deleted') },
+  });
   const editSeminar = useMutation({
     mutationFn: (patch: ClassEditPatch) => api(`/classes/${id}`, { method: 'PUT', body: JSON.stringify(patch) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['classes', user.academyId] });
+      queryClient.invalidateQueries({ queryKey: ['seminars'] });
       setEditingSeminar(false);
     },
     meta: { successMessage: t('seminars.updated') },
@@ -84,7 +95,7 @@ export default function SeminarPage() {
   if (!seminar) {
     return (
       <div className="space-y-4">
-        <SubpageHeader title={t('seminars.back')} to="/classes" />
+        <SubpageHeader title={t('seminars.sectionTitle')} to="/classes/seminars" />
         <p className="text-muted-foreground">{t('seminars.notFound')}</p>
       </div>
     );
@@ -97,10 +108,9 @@ export default function SeminarPage() {
 
   return (
     <div className="space-y-5">
-      <SubpageHeader title={t('seminars.back')} to="/classes" />
       <div className="space-y-1.5">
         <SeminarLabel />
-        <h2 className="font-heading text-2xl uppercase leading-tight">{seminar.name}</h2>
+        <SubpageHeader title={seminar.name} to="/classes/seminars" />
         <p className="text-sm text-foreground/80">
           {seminar.date && new Date(`${seminar.date}T00:00`).toLocaleDateString(i18n.language, { weekday: 'short', day: 'numeric', month: 'short' })}
           {' · '}
@@ -109,12 +119,12 @@ export default function SeminarPage() {
         <TeacherLine teacher={seminar.teacher} guestTeacherName={seminar.guestTeacherName} />
         <p className="text-sm text-muted-foreground">
           {t('seminars.prices', { student: money(seminar.studentPrice ?? 0), outsider: money(seminar.outsiderPrice ?? 0) })}
-          {' · '}
-          <Button variant="link" className="h-auto p-0 text-seminar" onClick={() => setEditingSeminar(true)}>
-            {t('seminars.edit')}
-          </Button>
         </p>
       </div>
+      <Button variant="outline" className="h-11 w-full" onClick={() => setEditingSeminar(true)}>
+        <Pencil aria-hidden />
+        {t('seminars.editTitle')}
+      </Button>
 
       <div className="grid grid-cols-3 gap-1.5">
         <div className="rounded-sm border border-border bg-card p-2.5">
@@ -146,25 +156,27 @@ export default function SeminarPage() {
         <ul className="border-t border-border">
           {participants.map((p) => (
             <li key={p.id} className="flex min-h-14 items-center gap-2.5 border-b border-border">
-              <button type="button" onClick={() => setEditing(p)} className="flex flex-1 flex-col py-2 text-left">
-                <span>{p.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {t(p.kind === 'student' ? 'seminars.kindStudent' : 'seminars.kindOutsider')}
-                  {p.phone && ` · ${p.phone}`} · {money(p.amount)}
-                  {p.paidAt && ` · ${formatDate(p.paidAt, i18n.language)}`}
+              <button type="button" onClick={() => setEditing(p)} className="flex min-w-0 flex-1 items-center gap-2 py-2 text-left">
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span>{p.name}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {t(p.kind === 'student' ? 'seminars.kindStudent' : 'seminars.kindOutsider')}
+                    {p.phone && ` · ${p.phone}`} · {money(p.amount)}
+                    {p.paidAt && ` · ${formatDate(p.paidAt, i18n.language)}`}
+                  </span>
                 </span>
+                {/* Paid is a status: undoing it happens in the participant sheet. */}
+                {p.paidAt && (
+                  <>
+                    <span className="inline-flex items-center gap-1 rounded-sm bg-success-text/15 px-2 py-1 text-xs font-heading uppercase text-success-text">
+                      <Check className="size-3.5" aria-hidden />
+                      {t('seminars.paid')}
+                    </span>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                  </>
+                )}
               </button>
-              {p.paidAt ? (
-                <Button
-                  variant="ghost"
-                  className="h-10 text-success-text"
-                  aria-label={`${t('seminars.markPending')}: ${p.name}`}
-                  onClick={() => update.mutate({ id: p.id, paid: false })}
-                >
-                  <Check aria-hidden />
-                  {t('seminars.paid')}
-                </Button>
-              ) : (
+              {!p.paidAt && (
                 <Button
                   className="h-10 bg-seminar text-seminar-foreground hover:bg-seminar/90"
                   onClick={() => update.mutate({ id: p.id, paid: true })}
@@ -188,6 +200,7 @@ export default function SeminarPage() {
         participant={editing}
         onClose={() => setEditing(null)}
         onSave={(amount) => update.mutateAsync({ id: editing!.id, amount }).then(() => setEditing(null))}
+        onMarkPending={() => update.mutateAsync({ id: editing!.id, paid: false }).then(() => setEditing(null))}
         onRemove={() => remove.mutate(editing!.id)}
       />
       <ClassEditDialog
@@ -196,6 +209,14 @@ export default function SeminarPage() {
         onSubmit={async (patch) => {
           await editSeminar.mutateAsync(patch);
         }}
+        onDelete={async () => {
+          await deleteSeminar.mutateAsync();
+        }}
+        deleteMessage={t('seminars.confirmDelete', {
+          name: seminar.name,
+          count: participants.length,
+          paid: money(sum(paid)),
+        })}
       />
     </div>
   );
@@ -270,7 +291,7 @@ function AddParticipantDialog({
             </Button>
           </form>
         ) : (
-          <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto">
+          <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto overscroll-contain">
             <div className="space-y-2">
               <Label htmlFor="seminar-student-search">{t('classes.teacher.search')}</Label>
               <Input id="seminar-student-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -299,26 +320,41 @@ function EditParticipantDialog({
   participant,
   onClose,
   onSave,
+  onMarkPending,
   onRemove,
 }: {
   participant: SeminarParticipant | null;
   onClose: () => void;
   onSave: (amount: string) => Promise<void>;
+  onMarkPending: () => Promise<void>;
   onRemove: () => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [amount, setAmount] = useState('');
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
   const [lastId, setLastId] = useState<string | null>(null);
   if (participant && participant.id !== lastId) {
     setLastId(participant.id);
     setAmount(participant.amount);
+    setConfirmingRemove(false);
   }
+  const money = (v: string) => formatMoney(v, i18n.language);
   return (
     <Dialog open={!!participant} onOpenChange={(open) => !open && onClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-heading uppercase tracking-wider">{participant?.name}</DialogTitle>
         </DialogHeader>
+        {participant && (
+          <p className={participant.paidAt ? 'flex items-center gap-1.5 text-success-text' : 'text-seminar'}>
+            {participant.paidAt && <Check className="size-4" aria-hidden />}
+            {participant.paidAt
+              ? t('seminars.paidOn', { date: formatDate(participant.paidAt, i18n.language) })
+              : t('seminars.pending')}
+            {' · '}
+            {money(participant.amount)}
+          </p>
+        )}
         <form
           className="flex flex-col gap-4"
           onSubmit={(e) => {
@@ -340,10 +376,33 @@ function EditParticipantDialog({
             />
           </div>
           <Button type="submit">{t('seminars.save')}</Button>
-          <Button type="button" variant="outline" className="text-danger-text" onClick={onRemove}>
+          {participant?.paidAt && (
+            <Button type="button" variant="outline" onClick={() => void onMarkPending()}>
+              {t('seminars.backToPending')}
+            </Button>
+          )}
+        </form>
+        {!confirmingRemove ? (
+          <Button type="button" variant="outline" className="text-danger-text" onClick={() => setConfirmingRemove(true)}>
             {t('seminars.remove')}
           </Button>
-        </form>
+        ) : (
+          <div className="space-y-3 border-t border-border pt-4">
+            <p className="text-sm text-muted-foreground">
+              {participant?.paidAt
+                ? t('seminars.confirmRemovePaid', { name: participant.name, amount: money(participant.amount) })
+                : t('seminars.confirmRemove', { name: participant?.name })}
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setConfirmingRemove(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button variant="destructive" onClick={onRemove}>
+                {t('seminars.remove')}
+              </Button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

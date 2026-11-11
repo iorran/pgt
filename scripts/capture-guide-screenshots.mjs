@@ -29,8 +29,9 @@ const RESPONSIBLE = 'paula.lima@demo.pgt';
  *   - prep:  string comment describing manual/seed prep needed (not executed by this script).
  *   - action: optional async (page) => void run before the screenshot (e.g., open a dialog).
  */
-// The guide seed puts its Seminar 3 days from now; the timeline's weekday button opens that day.
-const SEMINAR_DAY = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][new Date(Date.now() + 3 * 864e5).getDay()];
+// The guide seed puts a Seminar 3 days from now (inside the 7-day strip) and one ~25 days out
+// (outside it). The strip's day button names the full date and ends in "tem seminário".
+const SEMINAR_DAY = /tem seminário$/;
 
 const SHOTS = [
   // ── Unauthenticated ─────────────────────────────────────────────────────────
@@ -341,30 +342,58 @@ const SHOTS = [
     viewport: 'mobile',
     login: STUDENT_AZUL,
     action: async (page) => {
-      await page.getByRole('button', { name: SEMINAR_DAY, exact: true }).click();
+      await page.getByRole('button', { name: SEMINAR_DAY }).click();
       await page.getByText('Passagem de guarda').first().scrollIntoViewIfNeeded();
     },
   },
   {
+    slug: 'seminars-tab-student',
+    role: 'student',
+    path: '/classes/seminars',
+    viewport: 'mobile',
+    login: STUDENT_AZUL,
+    action: (page) => page.getByText('Leg locks').waitFor(),
+  },
+  {
+    slug: 'seminars-tab',
+    role: 'instructor',
+    path: '/classes/seminars',
+    viewport: 'mobile',
+    login: INSTRUCTOR,
+    action: (page) => page.getByText('Leg locks').waitFor(),
+  },
+  {
     slug: 'seminar-page',
     role: 'instructor',
-    path: '/classes',
+    path: '/classes/seminars',
     viewport: 'mobile',
     login: INSTRUCTOR,
     action: async (page) => {
-      await page.getByRole('button', { name: SEMINAR_DAY, exact: true }).click();
-      await page.getByText('Passagem de guarda').first().click();
+      await page.getByRole('link', { name: /Passagem de guarda/ }).click();
       await page.getByText('Marta Sousa').waitFor();
+    },
+  },
+  {
+    slug: 'seminar-participant',
+    role: 'instructor',
+    path: '/classes/seminars',
+    viewport: 'mobile',
+    login: INSTRUCTOR,
+    action: async (page) => {
+      await page.getByRole('link', { name: /Passagem de guarda/ }).click();
+      await page.getByRole('button', { name: /Marta Sousa/ }).click();
+      await page.getByRole('dialog').getByRole('button', { name: 'Remover' }).click();
+      await page.getByText(/Já pagou/).waitFor();
     },
   },
   {
     slug: 'seminar-create',
     role: 'instructor',
-    path: '/classes',
+    path: '/classes/seminars',
     viewport: 'mobile',
     login: INSTRUCTOR,
     action: async (page) => {
-      await page.getByRole('button', { name: 'Novo seminário' }).click();
+      await page.getByRole('button', { name: 'Criar seminário' }).click();
       await page.getByRole('dialog').waitFor();
     },
   },

@@ -297,31 +297,23 @@ describe('InstructorClassesView', () => {
     expect(toast.success).toHaveBeenCalledWith('classes.classesCreated');
   });
 
-  it('creating a seminar posts one single-date class with its prices and guest teacher', async () => {
+  it('creates seminars from the Seminários tab, not from the quadro', async () => {
     renderWithProviders(<InstructorClassesView />);
-    await waitFor(() => expect(seminarProps.onSubmit).toBeDefined());
-    mockApi.mockResolvedValue({} as any);
-    await seminarProps.onSubmit({
-      ...createValues,
-      recurrence: 'once',
-      daysOfWeek: [],
-      date: '2026-11-21',
-      teacherId: null,
-      guestTeacherName: 'Ricardo Almeida',
-      studentPrice: '40',
-      outsiderPrice: '50',
-    });
-    const posts = mockApi.mock.calls.filter(([path, init]: any) => path === '/classes' && init?.method === 'POST');
-    expect(posts).toHaveLength(1);
-    expect(JSON.parse((posts[0][1] as any).body)).toMatchObject({
-      recurrence: 'once',
-      date: '2026-11-21',
-      isSeminar: true,
-      guestTeacherName: 'Ricardo Almeida',
-      studentPrice: '40',
-      outsiderPrice: '50',
-    });
-    expect(toast.success).toHaveBeenCalledWith('seminars.created');
+    await waitFor(() => expect(createProps.onSubmit).toBeDefined());
+    expect(seminarProps.onSubmit).toBeUndefined();
+  });
+
+  it('a seminar in the calendar opens its page, not the edit dialog', async () => {
+    const user = userEvent.setup();
+    const seminar = {
+      id: 's1', name: 'Passagem de guarda', type: 'gi', recurrence: 'once', isSeminar: true,
+      dayOfWeek: now.getDay(), date: todayIso, startTime: '10:00', endTime: '13:00',
+    };
+    mockApi.mockResolvedValue([...mockClasses, seminar] as any);
+    renderWithProviders(<InstructorClassesView />);
+    await user.click(await screen.findByTestId('event-s1'));
+    expect(window.location.pathname).toBe('/classes/seminars/s1');
+    expect(screen.queryByText('seminars.editTitle')).toBeNull();
   });
 
   it('a failing POST shows an error toast and keeps the dialog open', async () => {
@@ -334,9 +326,6 @@ describe('InstructorClassesView', () => {
   });
 });
 
-// Day order of the list view's chips: Monday first.
-const chipIndex = (dayOfWeek: number) => (dayOfWeek === 0 ? 6 : dayOfWeek - 1);
-const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const todayIso = [
   now.getFullYear(),
   String(now.getMonth() + 1).padStart(2, '0'),
@@ -365,8 +354,9 @@ describe('InstructorClassesView — list view (default)', () => {
     expect(await screen.findByText('Morning Gi')).toBeInTheDocument();
     expect(screen.queryByText('No-Gi Night')).toBeNull();
     expect(screen.queryByTestId('class-calendar')).toBeNull();
-    const today = screen.getByRole('button', { name: `classes.days.${DAY_KEYS[now.getDay()]}` });
-    expect(today).toHaveAttribute('aria-pressed', 'true');
+    const days = within(screen.getByRole('group', { name: 'classes.daysOfWeek' })).getAllByRole('button');
+    expect(days[0]).toHaveAccessibleName(expect.stringMatching(/^classes\.timeline\.today, /));
+    expect(days[0]).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('switches day when a weekday chip is tapped', async () => {
@@ -375,7 +365,8 @@ describe('InstructorClassesView — list view (default)', () => {
     await screen.findByText('Morning Gi');
     const days = within(screen.getByRole('group', { name: 'classes.daysOfWeek' })).getAllByRole('button');
     expect(days).toHaveLength(7);
-    await user.click(days[chipIndex(mockClasses[1].dayOfWeek)]);
+    // The next 7 days in order from today: No-Gi Night is 3 days ahead.
+    await user.click(days[3]);
     expect(await screen.findByText('No-Gi Night')).toBeInTheDocument();
     expect(screen.queryByText('Morning Gi')).toBeNull();
   });
@@ -385,6 +376,23 @@ describe('InstructorClassesView — list view (default)', () => {
     expect(await screen.findByText('Ana Souza')).toBeInTheDocument();
     expect(screen.queryByText('Old Timer')).toBeNull();
     expect(screen.queryByText('Other Class')).toBeNull();
+  });
+
+  it('a day with a seminar says so, and tapping the seminar opens its page', async () => {
+    const user = userEvent.setup();
+    const seminar = {
+      id: 's1', name: 'Passagem de guarda', type: 'gi', recurrence: 'once', isSeminar: true,
+      dayOfWeek: now.getDay(), date: todayIso, startTime: '23:00', endTime: '23:30',
+    };
+    mockApi.mockImplementation(async (path: string) =>
+      (path.startsWith('/checkins/academy') ? checkins : [...mockClasses, seminar]) as any,
+    );
+    renderWithProviders(<InstructorClassesView />);
+    const days = within(await screen.findByRole('group', { name: 'classes.daysOfWeek' })).getAllByRole('button');
+    expect(days[0]).toHaveAccessibleName(expect.stringMatching(/, classes\.timeline\.hasSeminar$/));
+    expect(days[1]).not.toHaveAccessibleName(expect.stringMatching(/hasSeminar/));
+    await user.click(await screen.findByRole('button', { name: /Passagem de guarda/ }));
+    expect(window.location.pathname).toBe('/classes/seminars/s1');
   });
 
   it('tapping a class opens the edit dialog', async () => {

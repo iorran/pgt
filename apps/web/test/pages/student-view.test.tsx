@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 
@@ -106,8 +106,9 @@ describe('StudentClassesView', () => {
     renderWithProviders(<StudentClassesView />);
     await screen.findByText('classes.checkinProximity');
 
-    const keys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-    await user.click(screen.getByRole('button', { name: `classes.days.${keys[mockClasses[1].dayOfWeek]}` }));
+    // The day strip is the next 7 days from today: No-Gi Night is 3 days ahead.
+    const days = within(screen.getByRole('group', { name: 'classes.daysOfWeek' })).getAllByRole('button');
+    await user.click(days[3]);
 
     expect(screen.getByText('No-Gi Night')).toBeInTheDocument();
     expect(screen.queryByText('classes.checkinProximity')).not.toBeInTheDocument();
@@ -158,6 +159,17 @@ describe('StudentClassesView', () => {
         expect(names[0]).toContain('Morning Gi');
         expect(names[1]).toContain('Evening Gi');
         expect(screen.getByText('classes.timeline.startedAgo')).toBeInTheDocument();
+      });
+    });
+
+    it('a past class is still readable: muted text and a dashed border, no fade', async () => {
+      await at_(at(19, 15), async () => {
+        serve([tue('e', 'Evening Gi', '19:00', '20:00'), tue('m', 'Morning Gi', '07:00', '08:00')]);
+        renderWithProviders(<StudentClassesView />);
+        const past = (await screen.findByText('Morning Gi')).closest('li')!;
+        expect(past.className).not.toMatch(/opacity/);
+        expect(past.querySelector('.border-dashed')).not.toBeNull();
+        expect(screen.getByText('Evening Gi').closest('li')!.querySelector('.border-dashed')).toBeNull();
       });
     });
 

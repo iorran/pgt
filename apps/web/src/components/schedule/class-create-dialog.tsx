@@ -84,7 +84,7 @@ export function ClassCreateDialog({
       <DialogTrigger
         render={
           seminar ? (
-            <Button variant="outline" className="border-seminar text-seminar hover:bg-seminar/10 hover:text-seminar" />
+            <Button className="h-12 w-full bg-seminar font-heading text-base uppercase text-seminar-foreground hover:bg-seminar/90" />
           ) : (
             <Button />
           )

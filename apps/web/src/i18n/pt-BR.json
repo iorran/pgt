@@ -197,7 +197,7 @@
     "checkin": "Check-in",
     "checkinSuccess": "Check-in feito",
     "checkinError": "Não foi possível fazer o check-in. Tente novamente ou fale com o professor.",
-    "checkinHistory": "Histórico de presença",
+    "checkinHistory": "Histórico",
     "date": "Data",
     "checkinProximity": "Check-in",
     "checkinQR": "QR code",
@@ -278,7 +278,11 @@
       "sameSlot": "Você já fez check-in em {{name}}, no mesmo horário",
       "minutes": "{{count}} min",
       "hours": "{{h}}h",
-      "hoursMinutes": "{{h}}h{{m}}"
+      "hoursMinutes": "{{h}}h{{m}}",
+      "today": "hoje",
+      "todayShort": "Hoje",
+      "hasSeminar": "tem seminário",
+      "daysHint": "Os próximos 7 dias, em ordem. Seminários mais à frente: aba Seminários."
     }
   },
   "students": {
@@ -753,7 +757,7 @@
   },
   "seminars": {
     "label": "Seminário",
-    "new": "Novo seminário",
+    "new": "Criar seminário",
     "created": "Seminário criado",
     "updated": "Seminário atualizado",
     "join": "Quero participar · {{price}}",
@@ -761,7 +765,7 @@
     "pendingAmount": "{{price}} pendente",
     "paid": "Pago",
     "pending": "Pendente",
-    "cancel": "Cancelar",
+    "cancel": "Cancelar inscrição",
     "cancelled": "Inscrição cancelada",
     "joined": "Inscrição feita",
     "payAtAcademy": "Pague na academia. O check-in no dia é como numa aula normal.",
@@ -772,8 +776,8 @@
     "participants_other": "participantes",
     "received": "recebido · {{count}}",
     "pendingTotal": "pendente · {{count}}",
-    "addStudent": "+ Aluno",
-    "addOutsider": "+ Externo",
+    "addStudent": "Adicionar aluno",
+    "addOutsider": "Adicionar externo",
     "markPaid": "Marcar pago",
     "markPending": "Marcar pendente",
     "kindStudent": "Aluno",
@@ -788,8 +792,6 @@
     "paidOn": "Pago {{date}}",
     "editParticipant": "Editar participante",
     "save": "Salvar",
-    "back": "Aulas",
-    "edit": "Editar",
     "notFound": "Seminário não encontrado",
     "errors": {
       "alreadyParticipant": "Essa pessoa já está no seminário.",
@@ -799,6 +801,21 @@
       "dateRequired": "Escolha a data.",
       "invalidTeacher": "Professor inválido.",
       "nameRequired": "Preencha o nome."
-    }
+    },
+    "editTitle": "Editar seminário",
+    "delete": "Excluir seminário",
+    "deleted": "Seminário excluído",
+    "confirmDelete_one": "Excluir o seminário {{name}}? {{count}} participante e {{paid}} já recebidos deixam de aparecer no app. Não é possível desfazer.",
+    "confirmDelete_other": "Excluir o seminário {{name}}? {{count}} participantes e {{paid}} já recebidos deixam de aparecer no app. Não é possível desfazer.",
+    "backToPending": "Voltar para pendente",
+    "confirmRemove": "Remover {{name}} do seminário?",
+    "confirmRemovePaid": "Remover {{name}} do seminário? Já pagou {{amount}}: o valor sai do total recebido.",
+    "upcoming": "Próximos",
+    "past": "Passados ({{count}})",
+    "noneUpcoming": "Nenhum seminário marcado.",
+    "noParticipantsYet": "Ainda sem inscritos",
+    "receivedAmount": "{{amount}} recebido",
+    "people_one": "{{count}} pessoa",
+    "people_other": "{{count}} pessoas"
   }
 }

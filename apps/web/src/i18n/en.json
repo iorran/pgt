@@ -197,7 +197,7 @@
     "checkin": "Check-in",
     "checkinSuccess": "Checked in",
     "checkinError": "Couldn’t check you in. Try again or ask your instructor.",
-    "checkinHistory": "Attendance history",
+    "checkinHistory": "History",
     "date": "Date",
     "checkinProximity": "Check-in",
     "checkinQR": "QR code",
@@ -278,7 +278,11 @@
       "sameSlot": "You already checked in to {{name}}, at the same time",
       "minutes": "{{count}} min",
       "hours": "{{h}}h",
-      "hoursMinutes": "{{h}}h{{m}}"
+      "hoursMinutes": "{{h}}h{{m}}",
+      "today": "today",
+      "todayShort": "Today",
+      "hasSeminar": "has a seminar",
+      "daysHint": "The next 7 days, in order. Seminars further ahead: Seminars tab."
     }
   },
   "students": {
@@ -753,7 +757,7 @@
   },
   "seminars": {
     "label": "Seminar",
-    "new": "New seminar",
+    "new": "Create seminar",
     "created": "Seminar created",
     "updated": "Seminar updated",
     "join": "Join · {{price}}",
@@ -761,7 +765,7 @@
     "pendingAmount": "{{price}} pending",
     "paid": "Paid",
     "pending": "Pending",
-    "cancel": "Cancel",
+    "cancel": "Cancel sign-up",
     "cancelled": "Sign-up cancelled",
     "joined": "Signed up",
     "payAtAcademy": "Pay at the academy. Check-in on the day works like a normal class.",
@@ -772,8 +776,8 @@
     "participants_other": "participants",
     "received": "received · {{count}}",
     "pendingTotal": "pending · {{count}}",
-    "addStudent": "+ Student",
-    "addOutsider": "+ Outsider",
+    "addStudent": "Add student",
+    "addOutsider": "Add outsider",
     "markPaid": "Mark paid",
     "markPending": "Mark pending",
     "kindStudent": "Student",
@@ -788,8 +792,6 @@
     "paidOn": "Paid {{date}}",
     "editParticipant": "Edit participant",
     "save": "Save",
-    "back": "Classes",
-    "edit": "Edit",
     "notFound": "Seminar not found",
     "errors": {
       "alreadyParticipant": "This person is already in the seminar.",
@@ -799,6 +801,21 @@
       "dateRequired": "Pick the date.",
       "invalidTeacher": "Invalid teacher.",
       "nameRequired": "Fill in the name."
-    }
+    },
+    "editTitle": "Edit seminar",
+    "delete": "Delete seminar",
+    "deleted": "Seminar deleted",
+    "confirmDelete_one": "Delete the seminar {{name}}? {{count}} participant and {{paid}} already received will no longer show in the app. This can’t be undone.",
+    "confirmDelete_other": "Delete the seminar {{name}}? {{count}} participants and {{paid}} already received will no longer show in the app. This can’t be undone.",
+    "backToPending": "Back to pending",
+    "confirmRemove": "Remove {{name}} from the seminar?",
+    "confirmRemovePaid": "Remove {{name}} from the seminar? They already paid {{amount}}: it comes off the total received.",
+    "upcoming": "Upcoming",
+    "past": "Past ({{count}})",
+    "noneUpcoming": "No seminars scheduled.",
+    "noParticipantsYet": "No sign-ups yet",
+    "receivedAmount": "{{amount}} received",
+    "people_one": "{{count}} person",
+    "people_other": "{{count}} people"
   }
 }

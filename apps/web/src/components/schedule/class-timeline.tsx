@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Medal } from 'lucide-react';
+import { ChevronRight, Medal, Pencil } from 'lucide-react';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { beltClasses } from '@/lib/belts';
@@ -10,10 +10,10 @@ import {
   addMinutes,
   AFTER_END_MIN,
   classesOn,
-  dateForWeekday,
   groupByStart,
   isoDate,
   minutesSince,
+  nextDays,
   slotState,
   teacherTitle,
   type ClassItem,
@@ -35,8 +35,6 @@ export interface TimelineActionContext {
   group: ClassItem[];
 }
 
-// Monday first, like the calendar.
-const WEEK = [1, 2, 3, 4, 5, 6, 0];
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 type Phase = 'past' | 'open-after' | 'live' | 'upcoming';
@@ -178,10 +176,13 @@ export function ClassTimeline({
   const { t, i18n } = useTranslation();
   const duration = useDuration();
   const now = useNow(fixedNow);
-  const todayDow = now.getDay();
-  const [day, setDay] = useState(todayDow);
-  const isToday = day === todayDow;
-  const date = dateForWeekday(day, now);
+  const todayIso = isoDate(now);
+  // The next 7 days in order, starting today; a day is picked by its date.
+  const days = nextDays(7, now);
+  const [picked, setPicked] = useState(todayIso);
+  const date = days.find((d) => isoDate(d) === picked) ?? days[0];
+  const day = isoDate(date);
+  const isToday = day === todayIso;
 
   // Refreshes every minute so the class on the mats fills up live.
   const { data: checkins = [] } = useQuery<AcademyCheckin[]>({
@@ -190,7 +191,6 @@ export function ClassTimeline({
     enabled: isToday && !renderAction,
     refetchInterval: 60_000,
   });
-  const todayIso = isoDate(now);
   const presentBy = (classId: string) => checkins.filter((c) => c.date === todayIso && c.class?.id === classId);
 
   const groups = groupByStart(classesOn(classes, date));
@@ -234,23 +234,33 @@ export function ClassTimeline({
   return (
     <div className="space-y-4">
       <div role="group" aria-label={t('classes.daysOfWeek')} className="grid grid-cols-7 gap-1">
-        {WEEK.map((d) => {
-          const name = t(`classes.days.${DAY_KEYS[d]}`);
-          const selected = d === day;
-          const hasSeminar = classesOn(classes, dateForWeekday(d, now)).some((c) => c.isSeminar);
+        {days.map((d) => {
+          const iso = isoDate(d);
+          const today = iso === todayIso;
+          const selected = iso === day;
+          const hasSeminar = classesOn(classes, d).some((c) => c.isSeminar);
+          const label = [
+            today && t('classes.timeline.today'),
+            d.toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }),
+            hasSeminar && t('classes.timeline.hasSeminar'),
+          ]
+            .filter(Boolean)
+            .join(', ');
           return (
             <button
-              key={d}
+              key={iso}
               type="button"
-              aria-label={name}
+              aria-label={label}
               aria-pressed={selected}
-              onClick={() => setDay(d)}
-              className={`relative min-h-11 rounded-sm font-heading uppercase text-sm tracking-wide transition-colors ${
+              aria-current={today ? 'date' : undefined}
+              onClick={() => setPicked(iso)}
+              className={`relative flex min-h-13 flex-col items-center justify-center rounded-sm font-heading uppercase text-xs leading-tight tracking-wide transition-colors ${
                 selected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'
               }`}
             >
-              {name.slice(0, 3)}
-              {d === todayDow && !selected && (
+              {today ? t('classes.timeline.todayShort') : t(`classes.days.${DAY_KEYS[d.getDay()]}`).slice(0, 3)}
+              <span className="text-base">{d.getDate()}</span>
+              {today && !selected && (
                 <span aria-hidden className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
               )}
               {hasSeminar && (
@@ -260,6 +270,7 @@ export function ClassTimeline({
           );
         })}
       </div>
+      <p className="text-xs text-muted-foreground">{t('classes.timeline.daysHint')}</p>
       <p className="text-sm text-muted-foreground first-letter:uppercase">
         {date.toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' })}
       </p>
@@ -280,13 +291,13 @@ export function ClassTimeline({
               <li
                 key={group[0].id}
                 ref={gi === liveIndex ? focusRef : undefined}
-                className={cn('grid grid-cols-[44px_18px_minmax(0,1fr)] gap-x-2', phase === 'past' && 'opacity-45')}
+                className="grid grid-cols-[44px_18px_minmax(0,1fr)] gap-x-2"
               >
                 <span
                   className={cn(
                     'pt-3.5 font-mono text-sm leading-tight',
                     phase === 'live' && (seminarOnly ? 'font-bold text-seminar' : 'font-bold text-primary'),
-                    phase === 'open-after' && 'text-muted-foreground',
+                    (phase === 'open-after' || phase === 'past') && 'text-muted-foreground',
                     phase === 'upcoming' && seminarOnly && 'text-seminar',
                   )}
                 >
@@ -347,6 +358,8 @@ export function ClassTimeline({
                         className={cn(
                           'w-full rounded-sm border bg-card p-3.5',
                           cls.isSeminar ? 'border-seminar' : onMats ? 'border-primary' : 'border-border',
+                          // Past classes stay readable: muted text and a dashed border instead of a fade.
+                          phase === 'past' && 'border-dashed text-muted-foreground',
                         )}
                       >
                         <span className="flex flex-col gap-2">
@@ -360,9 +373,20 @@ export function ClassTimeline({
                                 </Badge>
                               )}
                               <Badge variant="outline">{cls.type}</Badge>
+                              {/* Where the tap leads: a Class opens its edit dialog, a Seminar its page. */}
+                              {onSelect &&
+                                (cls.isSeminar ? (
+                                  <ChevronRight className="size-5 text-seminar" aria-hidden />
+                                ) : (
+                                  <Pencil className="size-4 text-muted-foreground" aria-hidden />
+                                ))}
                             </span>
                           </span>
-                          <TeacherLine teacher={cls.teacher} guestTeacherName={cls.guestTeacherName} />
+                          <TeacherLine
+                            teacher={cls.teacher}
+                            guestTeacherName={cls.guestTeacherName}
+                            className={phase === 'past' ? 'text-muted-foreground' : undefined}
+                          />
                           {!many && onMats && <LiveProgress classes={[cls]} now={now} many={false} />}
                           {renderAction && renderAction(cls, { state, group })}
                           {!renderAction && isToday && (
