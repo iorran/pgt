@@ -53,7 +53,7 @@ test('unauthenticated QR scan redirects to login and preserves the checkin URL',
   const unauthContext = await browser.newContext({
     locale: 'pt-BR',
     timezoneId: 'Europe/Lisbon',
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${process.env.E2E_WEB_PORT ?? '5173'}`,
   });
 
   try {
