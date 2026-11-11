@@ -164,6 +164,16 @@ export function isActiveNow(cls: ClassItem, now: Date = new Date()): boolean {
   return state === 'soon' || state === 'live' || state === 'open-after';
 }
 
+// Today and the days after it, at midnight, in order.
+export function nextDays(count: number, today: Date = new Date()): Date[] {
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(today);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+}
+
 // The next date (today included) that falls on `dow`.
 export function dateForWeekday(dow: number, today: Date = new Date()): Date {
   const d = new Date(today);

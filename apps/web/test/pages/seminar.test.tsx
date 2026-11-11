@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Routes, Route } from 'react-router-dom';
 import { renderWithRoute } from '../render';
@@ -42,6 +42,7 @@ function renderPage() {
   return renderWithRoute(
     <Routes>
       <Route path="/classes/seminars/:id" element={<SeminarPage />} />
+      <Route path="/classes/seminars" element={<p>seminars tab</p>} />
     </Routes>,
     ['/classes/seminars/s1'],
   );
@@ -51,7 +52,13 @@ describe('SeminarPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApi.mockImplementation(async (path: string) =>
-      (path.startsWith('/classes') ? [seminar] : path === '/seminars/s1/participants' ? participants : {}) as any,
+      (path.startsWith('/classes?')
+        ? [seminar]
+        : path === '/seminars/s1/participants'
+          ? participants
+          : path === '/teachers/candidates'
+            ? []
+            : {}) as any,
     );
   });
 
@@ -74,6 +81,63 @@ describe('SeminarPage', () => {
         body: JSON.stringify({ paid: true }),
       }),
     );
+  });
+
+  it('is headed by the seminar name and goes back to the Seminários tab', async () => {
+    renderPage();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Passagem de guarda' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'common.back' })).toHaveAttribute('href', '/classes/seminars');
+  });
+
+  it('paid is a status, not a button; the participant sheet sets it back to pending', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByText('Marta Sousa');
+    expect(screen.queryByRole('button', { name: 'seminars.paid' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /seminars\.markPending/ })).toBeNull();
+    await user.click(screen.getByRole('button', { name: /Marta Sousa/ }));
+    const sheet = await screen.findByRole('dialog');
+    await user.click(within(sheet).getByRole('button', { name: 'seminars.backToPending' }));
+    await waitFor(() =>
+      expect(mockApi).toHaveBeenCalledWith('/seminar-participants/p2', {
+        method: 'PATCH',
+        body: JSON.stringify({ paid: false }),
+      }),
+    );
+  });
+
+  it('a pending participant has no "back to pending"', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: /João Silva/ }));
+    const sheet = await screen.findByRole('dialog');
+    expect(within(sheet).queryByRole('button', { name: 'seminars.backToPending' })).toBeNull();
+  });
+
+  it('removing a paid participant asks first and states the amount', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: /Marta Sousa/ }));
+    const sheet = await screen.findByRole('dialog');
+    await user.click(within(sheet).getByRole('button', { name: 'seminars.remove' }));
+    expect(within(sheet).getByText('seminars.confirmRemovePaid')).toBeInTheDocument();
+    expect(mockApi).not.toHaveBeenCalledWith('/seminar-participants/p2', { method: 'DELETE' });
+    await user.click(within(sheet).getByRole('button', { name: 'seminars.remove' }));
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/seminar-participants/p2', { method: 'DELETE' }));
+  });
+
+  it('deletes the seminar from its edit dialog after a confirmation, then goes to the tab', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'seminars.editTitle' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('seminars.editTitle')).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('button', { name: 'seminars.delete' }));
+    expect(within(dialog).getByText('seminars.confirmDelete')).toBeInTheDocument();
+    const buttons = within(dialog).getAllByRole('button', { name: 'seminars.delete' });
+    await user.click(buttons[buttons.length - 1]);
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/classes/s1', { method: 'DELETE' }));
+    expect(await screen.findByText('seminars tab')).toBeInTheDocument();
   });
 
   it('adds an outsider by name and phone', async () => {

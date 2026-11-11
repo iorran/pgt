@@ -95,7 +95,10 @@ export function useClassCalendar(
     (eventId: string, newStart: Date, _newEnd: Date) => {
       if (readOnly) return;
       const cls = classesRef.current.find((c) => c.id === eventId);
-      if (!cls) return;
+      // A single-date class (Seminars included) keeps its date; it is moved in its edit dialog.
+      if (!cls || cls.recurrence === 'once') {
+        return;
+      }
       // Ignore RBC's suggested end — preserve the class's original duration.
       // Dropping into a shorter-than-duration target slot would otherwise
       // truncate the class; resize is handled only via the edit dialog.

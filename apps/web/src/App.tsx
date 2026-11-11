@@ -17,6 +17,7 @@ import LanguagePage from './pages/me/language';
 import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
 import SeminarPage from './pages/classes/seminar';
+import SeminarsPage from './pages/classes/seminars';
 import StudentsPage from './pages/students/index';
 import StudentDetailPage from './pages/students/detail';
 import FamiliesPage from './pages/students/families';
@@ -201,6 +202,7 @@ function AppRoutes() {
         <Route path="/pending" element={<PendingStudentsPage />} />
         <Route path="/classes" element={<ClassesPage />} />
         <Route path="/classes/history" element={<CheckinHistoryPage />} />
+        <Route path="/classes/seminars" element={<SeminarsPage />} />
         <Route path="/classes/seminars/:id" element={<SeminarPage />} />
         <Route path="/students" element={<StudentsPage />} />
         <Route path="/students/families" element={<FamiliesPage />} />

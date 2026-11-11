@@ -42,6 +42,8 @@ export interface ClassEditDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (patch: ClassEditPatch) => Promise<void> | void;
   onDelete?: (classId: string) => Promise<void> | void;
+  // What deleting loses, when the default class wording isn't enough (a Seminar's participants and payments).
+  deleteMessage?: string;
 }
 
 export function ClassEditDialog({
@@ -49,11 +51,13 @@ export function ClassEditDialog({
   onOpenChange,
   onSubmit,
   onDelete,
+  deleteMessage,
 }: ClassEditDialogProps) {
   const { t } = useTranslation();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const once = cls?.recurrence === 'once';
+  const deleteLabel = cls?.isSeminar ? t('seminars.delete') : t('classes.deleteClass');
 
   const form = useForm({
     defaultValues: {
@@ -113,7 +117,7 @@ export function ClassEditDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-heading uppercase tracking-wider">
-            {cls?.isSeminar ? t('seminars.edit') : t('classes.editClass')}
+            {cls?.isSeminar ? t('seminars.editTitle') : t('classes.editClass')}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -290,12 +294,12 @@ export function ClassEditDialog({
                   onClick={() => setConfirmingDelete(true)}
                   disabled={saving}
                 >
-                  {t('classes.deleteClass')}
+                  {deleteLabel}
                 </Button>
               ) : (
                 <div className="mt-4 space-y-3 border-t border-border pt-4">
                   <p className="text-sm text-muted-foreground">
-                    {t('classes.confirmDelete', { name: cls?.name })}
+                    {deleteMessage ?? t('classes.confirmDelete', { name: cls?.name })}
                   </p>
                   <div className="flex justify-end gap-2">
                     <Button
@@ -311,7 +315,7 @@ export function ClassEditDialog({
                       loading={deleting}
                       disabled={saving}
                     >
-                      {t('classes.deleteClass')}
+                      {deleteLabel}
                     </Button>
                   </div>
                 </div>

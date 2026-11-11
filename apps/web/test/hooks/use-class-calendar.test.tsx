@@ -135,6 +135,17 @@ describe('useClassCalendar', () => {
     expect(result.current.date.toISOString()).toBe(d.toISOString());
   });
 
+  it('ignores a drop on a single-date class (the API keeps its date)', () => {
+    const onMove = vi.fn();
+    const { result } = renderHook(() =>
+      useClassCalendar({ classes: [cls({ recurrence: 'once', date: '2026-04-21' })], onMove, onSelect: vi.fn() }),
+    );
+    act(() => {
+      result.current.onEventDrop('c1', new Date(2026, 3, 22, 9, 0), new Date(2026, 3, 22, 10, 0));
+    });
+    expect(onMove).not.toHaveBeenCalled();
+  });
+
   it('when readOnly is true, onEventDrop is a no-op', () => {
     const onMove = vi.fn();
     const { result } = renderHook(() =>

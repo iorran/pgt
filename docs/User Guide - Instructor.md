@@ -478,8 +478,8 @@ Toque em **Todos** para ver todos, ou em outro filtro para filtrar. Toque em um 
 ## Aulas
 <sub><em>Classes</em></sub>
 
-A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença**. O quadro abre em **Lista**: as aulas de um dia por vez, pensado para o celular e o tablet. Se preferir ver a semana inteira, toque em **Calendário** (visões **Mês**, **Semana** e **Dia**); o aparelho lembra a sua escolha.
-<sub><em>The Aulas (Classes) page has the Quadro de Aulas (Class Schedule) and Histórico de Presença (Attendance History) tabs. The schedule opens in Lista (List): one day's classes at a time, built for phones and tablets. To see the whole week, tap Calendário (Calendar — Month / Week / Day views); the device remembers your choice.</em></sub>
+A página **Aulas** tem as abas **Quadro de aulas**, **Seminários** e **Histórico**. O quadro abre em **Lista**: as aulas de um dia por vez, pensado para o celular e o tablet. Se preferir ver a semana inteira, toque em **Calendário** (visões **Mês**, **Semana** e **Dia**); o aparelho lembra a sua escolha.
+<sub><em>The Aulas (Classes) page has the Quadro de Aulas (Class Schedule), Seminários (Seminars) and Histórico (History) tabs. The schedule opens in Lista (List): one day's classes at a time, built for phones and tablets. To see the whole week, tap Calendário (Calendar — Month / Week / Day views); the device remembers your choice.</em></sub>
 
 ### Aulas do Dia
 <sub><em>Today's Classes</em></sub>
@@ -488,14 +488,14 @@ A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença*
 
 1. Menu → **Aulas**. A lista abre no dia de hoje
    <sub><em>Menu → Aulas (Classes). The list opens on today</em></sub>
-2. O dia aparece como uma linha do tempo: horários à esquerda e um card por aula, em ordem de horário. Toque em um dia (**Seg** … **Dom**) para ver o próximo dia da semana com esse nome. Um ponto âmbar no dia indica um seminário
-   <sub><em>The day shows as a timeline: times on the left and one card per class, in time order. Tap a day (Mon … Sun) to see the next day with that name. An amber dot on a day means a seminar</em></sub>
+2. O dia aparece como uma linha do tempo: horários à esquerda e um card por aula, em ordem de horário. Os botões no topo são os próximos 7 dias, em ordem, a começar por **Hoje**, cada um com o dia do mês (**Hoje 11**, **Qui 12** …). Um ponto âmbar no dia indica um seminário; seminários mais à frente estão na aba **Seminários**
+   <sub><em>The day shows as a timeline: times on the left and one card per class, in time order. The buttons at the top are the next 7 days, in order, starting with Hoje (Today), each with the day of the month (Hoje 11, Qui 12 …). An amber dot on a day means a seminar; seminars further ahead are in the Seminários (Seminars) tab</em></sub>
 3. Cada card mostra o professor da aula: **Professor** (faixa preta), **Instrutor** (faixa roxa ou marrom) ou só o nome
    <sub><em>Each card shows the class's teacher: Professor (black belt), Instrutor (purple or brown belt), or just the name</em></sub>
 4. Nas aulas de hoje, cada card mostra quantos alunos fizeram check-in e os nomes deles. A lista se atualiza sozinha a cada minuto
    <sub><em>On today's classes, each card shows how many students checked in and their names. It refreshes by itself every minute</em></sub>
-5. A aula que está acontecendo ganha o selo **Agora** e uma barra de progresso ("Começou há 20 min"); a página abre nela. Sem aula no momento, uma linha **Agora** marca onde você está no dia. Aulas que já passaram ficam apagadas
-   <sub><em>The class happening now gets the Agora (Now) badge and a progress bar ("Começou há 20 min" — started 20 min ago); the page opens on it. With no class on, an Agora line marks where you are in the day. Past classes are faded</em></sub>
+5. A aula que está acontecendo ganha o selo **Agora** e uma barra de progresso ("Começou há 20 min"); a página abre nela. Sem aula no momento, uma linha **Agora** marca onde você está no dia. Aulas que já passaram ficam com texto cinza e borda tracejada
+   <sub><em>The class happening now gets the Agora (Now) badge and a progress bar ("Começou há 20 min" — started 20 min ago); the page opens on it. With no class on, an Agora line marks where you are in the day. Past classes show grey text and a dashed border</em></sub>
 6. Toque em **"Abrir totem"** para mostrar o QR code de check-in (veja [Totem com QR Code](#Método%202:%20Totem%20com%20QR%20Code))
    <sub><em>Tap "Abrir totem" (Open kiosk) to show the check-in QR code (see QR Code Totem)</em></sub>
 
@@ -525,10 +525,10 @@ A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença*
 ### Editar, Mover ou Excluir uma Aula
 <sub><em>Edit, Move, or Delete a Class</em></sub>
 
-- Toque em uma aula (na lista ou no calendário) para abrir **"Editar aula"**; altere nome, tipo, dia da semana (ou data), horários ou professor e toque em **"Salvar"**
-  <sub><em>Tap a class (in the list or on the calendar) to open "Editar aula" (Edit Class); change name, type, day of the week (or date), times, or teacher, and tap "Salvar" (Save)</em></sub>
-- No **Calendário**, você também pode arrastar a aula para outro dia/horário ("Aula reagendada")
-  <sub><em>In Calendário (Calendar) view you can also drag the class to another day/time ("Aula reagendada" — Class rescheduled)</em></sub>
+- Toque em uma aula (na lista ou no calendário) para abrir **"Editar aula"** (o lápis no card indica isso); altere nome, tipo, dia da semana (ou data), horários ou professor e toque em **"Salvar"**. Um seminário (seta no card) abre sempre a página dele
+  <sub><em>Tap a class (in the list or on the calendar) to open "Editar aula" (Edit Class) — the pencil on the card shows this; change name, type, day of the week (or date), times, or teacher, and tap "Salvar" (Save). A seminar (arrow on the card) always opens its page</em></sub>
+- No **Calendário**, você também pode arrastar uma aula semanal para outro dia/horário ("Aula reagendada"). Aulas de data única e seminários não se arrastam: mude a data em **"Editar aula"** ou na página do seminário
+  <sub><em>In Calendário (Calendar) view you can also drag a weekly class to another day/time ("Aula reagendada" — Class rescheduled). Single-date classes and seminars can't be dragged: change the date in "Editar aula" or on the seminar's page</em></sub>
 - Para excluir, no mesmo diálogo toque em **"Excluir aula"** e confirme em **"Excluir aula"** novamente. Os check-ins antigos são preservados
   <sub><em>To delete, in the same dialog tap "Excluir aula" (Delete Class) and confirm with "Excluir aula" again. Past check-ins are kept</em></sub>
 
@@ -538,10 +538,15 @@ A página **Aulas** tem as abas **Quadro de aulas** e **Histórico de presença*
 Um seminário é uma aula de um dia só, normalmente com um professor de fora, aberta a quem não é da academia e paga à parte da mensalidade. No app ele aparece em âmbar, com o selo **Seminário**.
 <sub><em>A seminar is a one-day class, usually with an outside teacher, open to people outside the academy and paid separately from the monthly fee. In the app it shows in amber, with the Seminário badge.</em></sub>
 
+![Aba Seminários](./assets/user-guide/instructor/seminars-tab.png)
+
+Menu → **Aulas** → aba **Seminários** mostra todos os seminários: em **Próximos**, cada um com a data, o professor, quanto já foi **recebido**, quanto está **pendente** e quantas pessoas; os que já aconteceram ficam em **Passados**. Toque num seminário para abrir a página dele.
+<sub><em>Menu → Aulas (Classes) → Seminários (Seminars) tab lists every seminar: under Próximos (Upcoming), each with its date, teacher, how much was received (recebido), how much is pending (pendente) and how many people; the ones already held are under Passados (Past). Tap a seminar to open its page.</em></sub>
+
 ![Criar seminário](./assets/user-guide/instructor/seminar-create.png)
 
-1. Menu → **Aulas** → **"Novo seminário"**
-   <sub><em>Menu → Aulas (Classes) → "Novo seminário" (New seminar)</em></sub>
+1. Na aba **Seminários**, toque em **"Criar seminário"**
+   <sub><em>In the Seminários (Seminars) tab, tap "Criar seminário" (Create seminar)</em></sub>
 2. Preencha nome, tipo, data, horários e os dois preços: **Preço alunos** e **Preço externos** (podem ser iguais)
    <sub><em>Fill in name, type, date, times, and both prices: Preço alunos (Student price) and Preço externos (Outsider price) — they can be the same</em></sub>
 3. Em **Professor**, escolha um aluno ou escreva o nome de um **Professor convidado** e toque em **"Usar professor convidado"**
@@ -551,19 +556,22 @@ Um seminário é uma aula de um dia só, normalmente com um professor de fora, a
 
 ![Página do seminário](./assets/user-guide/instructor/seminar-page.png)
 
-Toque no seminário na linha do tempo para abrir a página dele:
-<sub><em>Tap the seminar on the timeline to open its page:</em></sub>
+Toque no seminário (na aba **Seminários**, na linha do tempo ou no calendário) para abrir a página dele. O título é o nome do seminário e a seta de voltar leva à aba **Seminários**:
+<sub><em>Tap the seminar (in the Seminários tab, on the timeline, or on the calendar) to open its page. The title is the seminar's name and the back arrow goes to the Seminários (Seminars) tab:</em></sub>
 
 - No topo: participantes, total **recebido** e total **pendente**
   <sub><em>At the top: participants, total received (recebido), and total pending (pendente)</em></sub>
-- **"+ Aluno"** adiciona um aluno da academia; **"+ Externo"** adiciona alguém de fora pelo nome (telefone opcional). O valor já vem do preço certo
-  <sub><em>"+ Aluno" adds a student of the academy; "+ Externo" adds an outsider by name (phone optional). The amount comes from the right price</em></sub>
-- **"Marcar pago"** registra o pagamento com a data de hoje; toque em **Pago** para voltar a pendente
-  <sub><em>"Marcar pago" (Mark paid) records the payment with today's date; tap Pago (Paid) to set it back to pending</em></sub>
-- Toque no nome para mudar o valor (desconto, cortesia a 0 €) ou remover a pessoa
-  <sub><em>Tap a name to change the amount (discount, free place at €0) or remove the person</em></sub>
-- **"Editar"** muda data, horários, professor ou preços
-  <sub><em>"Editar" (Edit) changes the date, times, teacher, or prices</em></sub>
+- **"Adicionar aluno"** adiciona um aluno da academia; **"Adicionar externo"** adiciona alguém de fora pelo nome (telefone opcional). O valor já vem do preço certo
+  <sub><em>"Adicionar aluno" (Add student) adds a student of the academy; "Adicionar externo" (Add outsider) adds an outsider by name (phone optional). The amount comes from the right price</em></sub>
+- **"Marcar pago"** registra o pagamento com a data de hoje. Depois disso a pessoa mostra o selo verde **Pago**, que é só um aviso: não desfaz nada ao tocar
+  <sub><em>"Marcar pago" (Mark paid) records the payment with today's date. After that the person shows the green Pago (Paid) badge, which is only a status: tapping it undoes nothing</em></sub>
+- Toque na pessoa para abrir os detalhes: mude o valor (desconto, cortesia a 0 €) e toque em **"Salvar"**; **"Voltar para pendente"** desfaz um pagamento; **"Remover"** pede confirmação e, se a pessoa já pagou, diz o valor que sai do total recebido
+  <sub><em>Tap the person to open their details: change the amount (discount, free place at €0) and tap "Salvar" (Save); "Voltar para pendente" (Back to pending) undoes a payment; "Remover" (Remove) asks for confirmation and, if the person already paid, says the amount that comes off the total received</em></sub>
+
+![Participante do seminário](./assets/user-guide/instructor/seminar-participant.png)
+
+- **"Editar seminário"** muda data, horários, professor ou preços. No mesmo diálogo, **"Excluir seminário"** pede confirmação dizendo quantos participantes há e quanto já foi recebido; depois de excluir, você volta à aba **Seminários**
+  <sub><em>"Editar seminário" (Edit seminar) changes the date, times, teacher, or prices. In the same dialog, "Excluir seminário" (Delete seminar) asks for confirmation, saying how many participants there are and how much was received; after deleting you go back to the Seminários tab</em></sub>
 
 > [!note] Pagamentos de seminário ficam à parte
 > Não entram na mensalidade nem no Financeiro: cada participante é pago ou pendente, sem pagamento parcial nem pagamento de família. O check-in no dia é como numa aula normal (botão ou totem).
@@ -574,8 +582,8 @@ Toque no seminário na linha do tempo para abrir a página dele:
 
 ![Histórico de check-ins](./assets/user-guide/instructor/checkin-history.png)
 
-Menu → **Aulas** → aba **Histórico de presença** mostra os check-ins mais recentes **de todos os alunos** da academia, do mais novo para o mais antigo, agrupados por **dia** e por **aula**. Cada aula mostra quantos alunos vieram e o nome de cada um. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
-<sub><em>Menu → Aulas → Histórico de Presença tab shows the latest check-ins of every student in the academy, newest first, grouped by day and by class. Each class shows how many students came and each one's name. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
+Menu → **Aulas** → aba **Histórico** mostra os check-ins mais recentes **de todos os alunos** da academia, do mais novo para o mais antigo, agrupados por **dia** e por **aula**. Cada aula mostra quantos alunos vieram e o nome de cada um. Toque no nome do aluno para abrir a página dele. Para ver a frequência por período, use o [Painel da Academia](#Painel%20da%20Academia).
+<sub><em>Menu → Aulas → Histórico (History) tab shows the latest check-ins of every student in the academy, newest first, grouped by day and by class. Each class shows how many students came and each one's name. Tap a student's name to open their page. For attendance over a period, use the Academy Dashboard.</em></sub>
 
 ## Sistema de Check-in
 <sub><em>Check-in System</em></sub>

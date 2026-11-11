@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Medal } from 'lucide-react';
 import { formatDate, formatMoney } from '@/lib/format';
-import type { MySeminar } from '@/pages/classes/student-view';
+import type { MySeminar } from '@/components/schedule/seminar-signup';
 import { useApiQuery } from '@/hooks/use-api';
 import { Card, CardContent } from '@/components/ui/card';
 import { SubpageHeader } from '@/components/subpage-header';

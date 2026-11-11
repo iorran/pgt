@@ -380,6 +380,24 @@ export async function seedGuide(
     { classId: seminar.id, name: 'Marta Sousa', phone: '912 345 678', amount: '50.00', paidAt: todayDate },
   ]);
 
+  // 8c. A later Seminar, ~25 days out with no sign-ups yet: shows past the day strip, in the Seminários tab.
+  const laterDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 25);
+  await db.insert(schema.bjjClass).values({
+    academyId: acad.id,
+    instructorId: instructor.id,
+    teacherId: instructor.id,
+    name: 'Leg locks',
+    type: 'no-gi' as const,
+    recurrence: 'once' as const,
+    dayOfWeek: laterDay.getDay(),
+    date: `${laterDay.getFullYear()}-${pad(laterDay.getMonth() + 1)}-${pad(laterDay.getDate())}`,
+    startTime: '10:00',
+    endTime: '12:00',
+    isSeminar: true,
+    studentPrice: '40.00',
+    outsiderPrice: '50.00',
+  });
+
   // 9. Tournament — no createdBy column in the schema; only academyId, name, date, location, federation.
   const inTwoMonths = new Date(now.getFullYear(), now.getMonth() + 2, 15);
   await db.insert(schema.tournament).values({

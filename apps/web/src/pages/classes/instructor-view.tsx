@@ -11,7 +11,7 @@ import { ClassTimeline } from '@/components/schedule/class-timeline';
 import { ClassCreateDialog, type ClassCreateValues } from '@/components/schedule/class-create-dialog';
 import { ClassEditDialog, type ClassEditPatch } from '@/components/schedule/class-edit-dialog';
 import { PageLoader } from '@/components/page-loader';
-import { TabsNav } from '@/components/tabs-nav';
+import { ClassesTabs } from '@/components/schedule/classes-tabs';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from '@/lib/toast';
@@ -38,7 +38,6 @@ export function InstructorClassesView() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [createOpen, setCreateOpen] = useState(false);
-  const [seminarOpen, setSeminarOpen] = useState(false);
   const [editing, setEditing] = useState<ClassItem | null>(null);
   const [mode, setModeState] = useState<ViewMode>(readViewMode);
 
@@ -122,7 +121,7 @@ export function InstructorClassesView() {
     meta: { successMessage: t('classes.classDeleted') },
   });
 
-  async function createClasses(values: ClassCreateValues, close: () => void, seminar: boolean) {
+  async function createClasses(values: ClassCreateValues) {
     const common = {
       name: values.name,
       type: values.type,
@@ -142,11 +141,7 @@ export function InstructorClassesView() {
       for (const body of bodies) {
         await api('/classes', {
           method: 'POST',
-          body: JSON.stringify(
-            seminar
-              ? { ...body, isSeminar: true, studentPrice: values.studentPrice, outsiderPrice: values.outsiderPrice }
-              : body,
-          ),
+          body: JSON.stringify(body),
         });
       }
     } catch (err) {
@@ -155,27 +150,24 @@ export function InstructorClassesView() {
     } finally {
       queryClient.invalidateQueries({ queryKey: ['classes', user.academyId] });
     }
-    toast.success(t(seminar ? 'seminars.created' : 'classes.classesCreated'));
-    close();
+    toast.success(t('classes.classesCreated'));
+    setCreateOpen(false);
   }
+
+  // One rule in the list and the calendar: a Class opens its edit dialog, a Seminar its page.
+  const openClass = (cls: ClassItem) => (cls.isSeminar ? navigate(`/classes/seminars/${cls.id}`) : setEditing(cls));
 
   const calendar = useClassCalendar({
     classes,
     onMove: (id, patch) => moveMutation.mutate({ id, ...patch }),
-    onSelect: (cls) => setEditing(cls),
+    onSelect: openClass,
   });
 
   if (isLoading) return <PageLoader />;
 
   return (
     <div className="space-y-6">
-      <TabsNav
-        title={t('nav.classes')}
-        items={[
-          { to: '/classes', label: t('classes.title') },
-          { to: '/classes/history', label: t('classes.checkinHistory') },
-        ]}
-      />
+      <ClassesTabs />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-muted-foreground">
           {t('classes.classCount', { count: classes.length })}
@@ -185,17 +177,7 @@ export function InstructorClassesView() {
             <QrCode aria-hidden />
             {t('classes.openTotem')}
           </Link>
-        <ClassCreateDialog
-          open={createOpen}
-          onOpenChange={setCreateOpen}
-          onSubmit={(values) => createClasses(values, () => setCreateOpen(false), false)}
-        />
-        <ClassCreateDialog
-          seminar
-          open={seminarOpen}
-          onOpenChange={setSeminarOpen}
-          onSubmit={(values) => createClasses(values, () => setSeminarOpen(false), true)}
-        />
+          <ClassCreateDialog open={createOpen} onOpenChange={setCreateOpen} onSubmit={createClasses} />
         </div>
       </div>
 
@@ -232,10 +214,7 @@ export function InstructorClassesView() {
       )}
 
       {classes.length > 0 && mode === 'list' && (
-        <ClassTimeline
-          classes={classes}
-          onSelect={(cls) => (cls.isSeminar ? navigate(`/classes/seminars/${cls.id}`) : setEditing(cls))}
-        />
+        <ClassTimeline classes={classes} onSelect={openClass} />
       )}
 
       {mode === 'calendar' && (

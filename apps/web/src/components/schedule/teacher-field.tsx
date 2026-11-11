@@ -105,7 +105,7 @@ export function TeacherField({
           <DialogHeader>
             <DialogTitle className="font-heading uppercase tracking-wider">{t('classes.teacher.pick')}</DialogTitle>
           </DialogHeader>
-          <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto">
+          <div className="flex max-h-[70vh] flex-col gap-3 overflow-y-auto overscroll-contain">
             <div className="space-y-2">
               <Label htmlFor={`${id}-search`}>{t('classes.teacher.search')}</Label>
               <Input id={`${id}-search`} type="search" value={query} onChange={(e) => setQuery(e.target.value)} />

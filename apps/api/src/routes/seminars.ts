@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { academy, bjjClass, seminarParticipant, user } from '../db/schema/index.js';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { DEFAULT_ACADEMY_TIMEZONE, isoDateInTz } from '../utils/timezone.js';
@@ -67,6 +67,36 @@ const notFound = { error: 'SEMINAR_NOT_FOUND' };
 export async function seminarRoutes(app: FastifyInstance) {
   const owner = { preHandler: [requireOwner, injectAcademyId] };
   const member = { preHandler: [requireAuth, injectAcademyId] };
+
+  // Every Seminar of the academy, by date, with who is in and the money received and pending.
+  app.get('/api/seminars', owner, async (request) => {
+    const rows = await db
+      .select({
+        cls: bjjClass,
+        teacherName: user.name,
+        teacherBelt: user.belt,
+        participants: sql<number>`count(${seminarParticipant.id})::int`,
+        paidCount: sql<number>`count(${seminarParticipant.paidAt})::int`,
+        received: sql<string>`coalesce(sum(${seminarParticipant.amount}) filter (where ${seminarParticipant.paidAt} is not null), 0)::numeric(10,2)::text`,
+        pending: sql<string>`coalesce(sum(${seminarParticipant.amount}) filter (where ${seminarParticipant.paidAt} is null), 0)::numeric(10,2)::text`,
+      })
+      .from(bjjClass)
+      .leftJoin(user, eq(user.id, bjjClass.teacherId))
+      .leftJoin(seminarParticipant, eq(seminarParticipant.classId, bjjClass.id))
+      .where(and(eq(bjjClass.academyId, request.academyId), eq(bjjClass.isSeminar, true), eq(bjjClass.active, true)))
+      .groupBy(bjjClass.id, user.name, user.belt)
+      .orderBy(asc(bjjClass.date), asc(bjjClass.startTime));
+    return rows.map(({ cls, teacherName, teacherBelt, ...totals }) => ({
+      classId: cls.id,
+      name: cls.name,
+      date: cls.date,
+      startTime: cls.startTime,
+      endTime: cls.endTime,
+      teacher: cls.teacherId ? { id: cls.teacherId, name: teacherName, belt: teacherBelt } : null,
+      guestTeacherName: cls.guestTeacherName,
+      ...totals,
+    }));
+  });
 
   app.get('/api/seminars/:classId/participants', owner, async (request, reply) => {
     const { classId } = request.params as { classId: string };

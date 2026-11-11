@@ -4,29 +4,17 @@ import { useSession } from '@/lib/auth-client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { toast } from '@/lib/toast';
-import { formatMoney, todayYmd } from '@/lib/format';
 import { useApiQuery } from '@/hooks/use-api';
+import { SeminarSignup } from '@/components/schedule/seminar-signup';
 import { ClassTimeline, type TimelineActionContext } from '@/components/schedule/class-timeline';
 import { PageLoader } from '@/components/page-loader';
 import { Button } from '@/components/ui/button';
-import { TabsNav } from '@/components/tabs-nav';
+import { ClassesTabs } from '@/components/schedule/classes-tabs';
 import { FirstCheckinNotice } from '@/components/first-checkin-notice';
 import { addMinutes, BEFORE_START_MIN, type ClassItem } from '@/lib/schedule';
 
-export interface MySeminar {
-  classId: string;
-  name: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  teacher: { id: string; name: string; belt: string } | null;
-  guestTeacherName: string | null;
-  amount: string;
-  paidAt: string | null;
-}
-
 export function StudentClassesView() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
@@ -43,8 +31,6 @@ export function StudentClassesView() {
     !!user?.id,
   );
 
-  const { data: mySeminars = [] } = useApiQuery<MySeminar[]>(['my-seminars', user?.id], '/seminars/mine', !!user?.id);
-
   function isCheckedIn(classId: string): boolean {
     const today = new Date().toDateString();
     return myCheckins.some(
@@ -59,18 +45,6 @@ export function StudentClassesView() {
       queryClient.invalidateQueries({ queryKey: ['my-checkins'] });
     },
     meta: { successMessage: t('classes.checkinSuccess') },
-  });
-
-  const refreshSeminars = () => queryClient.invalidateQueries({ queryKey: ['my-seminars'] });
-  const joinMutation = useMutation({
-    mutationFn: (classId: string) => api(`/seminars/${classId}/signup`, { method: 'POST' }),
-    onSuccess: refreshSeminars,
-    meta: { successMessage: t('seminars.joined') },
-  });
-  const cancelMutation = useMutation({
-    mutationFn: (classId: string) => api(`/seminars/${classId}/signup`, { method: 'DELETE' }),
-    onSuccess: refreshSeminars,
-    meta: { successMessage: t('seminars.cancelled') },
   });
 
   function handleCheckin(classId: string) {
@@ -89,41 +63,6 @@ export function StudentClassesView() {
           toast.error(t('classes.locationUnavailable'));
         }
       },
-    );
-  }
-
-  const money = (v: string) => formatMoney(v, i18n.language);
-
-  function seminarSignup(cls: ClassItem) {
-    const mine = mySeminars.find((s) => s.classId === cls.id);
-    if (mine) {
-      return (
-        <span className="block space-y-2">
-          <span className="flex items-center justify-between gap-3 rounded-sm bg-seminar/10 px-3 py-2.5 text-sm">
-            <span>
-              <strong className="text-seminar">{t('seminars.signedUp')}</strong> ·{' '}
-              {mine.paidAt ? t('seminars.paid') : t('seminars.pendingAmount', { price: money(mine.amount) })}
-            </span>
-            {!mine.paidAt && (
-              <Button variant="link" className="h-11 px-2 text-seminar" onClick={() => cancelMutation.mutate(cls.id)}>
-                {t('seminars.cancel')}
-              </Button>
-            )}
-          </span>
-          {!mine.paidAt && <span className="block text-xs text-muted-foreground">{t('seminars.payAtAcademy')}</span>}
-        </span>
-      );
-    }
-    if (!cls.date || cls.date < todayYmd()) {
-      return null;
-    }
-    return (
-      <Button
-        className="h-11 w-full bg-seminar text-seminar-foreground hover:bg-seminar/90"
-        onClick={() => joinMutation.mutate(cls.id)}
-      >
-        {t('seminars.join', { price: money(cls.studentPrice ?? '0') })}
-      </Button>
     );
   }
 
@@ -171,7 +110,7 @@ export function StudentClassesView() {
   function renderAction(cls: ClassItem, ctx: TimelineActionContext) {
     return (
       <>
-        {cls.isSeminar && seminarSignup(cls)}
+        {cls.isSeminar && <SeminarSignup cls={cls} />}
         {checkin(cls, ctx)}
       </>
     );
@@ -183,13 +122,7 @@ export function StudentClassesView() {
 
   return (
     <div className="space-y-6">
-      <TabsNav
-        title={t('nav.classes')}
-        items={[
-          { to: '/classes', label: t('classes.title') },
-          { to: '/classes/history', label: t('classes.checkinHistory') },
-        ]}
-      />
+      <ClassesTabs />
       {checkinsLoaded && myCheckins.length === 0 && <FirstCheckinNotice />}
       {classes.length > 0 ? (
         <ClassTimeline classes={classes} renderAction={renderAction} />
