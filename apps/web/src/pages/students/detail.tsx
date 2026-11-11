@@ -49,6 +49,9 @@ interface Student {
   modalities?: Modality[];
   trainingNote?: string | null;
   dateOfBirth?: string | null;
+  addOnTeacherId?: string | null;
+  recruitedById?: string | null;
+  addOnCheckins?: number | null;
 }
 
 interface Modality {
@@ -199,6 +202,12 @@ export default function StudentDetailPage() {
               studentId={student.id}
               monthlyFee={student.monthlyFee}
               dueDay={student.dueDay}
+            />
+          )}
+          {isOwner(user) && (
+            <StudentFinanceForm
+              key={`${student.id}-${student.addOnTeacherId}-${student.recruitedById}`}
+              student={student}
             />
           )}
           {isOwner(user) && student.monthlyFee != null && (
@@ -446,6 +455,125 @@ function MonthlyFeeForm({
       </div>
       <Button type="submit" variant="outline" loading={mutation.isPending}>
         {t('students.fee.save')}
+      </Button>
+    </form>
+  );
+}
+
+interface FinanceSettings {
+  addOnName: string;
+  addOnPrice: string;
+  addOnTeacherShare: string;
+  recruitedSharePercent: number;
+}
+
+// Class Add-on and Recruited Student: both name a Payout Teacher (a Class Teacher other than the Owner).
+function StudentFinanceForm({ student }: { student: Student }) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language;
+  const queryClient = useQueryClient();
+  const [addOnTeacherId, setAddOnTeacherId] = useState(student.addOnTeacherId ?? '');
+  const [addOnOn, setAddOnOn] = useState(!!student.addOnTeacherId);
+  const [recruitedById, setRecruitedById] = useState(student.recruitedById ?? '');
+  const { data: candidates = [] } = useApiQuery<{ id: string; name: string; role: string }[]>(
+    ['teacher-candidates'],
+    '/teachers/candidates',
+  );
+  const { data: settings } = useApiQuery<FinanceSettings>(['academy-mine'], '/academies/mine');
+  const teachers = candidates.filter(c => c.role === 'student' && c.id !== student.id);
+  const teacherId = addOnOn ? addOnTeacherId || teachers[0]?.id || '' : '';
+  const teacherName = teachers.find(c => c.id === teacherId)?.name ?? '';
+  const owes = Number(student.monthlyFee ?? 0) + (addOnOn && settings ? Number(settings.addOnPrice) : 0);
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      api(`/students/${student.id}/finance`, {
+        method: 'PUT',
+        body: JSON.stringify({ addOnTeacherId: teacherId || null, recruitedById: recruitedById || null }),
+      }),
+    meta: { successMessage: t('finance.student.saved') },
+    onSuccess: () => {
+      for (const key of ['student', 'students', 'overdue', 'finance-payouts', 'finance-balance']) {
+        queryClient.invalidateQueries({ queryKey: [key] });
+      }
+      invalidateFamilyQueries(queryClient);
+    },
+  });
+
+  const selectClass = 'flex h-11 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm';
+  return (
+    <form
+      className="space-y-4 border-t border-border pt-4"
+      onSubmit={e => {
+        e.preventDefault();
+        mutation.mutate();
+      }}
+    >
+      <div className="space-y-2 rounded-md border border-primary/40 bg-primary/5 p-3">
+        <label className="flex min-h-11 items-center justify-between gap-3">
+          <span className="flex flex-col">
+            <span className="font-bold">{t('finance.student.addOn', { name: settings?.addOnName ?? '' })}</span>
+            {settings && (
+              <span className="text-sm text-muted-foreground">
+                {t('finance.student.addOnHint', {
+                  price: formatMoney(settings.addOnPrice, locale),
+                  share: formatMoney(settings.addOnTeacherShare, locale),
+                  teacher: teacherName,
+                })}
+              </span>
+            )}
+          </span>
+          <input
+            type="checkbox"
+            role="switch"
+            aria-label={t('finance.student.addOn', { name: settings?.addOnName ?? '' })}
+            checked={addOnOn}
+            onChange={e => setAddOnOn(e.target.checked)}
+            className="h-6 w-11 shrink-0 accent-primary"
+          />
+        </label>
+        {addOnOn && (
+          <div className="space-y-2">
+            <Label htmlFor="add-on-teacher">{t('finance.student.addOnTeacher')}</Label>
+            <select
+              id="add-on-teacher"
+              value={teacherId}
+              onChange={e => setAddOnTeacherId(e.target.value)}
+              required
+              className={selectClass}
+            >
+              {teachers.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {addOnOn && student.addOnCheckins != null && student.addOnTeacherId === teacherId && (
+          <p className="text-sm">{t('finance.student.addOnCheckins', { count: student.addOnCheckins, teacher: teacherName })}</p>
+        )}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="recruited-by">{t('finance.student.recruitedBy')}</Label>
+        <select id="recruited-by" value={recruitedById} onChange={e => setRecruitedById(e.target.value)} className={selectClass}>
+          <option value="">{t('finance.student.nobody')}</option>
+          {teachers.map(c => (
+            <option key={c.id} value={c.id}>
+              {t('finance.student.recruitedOption', { name: c.name, percent: settings?.recruitedSharePercent ?? 50 })}
+            </option>
+          ))}
+        </select>
+      </div>
+      {student.monthlyFee != null && (
+        <div className="flex items-baseline justify-between border-t border-border pt-3">
+          <span className="text-sm text-muted-foreground">{t('finance.student.owesPerMonth')}</span>
+          <span className="arena-stat text-xl">{formatMoney(owes, locale)}</span>
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground">{t('finance.student.settingsHint')}</p>
+      <Button type="submit" variant="outline" loading={mutation.isPending}>
+        {t('finance.student.save')}
       </Button>
     </form>
   );

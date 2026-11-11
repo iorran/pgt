@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { Route, Routes } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { renderWithRoute } from '../render';
@@ -297,5 +297,37 @@ describe('StudentDetailPage', () => {
     expect(screen.queryByLabelText('students.belt')).toBeNull();
     expect(screen.queryByRole('button', { name: 'students.beltForm.save' })).toBeNull();
     expect(screen.queryByLabelText('students.birthDate.label')).toBeNull();
+  });
+
+  it('marks a Class Add-on and a recruiter with Payout Teachers, never the Owner or the student', async () => {
+    const user = userEvent.setup();
+    student = { ...baseStudent, monthlyFee: '45.00', addOnTeacherId: null, recruitedById: null, addOnCheckins: null };
+    const base = vi.mocked(api).getMockImplementation()!;
+    vi.mocked(api).mockImplementation(async (path: string, options?: RequestInit) => {
+      if (path === '/teachers/candidates') {
+        return [
+          { id: 'o1', name: 'Owner', belt: 'black', role: 'owner' },
+          { id: 's1', name: 'Ana', belt: 'blue', role: 'student' },
+          { id: 't1', name: 'Rafael', belt: 'brown', role: 'student' },
+        ];
+      }
+      if (path === '/academies/mine') {
+        return { id: 'a1', addOnName: 'No Gi', addOnPrice: '10.00', addOnTeacherShare: '5.00', recruitedSharePercent: 50 };
+      }
+      return base(path, options);
+    });
+    renderPage();
+    await user.click(await screen.findByRole('switch', { name: 'finance.student.addOn' }));
+    const teacher = screen.getByLabelText('finance.student.addOnTeacher');
+    expect(within(teacher).getAllByRole('option').map((o) => o.textContent)).toEqual(['Rafael']);
+    expect(screen.getByText(/55,00\s€/)).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText('finance.student.recruitedBy'), 't1');
+    await user.click(screen.getByRole('button', { name: 'finance.student.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/students/s1/finance', {
+        method: 'PUT',
+        body: JSON.stringify({ addOnTeacherId: 't1', recruitedById: 't1' }),
+      }),
+    );
   });
 });

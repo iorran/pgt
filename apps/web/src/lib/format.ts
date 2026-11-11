@@ -30,3 +30,9 @@ export const formatMonth = (ym: string, locale: string) =>
 // ["Ana", "Bia", "Caio"] as "Ana, Bia e Caio" / "Ana, Bia, and Caio".
 export const formatList = (items: string[], locale: string) =>
   new Intl.ListFormat(toLocale(locale), { type: 'conjunction' }).format(items);
+
+// YYYY-MM moved by `delta` months.
+export function shiftMonth(ym: string, delta: number) {
+  const d = new Date(Number(ym.slice(0, 4)), Number(ym.slice(5, 7)) - 1 + delta, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}

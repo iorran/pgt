@@ -175,8 +175,8 @@ Até ser aprovado, ele fica só na aba **Pendentes**: não aparece na lista de A
 ### Página do Aluno
 <sub><em>Student Page</em></sub>
 
-A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade**, um cartão com **Faixa** e **Data de nascimento** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
-<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card, a card with Faixa (Belt) and Data de nascimento (Birth Date), and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
+A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade** (com o **Acréscimo** e o **Angariado por**), um cartão com **Faixa** e **Data de nascimento** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
+<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card (with the Add-on and Recruited by), a card with Faixa (Belt) and Data de nascimento (Birth Date), and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
 
 ### Definir a Mensalidade
 <sub><em>Set the Monthly Fee</em></sub>
@@ -625,8 +625,8 @@ O totem de QR Code transforma qualquer tablet em uma estação de check-in.
 ## Financeiro
 <sub><em>Billing</em></sub>
 
-A página **Financeiro** tem as abas **Inadimplentes** e **Pagamentos**. O valor de cada aluno vem da **Mensalidade** definida na página dele (veja [Definir a Mensalidade](#Definir%20a%20Mensalidade)).
-<sub><em>The Financeiro (Billing) page has the Inadimplentes (Overdue Payments) and Pagamentos (Payments) tabs. Each student's amount comes from the Monthly Fee set on their page (see Set the Monthly Fee).</em></sub>
+A página **Financeiro** tem quatro abas: **Cobranças** (com **Inadimplentes** e **Pagamentos**), **Balanço**, **Despesas** e **Repasses**. Só o dono vê o Financeiro. O valor de cada aluno vem da **Mensalidade** definida na página dele (veja [Definir a Mensalidade](#Definir%20a%20Mensalidade)), mais o **Acréscimo**, se ele tiver (veja [Acréscimo e Angariado](#Acréscimo%20e%20Angariado)).
+<sub><em>The Financeiro (Finances) page has four tabs: Cobranças (Charges — with Inadimplentes/Overdue and Pagamentos/Payments), Balanço (Balance), Despesas (Expenses) and Repasses (Payouts). Only the owner sees it. Each student's amount comes from the Monthly Fee set on their page (see Set the Monthly Fee), plus the Class Add-on when they have one (see Add-on and Recruited).</em></sub>
 
 ### Registrar um Pagamento
 <sub><em>Record a Payment</em></sub>
@@ -651,8 +651,8 @@ A página **Financeiro** tem as abas **Inadimplentes** e **Pagamentos**. O valor
 
 ![Inadimplentes](./assets/user-guide/instructor/billing-overdue.png)
 
-1. Menu → **Financeiro** (a aba **Inadimplentes** abre primeiro)
-   <sub><em>Menu → Financeiro (the Inadimplentes tab opens first)</em></sub>
+1. Menu → **Financeiro** (a aba **Cobranças**, em **Inadimplentes**, abre primeiro)
+   <sub><em>Menu → Financeiro (the Cobranças tab, on Inadimplentes, opens first)</em></sub>
 2. Aparecem os alunos com meses não pagos após o dia de vencimento (meses isentos não contam) e o total ("N inadimplentes")
    <sub><em>Students with unpaid months past their due day are listed (waived months don't count), with a total ("N inadimplentes" — N overdue)</em></sub>
 3. Cada cartão mostra os meses em aberto, o valor devido e os dias de atraso. A borda é amarela (menos de 8 dias de atraso) ou vermelha (8 dias ou mais)
@@ -667,6 +667,10 @@ Em cada cartão de aluno:
   <sub><em>"Registrar pagamento" (Record Payment) — quick pay: immediately records the oldest unpaid month at the student's Monthly Fee</em></sub>
 - **WhatsApp** — abre uma conversa com o aluno (só aparece se ele tiver telefone)
   <sub><em>WhatsApp — opens a chat with the student (only shown when they have a phone number)</em></sub>
+- **"+ Acréscimo No Gi"** com a conta **"45,00 € + 10,00 €"** — o aluno paga o acréscimo; o valor devido já o inclui
+  <sub><em>"+ Acréscimo No Gi" (No Gi add-on) with the "€45.00 + €10.00" breakdown — the student pays the add-on; the amount due already includes it</em></sub>
+- **"Angariado · Nome"** — aluno angariado por esse professor
+  <sub><em>"Angariado · Name" (Recruited · Name) — a student recruited by that teacher</em></sub>
 
 > [!note]
 > O pagamento rápido cobre um mês por toque, sempre o mais antigo em aberto. Para escolher outro mês ou outro valor, use a aba **Pagamentos** e escolha o **Mês de referência**.
@@ -699,6 +703,98 @@ O pagamento aparece no histórico de cada membro, dividido proporcionalmente às
 > [!note] Mês pago em parte
 > Um membro pode pagar sozinho (pagamento individual). Então a família mostra aquele mês como **"X de Y pagos"**. Ao registrar o pagamento da família, só os membros ainda em aberto são cobrados — mas o valor sugerido é o do mês inteiro, então ajuste o **Valor** para o que falta.
 > <sub><em>A member can pay alone (individual payment). The family then shows that month as "X de Y pagos" (X of Y paid). When you record the family payment, only the members still owing are charged — but the suggested amount is the whole month's, so adjust the Valor (Amount) to what is left.</em></sub>
+
+### Acréscimo e Angariado
+<sub><em>Add-on and Recruited</em></sub>
+
+Um **Professor de repasse** é quem dá aulas na academia sem ser o dono (hoje, o professor de No Gi). Ele recebe parte do dinheiro de dois tipos de aluno. Marque isso no cartão **Mensalidade** da página do aluno:
+<sub><em>A Payout Teacher is someone who teaches at the academy and isn't the owner (today, the No Gi teacher). They get part of the money from two kinds of students. Mark it on the Mensalidade card of the student's page:</em></sub>
+
+1. **Acréscimo No Gi** — ligue o interruptor e escolha o **Professor do acréscimo**. Enquanto estiver ligado, o aluno deve a mensalidade **mais o acréscimo** (10 € por padrão) todos os meses: em Inadimplentes, no pagamento rápido, no pagamento da família e na página Mensalidade do aluno. Do acréscimo, 5 € são do professor. Desligue para parar de cobrar
+   <sub><em>Acréscimo No Gi (No Gi add-on) — turn the switch on and pick the Professor do acréscimo (add-on teacher). While on, the student owes the Monthly Fee plus the add-on (€10 by default) every month: in Overdue, quick pay, family payment and the student's Membership page. €5 of the add-on is the teacher's. Turn it off to stop charging it</em></sub>
+2. **Angariado por** — escolha o professor que trouxe o aluno. Metade (50% por padrão) do que o aluno **pagar** no mês vai para esse professor; mês sem pagamento, nada
+   <sub><em>Angariado por (Recruited by) — pick the teacher who brought the student. Half (50% by default) of what the student pays in the month goes to that teacher; no payment that month, nothing</em></sub>
+3. Confira **"Deve por mês"** e toque em **"Salvar cobrança"**
+   <sub><em>Check "Deve por mês" (Owes per month) and tap "Salvar cobrança" (Save billing)</em></sub>
+
+> [!note] Check-ins não cobram
+> O check-in nunca liga nem desliga o acréscimo. Ele só serve de aviso: a página mostra quantos check-ins o aluno fez este mês nas aulas do professor, e a aba **Repasses** avisa quem tem acréscimo e não apareceu. Uma família com **preço acordado** continua pagando o preço acordado.
+> <sub><em>A check-in never turns the add-on on or off. It is only a hint: the page shows how many check-ins the student made this month in the teacher's classes, and the Repasses tab flags who has the add-on and didn't show up. A family with an agreed price keeps paying the agreed price.</em></sub>
+
+### Balanço do Mês
+<sub><em>Monthly Balance</em></sub>
+
+Menu → **Financeiro** → aba **Balanço**. Use **‹** e **›** para trocar de mês.
+<sub><em>Menu → Financeiro → Balanço tab. Use ‹ and › to change month.</em></sub>
+
+- **Resultado do mês** — o que entrou menos as despesas e os repasses, comparado com o mês anterior
+  <sub><em>Resultado do mês (Month result) — what came in minus expenses and payouts, compared with the previous month</em></sub>
+- **Entrou**, **Despesas** e **Repasses** — os três totais
+  <sub><em>Entrou (In), Despesas (Expenses) and Repasses (Payouts) — the three totals</em></sub>
+- **Para onde foi o dinheiro** — a barra com a parte de despesas, repasses e o que ficou
+  <sub><em>Para onde foi o dinheiro (Where the money went) — the bar with the share of expenses, payouts and what was kept</em></sub>
+- **Entradas** — mensalidades, seminários e acréscimos, separados
+  <sub><em>Entradas (Income) — monthly fees, seminars and add-ons, separately</em></sub>
+- **Maiores despesas** e **Últimos 6 meses**
+  <sub><em>Maiores despesas (Largest expenses) and Últimos 6 meses (Last 6 months)</em></sub>
+
+> [!note] O dinheiro conta no mês em que foi pago
+> Uma mensalidade de janeiro paga em 5 de fevereiro conta em **fevereiro**. Seminários contam no dia em que o participante pagou. Despesas contam no mês em que foram lançadas. Os repasses usam o valor confirmado ou, enquanto não houver, o calculado pelo app.
+> <sub><em>A January Monthly Fee paid on 5 February counts in February. Seminars count on the day the participant paid. Expenses count in the month they were entered for. Payouts use the confirmed amount or, until there is one, the amount worked out by the app.</em></sub>
+
+### Despesas
+<sub><em>Expenses</em></sub>
+
+Menu → **Financeiro** → aba **Despesas**. Cada mês tem a sua tabela, como uma planilha.
+<sub><em>Menu → Financeiro → Despesas tab. Each month has its own table, like a spreadsheet.</em></sub>
+
+1. Para mudar um valor, toque na célula, digite e saia dela — salva sozinho
+   <sub><em>To change an amount, tap the cell, type and leave it — it saves by itself</em></sub>
+2. Para adicionar, preencha **"Nova despesa"** e **"Valor (€)"**, marque **"Só este mês"** se não se repete, e toque em **"Adicionar linha"**
+   <sub><em>To add one, fill in "Nova despesa" (New expense) and "Valor (€)" (Amount), tick "Só este mês" (This month only) if it doesn't repeat, and tap "Adicionar linha" (Add row)</em></sub>
+3. Toque em **×** para remover uma linha. O **Total** fica no fim
+   <sub><em>Tap × to remove a row. The Total is at the bottom</em></sub>
+
+Um mês novo começa com as despesas do último mês lançado (menos as de "só este mês"). As linhas copiadas ficam **em cinza** até você corrigir ou confirmar o valor (tocar na célula e sair dela confirma).
+<sub><em>A new month starts with the expenses of the last month entered (except "this month only" ones). Copied rows are grey until you correct or confirm the amount (tapping the cell and leaving it confirms).</em></sub>
+
+### Repasses
+<sub><em>Payouts</em></sub>
+
+Menu → **Financeiro** → aba **Repasses**. Há um cartão por **Professor de repasse** no mês:
+<sub><em>Menu → Financeiro → Repasses tab. There is one card per Payout Teacher for the month:</em></sub>
+
+- **Acréscimos pagos** — a parte do professor (5 €) vezes os pagamentos de alunos com acréscimo feitos no mês
+  <sub><em>Acréscimos pagos (Add-ons paid) — the teacher's share (€5) times the payments made that month by students with the add-on</em></sub>
+- **Angariados** — 50% do que os alunos angariados pagaram no mês
+  <sub><em>Angariados (Recruited) — 50% of what recruited students paid that month</em></sub>
+- **Calculado pelo app** — a soma dos dois
+  <sub><em>Calculado pelo app (Worked out by the app) — the sum of both</em></sub>
+
+1. Confira o **Repasse do mês**. Se precisar, digite outro valor (por exemplo, um aluno que pagou no fim do mês)
+   <sub><em>Check the Repasse do mês (Month payout). If needed, type another amount (e.g., a student who paid at the end of the month)</em></sub>
+2. Toque em **"Confirmar repasse"** — o selo passa de **Por confirmar** para **Confirmado** e o Balanço usa esse valor
+   <sub><em>Tap "Confirmar repasse" (Confirm payout) — the badge changes from Por confirmar (To confirm) to Confirmado (Confirmed) and the Balance uses that amount</em></sub>
+
+Abaixo, **Alunos de …** lista cada aluno, quanto pagou e o repasse. O aviso laranja mostra alunos com acréscimo que não fizeram check-in nas aulas do professor naquele mês.
+<sub><em>Below, Alunos de … (… 's students) lists each student, what they paid and the payout. The orange notice shows students with the add-on who didn't check in to the teacher's classes that month.</em></sub>
+
+### Exportar para Excel
+<sub><em>Export to Excel</em></sub>
+
+- Em **Repasses**, **"Exportar Excel"** baixa o repasse do professor: aluno, mensalidade, valor pago, data do pagamento, mês de referência, tipo (Acréscimo/Angariado), repasse por aluno, totais e o repasse do mês
+  <sub><em>In Repasses, "Exportar Excel" (Export to Excel) downloads the teacher's payout: student, monthly fee, amount paid, payment date, reference month, kind (Add-on/Recruited), payout per student, totals and the month payout</em></sub>
+- Em **Balanço**, **"Exportar mês para Excel"** baixa as entradas, todas as despesas, os repasses e o resultado
+  <sub><em>In Balanço, "Exportar mês para Excel" (Export month to Excel) downloads income, every expense, payouts and the result</em></sub>
+
+O arquivo é um CSV que o Excel em português abre direto, com vírgula nos decimais.
+<sub><em>The file is a CSV that Portuguese Excel opens directly, with comma decimals.</em></sub>
+
+### Configurações do Financeiro
+<sub><em>Finance Settings</em></sub>
+
+Menu → **Configurações** → cartão **Financeiro**: o **nome do acréscimo** (No Gi), o **preço do acréscimo** (10 €), a **parte do professor no acréscimo** (5 €) e a **parte do professor nos angariados** (50%). Toque em **"Salvar financeiro"**. Os novos valores valem para todos os cálculos, inclusive os meses já passados.
+<sub><em>Menu → Configurações (Settings) → Financeiro card: the add-on name (No Gi), the add-on price (€10), the teacher's share of the add-on (€5) and the teacher's share of recruited students (50%). Tap "Salvar financeiro" (Save finances). The new values apply to every calculation, including past months.</em></sub>
 
 ## Notificações
 <sub><em>Notifications</em></sub>

@@ -292,6 +292,8 @@ Barra inferior → **Perfil** → **Mensalidade** (ou toque no banner). A págin
   <sub><em>**Em dia** (Up to date, green) — nothing owed; if the due day is close, "Seu pagamento vence em N dias" also shows</em></sub>
 - **Atrasada** (vermelho) — com "Seu pagamento está N dias atrasado"
   <sub><em>**Atrasada** (Overdue, red) — with "Seu pagamento está N dias atrasado"</em></sub>
+- Quanto você paga por mês: a mensalidade ou, se você tiver o **acréscimo** (por exemplo, No Gi), a conta "45,00 € + 10,00 € (acréscimo No Gi) = 55,00 € por mês"
+  <sub><em>What you pay per month: the monthly fee or, if you have the add-on (e.g., No Gi), the sum "€45.00 + €10.00 (No Gi add-on) = €55.00 per month"</em></sub>
 
 Se a página não carregar, aparece "Não foi possível carregar sua mensalidade. Tente novamente."
 <sub><em>If the page can't load, it shows "Não foi possível carregar sua mensalidade. Tente novamente." (Couldn't load your membership status. Please try again.)</em></sub>

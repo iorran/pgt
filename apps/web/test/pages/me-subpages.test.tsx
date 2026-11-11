@@ -27,6 +27,16 @@ describe('BillingStatusPage', () => {
     expect(screen.queryByText('me.billingUpToDate')).not.toBeInTheDocument();
   });
 
+  it('shows what the student owes per month, with the Class Add-on', async () => {
+    mockApi.mockImplementation(async (path: string) =>
+      (path === '/payments/my-status'
+        ? { status: 'ok', monthlyFee: '45.00', addOn: { name: 'No Gi', price: '10.00' } }
+        : []) as any,
+    );
+    renderWithProviders(<BillingStatusPage />);
+    expect(await screen.findByText('finance.me.withAddOn')).toBeInTheDocument();
+  });
+
   it('shows up to date when status is ok', async () => {
     mockApi.mockResolvedValue({ status: 'ok' } as any);
     renderWithProviders(<BillingStatusPage />);

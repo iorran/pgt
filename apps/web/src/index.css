@@ -40,6 +40,10 @@
   --color-arena-silver: #C0C0C0;
   --color-arena-bronze: #CD7F32;
 
+  /* Financeiro charts: where the money went */
+  --color-finance-expense: #F97316;
+  --color-finance-payout: #00D4FF;
+
   /* Belt Colors */
   --color-belt-white: #E8E8E8;
   --color-belt-grey: #4B5563;

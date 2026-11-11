@@ -23,6 +23,11 @@ const KEYS: Record<string, string> = {
   PARTICIPANT_NOT_FOUND: 'seminars.errors.participantGone',
   NO_BILLABLE_MEMBER: 'billing.errors.noBillableMember',
   NOT_OVERDUE: 'billing.errors.notOverdue',
+  INVALID_PAYOUT_TEACHER: 'finance.errors.invalidTeacher',
+  INVALID_FINANCE_SETTINGS: 'finance.errors.invalidSettings',
+  INVALID_EXPENSE: 'finance.errors.invalidExpense',
+  INVALID_PAYOUT: 'finance.errors.invalidPayout',
+  EXPENSE_NOT_FOUND: 'finance.errors.expenseGone',
 };
 
 export function errorKey(err: unknown): string {

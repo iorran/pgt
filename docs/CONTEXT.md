@@ -93,6 +93,10 @@ _Avoid_: Observations, comments
 The amount the Owner set for a Student to pay per month. There are no plans: the Owner types each Student's fee (the academy's usual amounts are only suggestions). A Student without a Monthly Fee is not billed.
 _Avoid_: Plan, agreed price, mensalidade (in code/specs), dues, package
 
+**Class Add-on**:
+An extra 10 € a month an academy Student pays to also train No Gi with its Payout Teacher; 5 € of it is that teacher's, 5 € the academy's. Owed every month while the Owner has the Student marked and stops when the mark is removed; check-ins never set it, they only flag marked Students who didn't attend that month (in the UI: "Acréscimo").
+_Avoid_: Extra fee, surcharge, second plan, upgrade
+
 **Family Contact**:
 _Superseded by **Responsible** ([[0004-one-login-per-family-with-profiles|ADR 0004]])._ Formerly the optional member the Owner preferred to reach about a Family's payments.
 
@@ -111,3 +115,25 @@ _Avoid_: Family plan, family discount
 **Family Fee**:
 What a Family owes per month: its Family Agreed Price if set, otherwise the sum of its members' Monthly Fees.
 _Avoid_: Family total, family bill
+
+### Finances
+
+**Expense**:
+Money the academy spent in a given month (rent, water, electricity, anything else), entered by the Owner as a description and an amount. Each month has its own list of Expenses; a new month starts from the previous month's list, so recurring costs are corrected rather than retyped (in the UI: "Despesa").
+_Avoid_: Cost, bill, fixed cost (as a separate kind), gasto
+
+**Monthly Balance**:
+How a month went for the academy: money received that month minus that month's Expenses. Money counts in the month it was paid, whatever month it refers to — a January Monthly Fee paid on 5 February counts in February; Seminar payments count on the day the participant paid (in the UI: "Balanço do mês").
+_Avoid_: Profit, P&L, result, fechamento
+
+**Payout Teacher**:
+A Class Teacher other than the Owner (today: the No Gi teacher) who gets part of the money from two kinds of Students: academy Students with a Class Add-on (their share of the add-on), and Recruited Students (half of what they pay).
+_Avoid_: Partner, associate, owner of the student
+
+**Recruited Student**:
+A Student brought to the academy by a Payout Teacher (in the UI: "Angariado por"). Half of what they pay each month is that teacher's — e.g. 22,50 € of a 45 € Monthly Fee.
+_Avoid_: Teacher's student (ambiguous), referral, own student
+
+**Teacher Payout**:
+What the academy passes on to one Payout Teacher for one month: the add-on share of every Student with a Class Add-on that paid that month, plus half of what each of their Recruited Students paid that month. The app works it out; the Owner can correct the amount before closing the month. Reduces that month's Monthly Balance (in the UI: "Repasse").
+_Avoid_: Commission, split, revenue share, per-student payout
