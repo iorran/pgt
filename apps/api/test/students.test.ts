@@ -23,6 +23,18 @@ async function setup() {
 }
 
 describe('GET /api/students', () => {
+  // The seminar's "Adicionar aluno" lists only active students, so the list needs the status.
+  it('includes each student\'s status', async () => {
+    const { academy, api } = await setup();
+    await createTestUser(academy.id, { name: 'Ativo' });
+    await createTestUser(academy.id, { name: 'Pendente', status: 'pending' });
+
+    const res = await api('GET', `/api/students?academyId=${academy.id}`);
+
+    const byName = Object.fromEntries(res.json().map((s: any) => [s.name, s.status]));
+    expect(byName).toEqual({ Ativo: 'active', Pendente: 'pending' });
+  });
+
   it('lists students with Monthly Fee, modalities and training note', async () => {
     const { academy, bjj, mma, api } = await setup();
     const student = await createTestUser(academy.id, { name: 'Ana Silva', belt: 'blue', trainingNote: 'turma das 7h' });
@@ -44,6 +56,7 @@ describe('GET /api/students', () => {
       name: 'Ana Silva',
       email: student.email,
       belt: 'blue',
+      status: 'active',
       phone: null,
       dateOfBirth: null,
       dueDay: 10,

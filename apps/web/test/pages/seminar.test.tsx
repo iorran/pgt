@@ -140,6 +140,36 @@ describe('SeminarPage', () => {
     expect(await screen.findByText('seminars tab')).toBeInTheDocument();
   });
 
+  it('adds a student: lists active students not yet in, and posts the one tapped', async () => {
+    const user = userEvent.setup();
+    mockApi.mockImplementation(async (path: string) =>
+      (path.startsWith('/classes?')
+        ? [seminar]
+        : path === '/seminars/s1/participants'
+          ? participants
+          : path === '/students'
+            ? [
+                { id: 'u1', name: 'João Silva', status: 'active' },
+                { id: 'u2', name: 'Ana Ribeiro', status: 'active' },
+                { id: 'u3', name: 'Rui Pendente', status: 'pending' },
+              ]
+            : {}) as any,
+    );
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'seminars.addStudent' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(await within(dialog).findByRole('button', { name: 'Ana Ribeiro' })).toBeInTheDocument();
+    expect(within(dialog).queryByRole('button', { name: 'João Silva' })).toBeNull();
+    expect(within(dialog).queryByRole('button', { name: 'Rui Pendente' })).toBeNull();
+    await user.click(within(dialog).getByRole('button', { name: 'Ana Ribeiro' }));
+    await waitFor(() =>
+      expect(mockApi).toHaveBeenCalledWith('/seminars/s1/participants', {
+        method: 'POST',
+        body: JSON.stringify({ studentId: 'u2' }),
+      }),
+    );
+  });
+
   it('adds an outsider by name and phone', async () => {
     const user = userEvent.setup();
     renderPage();
