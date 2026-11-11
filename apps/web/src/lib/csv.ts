@@ -18,5 +18,6 @@ export function downloadCsv(filename: string, rows: CsvRow[]) {
   link.href = url;
   link.download = filename;
   link.click();
-  URL.revokeObjectURL(url);
+  // Let the browser start the download before the URL goes away.
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

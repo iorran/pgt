@@ -83,3 +83,12 @@ jobs:
             test-results/
             playwright-report/
           retention-days: 7
+
+      - name: Upload finance screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-screens
+          path: test-results/finance-screens/
+          if-no-files-found: warn
+          retention-days: 14

@@ -6,12 +6,15 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const TEST_TARGET = process.env.TEST_TARGET ?? 'local';
 const IS_CI = TEST_TARGET === 'ci';
 
-const API_HEALTH_URL = 'http://localhost:3000/health';
-const WEB_URL = 'http://localhost:5173';
+// Ports are overridable so a second checkout can run the suite while another
+// dev server holds the defaults (E2E_API_PORT=3200 E2E_WEB_PORT=5273).
+const API_PORT = process.env.E2E_API_PORT ?? '3000';
+const WEB_PORT = process.env.E2E_WEB_PORT ?? '5173';
+const API_HEALTH_URL = `http://localhost:${API_PORT}/health`;
+const WEB_URL = `http://localhost:${WEB_PORT}`;
 
-const API_DEV_COMMAND =
-  'DEV_AUTH_BYPASS=1 NODE_ENV=development npm run dev --workspace=@pgt/api';
-const WEB_DEV_COMMAND = 'npm run dev --workspace=@pgt/web';
+const API_DEV_COMMAND = `PORT=${API_PORT} DEV_AUTH_BYPASS=1 NODE_ENV=development npm run dev --workspace=@pgt/api`;
+const WEB_DEV_COMMAND = `API_PROXY_TARGET=http://localhost:${API_PORT} npm run dev --workspace=@pgt/web -- --port ${WEB_PORT} --strictPort`;
 
 // CI runs the API via `tsx` (same as dev) instead of compiled `dist/index.js`.
 // The api workspace is `"type": "module"` but tsconfig uses
