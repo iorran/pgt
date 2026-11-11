@@ -186,7 +186,7 @@ test('F4. Repasses suggests the payout, flags missing check-ins, confirms a corr
     await expect(page.getByText(/não fez check-in/)).toContainText(setup.addOnStudent.name);
 
     const amount = page.getByLabel('Repasse do mês');
-    await expect(amount).toHaveValue('27.5');
+    await expect(amount).toHaveValue('27.50');
     await amount.fill('30');
     await page.getByRole('button', { name: 'Confirmar repasse' }).click();
     await expect(page.getByText('Confirmado', { exact: true })).toBeVisible();
