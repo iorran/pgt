@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/iorran/pgt/compare/v1.19.0...v1.19.1) (2026-11-11)
+
+
+### Performance Improvements
+
+* **api:** boot from an esbuild bundle and stop (not suspend) idle machines ([a454b35](https://github.com/iorran/pgt/commit/a454b35af8e871dc66d03b91edb6231688b1c947))
+
 # [1.19.0](https://github.com/iorran/pgt/compare/v1.18.0...v1.19.0) (2026-11-11)
 
 
