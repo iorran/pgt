@@ -296,6 +296,7 @@ function AddParticipantDialog({
               <Label htmlFor="seminar-student-search">{t('classes.teacher.search')}</Label>
               <Input id="seminar-student-search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
+            {matches.length === 0 && <p className="py-4 text-center text-sm text-muted-foreground">{t('common.noResults')}</p>}
             <ul className="flex flex-col gap-0.5">
               {matches.map((s) => (
                 <li key={s.id}>

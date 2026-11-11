@@ -11,6 +11,7 @@ const studentColumns = {
   name: user.name,
   email: user.email,
   belt: user.belt,
+  status: user.status,
   phone: user.phone,
   dateOfBirth: user.dateOfBirth,
   dueDay: studentMembership.dueDay,
