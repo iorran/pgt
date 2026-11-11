@@ -46,6 +46,8 @@ export async function ownerDashboardRoutes(app: FastifyInstance) {
       .where(and(
         eq(userTable.academyId, academyId),
         eq(userTable.role, 'student'),
+        // Applicants stay in Pendentes until approved; they are not inactive students.
+        eq(userTable.status, 'active'),
       ))
       .groupBy(userTable.id, userTable.name, userTable.belt);
 

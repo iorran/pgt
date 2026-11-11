@@ -23,16 +23,17 @@ async function setup() {
 }
 
 describe('GET /api/students', () => {
-  // The seminar's "Adicionar aluno" lists only active students, so the list needs the status.
-  it('includes each student\'s status', async () => {
+  // Applicants live in Pendentes until approved; Alunos and every picker show approved students only.
+  it('lists approved students only, with their status', async () => {
     const { academy, api } = await setup();
     await createTestUser(academy.id, { name: 'Ativo' });
     await createTestUser(academy.id, { name: 'Pendente', status: 'pending' });
+    await createTestUser(academy.id, { name: 'Rejeitado', status: 'rejected' });
 
     const res = await api('GET', `/api/students?academyId=${academy.id}`);
 
     const byName = Object.fromEntries(res.json().map((s: any) => [s.name, s.status]));
-    expect(byName).toEqual({ Ativo: 'active', Pendente: 'pending' });
+    expect(byName).toEqual({ Ativo: 'active' });
   });
 
   it('lists students with Monthly Fee, modalities and training note', async () => {

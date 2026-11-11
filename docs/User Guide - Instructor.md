@@ -146,6 +146,8 @@ A página **Alunos** tem três abas: **Alunos**, **Pendentes** e **Famílias**.
 
 Quando um aluno entra com seu código, ele aparece como **Pendente**.
 <sub><em>When a student joins with your code, they appear as Pending.</em></sub>
+Até ser aprovado, ele fica só na aba **Pendentes**: não aparece na lista de Alunos, na contagem do Painel nem nas listas de Pagamentos, Pontos e Famílias. Alunos rejeitados também não aparecem.
+<sub><em>Until approved, they're only in the Pendentes tab: they don't show in the Alunos list, the dashboard count, or the Pagamentos, points, and Famílias pickers. Rejected students don't show either.</em></sub>
 
 1. Menu → **Alunos** → aba **Pendentes**
    <sub><em>Menu → Alunos → Pendentes tab</em></sub>
