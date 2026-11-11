@@ -190,7 +190,7 @@ test('F4. Repasses suggests the payout, flags missing check-ins, confirms a corr
     await amount.fill('30');
     await page.getByRole('button', { name: 'Confirmar repasse' }).click();
     await expect(page.getByText('Confirmado', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Repasse do mês')).toHaveValue('30');
+    await expect(page.getByLabel('Repasse do mês')).toHaveValue('30.00');
 
     const { download, text } = await finance.downloadCsv('Exportar Excel');
     expect(download.suggestedFilename()).toBe(`repasse-rafael-nogi-${monthFromNow()}.csv`);
