@@ -1,3 +1,15 @@
+# [1.20.0](https://github.com/iorran/pgt/compare/v1.19.1...v1.20.0) (2026-11-11)
+
+
+### Bug Fixes
+
+* **web:** finance screens polish at phone width ([60cbb6a](https://github.com/iorran/pgt/commit/60cbb6ad82dbbc2c64e779f56330067c48b22e14))
+
+
+### Features
+
+* **finance:** monthly balance, expenses, teacher payouts and class add-on ([36ee58f](https://github.com/iorran/pgt/commit/36ee58f0ee164a201bc443fbfd4210d37b7cac8a))
+
 ## [1.19.1](https://github.com/iorran/pgt/compare/v1.19.0...v1.19.1) (2026-11-11)
 
 
