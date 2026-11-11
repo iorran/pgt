@@ -67,6 +67,8 @@ export async function studentRoutes(app: FastifyInstance) {
       .leftJoin(family, eq(family.id, user.familyId))
       .where(and(
         eq(user.role, 'student'),
+        // Applicants stay in Pendentes until approved.
+        eq(user.status, 'active'),
         eq(user.academyId, request.academyId),
         modalityId === undefined
           ? undefined

@@ -37,6 +37,17 @@ describe('requireOwner middleware (via /api/owner/students stub)', () => {
     expect(res.json()).toEqual({ students: [] });
   });
 
+  it('lists approved students only — applicants are not counted as inactive students', async () => {
+    const academy = await createTestAcademy();
+    const owner = await createTestUser(academy.id, { role: 'owner' });
+    await testDb.update(schema.academy).set({ ownerId: owner.id }).where(eq(schema.academy.id, academy.id));
+    await createTestUser(academy.id, { name: 'Ativo' });
+    await createTestUser(academy.id, { name: 'Pendente', status: 'pending' });
+    await createTestUser(academy.id, { name: 'Rejeitado', status: 'rejected' });
+    const res = await app.inject({ method: 'GET', url: '/api/owner/students', headers: authHeaders(owner) });
+    expect(res.json().students.map((s: { name: string }) => s.name)).toEqual(['Ativo']);
+  });
+
   it("resolves the academy from the user's academyId, not from request input", async () => {
     const academyA = await createTestAcademy();
     const academyB = await createTestAcademy();
