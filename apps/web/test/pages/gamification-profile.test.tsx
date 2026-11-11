@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import { renderWithProviders } from '../render';
 import GamificationProfilePage from '@/pages/gamification/profile';
@@ -27,8 +27,8 @@ const mockProfile = {
   xp: '1250',
   streak: { currentStreak: 7, longestStreak: 14 },
   badges: [
-    { id: 'b1', name: 'First Class', description: 'Attended first class', earnedAt: '2026-01-15' },
-    { id: 'b2', name: 'Streak Master', description: '7 day streak', earnedAt: '2026-02-01' },
+    { name: 'First Class', description: 'Attended first class', icon: null, earnedAt: '2026-01-15' },
+    { name: 'Streak Master', description: '7 day streak', icon: null, earnedAt: '2026-02-01' },
   ],
 };
 
@@ -52,6 +52,20 @@ function mockApiFor(profile: unknown, mine: unknown) {
 }
 
 describe('GamificationProfilePage', () => {
+  // The API sends no badge id: list keys must come from returned fields.
+  // React warns once per file and beforeEach clears mocks, so collect the whole file's errors.
+  const logged: string[] = [];
+  let consoleError: ReturnType<typeof vi.spyOn>;
+  beforeAll(() => {
+    consoleError = vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      logged.push(args.join(' '));
+    });
+  });
+  afterAll(() => {
+    consoleError.mockRestore();
+    expect(logged.join(' ')).not.toContain('unique "key"');
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseSession.mockReturnValue(session);

@@ -354,6 +354,10 @@
     "noPayments": "No payments recorded yet",
     "paymentDueSoon_one": "Your payment is due in {{count}} day",
     "paymentDueSoon_other": "Your payment is due in {{count}} days",
+    "errors": {
+      "noBillableMember": "No one in this family has a monthly fee for that month. Untick the month and try again.",
+      "notOverdue": "This student has no overdue fee, so the email wasn’t sent."
+    },
     "family": {
       "badge": "Family",
       "recordPayment": "Record family payment",
@@ -705,7 +709,8 @@
       "studentInFamily": "One of the students already belongs to a family",
       "emailTaken": "This email is already in use",
       "memberHasLogin": "This person already has their own login, so their email can’t be changed here. Remove them without an email.",
-      "responsibleRequired": "Choose another Responsible before removing this member"
+      "responsibleRequired": "Choose another Responsible before removing this member",
+      "familyResponsibleRequired": "Choose who is the family’s Responsible"
     },
     "responsible": "Responsible",
     "chooseResponsible": "Choose the Responsible",

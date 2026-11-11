@@ -279,8 +279,8 @@ Na página do aluno, abaixo do telefone:
 
 - Se o aluno tem família, aparece **"Família: <nome>"** — toque no nome para abrir a aba **Famílias**
   <sub><em>If the student has a family, "Família: <name>" appears — tap the name to open the Famílias (Families) tab</em></sub>
-- Se não tem, toque em **"Adicionar a uma família"**: escolha uma **Família existente** e toque em **"Adicionar"**, ou digite o **Nome da família** e toque em **"Criar"** para criar uma nova só com ele
-  <sub><em>If not, tap "Adicionar a uma família" (Add to a family): pick an Família existente (Existing family) and tap "Adicionar" (Add), or type a Nome da família (Family name) and tap "Criar" (Create) to create a new one with just this student</em></sub>
+- Se não tem, toque em **"Adicionar a uma família"**: escolha uma **Família existente** e toque em **"Adicionar"**, ou digite o **Nome da família** e toque em **"Criar"** para criar uma nova só com ele (ele passa a ser o **Responsável** da família)
+  <sub><em>If not, tap "Adicionar a uma família" (Add to a family): pick an Família existente (Existing family) and tap "Adicionar" (Add), or type a Nome da família (Family name) and tap "Criar" (Create) to create a new one with just this student (they become the family's Responsible)</em></sub>
 
 ## Famílias
 <sub><em>Families</em></sub>
@@ -714,8 +714,8 @@ Toque no sino para ver cada inadimplente com o valor devido e os dias de atraso.
 
 - **Enviar lembrete** — abre o WhatsApp com uma mensagem de cobrança pré-preenchida (só aparece se houver telefone)
   <sub><em>Enviar lembrete (Send reminder) — opens WhatsApp with a pre-filled payment reminder (only shown when there's a phone number)</em></sub>
-- **Enviar e-mail** — envia um e-mail de cobrança; o botão muda para **"E-mail enviado"** e fica desativado
-  <sub><em>Enviar email (Send email) — sends a payment reminder email; the button changes to "E-mail enviado" (Email sent) and disables</em></sub>
+- **Enviar e-mail** — envia um e-mail de cobrança; o botão muda para **"E-mail enviado"** e fica desativado. Se o aluno já não estiver em atraso, aparece um aviso e nada é enviado
+  <sub><em>Enviar email (Send email) — sends a payment reminder email; the button changes to "E-mail enviado" (Email sent) and disables. If the student is no longer overdue, a warning appears and nothing is sent</em></sub>
 - **Silenciar** (ícone de sino riscado, sem texto) — tira o aluno da lista de notificações
   <sub><em>Mute (crossed-out bell icon, no text label) — removes the student from the notification list</em></sub>
 
@@ -785,6 +785,9 @@ A página **Ranking** tem as abas **Classificação**, **Temporadas** e **Result
    <sub><em>Set Nome da Temporada (Season Name), Data Início (Start Date), Data Fim (End Date), Premiação (Prize, optional), and Pontuação (1º / 2º / 3º) (Points for 1st / 2nd / 3rd)</em></sub>
 4. Toque em **"Criar"** para salvar
    <sub><em>Tap "Criar" (Create) to save</em></sub>
+
+A temporada aparece como **Ativa** enquanto a data de hoje estiver entre o início e o fim. O Ranking, os Resultados e os pontos de cada aluno abrem na temporada ativa (ou na mais recente, se nenhuma estiver ativa).
+<sub><em>A season shows as Ativa (Active) while today is between its start and end dates. Ranking, Resultados (Results) and each student's points open on the active season (or the newest one if none is active).</em></sub>
 
 ### Editar uma Temporada
 <sub><em>Edit a Season</em></sub>

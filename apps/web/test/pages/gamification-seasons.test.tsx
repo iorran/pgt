@@ -81,7 +81,7 @@ describe('SeasonsPage', () => {
 
   it('owner edits a season with PUT, then recalculates points with a toast', async () => {
     const user = userEvent.setup();
-    const season = { id: 's1', name: 'S1', startDate: '2026-01-01', endDate: '2026-12-31', prize: 'Kimono', active: true, pointsConfig: { 1: 10, 2: 7, 3: 5 } };
+    const season = { id: 's1', name: 'S1', startDate: '2026-01-01', endDate: '2026-12-31', prizeDescription: 'Kimono', active: true, pointsConfig: { 1: 10, 2: 7, 3: 5 } };
     mockApi.mockImplementation(async (path: string, opts?: any) => {
       if (opts?.method === 'PUT') {
         return season as any;
@@ -106,7 +106,7 @@ describe('SeasonsPage', () => {
       name: 'S1',
       startDate: '2026-01-01',
       endDate: '2026-12-31',
-      prize: 'Kimono',
+      prizeDescription: 'Kimono',
       pointsConfig: { 1: 12, 2: 7, 3: 5 },
     });
     expect(mockApi).not.toHaveBeenCalledWith('/seasons', expect.anything());
@@ -115,6 +115,26 @@ describe('SeasonsPage', () => {
     await user.click(screen.getByRole('button', { name: 'gamification.control.recalculate' }));
     await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/seasons/s1/recalculate', expect.objectContaining({ method: 'POST' })));
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('gamification.control.recalculated'));
+  });
+
+  it('shows the prize from the API field', async () => {
+    mockApi.mockResolvedValue([
+      { id: 's1', name: 'S1', startDate: '2026-01-01', endDate: '2026-12-31', prizeDescription: 'Faixa nova', active: true },
+    ] as any);
+    renderWithProviders(<SeasonsPage />);
+    expect(await screen.findByText('gamification.prize: Faixa nova')).toBeInTheDocument();
+  });
+
+  it('marks only the season running today as active (the API flag is always true)', async () => {
+    mockApi.mockResolvedValue([
+      { id: 'f', name: 'Future', startDate: '2099-01-01', endDate: '2099-12-31', active: true },
+      { id: 'n', name: 'Now', startDate: '2000-01-01', endDate: '2098-12-31', active: true },
+      { id: 'e', name: 'Ended', startDate: '2001-01-01', endDate: '2001-12-31', active: true },
+    ] as any);
+    renderWithProviders(<SeasonsPage />);
+    await screen.findByText('Future');
+    expect(screen.getAllByText('gamification.active')).toHaveLength(1);
+    expect(screen.getByText('Now').closest('[data-slot="card"]')).toHaveTextContent('gamification.active');
   });
 
   it('students do not get the season edit button', async () => {

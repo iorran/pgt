@@ -43,7 +43,8 @@ interface Tournament {
 }
 
 interface RosterEntry {
-  id: string;
+  signupId: string;
+  studentId: string;
   studentName: string;
   belt: string;
   weightClass: string;
@@ -326,7 +327,7 @@ export default function TournamentsPage() {
                           </TableHeader>
                           <TableBody>
                             {roster.map(r => (
-                              <TableRow key={r.id} className="border-border">
+                              <TableRow key={r.signupId} className="border-border">
                                 <TableCell>{r.studentName}</TableCell>
                                 <TableCell>
                                   <Badge variant="outline" className="text-xs uppercase">{t(beltKey(r.belt))}</Badge>

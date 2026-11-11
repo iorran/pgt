@@ -293,7 +293,8 @@ function JoinFamilyDialog({ studentId }: { studentId: string }) {
     mutationFn: (target: 'existing' | 'new') =>
       target === 'existing'
         ? api(`/families/${familyId}/members`, { method: 'POST', body: JSON.stringify({ studentId }) })
-        : api('/families', { method: 'POST', body: JSON.stringify({ name, memberIds: [studentId] }) }),
+        : // The only member becomes the family's Responsible.
+          api('/families', { method: 'POST', body: JSON.stringify({ name, memberIds: [studentId], responsibleId: studentId }) }),
     meta: { silent: true, successMessage: t('families.saved') },
     onError: (err: Error) => setError(t(familyErrorKey(err))),
     onSuccess: () => {

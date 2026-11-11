@@ -48,6 +48,28 @@ describe('TournamentsPage', () => {
     expect(screen.getByText('Rio')).toBeInTheDocument();
   });
 
+  it('lists the roster keyed by the API signupId', async () => {
+    const consoleError = vi.spyOn(console, 'error');
+    mockApi.mockImplementation(async (path: string) => {
+      if (path === '/tournaments/t1/roster') {
+        // Real API shape: GET /api/tournaments/:id/roster
+        return [
+          { signupId: 'g1', studentId: 'p1', weightClass: 'Leve', studentName: 'Ana', belt: 'blue' },
+          { signupId: 'g2', studentId: 'p2', weightClass: 'Pena', studentName: 'Bia', belt: 'white' },
+        ] as any;
+      }
+      return mockTournaments as any;
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<TournamentsPage />);
+    const [viewRoster] = await screen.findAllByRole('button', { name: 'tournaments.viewRoster' });
+    await user.click(viewRoster);
+    expect(await screen.findByText('Ana')).toBeInTheDocument();
+    expect(screen.getByText('Bia')).toBeInTheDocument();
+    expect(consoleError.mock.calls.flat().join(' ')).not.toContain('unique "key"');
+    consoleError.mockRestore();
+  });
+
   it('has a back link to the Me hub', async () => {
     mockUseSession.mockReturnValue(studentSession);
     renderWithProviders(<TournamentsPage />);

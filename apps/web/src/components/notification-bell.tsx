@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { toast } from '@/lib/toast';
 import { formatMoney } from '@/lib/format';
+import { errorKey } from '@/lib/api-errors';
 
 interface OverdueStudent {
   kind: 'student';
@@ -77,6 +78,8 @@ export function NotificationBell() {
   const emailMutation = useMutation({
     mutationFn: (studentId: string) =>
       api(`/payments/overdue/${studentId}/notify`, { method: 'POST' }),
+    meta: { silent: true },
+    onError: (err) => toast.error(t(errorKey(err))),
     onSuccess: (_, studentId) => {
       setEmailSentFor(prev => new Set(prev).add(studentId));
     },

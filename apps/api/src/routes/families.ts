@@ -227,7 +227,7 @@ export async function familyRoutes(app: FastifyInstance) {
     const newResponsible = body.responsible !== undefined ? parseNewResponsible(body.responsible) : null;
     const responsibleId = typeof body.responsibleId === 'string' ? body.responsibleId : null;
     if (responsibleId ? !memberIds.includes(responsibleId) : !newResponsible) {
-      return reply.status(400).send({ error: 'A Responsible is required: responsibleId (a member) or responsible { name, email }' });
+      return reply.status(400).send({ error: 'FAMILY_RESPONSIBLE_REQUIRED' });
     }
     if (agreedPrice !== null && !MONEY.test(agreedPrice)) {
       return reply.status(400).send({ error: 'Invalid agreedPrice' });

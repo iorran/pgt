@@ -12,10 +12,13 @@ import { CalendarPlus } from 'lucide-react';
 import { GamificationTabs } from './gamification-tabs';
 import { SubmitResultDialog } from './submit-result-dialog';
 import { AdjustPointsDialog, ResultRow, invalidateRanking, type CompetitionResult } from './result-control';
+import { defaultSeasonId } from '@/lib/seasons';
 
 interface Season {
   id: string;
   name: string;
+  startDate: string;
+  endDate: string;
 }
 
 const FILTERS = ['pending', 'approved', 'rejected', 'all'] as const;
@@ -35,7 +38,7 @@ export default function ResultsPage() {
     !!user?.academyId,
   );
 
-  const effectiveSeasonId = seasonId || (seasons.length > 0 ? seasons[0].id : '');
+  const effectiveSeasonId = seasonId || defaultSeasonId(seasons);
 
   const { data: results = [] } = useApiQuery<CompetitionResult[]>(
     ['competition-results', effectiveSeasonId, filter],

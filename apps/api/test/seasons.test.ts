@@ -56,6 +56,24 @@ describe('GET /api/seasons', () => {
   });
 });
 
+describe('GET /api/seasons order', () => {
+  it('lists the newest season first', async () => {
+    const academy = await createTestAcademy();
+    const base = { academyId: academy.id, pointsConfig: { 1: 10 } };
+    await testDb.insert(schema.season).values([
+      { ...base, name: 'Middle', startDate: '2025-01-01', endDate: '2025-12-31' },
+      { ...base, name: 'Newest', startDate: '2026-01-01', endDate: '2026-12-31' },
+      { ...base, name: 'Oldest', startDate: '2024-01-01', endDate: '2024-12-31' },
+    ]);
+    const res = await app.inject({
+      method: 'GET',
+      url: '/api/seasons',
+      headers: authHeaders(await createTestOwner(academy.id)),
+    });
+    expect(res.json().map((s: { name: string }) => s.name)).toEqual(['Newest', 'Middle', 'Oldest']);
+  });
+});
+
 describe('GET /api/seasons/:id', () => {
   it('returns a single season by id', async () => {
     const academy = await createTestAcademy();
@@ -140,6 +158,36 @@ describe('PUT /api/seasons/:id', () => {
     const body = res.json();
     expect(body.name).toBe('Updated Name');
     expect(body.prizeDescription).toBe('New prize');
+  });
+});
+
+describe('PUT /api/seasons/:id editable fields', () => {
+  it('persists the prize and ignores non-editable keys', async () => {
+    const academy = await createTestAcademy();
+    const other = await createTestAcademy();
+    const owner = await createTestOwner(academy.id);
+    const [created] = await testDb.insert(schema.season).values({
+      academyId: academy.id, name: 'S', startDate: '2026-01-01', endDate: '2026-12-31', pointsConfig: { 1: 10 },
+    }).returning();
+
+    const res = await app.inject({
+      method: 'PUT',
+      url: `/api/seasons/${created.id}`,
+      headers: authHeaders(owner),
+      payload: {
+        prizeDescription: 'Kimono',
+        academyId: other.id,
+        id: '00000000-0000-4000-8000-000000000000',
+        active: false,
+      },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const [row] = await testDb.select().from(schema.season);
+    expect(row.id).toBe(created.id);
+    expect(row.academyId).toBe(academy.id);
+    expect(row.prizeDescription).toBe('Kimono');
+    expect(row.active).toBe(true);
   });
 });
 

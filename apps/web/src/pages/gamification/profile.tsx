@@ -15,7 +15,7 @@ import { PODIUM, SubmitResultDialog } from './submit-result-dialog';
 interface GamificationProfile {
   xp: number | string;
   streak: { currentStreak: number; longestStreak: number };
-  badges: { id: string; name: string; description?: string; earnedAt: string }[];
+  badges: { name: string; description: string | null; icon: string | null; earnedAt: string }[];
 }
 
 interface MyResult {
@@ -138,7 +138,7 @@ export default function GamificationProfilePage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {badges.map(b => (
-              <Card key={b.id} className="rounded-sm">
+              <Card key={b.name} className="rounded-sm">
                 <CardContent className="p-4 flex items-start gap-3">
                   <div className="size-10 rounded-sm bg-primary/10 flex items-center justify-center shrink-0">
                     <Award className="size-5 text-primary" />

@@ -1,17 +1,19 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
 import { season, competitionResult, user, modality, studentModality } from '../db/schema/index.js';
-import { eq, and, sql, inArray, isNotNull } from 'drizzle-orm';
+import { eq, and, sql, inArray, isNotNull, desc } from 'drizzle-orm';
 import { requireAuth, requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { normalizePointsConfig, pointsForPosition, withRanks } from '../gamification/points.js';
 import { saveResult } from '../gamification/result-points.js';
 import { rankingCategory } from '../gamification/ranking-category.js';
+import { UUID } from './families.js';
 
 export async function seasonRoutes(app: FastifyInstance) {
   // List seasons for academy
   app.get('/api/seasons', { preHandler: [requireAuth, injectAcademyId] }, async (request) => {
-    return db.select().from(season).where(eq(season.academyId, request.academyId));
+    // Newest first: pages default to the first season when none is active today.
+    return db.select().from(season).where(eq(season.academyId, request.academyId)).orderBy(desc(season.startDate));
   });
 
   // Get single season
@@ -40,16 +42,27 @@ export async function seasonRoutes(app: FastifyInstance) {
   });
 
   // Update season (owner only)
-  app.put('/api/seasons/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
+  app.put('/api/seasons/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const body = request.body as any;
-    if (body.pointsConfig !== undefined) {
-      body.pointsConfig = normalizePointsConfig(body.pointsConfig);
+    const body = (request.body ?? {}) as Record<string, unknown>;
+    // id, academyId and active are not editable here.
+    const editable = ['name', 'startDate', 'endDate', 'pointsConfig', 'prizeDescription'];
+    const changes = Object.fromEntries(Object.entries(body).filter(([key]) => editable.includes(key)));
+    if (Object.keys(changes).length === 0) {
+      return reply.status(400).send({ error: 'Nothing to update' });
     }
-    const [updated] = await db.update(season)
-      .set({ ...body, id, academyId: request.academyId })
-      .where(and(eq(season.id, id), eq(season.academyId, request.academyId)))
-      .returning();
+    if (changes.pointsConfig !== undefined) {
+      changes.pointsConfig = normalizePointsConfig(changes.pointsConfig as Record<string, unknown>);
+    }
+    const [updated] = UUID.test(id)
+      ? await db.update(season)
+          .set(changes)
+          .where(and(eq(season.id, id), eq(season.academyId, request.academyId)))
+          .returning()
+      : [];
+    if (!updated) {
+      return reply.status(404).send({ error: 'Season not found' });
+    }
     return updated;
   });
 

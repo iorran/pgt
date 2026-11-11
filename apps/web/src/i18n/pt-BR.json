@@ -354,6 +354,10 @@
     "noPayments": "Nenhum pagamento registrado ainda",
     "paymentDueSoon_one": "Seu pagamento vence em {{count}} dia",
     "paymentDueSoon_other": "Seu pagamento vence em {{count}} dias",
+    "errors": {
+      "noBillableMember": "Ninguém desta família tem mensalidade para esse mês. Desmarque o mês e tente novamente.",
+      "notOverdue": "Este aluno não tem mensalidade em atraso: o e-mail não foi enviado."
+    },
     "family": {
       "badge": "Família",
       "recordPayment": "Registrar pagamento da família",
@@ -705,7 +709,8 @@
       "studentInFamily": "Um dos alunos já pertence a uma família",
       "emailTaken": "Este e-mail já está em uso",
       "memberHasLogin": "Esta pessoa já tem login próprio: o e-mail dela não pode ser alterado aqui. Remova sem e-mail.",
-      "responsibleRequired": "Escolha outro responsável antes de remover este membro"
+      "responsibleRequired": "Escolha outro responsável antes de remover este membro",
+      "familyResponsibleRequired": "Escolha quem é o responsável pela família"
     },
     "responsible": "Responsável",
     "chooseResponsible": "Escolha o responsável",
