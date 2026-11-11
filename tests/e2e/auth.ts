@@ -18,7 +18,7 @@ export async function impersonateAs(
   const context = await browser.newContext({
     locale: 'pt-BR',
     timezoneId: 'Europe/Lisbon',
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${process.env.E2E_WEB_PORT ?? '5173'}`,
   });
 
   const page = await context.newPage();

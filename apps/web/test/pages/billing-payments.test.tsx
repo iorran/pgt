@@ -71,6 +71,25 @@ describe('PaymentsPage', () => {
     expect(card).toHaveTextContent(formatDate('2026-04-23', 'pt-BR'));
   });
 
+  it('prefills Monthly Fee + add-on price for a student with a Class Add-on', async () => {
+    mockApi.mockImplementation(async (path: string) => {
+      if (path.startsWith('/students')) {
+        return [{ id: 's1', name: 'Ana Silva', monthlyFee: '45.00', addOnTeacherId: 't1' }] as any;
+      }
+      if (path === '/academies/mine') {
+        return { addOnPrice: '10.00' } as any;
+      }
+      return [] as any;
+    });
+    const user = userEvent.setup();
+    renderWithProviders(<PaymentsPage />);
+    const studentInput = await screen.findByLabelText('billing.selectStudent');
+    await waitFor(() => expect(document.querySelectorAll('datalist option')).toHaveLength(1));
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/academies/mine'));
+    await user.type(studentInput, 'Ana Silva');
+    await waitFor(() => expect(screen.getByLabelText('billing.amount')).toHaveValue(55));
+  });
+
   it('searches student by name, prefills the monthly fee, saves with toast', async () => {
     const user = userEvent.setup();
     renderWithProviders(<PaymentsPage />);

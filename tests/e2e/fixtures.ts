@@ -25,6 +25,8 @@ const {
   xpEntry,
   studentBadge,
   streak,
+  expense,
+  teacherPayout,
 } = schema;
 
 // Share the dev DB connection (localhost:5432/pgt)
@@ -198,6 +200,14 @@ export async function cleanAcademy(academyId: string): Promise<void> {
     .where(eq(user.academyId, academyId));
   const userIds = users.map((u) => u.id);
 
+  // Financeiro: expenses, payouts and the Payout Teacher marks (self-FKs on user).
+  await e2eDb.delete(expense).where(eq(expense.academyId, academyId));
+  await e2eDb.delete(teacherPayout).where(eq(teacherPayout.academyId, academyId));
+  await e2eDb
+    .update(user)
+    .set({ addOnTeacherId: null, recruitedById: null })
+    .where(eq(user.academyId, academyId));
+
   if (userIds.length > 0) {
     await e2eDb.delete(session).where(inArray(session.userId, userIds));
     await e2eDb.delete(account).where(inArray(account.userId, userIds));
@@ -308,4 +318,47 @@ export async function scenarioStudentWithOverdueBilling(): Promise<{
     dueDay: 1,
   });
   return { academy: acad, instructor, student };
+}
+
+// YYYY-MM of the month `delta` months from now (local time).
+export function monthFromNow(delta = 0): string {
+  const d = new Date();
+  const m = new Date(d.getFullYear(), d.getMonth() + delta, 1);
+  return `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// Local YYYY-MM-DD of today.
+export function todayYmd(): string {
+  const d = new Date();
+  return `${monthFromNow()}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * Financeiro: an owner, a Payout Teacher (Rafael) and two students on a 45 €
+ * Monthly Fee owed since last month: Marta (Class Add-on with Rafael, when
+ * `marked`) and Carla (recruited by Rafael, when `marked`).
+ */
+export async function scenarioFinance(marked = true): Promise<{
+  academy: FixtureAcademy;
+  instructor: FixtureUser;
+  teacher: FixtureUser;
+  addOnStudent: FixtureUser;
+  recruited: FixtureUser;
+}> {
+  const { academy: acad, instructor } = await setupAcademy();
+  const teacher = await createStudent(acad.id, { name: 'Rafael Nogi', belt: 'brown' });
+  const addOnStudent = await createStudent(acad.id, { name: 'Marta Acrescimo' });
+  const recruited = await createStudent(acad.id, { name: 'Carla Angariada' });
+  for (const s of [addOnStudent, recruited]) {
+    await assignMembership(s.id, { monthlyFee: '45.00', startDate: `${monthFromNow(-1)}-01`, dueDay: 1 });
+  }
+  if (marked) {
+    await e2eDb.update(user).set({ addOnTeacherId: teacher.id }).where(eq(user.id, addOnStudent.id));
+    await e2eDb.update(user).set({ recruitedById: teacher.id }).where(eq(user.id, recruited.id));
+  }
+  return { academy: acad, instructor, teacher, addOnStudent, recruited };
+}
+
+export async function createExpense(academyId: string, month: string, description: string, amount: string, oneOff = false) {
+  await e2eDb.insert(expense).values({ academyId, month, description, amount, oneOff });
 }

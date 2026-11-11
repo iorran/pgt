@@ -46,11 +46,13 @@ export async function paymentRoutes(app: FastifyInstance) {
     if (!membership || toCents(membership.fee) <= 0) {
       return { status: 'ok' };
     }
+    // What the student owes per month: Monthly Fee, plus the Class Add-on when marked.
+    const fees = { monthlyFee: student.monthlyFee, addOn: student.addOn };
 
     const now = new Date();
     const owed = owedMonths(student, now);
     if (owed.length > 0) {
-      return { status: 'overdue', daysOverdue: daysOverdue(owed[0], membership.dueDay, now) };
+      return { status: 'overdue', daysOverdue: daysOverdue(owed[0], membership.dueDay, now), ...fees };
     }
 
     // Not overdue — check upcoming
@@ -58,10 +60,10 @@ export async function paymentRoutes(app: FastifyInstance) {
     const currentDay = now.getDate();
     const settled = student.paid.has(currentRef) || student.waived.has(currentRef);
     if (!settled && currentDay >= membership.dueDay - 3 && currentDay <= membership.dueDay) {
-      return { status: 'upcoming', daysUntilDue: membership.dueDay - currentDay };
+      return { status: 'upcoming', daysUntilDue: membership.dueDay - currentDay, ...fees };
     }
 
-    return { status: 'ok' };
+    return { status: 'ok', ...fees };
   });
 
   // Payment history for a student
@@ -85,6 +87,8 @@ export async function paymentRoutes(app: FastifyInstance) {
         .where(and(eq(family.academyId, request.academyId), isNull(family.deletedAt))),
     ]);
     const responsiblePhone = new Map(responsibles.map((r) => [r.id, r.phone]));
+    // Payout Teachers are Students of the academy.
+    const nameOf = new Map(students.map((s) => [s.studentId, s.name]));
 
     const items: ({ daysOverdue: number } & Record<string, unknown>)[] = [];
     const familyIds = new Set(families.map((f) => f.id));
@@ -109,6 +113,9 @@ export async function paymentRoutes(app: FastifyInstance) {
         missedMonths: owed,
         referenceMonth: owed[owed.length - 1],
         amountDue: fromCents(toCents(s.membership!.fee) * owed.length),
+        monthlyFee: s.monthlyFee,
+        addOn: s.addOn,
+        recruitedBy: s.recruitedById ? { id: s.recruitedById, name: nameOf.get(s.recruitedById) ?? '' } : null,
       });
     }
 

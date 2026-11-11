@@ -25,6 +25,14 @@ describe('errorKey', () => {
     expect(errorKey(new Error('PARTICIPANT_NOT_FOUND'))).toBe('seminars.errors.participantGone');
   });
 
+  it('explains finance refusals', () => {
+    expect(errorKey(new Error('INVALID_PAYOUT_TEACHER'))).toBe('finance.errors.invalidTeacher');
+    expect(errorKey(new Error('INVALID_FINANCE_SETTINGS'))).toBe('finance.errors.invalidSettings');
+    expect(errorKey(new Error('INVALID_EXPENSE'))).toBe('finance.errors.invalidExpense');
+    expect(errorKey(new Error('INVALID_PAYOUT'))).toBe('finance.errors.invalidPayout');
+    expect(errorKey(new Error('EXPENSE_NOT_FOUND'))).toBe('finance.errors.expenseGone');
+  });
+
   it('falls back to the generic error for unknown or raw messages', () => {
     expect(errorKey(new Error('Request failed'))).toBe('common.genericError');
     expect(errorKey('nope')).toBe('common.genericError');

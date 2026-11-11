@@ -31,6 +31,11 @@ export const user = pgTable('user', {
   // Free text for what modalities don't capture (e.g. "trânsito livre").
   trainingNote: text('training_note'),
   familyId: uuid('family_id').references((): AnyPgColumn => family.id, { onDelete: 'set null' }),
+  // Class Add-on: set while the Owner has the Student marked, to the Payout Teacher who gets its share.
+  // ponytail: a current flag, not a history — un-marking also drops the add-on from older unpaid months.
+  addOnTeacherId: uuid('add_on_teacher_id').references((): AnyPgColumn => user.id),
+  // Recruited Student: the Payout Teacher who brought them ("Angariado por").
+  recruitedById: uuid('recruited_by_id').references((): AnyPgColumn => user.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

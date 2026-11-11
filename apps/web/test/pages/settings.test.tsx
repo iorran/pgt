@@ -140,6 +140,38 @@ describe('SettingsPage', () => {
   });
 });
 
+describe('SettingsPage — Financeiro', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseSession.mockReturnValue(instructorSession);
+    mockApi.mockImplementation(async (path: string, options?: RequestInit) => {
+      if (options?.method) {
+        return {} as any;
+      }
+      if (path === '/academies/mine') {
+        return { ...academy, addOnName: 'No Gi', addOnPrice: '10.00', addOnTeacherShare: '5.00', recruitedSharePercent: 50 } as any;
+      }
+      return [] as any;
+    });
+  });
+
+  it('edits the add-on and payout settings', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<SettingsPage />);
+    const price = await screen.findByLabelText('finance.settings.addOnPrice');
+    expect(price).toHaveValue(10);
+    await user.clear(price);
+    await user.type(price, '12');
+    await user.click(screen.getByRole('button', { name: 'finance.settings.save' }));
+    await waitFor(() =>
+      expect(mockApi).toHaveBeenCalledWith('/finance/settings', {
+        method: 'PUT',
+        body: JSON.stringify({ addOnName: 'No Gi', addOnPrice: '12', addOnTeacherShare: '5', recruitedSharePercent: 50 }),
+      }),
+    );
+  });
+});
+
 describe('SettingsPage — Modalidades', () => {
   const modalities = [
     { id: 'm1', name: 'Jiu-Jitsu', studentCount: 12 },

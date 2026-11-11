@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithProviders } from '../render';
 import BillingOverduePage from '@/pages/billing/index';
@@ -127,6 +127,34 @@ describe('BillingOverduePage', () => {
     await screen.findByText('Carlos');
     expect(screen.getByText(formatMoney('45.00', 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
     expect(screen.getByText(formatMoney('90.00', 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
+  });
+
+  it('marks a Class Add-on with its breakdown and a Recruited Student with their teacher', async () => {
+    mockApi.mockResolvedValue([
+      {
+        ...mockRecords[0],
+        monthlyFee: '45.00',
+        addOn: { name: 'No Gi', price: '10.00' },
+        recruitedBy: null,
+      },
+      { ...mockRecords[1], monthlyFee: '45.00', addOn: null, recruitedBy: { id: 't1', name: 'Rafael' } },
+    ] as any);
+    renderWithProviders(<BillingOverduePage />);
+    expect(await screen.findByText('finance.chips.addOn')).toBeInTheDocument();
+    expect(screen.getByText('finance.chips.breakdown')).toBeInTheDocument();
+    expect(screen.getByText('finance.chips.recruited')).toBeInTheDocument();
+  });
+
+  it('shows the Financeiro tabs with Cobranças active', async () => {
+    renderWithProviders(<BillingOverduePage />);
+    await screen.findByText('Carlos');
+    const nav = screen.getByRole('navigation', { name: 'nav.billing' });
+    expect(within(nav).getAllByRole('link').map((l) => l.textContent)).toEqual([
+      'finance.tabs.charges',
+      'finance.tabs.balance',
+      'finance.tabs.expenses',
+      'finance.tabs.payouts',
+    ]);
   });
 
   describe('family cards', () => {

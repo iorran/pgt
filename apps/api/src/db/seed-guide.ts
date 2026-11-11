@@ -80,8 +80,14 @@ export async function seedGuide(
 
   await db
     .update(schema.user)
-    .set({ familyId: null })
+    .set({ familyId: null, addOnTeacherId: null, recruitedById: null })
     .where(eq(schema.user.academyId, demoId));
+  await db
+    .delete(schema.expense)
+    .where(eq(schema.expense.academyId, demoId));
+  await db
+    .delete(schema.teacherPayout)
+    .where(eq(schema.teacherPayout.academyId, demoId));
   await db
     .delete(schema.family)
     .where(eq(schema.family.academyId, demoId));
@@ -397,6 +403,33 @@ export async function seedGuide(
     studentPrice: '40.00',
     outsiderPrice: '50.00',
   });
+
+  // 8d. Financeiro — Maria teaches No-Gi Noite and is the Payout Teacher: João pays the
+  //     Class Add-on with her, Pedro is her Recruited Student. Recurring expenses for
+  //     last month and this one.
+  await db
+    .update(schema.user)
+    .set({ addOnTeacherId: roxa.id })
+    .where(eq(schema.user.id, azul.id));
+  await db
+    .update(schema.user)
+    .set({ recruitedById: roxa.id })
+    .where(eq(schema.user.id, brancaOverdue.id));
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const expenseMonths = [
+    `${lastMonth.getFullYear()}-${pad(lastMonth.getMonth() + 1)}`,
+    monthStart.slice(0, 7),
+  ];
+  await db.insert(schema.expense).values(
+    expenseMonths.flatMap((month) =>
+      [
+        ['Renda', '1200.00'],
+        ['Luz', '87.40'],
+        ['Água', '32.15'],
+        ['Internet', '35.00'],
+      ].map(([description, amount]) => ({ academyId: acad.id, month, description, amount })),
+    ),
+  );
 
   // 9. Tournament — no createdBy column in the schema; only academyId, name, date, location, federation.
   const inTwoMonths = new Date(now.getFullYear(), now.getMonth() + 2, 15);

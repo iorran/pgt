@@ -141,6 +141,13 @@
       "when": 1794342312916,
       "tag": "0019_class_teacher_and_seminars",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794425496009,
+      "tag": "0020_finance",
+      "breakpoints": true
     }
   ]
 }

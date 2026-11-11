@@ -145,7 +145,7 @@ describe('payments use Monthly Fee and Waived Months', () => {
   it('my-status is overdue from the oldest owed month', async () => {
     const { student } = await setup();
     const status = await app.inject({ method: 'GET', url: '/api/payments/my-status', headers: authHeaders(student) });
-    expect(status.json()).toEqual({ status: 'overdue', daysOverdue: 47 });
+    expect(status.json()).toEqual({ status: 'overdue', daysOverdue: 47, monthlyFee: '35.00', addOn: null });
   });
 
   it('quick pay uses the Monthly Fee and pays the oldest owed month first', async () => {

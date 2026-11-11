@@ -1,11 +1,14 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 interface TabItem {
   to: string;
   label: string;
+  // Other paths that show this tab as active (its own sub-pages).
+  also?: string[];
 }
 
 export function TabsNav({ items, title, label }: { items: TabItem[]; title?: string; label?: string }) {
+  const { pathname } = useLocation();
   return (
     <>
       {title && <h1 className="font-heading text-2xl uppercase tracking-wide mb-3">{title}</h1>}
@@ -15,11 +18,12 @@ export function TabsNav({ items, title, label }: { items: TabItem[]; title?: str
             key={item.to}
             to={item.to}
             end
-            className={({ isActive }) =>
-              `shrink-0 inline-flex items-center min-h-11 px-4 font-heading uppercase text-sm tracking-wide no-underline transition-colors border-b-2 -mb-px ${
+            className={({ isActive: exact }) => {
+              const isActive = exact || !!item.also?.includes(pathname);
+              return `shrink-0 inline-flex items-center min-h-11 px-4 font-heading uppercase text-sm tracking-wide no-underline transition-colors border-b-2 -mb-px ${
                 isActive ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'
-              }`
-            }
+              }`;
+            }}
           >
             {item.label}
           </NavLink>

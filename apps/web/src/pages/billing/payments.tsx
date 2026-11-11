@@ -19,6 +19,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { TabsNav } from '@/components/tabs-nav';
+import { FinanceTabs } from './finance-nav';
 import { QueryError } from '@/components/query-error';
 import { formatDate, formatMoney, todayYmd as today } from '@/lib/format';
 import { EmptyState } from '@/components/empty-state';
@@ -36,6 +37,7 @@ interface Student {
   id: string;
   name: string;
   monthlyFee?: string | null;
+  addOnTeacherId?: string | null;
 }
 
 export default function PaymentsPage() {
@@ -75,6 +77,8 @@ export default function PaymentsPage() {
     !!user?.academyId,
   );
 
+  const { data: academy } = useApiQuery<{ addOnPrice?: string }>(['academy-mine'], '/academies/mine');
+
   const studentNames = new Map(students.map((s) => [s.id, s.name]));
 
   // ponytail: exact-name match; duplicate names resolve to the first student.
@@ -84,7 +88,9 @@ export default function PaymentsPage() {
     input.setCustomValidity(match ? '' : t('billing.selectStudent'));
     form.setFieldValue('studentId', match?.id ?? '');
     if (match?.monthlyFee != null) {
-      form.setFieldValue('amount', String(Number(match.monthlyFee)));
+      // What the student owes per month: Monthly Fee plus the Class Add-on when marked.
+      const addOn = match.addOnTeacherId ? Number(academy?.addOnPrice ?? 0) : 0;
+      form.setFieldValue('amount', String(Number(match.monthlyFee) + addOn));
     }
   }
 
@@ -105,7 +111,8 @@ export default function PaymentsPage() {
 
   return (
     <div className="space-y-6">
-      <TabsNav title={t('nav.billing')} items={[
+      <FinanceTabs />
+      <TabsNav label={t('finance.tabs.charges')} items={[
         { to: '/billing', label: t('billing.overdueTitle') },
         { to: '/billing/payments', label: t('billing.paymentsTitle') },
       ]} />

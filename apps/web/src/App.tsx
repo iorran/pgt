@@ -23,6 +23,9 @@ import StudentDetailPage from './pages/students/detail';
 import FamiliesPage from './pages/students/families';
 import BillingOverduePage from './pages/billing/index';
 import PaymentsPage from './pages/billing/payments';
+import BalancePage from './pages/billing/balance';
+import ExpensesPage from './pages/billing/expenses';
+import PayoutsPage from './pages/billing/payouts';
 import MarketplacePage from './pages/marketplace/index';
 import OrdersPage from './pages/marketplace/orders';
 import LeaderboardPage from './pages/gamification/leaderboard';
@@ -209,6 +212,9 @@ function AppRoutes() {
         <Route path="/students/:id" element={<StudentDetailPage />} />
         <Route path="/billing" element={<BillingOverduePage />} />
         <Route path="/billing/payments" element={<PaymentsPage />} />
+        <Route path="/billing/balance" element={<BalancePage />} />
+        <Route path="/billing/expenses" element={<ExpensesPage />} />
+        <Route path="/billing/payouts" element={<PayoutsPage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/orders" element={<OrdersPage />} />
         <Route path="/gamification" element={<LeaderboardPage />} />

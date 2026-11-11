@@ -144,7 +144,7 @@ test('18. student taps check-in with mocked geolocation', async ({ browser }) =>
   const context = await browser.newContext({
     locale: 'pt-BR',
     timezoneId: 'Europe/Lisbon',
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${process.env.E2E_WEB_PORT ?? '5173'}`,
     permissions: ['geolocation'],
     geolocation: { latitude: ACADEMY_LAT, longitude: ACADEMY_LON },
   });

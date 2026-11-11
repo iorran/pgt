@@ -12,6 +12,7 @@ import {
   tournament,
   product,
   family,
+  expense,
 } from '../src/db/schema/index';
 import { eq, and } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
@@ -178,5 +179,18 @@ describe('seedGuide', () => {
 
     const families = await testDb.select().from(family).where(eq(family.name, 'Família Lima'));
     expect(families).toHaveLength(1);
+  });
+
+  it('seeds the Financeiro screens: expenses, one Class Add-on and one Recruited Student, across runs', async () => {
+    await seedGuide({ db: testDb });
+    await seedGuide({ db: testDb });
+
+    const [acad] = await testDb.select().from(academy).where(eq(academy.slug, 'demo-pgt'));
+    const rows = await testDb.select().from(expense).where(eq(expense.academyId, acad.id));
+    expect(rows.length).toBe(8); // 4 recurring expenses, this month and last
+    const users = await testDb.select().from(user).where(eq(user.academyId, acad.id));
+    const maria = users.find((u) => u.name === 'Maria Oliveira')!;
+    expect(users.find((u) => u.name === 'João Silva')!.addOnTeacherId).toBe(maria.id);
+    expect(users.find((u) => u.name === 'Pedro Souza')!.recruitedById).toBe(maria.id);
   });
 });

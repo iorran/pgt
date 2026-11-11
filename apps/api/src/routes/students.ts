@@ -1,8 +1,10 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { user, studentMembership, family, waivedMonth, modality, studentModality, beltEnum } from '../db/schema/index.js';
+import { user, studentMembership, family, waivedMonth, modality, studentModality, beltEnum, academy } from '../db/schema/index.js';
 import { eq, and, asc, inArray } from 'drizzle-orm';
-import { dateKey } from '../billing/rules.js';
+import { dateKey, monthKey } from '../billing/rules.js';
+import { checkinsWith } from './finance.js';
+import { DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
 import { DATE, MONEY, MONTH, UUID } from './families.js';
 
 // Columns shared by the list and detail rows.
@@ -19,6 +21,8 @@ const studentColumns = {
   trainingNote: user.trainingNote,
   familyId: user.familyId,
   familyName: family.name,
+  addOnTeacherId: user.addOnTeacherId,
+  recruitedById: user.recruitedById,
 };
 
 // Modalities of each student, sorted by name.
@@ -95,7 +99,60 @@ export async function studentRoutes(app: FastifyInstance) {
       ))
       .leftJoin(family, eq(family.id, user.familyId))
       .where(eq(user.id, id));
-    return row && { ...row, modalities: (await modalitiesOf([id])).get(id)! };
+    if (!row) {
+      return row;
+    }
+    // This month's check-ins in classes of the Class Add-on's teacher (a hint only, never billing).
+    let addOnCheckins: number | null = null;
+    if (row.addOnTeacherId) {
+      const [acad] = await db
+        .select({ timezone: academy.timezone })
+        .from(academy)
+        .innerJoin(user, eq(user.academyId, academy.id))
+        .where(eq(user.id, id));
+      const tz = acad?.timezone ?? DEFAULT_ACADEMY_TIMEZONE;
+      addOnCheckins = (await checkinsWith(row.addOnTeacherId, [id], monthKey(new Date()), tz)).get(id)!;
+    }
+    return { ...row, addOnCheckins, modalities: (await modalitiesOf([id])).get(id)! };
+  });
+
+  // Class Add-on and Recruited Student marks (owner only). Each is null or a Payout Teacher:
+  // an active Student of the academy (a Class Teacher other than the Owner), never the Student themself.
+  app.put('/api/students/:id/finance', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const body = (request.body ?? {}) as { addOnTeacherId?: unknown; recruitedById?: unknown };
+    if (!(await isAcademyStudent(id, request.academyId))) {
+      return reply.status(404).send({ error: 'Student not found' });
+    }
+    const addOnTeacherId = body.addOnTeacherId ?? null;
+    const recruitedById = body.recruitedById ?? null;
+    for (const teacherId of [addOnTeacherId, recruitedById]) {
+      if (teacherId === null) {
+        continue;
+      }
+      const valid = typeof teacherId === 'string' && UUID.test(teacherId) && teacherId !== id;
+      const [teacher] = valid
+        ? await db.select({ id: user.id }).from(user).where(and(
+            eq(user.id, teacherId as string),
+            eq(user.academyId, request.academyId),
+            eq(user.role, 'student'),
+            eq(user.status, 'active'),
+          ))
+        : [];
+      if (!teacher) {
+        return reply.status(400).send({ error: 'INVALID_PAYOUT_TEACHER' });
+      }
+    }
+    const [updated] = await db
+      .update(user)
+      .set({
+        addOnTeacherId: addOnTeacherId as string | null,
+        recruitedById: recruitedById as string | null,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, id))
+      .returning({ addOnTeacherId: user.addOnTeacherId, recruitedById: user.recruitedById });
+    return updated;
   });
 
   // Set the Monthly Fee (owner only); creates the active membership if the student has none.
