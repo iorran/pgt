@@ -239,6 +239,15 @@ export default function BalancePage() {
                 />
               ))}
             </div>
+            {/* Signed values, so a loss is not told by colour alone. */}
+            <div className="grid grid-cols-6 gap-2 text-center font-mono text-[11px]" aria-hidden>
+              {b.history.map((h) => (
+                <span key={h.month} className={Number(h.result) < 0 ? 'text-danger-text' : 'text-muted-foreground'}>
+                  {Number(h.result) > 0 ? '+' : ''}
+                  {Number(h.result).toLocaleString(locale, { notation: 'compact', maximumFractionDigits: 1 })}
+                </span>
+              ))}
+            </div>
             <div className="grid grid-cols-6 gap-2 text-center text-xs text-muted-foreground" aria-hidden>
               {b.history.map((h) => (
                 <span key={h.month} className={h.month === month ? 'font-bold text-foreground' : undefined}>
