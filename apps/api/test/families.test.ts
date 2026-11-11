@@ -95,6 +95,9 @@ describe('families CRUD', () => {
     expect((await api('POST', '/api/families', { responsibleId: bia.id, memberIds: [bia.id] })).statusCode).toBe(400);
     // Contact must be a member
     expect((await api('POST', '/api/families', { name: 'F', memberIds: [bia.id], responsibleId: leo.id })).statusCode).toBe(400);
+    const noResponsible = await api('POST', '/api/families', { name: 'F', memberIds: [bia.id] });
+    expect(noResponsible.statusCode).toBe(400);
+    expect(noResponsible.json().error).toBe('FAMILY_RESPONSIBLE_REQUIRED');
     expect((await api('POST', '/api/families', { name: 'F', responsibleId: bia.id, memberIds: [bia.id], agreedPrice: 'abc' })).statusCode).toBe(400);
   });
 

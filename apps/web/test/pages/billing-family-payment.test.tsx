@@ -151,4 +151,17 @@ describe('FamilyPaymentDialog', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('billing.family.paymentError');
     expect(toast.error).not.toHaveBeenCalled();
   });
+
+  it('says why when no one in the family owes a chosen month', async () => {
+    const user = userEvent.setup();
+    mockApi.mockImplementation(async (path: string) => {
+      if (path === '/families/f1/billing') {
+        return billing as any;
+      }
+      throw new Error('NO_BILLABLE_MEMBER');
+    });
+    renderDialog();
+    await user.click(await screen.findByRole('button', { name: 'billing.family.submit' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('billing.errors.noBillableMember');
+  });
 });

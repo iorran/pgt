@@ -30,7 +30,7 @@ const studentSession = {
 } as any;
 
 const mockSeasons = [
-  { id: 's1', name: 'Season 2026' },
+  { id: 's1', name: 'Season 2026', startDate: '2026-01-01', endDate: '2026-12-31' },
 ];
 
 const mockPendingResults = [

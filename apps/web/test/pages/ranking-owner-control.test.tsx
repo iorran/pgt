@@ -337,7 +337,7 @@ describe('Student points page', () => {
 
   it('season selector when there is more than one season', async () => {
     const user = userEvent.setup();
-    const twoSeasons = [...seasons, { id: 's2', name: 'Season 2027' }];
+    const twoSeasons = [...seasons, { id: 's2', name: 'Season 2027', startDate: '2027-01-01', endDate: '2027-12-31' }];
     mockApi.mockImplementation(async (path: string) => {
       if (path.startsWith('/seasons?')) {
         return twoSeasons as any;

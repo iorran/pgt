@@ -117,9 +117,25 @@ describe('StudentDetailPage', () => {
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/families', {
         method: 'POST',
-        body: JSON.stringify({ name: 'Família Costa', memberIds: ['s1'] }),
+        body: JSON.stringify({ name: 'Família Costa', memberIds: ['s1'], responsibleId: 's1' }),
       }),
     );
+  });
+
+  it('explains a missing Responsible when creating the family fails', async () => {
+    const user = userEvent.setup();
+    const base = vi.mocked(api).getMockImplementation()!;
+    vi.mocked(api).mockImplementation(async (path: string, options?: RequestInit) => {
+      if (path === '/families' && options?.method === 'POST') {
+        throw new Error('FAMILY_RESPONSIBLE_REQUIRED');
+      }
+      return base(path, options);
+    });
+    renderPage();
+    await user.click(await screen.findByRole('button', { name: 'families.addToFamily' }));
+    fireEvent.change(screen.getByLabelText('families.name'), { target: { value: 'Família Costa' } });
+    await user.click(screen.getByRole('button', { name: 'common.create' }));
+    expect(await screen.findByText('families.errors.familyResponsibleRequired')).toBeInTheDocument();
   });
 
   it('shows the monthly fee and saves it with the due day via one-tap suggestions', async () => {

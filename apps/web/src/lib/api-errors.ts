@@ -19,6 +19,8 @@ const KEYS: Record<string, string> = {
   DATE_REQUIRED: 'seminars.errors.dateRequired',
   INVALID_TEACHER: 'seminars.errors.invalidTeacher',
   NAME_REQUIRED: 'seminars.errors.nameRequired',
+  NO_BILLABLE_MEMBER: 'billing.errors.noBillableMember',
+  NOT_OVERDUE: 'billing.errors.notOverdue',
 };
 
 export function errorKey(err: unknown): string {

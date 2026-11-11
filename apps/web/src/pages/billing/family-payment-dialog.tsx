@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { errorKey } from '@/lib/api-errors';
 
 type MemberStatus = 'owed' | 'paid' | 'waived' | 'not-billed';
 
@@ -27,6 +28,12 @@ interface Props {
   members: { studentId: string; name: string }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+// A known API refusal gets its own message; anything else keeps the payment-specific one.
+function paymentErrorKey(err: unknown) {
+  const key = errorKey(err);
+  return key === 'common.genericError' ? 'billing.family.paymentError' : key;
 }
 
 export default function FamilyPaymentDialog({ familyId, familyName, members, open, onOpenChange }: Props) {
@@ -173,7 +180,7 @@ function FamilyPaymentForm({
       </div>
       {payMutation.isError && (
         <p role="alert" className="text-sm text-destructive">
-          {t('billing.family.paymentError')}
+          {t(paymentErrorKey(payMutation.error))}
         </p>
       )}
       <Button type="submit" className="w-full" disabled={months.length === 0} loading={payMutation.isPending}>

@@ -167,12 +167,17 @@ export async function classRoutes(app: FastifyInstance) {
   });
 
   // Delete (deactivate) class
-  app.delete('/api/classes/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request) => {
+  app.delete('/api/classes/:id', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const [updated] = await db.update(bjjClass)
-      .set({ active: false })
-      .where(and(eq(bjjClass.id, id), eq(bjjClass.academyId, request.academyId)))
-      .returning();
+    const [updated] = UUID.test(id)
+      ? await db.update(bjjClass)
+          .set({ active: false })
+          .where(and(eq(bjjClass.id, id), eq(bjjClass.academyId, request.academyId)))
+          .returning()
+      : [];
+    if (!updated) {
+      return reply.status(404).send({ error: 'CLASS_NOT_FOUND' });
+    }
     return updated;
   });
 }

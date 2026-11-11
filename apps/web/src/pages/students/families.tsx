@@ -69,6 +69,7 @@ const FAMILY_ERRORS: Record<string, string> = {
   STUDENT_IN_FAMILY: 'families.errors.studentInFamily',
   EMAIL_TAKEN: 'families.errors.emailTaken',
   RESPONSIBLE_REQUIRED: 'families.errors.responsibleRequired',
+  FAMILY_RESPONSIBLE_REQUIRED: 'families.errors.familyResponsibleRequired',
   MEMBER_HAS_LOGIN: 'families.errors.memberHasLogin',
 };
 

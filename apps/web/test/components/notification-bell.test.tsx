@@ -79,6 +79,22 @@ describe('NotificationBell', () => {
     await waitFor(() => { expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); });
   });
 
+  it('toasts why the overdue email was not sent', async () => {
+    mockApi.mockImplementation(async (_path: string, options?: RequestInit) => {
+      if (options?.method === 'POST') {
+        throw new Error('NOT_OVERDUE');
+      }
+      return [
+        { studentId: 's1', studentName: 'João', kind: 'student', email: 'joao@x.pt', amountDue: '45.00', daysOverdue: 3, phone: '5511999', notificationsMuted: false },
+      ] as any;
+    });
+    renderWithProviders(<NotificationBell />);
+    await userEvent.click(await screen.findByRole('button', { name: /notifications\.title/ }));
+    await userEvent.click(await screen.findByRole('button', { name: 'notifications.sendEmail' }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('billing.errors.notOverdue'));
+    expect(screen.getByRole('button', { name: 'notifications.sendEmail' })).toBeEnabled();
+  });
+
   it('offers undo after muting a student, which unmutes them', async () => {
     mockApi.mockResolvedValue([
       { studentId: 's1', studentName: 'João', kind: 'student', amountDue: '45.00', daysOverdue: 3, phone: '5511999', notificationsMuted: false },

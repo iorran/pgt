@@ -15,6 +15,11 @@ describe('errorKey', () => {
     expect(errorKey(new Error('RESPONSIBLE_OF_FAMILY'))).toBe('onboarding.responsibleOfFamily');
   });
 
+  it('explains billing refusals', () => {
+    expect(errorKey(new Error('NO_BILLABLE_MEMBER'))).toBe('billing.errors.noBillableMember');
+    expect(errorKey(new Error('NOT_OVERDUE'))).toBe('billing.errors.notOverdue');
+  });
+
   it('falls back to the generic error for unknown or raw messages', () => {
     expect(errorKey(new Error('Request failed'))).toBe('common.genericError');
     expect(errorKey('nope')).toBe('common.genericError');

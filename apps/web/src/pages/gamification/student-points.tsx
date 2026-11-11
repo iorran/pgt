@@ -8,10 +8,13 @@ import { PageLoader } from '@/components/page-loader';
 import { Badge } from '@/components/ui/badge';
 import { SubpageHeader } from '@/components/subpage-header';
 import { AdjustPointsDialog, ResultRow, type CompetitionResult } from './result-control';
+import { defaultSeasonId } from '@/lib/seasons';
 
 interface Season {
   id: string;
   name: string;
+  startDate: string;
+  endDate: string;
 }
 
 interface Student {
@@ -35,7 +38,7 @@ export default function StudentPointsPage() {
     owner && !!user?.academyId,
   );
   // Same default as the leaderboard: the first season.
-  const seasonId = searchParams.get('seasonId') || seasons[0]?.id || '';
+  const seasonId = searchParams.get('seasonId') || defaultSeasonId(seasons);
 
   const { data: student } = useApiQuery<Student>(['student', studentId], `/students/${studentId}`, owner);
   const { data: entries = [], isLoading: entriesLoading } = useApiQuery<CompetitionResult[]>(

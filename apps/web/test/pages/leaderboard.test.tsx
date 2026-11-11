@@ -44,6 +44,22 @@ describe('LeaderboardPage', () => {
       .mockResolvedValueOnce(mockEntries as any);
   });
 
+  it('opens the season running today, not just the first one listed', async () => {
+    mockApi.mockReset();
+    mockApi.mockImplementation(async (path: string) => {
+      if (path.startsWith('/seasons?')) {
+        return [
+          { id: 'future', name: 'Future', startDate: '2099-01-01', endDate: '2099-12-31' },
+          { id: 'now', name: 'Now', startDate: '2000-01-01', endDate: '2098-12-31' },
+        ] as any;
+      }
+      return [] as any;
+    });
+    renderWithProviders(<LeaderboardPage />);
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith(expect.stringMatching(/^\/seasons\/now\/leaderboard/)));
+    expect(mockApi).not.toHaveBeenCalledWith(expect.stringMatching(/^\/seasons\/future\//));
+  });
+
   it('renders the big RANKING title', async () => {
     renderWithProviders(<LeaderboardPage />);
     await waitFor(() => {

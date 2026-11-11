@@ -25,6 +25,7 @@ import {
 import { toast } from '@/lib/toast';
 import { CalendarPlus } from 'lucide-react';
 import { formatDate } from '@/lib/format';
+import { isSeasonActive } from '@/lib/seasons';
 import { GamificationTabs } from './gamification-tabs';
 import { InfoTip } from '@/components/info-tip';
 import { invalidateRanking } from './result-control';
@@ -34,16 +35,9 @@ interface Season {
   name: string;
   startDate: string;
   endDate: string;
-  prize?: string;
-  active?: boolean;
+  prizeDescription: string | null;
   // Points per podium position, e.g. { 1: 10, 2: 7, 3: 5 }.
   pointsConfig?: Record<number, number>;
-}
-
-function isSeasonActive(s: Season): boolean {
-  if (s.active !== undefined) return s.active;
-  const now = new Date();
-  return new Date(s.startDate) <= now && now <= new Date(s.endDate);
 }
 
 export default function SeasonsPage() {
@@ -119,8 +113,8 @@ export default function SeasonsPage() {
                       {formatDate(s.startDate, i18n.language)} - {formatDate(s.endDate, i18n.language)}
                     </span>
                   </div>
-                  {s.prize && (
-                    <p className="text-sm text-muted-foreground">{t('gamification.prize')}: {s.prize}</p>
+                  {s.prizeDescription && (
+                    <p className="text-sm text-muted-foreground">{t('gamification.prize')}: {s.prizeDescription}</p>
                   )}
                   {s.pointsConfig && (
                     <div className="flex flex-wrap items-center gap-3 text-sm font-mono">
@@ -163,7 +157,7 @@ function SeasonForm({ season, onDone }: { season?: Season; onDone: () => void })
       name: season?.name ?? '',
       startDate: season?.startDate.slice(0, 10) ?? '',
       endDate: season?.endDate.slice(0, 10) ?? '',
-      prize: season?.prize ?? '',
+      prizeDescription: season?.prizeDescription ?? '',
       firstPoints: String(season?.pointsConfig?.[1] ?? 10),
       secondPoints: String(season?.pointsConfig?.[2] ?? 7),
       thirdPoints: String(season?.pointsConfig?.[3] ?? 5),
@@ -173,7 +167,7 @@ function SeasonForm({ season, onDone }: { season?: Season; onDone: () => void })
         name: value.name,
         startDate: value.startDate,
         endDate: value.endDate,
-        prize: value.prize,
+        prizeDescription: value.prizeDescription,
         pointsConfig: {
           1: Number(value.firstPoints),
           2: Number(value.secondPoints),
@@ -239,7 +233,7 @@ function SeasonForm({ season, onDone }: { season?: Season; onDone: () => void })
             </div>
           )}
         </form.Field>
-        <form.Field name="prize">
+        <form.Field name="prizeDescription">
           {(field) => (
             <div className="space-y-2">
               <Label htmlFor="season-prize">{t('gamification.prize')}</Label>

@@ -223,6 +223,29 @@ describe('DELETE /api/classes/:id', () => {
     expect(res.json()).toHaveLength(0);
   });
 
+  it('returns 404 CLASS_NOT_FOUND for unknown, other-academy and non-UUID ids', async () => {
+    const acad = await createTestAcademy();
+    const owner = await createTestOwner(acad.id);
+    const other = await createTestAcademy();
+    const otherOwner = await createTestOwner(other.id);
+    const [foreign] = await testDb.insert(bjjClass).values({
+      academyId: other.id,
+      instructorId: otherOwner.id,
+      name: 'Not Yours',
+      type: 'gi',
+      recurrence: 'weekly',
+      dayOfWeek: 1,
+      startTime: '07:00',
+      endTime: '08:30',
+    }).returning();
+
+    for (const id of ['00000000-0000-4000-8000-000000000000', foreign.id, 'not-a-uuid']) {
+      const res = await app.inject({ method: 'DELETE', url: `/api/classes/${id}`, headers: authHeaders(owner) });
+      expect(res.statusCode).toBe(404);
+      expect(res.json().error).toBe('CLASS_NOT_FOUND');
+    }
+  });
+
   it('student cannot delete a class (403)', async () => {
     const acad = await createTestAcademy();
     const instructor = await createTestOwner(acad.id);

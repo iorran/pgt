@@ -11,6 +11,7 @@ import { Trophy } from 'lucide-react';
 import { InfoTip } from '@/components/info-tip';
 import { beltClasses, beltKey } from '@/lib/belts';
 import { formatDate } from '@/lib/format';
+import { defaultSeasonId } from '@/lib/seasons';
 import { isOwner, isStudent } from '@/lib/roles';
 import { GamificationTabs } from './gamification-tabs';
 import { SubmitResultDialog } from './submit-result-dialog';
@@ -18,8 +19,8 @@ import { SubmitResultDialog } from './submit-result-dialog';
 interface Season {
   id: string;
   name: string;
-  startDate?: string;
-  endDate?: string;
+  startDate: string;
+  endDate: string;
 }
 
 interface LeaderboardEntry {
@@ -54,7 +55,7 @@ export default function LeaderboardPage() {
   );
 
   // Auto-select first season when seasons load
-  const effectiveSeasonId = seasonId || (seasons.length > 0 ? seasons[0].id : '');
+  const effectiveSeasonId = seasonId || defaultSeasonId(seasons);
 
   const leaderboardUrl = effectiveSeasonId
     ? `/seasons/${effectiveSeasonId}/leaderboard?category=${category}${category === 'adults' && belt ? `&belt=${belt}` : ''}`
