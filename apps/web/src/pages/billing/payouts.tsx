@@ -78,7 +78,7 @@ function PayoutCard({ payout: p, month, addOnName }: { payout: Payout; month: st
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const queryClient = useQueryClient();
-  const [amount, setAmount] = useState(String(Number(p.amount)));
+  const [amount, setAmount] = useState(Number(p.amount).toFixed(2));
   const inputId = `payout-${p.teacher.id}`;
   const confirm = useMutation({
     mutationFn: () =>

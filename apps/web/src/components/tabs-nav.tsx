@@ -20,7 +20,7 @@ export function TabsNav({ items, title, label }: { items: TabItem[]; title?: str
             end
             className={({ isActive: exact }) => {
               const isActive = exact || !!item.also?.includes(pathname);
-              return `shrink-0 inline-flex items-center min-h-11 px-4 font-heading uppercase text-sm tracking-wide no-underline transition-colors border-b-2 -mb-px ${
+              return `shrink-0 inline-flex items-center min-h-11 px-3 sm:px-4 font-heading uppercase text-sm tracking-wide no-underline transition-colors border-b-2 -mb-px ${
                 isActive ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'
               }`;
             }}
