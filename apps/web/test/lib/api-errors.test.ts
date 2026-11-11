@@ -20,6 +20,11 @@ describe('errorKey', () => {
     expect(errorKey(new Error('NOT_OVERDUE'))).toBe('billing.errors.notOverdue');
   });
 
+  it('explains a seminar or participant that vanished meanwhile', () => {
+    expect(errorKey(new Error('SEMINAR_NOT_FOUND'))).toBe('seminars.errors.gone');
+    expect(errorKey(new Error('PARTICIPANT_NOT_FOUND'))).toBe('seminars.errors.participantGone');
+  });
+
   it('falls back to the generic error for unknown or raw messages', () => {
     expect(errorKey(new Error('Request failed'))).toBe('common.genericError');
     expect(errorKey('nope')).toBe('common.genericError');

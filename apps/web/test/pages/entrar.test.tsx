@@ -16,7 +16,7 @@ vi.mock('@/lib/api', () => ({
 }));
 
 import { api } from '@/lib/api';
-import { signUp } from '@/lib/auth-client';
+import { signUp, useSession } from '@/lib/auth-client';
 
 const mockedApi = vi.mocked(api);
 const mockedSignUp = vi.mocked(signUp.email);
@@ -35,6 +35,8 @@ function renderEntrar(code = 'TEST-CODE') {
 describe('EntrarPage', () => {
   beforeEach(() => {
     mockedApi.mockReset();
+    mockedSignUp.mockReset();
+    vi.mocked(useSession).mockReturnValue({ data: null, isPending: false } as any);
   });
 
   it('shows loading state while fetching academy', () => {
@@ -164,5 +166,44 @@ describe('EntrarPage', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('common.genericError');
     expect(screen.queryByText('User already exists')).not.toBeInTheDocument();
+  });
+
+  it('with a session but no academy, joins with the existing account instead of signing up again', async () => {
+    // A person who signed up and left before joining: logged in, no academy yet.
+    vi.mocked(useSession).mockReturnValue({
+      data: { user: { id: 'u1', name: 'Ana', email: 'a@b.com', academyId: null, role: 'student', status: 'active' } },
+      isPending: false,
+    } as any);
+    mockedApi.mockImplementation(async (path: string) => (path.startsWith('/academies/by-code') ? academy : { status: 'pending' }) as any);
+    const user = userEvent.setup();
+    renderEntrar();
+
+    expect(await screen.findByText('Gracie Barra')).toBeInTheDocument();
+    expect(screen.getByText('onboarding.joinAs')).toBeInTheDocument();
+    expect(screen.queryByLabelText('auth.email')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('auth.password')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'onboarding.joinTitle' }));
+
+    await waitFor(() => expect(mockedApi).toHaveBeenCalledWith('/academies/1/join', { method: 'POST' }));
+    expect(mockedSignUp).not.toHaveBeenCalled();
+  });
+
+  it('with a session, a failed join shows a translated alert', async () => {
+    vi.mocked(useSession).mockReturnValue({
+      data: { user: { id: 'u1', name: 'Ana', email: 'a@b.com', academyId: null } },
+      isPending: false,
+    } as any);
+    mockedApi.mockImplementation(async (path: string) => {
+      if (path.startsWith('/academies/by-code')) {
+        return academy as any;
+      }
+      throw new Error('Academy not found');
+    });
+    const user = userEvent.setup();
+    renderEntrar();
+
+    await user.click(await screen.findByRole('button', { name: 'onboarding.joinTitle' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('onboarding.academyNotFound');
   });
 });

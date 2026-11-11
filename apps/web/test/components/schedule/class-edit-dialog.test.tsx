@@ -5,6 +5,8 @@ import { renderWithProviders } from '../../render';
 import { ClassEditDialog } from '@/components/schedule/class-edit-dialog';
 import type { ClassItem } from '@/lib/schedule';
 
+vi.mock('@/lib/api', () => ({ api: vi.fn().mockResolvedValue([]) }));
+
 const cls: ClassItem = {
   id: 'c1',
   name: 'Morning Gi',
@@ -85,5 +87,27 @@ describe('ClassEditDialog — a11y', () => {
     await user.click(wed);
     expect(wed).toHaveAttribute('aria-pressed', 'true');
     expect(tue).toHaveAttribute('aria-pressed', 'false');
+  });
+});
+
+describe('ClassEditDialog — teacher no longer a candidate', () => {
+  it('still shows the class teacher and keeps teacherId when the Owner does not change it', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    // GET /api/teachers/candidates no longer includes Ana (rejected/deactivated); the mock returns [].
+    renderWithProviders(
+      <ClassEditDialog
+        cls={{ ...cls, teacher: { id: 't-gone', name: 'Ana Gone', belt: 'blue' } }}
+        onOpenChange={vi.fn()}
+        onSubmit={onSubmit}
+      />,
+    );
+
+    const field = await screen.findByLabelText('classes.teacher.label');
+    expect(field).toHaveTextContent('Ana Gone');
+    expect(field).not.toHaveTextContent('classes.teacher.none');
+
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ teacherId: 't-gone' })));
   });
 });

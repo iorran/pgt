@@ -525,6 +525,8 @@
     "city": "Cidade",
     "creating": "Criando…",
     "joinTitle": "Entrar na academia",
+    "joinAs": "Você vai entrar como {{name}}.",
+    "notYou": "Não é você? Sair",
     "enterCode": "Digite o código da academia",
     "continue": "Continuar",
     "academyNotFound": "Academia não encontrada. Confira o código com a sua academia e tente novamente.",
@@ -805,7 +807,9 @@
       "priceRequired": "Preencha os dois preços.",
       "dateRequired": "Escolha a data.",
       "invalidTeacher": "Professor inválido.",
-      "nameRequired": "Preencha o nome."
+      "nameRequired": "Preencha o nome.",
+      "gone": "Esse seminário já não existe.",
+      "participantGone": "Essa pessoa já não está no seminário."
     },
     "editTitle": "Editar seminário",
     "delete": "Excluir seminário",

@@ -52,6 +52,27 @@ describe('createQueryClient', () => {
     await waitFor(() => expect(toastError).toHaveBeenCalledWith('classes.checkinDuplicate'));
   });
 
+  it.each(['SEMINAR_NOT_FOUND', 'PARTICIPANT_NOT_FOUND'])('refetches queries when a mutation hits %s', async (code) => {
+    const client = createQueryClient();
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    const { result } = renderHook(() => useMutation({ mutationFn: () => Promise.reject(new Error(code)) }), {
+      wrapper: makeWrapper(client),
+    });
+    result.current.mutate();
+    await waitFor(() => expect(invalidate).toHaveBeenCalled());
+  });
+
+  it('does not refetch on other mutation errors', async () => {
+    const client = createQueryClient();
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    const { result } = renderHook(() => useMutation({ mutationFn: () => Promise.reject(new Error('boom')) }), {
+      wrapper: makeWrapper(client),
+    });
+    result.current.mutate();
+    await waitFor(() => expect(toastError).toHaveBeenCalled());
+    expect(invalidate).not.toHaveBeenCalled();
+  });
+
   it('suppresses error toast when mutation meta.silent', async () => {
     const client = createQueryClient();
     const { result } = renderHook(

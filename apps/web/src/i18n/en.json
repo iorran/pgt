@@ -525,6 +525,8 @@
     "city": "City",
     "creating": "Creating…",
     "joinTitle": "Join academy",
+    "joinAs": "You’ll join as {{name}}.",
+    "notYou": "Not you? Sign out",
     "enterCode": "Enter the academy code",
     "continue": "Continue",
     "academyNotFound": "Academy not found. Check the code with your academy and try again.",
@@ -805,7 +807,9 @@
       "priceRequired": "Fill in both prices.",
       "dateRequired": "Pick the date.",
       "invalidTeacher": "Invalid teacher.",
-      "nameRequired": "Fill in the name."
+      "nameRequired": "Fill in the name.",
+      "gone": "This seminar no longer exists.",
+      "participantGone": "This person is no longer in the seminar."
     },
     "editTitle": "Edit seminar",
     "delete": "Delete seminar",

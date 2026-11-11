@@ -223,6 +223,16 @@ describe('GET /api/academies/mine', () => {
     expect(res.json().name).toBe('My Academy');
   });
 
+  it('gives a student the academy timezone, so the web can tell the academy\'s day', async () => {
+    const acad = await createTestAcademy();
+    const student = await createTestUser(acad.id, { role: 'student' });
+
+    const res = await app.inject({ method: 'GET', url: '/api/academies/mine', headers: authHeaders(student) });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json().timezone).toBe('Europe/Lisbon');
+  });
+
   it('returns 404 when user has no academy', async () => {
     const user = await createTestUser(null);
 

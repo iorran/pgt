@@ -19,6 +19,8 @@ const KEYS: Record<string, string> = {
   DATE_REQUIRED: 'seminars.errors.dateRequired',
   INVALID_TEACHER: 'seminars.errors.invalidTeacher',
   NAME_REQUIRED: 'seminars.errors.nameRequired',
+  SEMINAR_NOT_FOUND: 'seminars.errors.gone',
+  PARTICIPANT_NOT_FOUND: 'seminars.errors.participantGone',
   NO_BILLABLE_MEMBER: 'billing.errors.noBillableMember',
   NOT_OVERDUE: 'billing.errors.notOverdue',
 };
@@ -26,4 +28,9 @@ const KEYS: Record<string, string> = {
 export function errorKey(err: unknown): string {
   const code = err instanceof Error ? err.message : undefined;
   return (code && KEYS[code]) || 'common.genericError';
+}
+
+// The item was removed meanwhile: what's on screen is stale, so refetch.
+export function isGone(err: unknown): boolean {
+  return err instanceof Error && (err.message === 'SEMINAR_NOT_FOUND' || err.message === 'PARTICIPANT_NOT_FOUND');
 }

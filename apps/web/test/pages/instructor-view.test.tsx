@@ -378,6 +378,25 @@ describe('InstructorClassesView — list view (default)', () => {
     expect(screen.queryByText('Other Class')).toBeNull();
   });
 
+  it('counts who is present by the academy’s day, not the device’s', async () => {
+    const day = (timeZone: string) => new Intl.DateTimeFormat('en-CA', { timeZone }).format(now);
+    // A fixed-offset academy timezone already on another day than the device.
+    const timezone = ['Etc/GMT-14', 'Etc/GMT+12'].find((tz) => day(tz) !== todayIso)!;
+    const academyCheckins = [
+      ...checkins,
+      { id: 'k4', checkedInAt: now.toISOString(), date: day(timezone), student: { id: 's4', name: 'Academy Day' }, class: { id: 'c1', name: 'Morning Gi', type: 'gi' } },
+    ];
+    mockApi.mockImplementation(async (path: string) => {
+      if (path === '/academies/mine') {
+        return { id: 'a1', name: 'Academia', timezone } as any;
+      }
+      return (path.startsWith('/checkins/academy') ? academyCheckins : mockClasses) as any;
+    });
+    renderWithProviders(<InstructorClassesView />);
+    expect(await screen.findByText('Academy Day')).toBeInTheDocument();
+    expect(screen.queryByText('Ana Souza')).toBeNull();
+  });
+
   it('a day with a seminar says so, and tapping the seminar opens its page', async () => {
     const user = userEvent.setup();
     const seminar = {
