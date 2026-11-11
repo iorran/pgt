@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useForm } from '@tanstack/react-form';
-import { signUp } from '@/lib/auth-client';
+import { signOut, signUp, useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { errorKey } from '@/lib/api-errors';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -25,6 +26,10 @@ export default function EntrarPage() {
   const [loadError, setLoadError] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [joining, setJoining] = useState(false);
+  // Logged in without an academy (e.g. left midway through signing up): join with that account.
+  const { data: session } = useSession();
+  const me = session?.user;
 
   useEffect(() => {
     if (!code) return;
@@ -75,6 +80,22 @@ export default function EntrarPage() {
     },
   });
 
+  async function joinAsMe() {
+    if (!academy) {
+      return;
+    }
+    setError('');
+    setJoining(true);
+    try {
+      await api(`/academies/${academy.id}/join`, { method: 'POST' });
+      // Full reload so the session reflects the pending status.
+      window.location.href = '/aguardando';
+    } catch (err) {
+      setError(t(errorKey(err)));
+      setJoining(false);
+    }
+  }
+
   if (loading) {
     return (
       <div
@@ -123,112 +144,136 @@ export default function EntrarPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-8 pb-8">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit();
-            }}
-            className="space-y-4"
-          >
-            <form.Field name="name">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="name">{t('auth.name')}</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    autoComplete="name"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    placeholder={t('auth.name')}
-                    required
-                  />
-                </div>
+          {me ? (
+            <div className="space-y-4">
+              <p className="text-center">{t('onboarding.joinAs', { name: me.name })}</p>
+              {error && (
+                <p role="alert" className="text-sm text-destructive">
+                  {error}
+                </p>
               )}
-            </form.Field>
+              <Button type="button" className="w-full" loading={joining} onClick={joinAsMe}>
+                {t('onboarding.joinTitle')}
+              </Button>
+              <Button
+                type="button"
+                variant="link"
+                className="w-full text-muted-foreground"
+                onClick={() => signOut().then(() => (window.location.href = '/login'))}
+              >
+                {t('onboarding.notYou')}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  form.handleSubmit();
+                }}
+                className="space-y-4"
+              >
+                <form.Field name="name">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor="name">{t('auth.name')}</Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        autoComplete="name"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t('auth.name')}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
 
-            <form.Field name="email">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t('auth.email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    placeholder={t('auth.email')}
-                    required
-                  />
-                </div>
-              )}
-            </form.Field>
+                <form.Field name="email">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor="email">{t('auth.email')}</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t('auth.email')}
+                        required
+                      />
+                    </div>
+                  )}
+                </form.Field>
 
-            <form.Field name="password">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="password">{t('auth.password')}</Label>
-                  <PasswordInput
-                    id="password"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    placeholder={t('auth.password')}
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                    aria-describedby="password-hint"
-                  />
-                  <p id="password-hint" className="text-xs text-muted-foreground">
-                    {t('auth.passwordHint')}
+                <form.Field name="password">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">{t('auth.password')}</Label>
+                      <PasswordInput
+                        id="password"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        placeholder={t('auth.password')}
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        aria-describedby="password-hint"
+                      />
+                      <p id="password-hint" className="text-xs text-muted-foreground">
+                        {t('auth.passwordHint')}
+                      </p>
+                    </div>
+                  )}
+                </form.Field>
+
+                <form.Field name="belt">
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor="belt">{t('onboarding.belt')}</Label>
+                      <select
+                        id="belt"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        onBlur={field.handleBlur}
+                        className="bg-secondary border border-border text-foreground rounded-sm px-2.5 min-h-11 w-full font-body"
+                      >
+                        <BeltOptions />
+                      </select>
+                    </div>
+                  )}
+                </form.Field>
+
+                {error && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {error}
                   </p>
-                </div>
-              )}
-            </form.Field>
+                )}
 
-            <form.Field name="belt">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="belt">{t('onboarding.belt')}</Label>
-                  <select
-                    id="belt"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="bg-secondary border border-border text-foreground rounded-sm px-2.5 min-h-11 w-full font-body"
-                  >
-                    <BeltOptions />
-                  </select>
-                </div>
-              )}
-            </form.Field>
+                <form.Subscribe selector={(state) => state.isSubmitting}>
+                  {(isSubmitting) => (
+                    <Button type="submit" className="w-full" loading={isSubmitting}>
+                      {t('onboarding.continue')}
+                    </Button>
+                  )}
+                </form.Subscribe>
+              </form>
 
-            {error && (
-              <p role="alert" className="text-sm text-destructive">
-                {error}
-              </p>
-            )}
-
-            <form.Subscribe selector={(state) => state.isSubmitting}>
-              {(isSubmitting) => (
-                <Button type="submit" className="w-full" loading={isSubmitting}>
-                  {t('onboarding.continue')}
-                </Button>
-              )}
-            </form.Subscribe>
-          </form>
-
-          <div className="mt-6 flex justify-between text-sm">
-            <Link to="/signup" className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline">
-              {t('common.back')}
-            </Link>
-            <Link to="/login" className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline">
-              {t('auth.haveAccount')}
-            </Link>
-          </div>
+              <div className="mt-6 flex justify-between text-sm">
+                <Link to="/signup" className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline">
+                  {t('common.back')}
+                </Link>
+                <Link to="/login" className="inline-flex min-h-11 items-center px-2 text-sm text-muted-foreground hover:text-primary transition-colors no-underline">
+                  {t('auth.haveAccount')}
+                </Link>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

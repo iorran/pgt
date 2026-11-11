@@ -240,6 +240,7 @@ export function ClassEditDialog({
               <TeacherField
                 id="class-edit-teacher"
                 value={teacher}
+                current={cls?.teacher}
                 allowGuest={!!cls?.isSeminar}
                 onChange={(next) => {
                   form.setFieldValue('teacherId', next.teacherId);

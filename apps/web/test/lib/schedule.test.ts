@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classesToCalendarEvents } from '@/lib/schedule';
+import { academyToday, classesToCalendarEvents, isoDate } from '@/lib/schedule';
 
 const cls = (over: Partial<{
   id: string;
@@ -79,5 +79,19 @@ describe('classesToCalendarEvents', () => {
       expect(e.start.getMinutes()).toBe(0);
       expect(e.end.getHours()).toBe(9);
     }
+  });
+});
+
+describe('academyToday', () => {
+  // 23:30 UTC on Tuesday 10 Nov 2026: already Wednesday in Auckland, still Tuesday in São Paulo.
+  const at = new Date('2026-11-10T23:30:00Z');
+
+  it("is the academy's day, not the device's", () => {
+    expect(academyToday('Pacific/Auckland', at)).toBe('2026-11-11');
+    expect(academyToday('America/Sao_Paulo', at)).toBe('2026-11-10');
+  });
+
+  it("falls back to the device's day when the timezone is unknown", () => {
+    expect(academyToday(undefined, at)).toBe(isoDate(at));
   });
 });

@@ -19,6 +19,7 @@ import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { StudentClassesView } from '@/pages/classes/student-view';
+import { isoDate } from '@/lib/schedule';
 
 const mockUseSession = vi.mocked(useSession);
 const mockApi = vi.mocked(api);
@@ -81,7 +82,7 @@ describe('StudentClassesView', () => {
 
   it('hides the first check-in notice once the student has check-ins', async () => {
     mockApi.mockImplementation(
-      async (path: string) => (path.startsWith('/classes') ? mockClasses : [{ id: 'ck1', checkedInAt: '2026-01-01T10:00:00Z', class: null }]) as any,
+      async (path: string) => (path.startsWith('/classes') ? mockClasses : [{ id: 'ck1', checkedInAt: '2026-01-01T10:00:00Z', date: '2026-01-01', class: null }]) as any,
     );
     renderWithProviders(<StudentClassesView />);
     await screen.findByText('Morning Gi');
@@ -119,12 +120,46 @@ describe('StudentClassesView', () => {
     mockApi.mockImplementation(async (path: string) =>
       (path.startsWith('/classes')
         ? [activeClass]
-        : [{ id: 'k1', checkedInAt: new Date().toISOString(), class: { id: activeClass.id } }]) as any,
+        : [{ id: 'k1', checkedInAt: new Date().toISOString(), date: isoDate(new Date()), class: { id: activeClass.id } }]) as any,
     );
     renderWithProviders(<StudentClassesView />);
 
     expect(await screen.findByText('classes.checkedIn')).toBeInTheDocument();
     expect(screen.queryByText('classes.checkinProximity')).not.toBeInTheDocument();
+  });
+
+  it("checked in counts by the academy's day: a check-in from the academy's yesterday allows another", async () => {
+    // Device noon; a check-in 59 minutes earlier, on the same device day. Pick a fixed-offset academy
+    // timezone whose midnight falls between the two, so the academy is already on its next day.
+    const nowAt = new Date(2026, 10, 10, 12, 0);
+    const checkedInAt = new Date(nowAt.getTime() - 59 * 60_000);
+    const day = (d: Date, timeZone: string) => new Intl.DateTimeFormat('en-CA', { timeZone }).format(d);
+    const timezone = Array.from({ length: 27 }, (_, i) => i - 12)
+      .map((h) => (h <= 0 ? `Etc/GMT+${-h}` : `Etc/GMT-${h}`))
+      .find((tz) => day(nowAt, tz) !== day(checkedInAt, tz))!;
+    const liveClass = { id: 'live', name: 'Noon Gi', type: 'gi', dayOfWeek: 2, startTime: '11:00', endTime: '13:00' };
+    mockApi.mockImplementation(async (path: string) => {
+      if (path.startsWith('/classes')) {
+        return [liveClass] as any;
+      }
+      if (path === '/academies/mine') {
+        return { id: 'a1', name: 'Academia', timezone } as any;
+      }
+      return (path.startsWith('/checkins/student')
+        ? [{ id: 'k1', checkedInAt: checkedInAt.toISOString(), date: day(checkedInAt, timezone), class: { id: 'live' } }]
+        : []) as any;
+    });
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(nowAt);
+    try {
+      renderWithProviders(<StudentClassesView />);
+      await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/academies/mine'));
+      expect(await screen.findByText('classes.checkinProximity')).toBeInTheDocument();
+      await new Promise((r) => setTimeout(r, 0));
+      expect(screen.queryByText('classes.checkedIn')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   describe('timeline on a Tuesday evening', () => {
@@ -187,7 +222,7 @@ describe('StudentClassesView', () => {
       await at_(at(19, 10), async () => {
         serve(
           [tue('gi', 'Adulto Gi', '19:00', '20:00'), tue('kids', 'Kids', '19:00', '20:00')],
-          [{ id: 'k1', checkedInAt: at(19, 5).toISOString(), class: { id: 'gi' } }],
+          [{ id: 'k1', checkedInAt: at(19, 5).toISOString(), date: '2026-11-10', class: { id: 'gi' } }],
         );
         renderWithProviders(<StudentClassesView />);
         expect(await screen.findByText('classes.timeline.manyChoose')).toBeInTheDocument();
@@ -249,9 +284,7 @@ describe('StudentClassesView', () => {
 
   it('active class renders a check-in button on its card', async () => {
     const activeClass = makeActiveClass();
-    mockApi
-      .mockResolvedValueOnce([activeClass] as any)
-      .mockResolvedValueOnce([] as any);
+    mockApi.mockImplementation(async (path: string) => (path.startsWith('/classes') ? [activeClass] : []) as any);
 
     renderWithProviders(<StudentClassesView />);
 
@@ -264,10 +297,9 @@ describe('StudentClassesView', () => {
     const user = userEvent.setup();
     const activeClass = makeActiveClass();
 
-    mockApi
-      .mockResolvedValueOnce([activeClass] as any)
-      .mockResolvedValueOnce([] as any)
-      .mockResolvedValueOnce({} as any); // POST /checkins
+    mockApi.mockImplementation(async (path: string, init?: RequestInit) =>
+      (init?.method === 'POST' ? {} : path.startsWith('/classes') ? [activeClass] : []) as any,
+    );
 
     // Mock geolocation to succeed immediately
     const geo = {
@@ -307,7 +339,8 @@ describe('StudentClassesView', () => {
     [3, 'classes.locationUnavailable'],
   ])('geolocation error code %i shows %s', async (code, key) => {
     const user = userEvent.setup();
-    mockApi.mockResolvedValueOnce([makeActiveClass()] as any).mockResolvedValueOnce([] as any);
+    const activeClass = makeActiveClass();
+    mockApi.mockImplementation(async (path: string) => (path.startsWith('/classes') ? [activeClass] : []) as any);
     Object.defineProperty(globalThis.navigator, 'geolocation', {
       value: {
         getCurrentPosition: vi.fn((_ok: any, fail: any) =>

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { beltClasses } from '@/lib/belts';
 import { Badge } from '@/components/ui/badge';
 import {
+  academyToday,
   addMinutes,
   AFTER_END_MIN,
   classesOn,
@@ -191,7 +192,14 @@ export function ClassTimeline({
     enabled: isToday && !renderAction,
     refetchInterval: 60_000,
   });
-  const presentBy = (classId: string) => checkins.filter((c) => c.date === todayIso && c.class?.id === classId);
+  const { data: academy } = useQuery<{ timezone: string }>({
+    queryKey: ['academy-mine'],
+    queryFn: () => api<{ timezone: string }>('/academies/mine'),
+    enabled: isToday && !renderAction,
+  });
+  // Check-ins are dated in the academy's day (the API's duplicate rule), not the device's.
+  const academyDay = academyToday(academy?.timezone, now);
+  const presentBy = (classId: string) => checkins.filter((c) => c.date === academyDay && c.class?.id === classId);
 
   const groups = groupByStart(classesOn(classes, date));
   const states = groups.map((g) => (isToday ? g.map((c) => slotState(c, now)) : null));

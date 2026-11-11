@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Check, ChevronRight, Pencil } from 'lucide-react';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
+import { isGone } from '@/lib/api-errors';
 import { formatDate, formatMoney } from '@/lib/format';
 import { useApiQuery } from '@/hooks/use-api';
 import type { ClassItem } from '@/lib/schedule';
@@ -55,6 +56,12 @@ export default function SeminarPage() {
   );
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: participantsKey });
+  // The participant was removed meanwhile: close their sheet (the list refetches globally).
+  const closeIfGone = (err: Error) => {
+    if (isGone(err)) {
+      setEditing(null);
+    }
+  };
   const update = useMutation({
     mutationFn: (vars: { id: string; amount?: string; paid?: boolean }) =>
       api(`/seminar-participants/${vars.id}`, {
@@ -62,6 +69,7 @@ export default function SeminarPage() {
         body: JSON.stringify({ amount: vars.amount, paid: vars.paid }),
       }),
     onSuccess: refresh,
+    onError: closeIfGone,
   });
   const remove = useMutation({
     mutationFn: (participantId: string) => api(`/seminar-participants/${participantId}`, { method: 'DELETE' }),
@@ -69,6 +77,7 @@ export default function SeminarPage() {
       refresh();
       setEditing(null);
     },
+    onError: closeIfGone,
   });
   const deleteSeminar = useMutation({
     mutationFn: () => api(`/classes/${id}`, { method: 'DELETE' }),

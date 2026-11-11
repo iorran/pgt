@@ -29,11 +29,14 @@ export function TeacherField({
   value,
   onChange,
   allowGuest = false,
+  current = null,
 }: {
   id: string;
   value: TeacherValue;
   onChange: (value: TeacherValue) => void;
   allowGuest?: boolean;
+  // The class's saved teacher: still shown when they are no longer a candidate (rejected or deactivated).
+  current?: ClassTeacher | null;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -41,7 +44,8 @@ export function TeacherField({
   const [guest, setGuest] = useState(value.guestTeacherName ?? '');
   const { data: candidates = [] } = useApiQuery<Candidate[]>(['teacher-candidates'], '/teachers/candidates');
 
-  const selected = candidates.find((c) => c.id === value.teacherId) ?? null;
+  const selected =
+    candidates.find((c) => c.id === value.teacherId) ?? (current && current.id === value.teacherId ? current : null);
   const matches = candidates.filter((c) => c.name.toLowerCase().includes(query.trim().toLowerCase()));
   const titled = matches
     .filter((c) => teacherTitle(c.belt))

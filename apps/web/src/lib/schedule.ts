@@ -109,6 +109,11 @@ export function classesToCalendarEvents(
   return events;
 }
 
+// Today's YYYY-MM-DD in the academy's timezone (how the API dates check-ins); the device's day while unknown.
+export function academyToday(timeZone: string | undefined, now: Date = new Date()): string {
+  return timeZone ? new Intl.DateTimeFormat('en-CA', { timeZone }).format(now) : isoDate(now);
+}
+
 export function isoDate(d: Date): string {
   return [
     d.getFullYear(),

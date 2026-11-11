@@ -11,7 +11,7 @@ import { PageLoader } from '@/components/page-loader';
 import { Button } from '@/components/ui/button';
 import { ClassesTabs } from '@/components/schedule/classes-tabs';
 import { FirstCheckinNotice } from '@/components/first-checkin-notice';
-import { addMinutes, BEFORE_START_MIN, type ClassItem } from '@/lib/schedule';
+import { academyToday, addMinutes, BEFORE_START_MIN, type ClassItem } from '@/lib/schedule';
 
 export function StudentClassesView() {
   const { t } = useTranslation();
@@ -31,11 +31,12 @@ export function StudentClassesView() {
     !!user?.id,
   );
 
+  const { data: academy } = useApiQuery<{ timezone: string }>(['academy-mine'], '/academies/mine', !!user?.academyId);
+
+  // The API allows one check-in per class per academy day, and dates each check-in in that day.
   function isCheckedIn(classId: string): boolean {
-    const today = new Date().toDateString();
-    return myCheckins.some(
-      (c: any) => c.class?.id === classId && new Date(c.checkedInAt).toDateString() === today,
-    );
+    const today = academyToday(academy?.timezone);
+    return myCheckins.some((c: any) => c.class?.id === classId && c.date === today);
   }
 
   const checkinMutation = useMutation({

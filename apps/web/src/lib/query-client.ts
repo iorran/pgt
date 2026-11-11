@@ -1,10 +1,10 @@
 import { QueryClient, QueryCache, MutationCache } from '@tanstack/react-query';
 import i18next from 'i18next';
 import { toast } from '@/lib/toast';
-import { errorKey } from '@/lib/api-errors';
+import { errorKey, isGone } from '@/lib/api-errors';
 
 export function createQueryClient(): QueryClient {
-  return new QueryClient({
+  const client: QueryClient = new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 30_000,
@@ -28,6 +28,9 @@ export function createQueryClient(): QueryClient {
     }),
     mutationCache: new MutationCache({
       onError: (err, _vars, _ctx, mutation) => {
+        if (isGone(err)) {
+          client.invalidateQueries();
+        }
         if (mutation.meta?.silent) {
           return;
         }
@@ -39,4 +42,5 @@ export function createQueryClient(): QueryClient {
       },
     }),
   });
+  return client;
 }

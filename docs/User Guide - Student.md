@@ -88,6 +88,10 @@ Você precisa de um código de acesso do dono da academia (ex.: `PGT-PONTINHA-CM
 > Se a academia enviou um link pelo WhatsApp, basta abri-lo: o cadastro já abre com o código preenchido (passo 4).
 > <sub><em>If the academy sent you a link on WhatsApp, just open it: sign-up opens with the code already filled in (step 4).</em></sub>
 
+> [!tip] Já tem conta, mas ainda sem academia?
+> Se você já criou a conta e parou antes de entrar numa academia, abra o link ou o código e toque em **"Entrar na academia"**: você entra com a conta que já tem, sem preencher o cadastro de novo. Não é você? Toque em **"Não é você? Sair"**.
+> <sub><em>Already have an account but no academy yet? If you created your account and stopped before joining, open the link or code and tap **"Entrar na academia"** (Join academy): you join with your existing account, no need to fill in sign-up again. Not you? Tap **"Não é você? Sair"** (Not you? Sign out).</em></sub>
+
 ### Aguardar Aprovação
 <sub><em>Wait for Approval</em></sub>
 
