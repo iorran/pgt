@@ -27,6 +27,7 @@ describe('errorKey', () => {
 
   it('explains finance refusals', () => {
     expect(errorKey(new Error('INVALID_PAYOUT_TEACHER'))).toBe('finance.errors.invalidTeacher');
+    expect(errorKey(new Error('INVALID_AGREEMENT_LINK'))).toBe('finance.errors.invalidAgreementLink');
     expect(errorKey(new Error('INVALID_FINANCE_SETTINGS'))).toBe('finance.errors.invalidSettings');
     expect(errorKey(new Error('INVALID_EXPENSE'))).toBe('finance.errors.invalidExpense');
     expect(errorKey(new Error('INVALID_PAYOUT'))).toBe('finance.errors.invalidPayout');

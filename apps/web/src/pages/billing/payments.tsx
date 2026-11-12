@@ -37,7 +37,8 @@ interface Student {
   id: string;
   name: string;
   monthlyFee?: string | null;
-  addOnTeacherId?: string | null;
+  agreementId?: string | null;
+  agreementKind?: 'addOn' | 'recruited' | null;
 }
 
 export default function PaymentsPage() {
@@ -77,7 +78,7 @@ export default function PaymentsPage() {
     !!user?.academyId,
   );
 
-  const { data: academy } = useApiQuery<{ addOnPrice?: string }>(['academy-mine'], '/academies/mine');
+  const { data: agreements = [] } = useApiQuery<{ id: string; addOnPrice: string | null }[]>(['agreements'], '/agreements');
 
   const studentNames = new Map(students.map((s) => [s.id, s.name]));
 
@@ -89,7 +90,8 @@ export default function PaymentsPage() {
     form.setFieldValue('studentId', match?.id ?? '');
     if (match?.monthlyFee != null) {
       // What the student owes per month: Monthly Fee plus the Class Add-on when marked.
-      const addOn = match.addOnTeacherId ? Number(academy?.addOnPrice ?? 0) : 0;
+      const addOn =
+        match.agreementKind === 'addOn' ? Number(agreements.find((a) => a.id === match.agreementId)?.addOnPrice ?? 0) : 0;
       form.setFieldValue('amount', String(Number(match.monthlyFee) + addOn));
     }
   }

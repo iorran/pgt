@@ -15,8 +15,7 @@ import { api } from '@/lib/api';
 const mockApi = vi.mocked(api);
 const t = (key: string) => key;
 
-// Real response shapes of /api/finance/* and /api/academies/mine.
-const academy = { id: 'a1', addOnName: 'No Gi', addOnPrice: '10.00', addOnTeacherShare: '5.00', recruitedSharePercent: 50 };
+// Real response shapes of /api/finance/*.
 
 const balance = {
   month: '2026-10',
@@ -57,13 +56,23 @@ const expenses = {
 };
 
 const payout = {
-  teacher: { id: 't1', name: 'Rafael' },
-  addOn: { count: 1, share: '5.00', amount: '5.00' },
+  agreement: {
+    id: 'g1',
+    name: 'No Gi',
+    sharePercent: 50,
+    active: true,
+    teachers: [
+      { id: 't1', name: 'Reynaldo' },
+      { id: 't2', name: 'Alex' },
+    ],
+  },
+  addOn: { count: 1, price: '10.00', share: '5.00', amount: '5.00' },
   recruited: { paid: '45.00', percent: 50, amount: '22.50' },
   suggested: '27.50',
   confirmed: null,
   amount: '27.50',
   missingCheckins: ['Marta'],
+  walkIns: [{ studentId: 's9', name: 'Bruno', checkins: 3 }],
   students: [
     {
       studentId: 's1',
@@ -80,7 +89,7 @@ const payout = {
       name: 'Diogo',
       kind: 'recruited',
       monthlyFee: '45.00',
-      checkins: null,
+      checkins: 2,
       paid: '0.00',
       payout: '0.00',
       payments: [],
@@ -108,9 +117,6 @@ beforeEach(() => {
     }
     if (path.startsWith('/finance/payouts')) {
       return [payout] as any;
-    }
-    if (path === '/academies/mine') {
-      return academy as any;
     }
     return [] as any;
   });
@@ -204,11 +210,16 @@ describe('ExpensesPage', () => {
 });
 
 describe('PayoutsPage', () => {
-  it('shows the suggestion, the check-in warning and the students', async () => {
+  it('shows one card per agreement with the suggestion, the owner notes and the students', async () => {
     renderWithProviders(<PayoutsPage />);
-    expect(await screen.findByRole('heading', { name: 'Rafael' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'No Gi' })).toBeInTheDocument();
+    expect(screen.getByText('finance.payouts.sub')).toBeInTheDocument();
     expect(screen.getByText('finance.payouts.pending')).toBeInTheDocument();
+    expect(screen.getByText('finance.payouts.addOnLine')).toBeInTheDocument();
+    expect(screen.getByText('finance.payouts.recruitedLine')).toBeInTheDocument();
     expect(screen.getByText('finance.payouts.missingCheckins')).toBeInTheDocument();
+    expect(screen.getByText('finance.payouts.walkIns')).toBeInTheDocument();
+    expect(screen.getByText('finance.payouts.ownerOnly')).toBeInTheDocument();
     expect(screen.getByLabelText('finance.payouts.amountLabel')).toHaveValue(27.5);
     expect(screen.getByText('Marta')).toBeInTheDocument();
     expect(screen.getByText('finance.payouts.notPaid')).toBeInTheDocument();
@@ -222,14 +233,36 @@ describe('PayoutsPage', () => {
     await waitFor(() =>
       expect(mockApi).toHaveBeenCalledWith('/finance/payouts', {
         method: 'POST',
-        body: JSON.stringify({ teacherId: 't1', month: '2026-10', amount: '30' }),
+        body: JSON.stringify({ agreementId: 'g1', month: '2026-10', amount: '30' }),
       }),
     );
   });
 
+  it('hides the add-on line and the notes when the agreement has no add-on and nothing to flag', async () => {
+    mockApi.mockImplementation(async (path: string) =>
+      path.startsWith('/finance/payouts')
+        ? ([
+            {
+              ...payout,
+              agreement: { ...payout.agreement, name: 'Tarde' },
+              addOn: { count: 0, price: null, share: '0.00', amount: '0.00' },
+              missingCheckins: [],
+              walkIns: [],
+              students: [payout.students[1]],
+            },
+          ] as any)
+        : ([] as any),
+    );
+    renderWithProviders(<PayoutsPage />);
+    expect(await screen.findByRole('heading', { name: 'Tarde' })).toBeInTheDocument();
+    expect(screen.getByText('finance.payouts.recruitedLine')).toBeInTheDocument();
+    expect(screen.queryByText('finance.payouts.addOnLine')).toBeNull();
+    expect(screen.queryByText('finance.payouts.ownerOnly')).toBeNull();
+  });
+
   it('exports one row per payment, unpaid students, totals and the payout', () => {
     expect(payoutCsvRows({ ...payout, confirmed: '30.00', amount: '30.00' }, '2026-10', t)).toEqual([
-      ['Rafael', '2026-10'],
+      ['No Gi', '2026-10'],
       [],
       [
         'finance.csv.student',

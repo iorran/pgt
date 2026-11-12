@@ -16,19 +16,20 @@ import { csvMoney, downloadCsv, type CsvRow } from '@/lib/csv';
 import { FinanceTabs, MonthSwitcher, currentMonth } from './finance-nav';
 
 export interface Payout {
-  teacher: { id: string; name: string };
-  addOn: { count: number; share: string; amount: string };
+  agreement: { id: string; name: string; sharePercent: number; active: boolean; teachers: { id: string; name: string }[] };
+  addOn: { count: number; price: string | null; share: string; amount: string };
   recruited: { paid: string; percent: number; amount: string };
   suggested: string;
   confirmed: string | null;
   amount: string;
   missingCheckins: string[];
+  walkIns: { studentId: string; name: string; checkins: number }[];
   students: {
     studentId: string;
     name: string;
     kind: 'addOn' | 'recruited';
     monthlyFee: string | null;
-    checkins: number | null;
+    checkins: number;
     paid: string;
     payout: string;
     payments: { amount: string; paymentDate: string; referenceMonth: string; payout: string }[];
@@ -55,7 +56,7 @@ export function payoutCsvRows(p: Payout, month: string, t: TFunction | ((key: st
   });
   const sum = (key: 'paid' | 'payout') => p.students.reduce((total, s) => total + Number(s[key]), 0);
   return [
-    [p.teacher.name, month],
+    [p.agreement.name, month],
     [],
     [
       t('finance.csv.student'),
@@ -74,48 +75,64 @@ export function payoutCsvRows(p: Payout, month: string, t: TFunction | ((key: st
   ];
 }
 
-function PayoutCard({ payout: p, month, addOnName }: { payout: Payout; month: string; addOnName: string }) {
+function PayoutCard({ payout: p, month }: { payout: Payout; month: string }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const queryClient = useQueryClient();
   const [amount, setAmount] = useState(Number(p.amount).toFixed(2));
-  const inputId = `payout-${p.teacher.id}`;
+  const inputId = `payout-${p.agreement.id}`;
   const confirm = useMutation({
     mutationFn: () =>
-      api('/finance/payouts', { method: 'POST', body: JSON.stringify({ teacherId: p.teacher.id, month, amount }) }),
+      api('/finance/payouts', { method: 'POST', body: JSON.stringify({ agreementId: p.agreement.id, month, amount }) }),
     meta: { successMessage: t('finance.payouts.saved') },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['finance-payouts', month] });
       queryClient.invalidateQueries({ queryKey: ['finance-balance'] });
     },
   });
-  const slug = p.teacher.name.normalize('NFD').replace(/[^\w]+/g, '-').toLowerCase();
+  const slug = p.agreement.name.normalize('NFD').replace(/[^\w]+/g, '-').toLowerCase();
 
   return (
     <article className="flex flex-col gap-4">
       <section className="flex flex-col gap-3.5 rounded-lg bg-card p-4">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="font-heading text-lg">{p.teacher.name}</h2>
+          <div className="flex flex-col">
+            <h2 className="font-heading text-lg">{p.agreement.name}</h2>
+            <span className="text-sm text-muted-foreground">
+              {t('finance.payouts.sub', {
+                teachers: p.agreement.teachers.map((teacher) => teacher.name).join(', '),
+                percent: p.agreement.sharePercent,
+              })}
+            </span>
+          </div>
           <span className="rounded-sm bg-muted px-2 py-1 text-xs">
             {t(p.confirmed === null ? 'finance.payouts.pending' : 'finance.payouts.confirmed')}
           </span>
         </div>
         <dl className="flex flex-col gap-2 text-sm">
-          <div className="flex justify-between gap-2">
-            <dt>
-              {t('finance.payouts.addOnLine', { count: p.addOn.count, share: formatMoney(p.addOn.share, locale) })}
-            </dt>
-            <dd className="font-mono">{formatMoney(p.addOn.amount, locale)}</dd>
-          </div>
-          <div className="flex justify-between gap-2">
-            <dt>
-              {t('finance.payouts.recruitedLine', {
-                percent: p.recruited.percent,
-                paid: formatMoney(p.recruited.paid, locale),
-              })}
-            </dt>
-            <dd className="font-mono">{formatMoney(p.recruited.amount, locale)}</dd>
-          </div>
+          {p.addOn.price !== null && (
+            <div className="flex justify-between gap-2">
+              <dt>
+                {t('finance.payouts.addOnLine', {
+                  count: p.addOn.count,
+                  percent: p.agreement.sharePercent,
+                  price: formatMoney(p.addOn.price, locale),
+                })}
+              </dt>
+              <dd className="font-mono">{formatMoney(p.addOn.amount, locale)}</dd>
+            </div>
+          )}
+          {(p.addOn.price === null || p.students.some((s) => s.kind === 'recruited')) && (
+            <div className="flex justify-between gap-2">
+              <dt>
+                {t('finance.payouts.recruitedLine', {
+                  percent: p.recruited.percent,
+                  paid: formatMoney(p.recruited.paid, locale),
+                })}
+              </dt>
+              <dd className="font-mono">{formatMoney(p.recruited.amount, locale)}</dd>
+            </div>
+          )}
           <div className="flex justify-between gap-2 text-muted-foreground">
             <dt>{t('finance.payouts.suggested')}</dt>
             <dd className="font-mono">{formatMoney(p.suggested, locale)}</dd>
@@ -138,18 +155,32 @@ function PayoutCard({ payout: p, month, addOnName }: { payout: Payout; month: st
             {t('finance.payouts.amountHint')}
           </span>
         </div>
-        {p.missingCheckins.length > 0 && (
-          <p className="flex gap-2 rounded-md border border-warning-text/40 bg-warning-text/10 p-3 text-sm">
+        {(p.missingCheckins.length > 0 || p.walkIns.length > 0) && (
+          <div className="flex gap-2 rounded-md border border-warning-text/40 bg-warning-text/10 p-3 text-sm">
             <AlertTriangle className="size-4 shrink-0 text-warning-text" aria-hidden />
-            <span>
-              {t('finance.payouts.missingCheckins', {
-                count: p.missingCheckins.length,
-                name: addOnName,
-                month: formatMonth(month, locale),
-                names: formatList(p.missingCheckins, locale),
-              })}
-            </span>
-          </p>
+            <div className="flex flex-col gap-1.5">
+              {p.missingCheckins.length > 0 && (
+                <p>
+                  {t('finance.payouts.missingCheckins', {
+                    name: p.agreement.name,
+                    month: formatMonth(month, locale),
+                    names: formatList(p.missingCheckins, locale),
+                  })}
+                </p>
+              )}
+              {p.walkIns.length > 0 && (
+                <p>
+                  {t('finance.payouts.walkIns', {
+                    names: formatList(
+                      p.walkIns.map((w) => t('finance.payouts.walkIn', { name: w.name, count: w.checkins })),
+                      locale,
+                    ),
+                  })}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground">{t('finance.payouts.ownerOnly')}</p>
+            </div>
+          </div>
         )}
         <div className="flex gap-2">
           <Button className="min-h-12 flex-1" disabled={amount === ''} loading={confirm.isPending} onClick={() => confirm.mutate()}>
@@ -167,7 +198,7 @@ function PayoutCard({ payout: p, month, addOnName }: { payout: Payout; month: st
 
       <section aria-labelledby={`${inputId}-students`} className="overflow-hidden rounded-lg bg-card">
         <h3 id={`${inputId}-students`} className="px-4 pb-2 pt-3.5 font-heading text-sm uppercase">
-          {t('finance.payouts.studentsOf', { name: p.teacher.name })}
+          {t('finance.payouts.studentsOf', { name: p.agreement.name })}
         </h3>
         <table className="w-full text-sm">
           <thead>
@@ -183,9 +214,7 @@ function PayoutCard({ payout: p, month, addOnName }: { payout: Payout; month: st
                 <td className="px-4 py-2.5">
                   {s.name}
                   <span className="block text-xs text-muted-foreground">
-                    {s.kind === 'addOn'
-                      ? `${t('finance.payouts.kindAddOn', { name: addOnName })} · ${t('finance.payouts.checkins', { count: s.checkins ?? 0 })}`
-                      : t('finance.payouts.kindRecruited')}
+                    {`${t(s.kind === 'addOn' ? 'finance.payouts.kindAddOn' : 'finance.payouts.kindRecruited')} · ${t('finance.payouts.checkins', { count: s.checkins })}`}
                   </span>
                 </td>
                 <td className="px-2 py-2.5 text-right font-mono">
@@ -212,7 +241,6 @@ export default function PayoutsPage() {
     ['finance-payouts', month],
     `/finance/payouts?month=${month}`,
   );
-  const { data: academy } = useApiQuery<{ addOnName: string }>(['academy-mine'], '/academies/mine');
 
   if (isLoading) {
     return <PageLoader />;
@@ -233,7 +261,7 @@ export default function PayoutsPage() {
         />
       ) : (
         payouts.map((p) => (
-          <PayoutCard key={`${p.teacher.id}-${p.amount}`} payout={p} month={month} addOnName={academy?.addOnName ?? ''} />
+          <PayoutCard key={`${p.agreement.id}-${p.amount}`} payout={p} month={month} />
         ))
       )}
     </div>
