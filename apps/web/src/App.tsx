@@ -3,45 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSession, signOut } from './lib/auth-client';
 import { isOwner } from './lib/roles';
 import { useTranslation } from 'react-i18next';
-import LoginPage from './pages/login';
-import SignupPage from './pages/signup';
-import CriarAcademiaPage from './pages/criar-academia';
-import EntrarPage from './pages/entrar';
-import AguardandoPage from './pages/aguardando';
-import PendingStudentsPage from './pages/pending-students';
 import { StaffShell } from './components/layout/staff-shell';
 import { StudentShell } from './components/layout/student-shell';
-import MePage from './pages/me';
-import BillingStatusPage from './pages/me/billing-status';
-import LanguagePage from './pages/me/language';
-import TeacherAgreementPage from './pages/me/agreement';
-import ClassesPage from './pages/classes/index';
-import CheckinHistoryPage from './pages/classes/checkin';
-import SeminarPage from './pages/classes/seminar';
-import SeminarsPage from './pages/classes/seminars';
-import StudentsPage from './pages/students/index';
-import StudentDetailPage from './pages/students/detail';
-import FamiliesPage from './pages/students/families';
-import BillingOverduePage from './pages/billing/index';
-import PaymentsPage from './pages/billing/payments';
-import BalancePage from './pages/billing/balance';
-import ExpensesPage from './pages/billing/expenses';
-import PayoutsPage from './pages/billing/payouts';
-import MarketplacePage from './pages/marketplace/index';
-import OrdersPage from './pages/marketplace/orders';
-import LeaderboardPage from './pages/gamification/leaderboard';
-import SeasonsPage from './pages/gamification/seasons';
-import ResultsPage from './pages/gamification/results';
-import GamificationProfilePage from './pages/gamification/profile';
-import StudentPointsPage from './pages/gamification/student-points';
-import TournamentsPage from './pages/tournaments/index';
-import ForgotPasswordPage from './pages/forgot-password';
-import ResetPasswordPage from './pages/reset-password';
-import TotemPage from './pages/totem';
-import CheckinScanPage from './pages/checkin-scan';
-import SettingsPage from './pages/settings';
 import { PageLoader } from './components/page-loader';
-import ProfilesPage from './pages/profiles';
 import { useProfiles } from './hooks/use-profiles';
 import { wasProfileChosen } from './lib/profile';
 import { Card, CardContent } from './components/ui/card';
@@ -49,8 +13,43 @@ import { Button } from './components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Toaster } from './components/ui/sonner';
 
-// Lazy-loaded: recharts-heavy owner dashboard ships in its own chunk so it's
-// only fetched when an owner navigates to /owner/dashboard.
+// Every page loads in its own chunk on first visit; the shells keep the navigation on screen meanwhile.
+const LoginPage = lazy(() => import('./pages/login'));
+const SignupPage = lazy(() => import('./pages/signup'));
+const CriarAcademiaPage = lazy(() => import('./pages/criar-academia'));
+const EntrarPage = lazy(() => import('./pages/entrar'));
+const AguardandoPage = lazy(() => import('./pages/aguardando'));
+const PendingStudentsPage = lazy(() => import('./pages/pending-students'));
+const MePage = lazy(() => import('./pages/me'));
+const BillingStatusPage = lazy(() => import('./pages/me/billing-status'));
+const LanguagePage = lazy(() => import('./pages/me/language'));
+const TeacherAgreementPage = lazy(() => import('./pages/me/agreement'));
+const ClassesPage = lazy(() => import('./pages/classes/index'));
+const CheckinHistoryPage = lazy(() => import('./pages/classes/checkin'));
+const SeminarPage = lazy(() => import('./pages/classes/seminar'));
+const SeminarsPage = lazy(() => import('./pages/classes/seminars'));
+const StudentsPage = lazy(() => import('./pages/students/index'));
+const StudentDetailPage = lazy(() => import('./pages/students/detail'));
+const FamiliesPage = lazy(() => import('./pages/students/families'));
+const BillingOverduePage = lazy(() => import('./pages/billing/index'));
+const PaymentsPage = lazy(() => import('./pages/billing/payments'));
+const BalancePage = lazy(() => import('./pages/billing/balance'));
+const ExpensesPage = lazy(() => import('./pages/billing/expenses'));
+const PayoutsPage = lazy(() => import('./pages/billing/payouts'));
+const MarketplacePage = lazy(() => import('./pages/marketplace/index'));
+const OrdersPage = lazy(() => import('./pages/marketplace/orders'));
+const LeaderboardPage = lazy(() => import('./pages/gamification/leaderboard'));
+const SeasonsPage = lazy(() => import('./pages/gamification/seasons'));
+const ResultsPage = lazy(() => import('./pages/gamification/results'));
+const GamificationProfilePage = lazy(() => import('./pages/gamification/profile'));
+const StudentPointsPage = lazy(() => import('./pages/gamification/student-points'));
+const TournamentsPage = lazy(() => import('./pages/tournaments/index'));
+const ForgotPasswordPage = lazy(() => import('./pages/forgot-password'));
+const ResetPasswordPage = lazy(() => import('./pages/reset-password'));
+const TotemPage = lazy(() => import('./pages/totem'));
+const CheckinScanPage = lazy(() => import('./pages/checkin-scan'));
+const SettingsPage = lazy(() => import('./pages/settings'));
+const ProfilesPage = lazy(() => import('./pages/profiles'));
 const OwnerDashboardPage = lazy(() => import('./pages/owner/dashboard'));
 const HelpPage = lazy(() => import('./pages/help'));
 
@@ -88,7 +87,10 @@ function RejectedView() {
 function App() {
   return (
     <>
-      <AppRoutes />
+      {/* Pages outside a shell (login, totem, check-in…) load here. */}
+      <Suspense fallback={<PageLoader />}>
+        <AppRoutes />
+      </Suspense>
       <Toaster richColors position="top-center" offset={{ top: 64 }} mobileOffset={{ top: 64 }} />
     </>
   );
@@ -187,11 +189,7 @@ function AppRoutes() {
   const Shell = owner ? StaffShell : StudentShell;
   const studentHome = '/classes';
 
-  const staffHome = (
-    <Suspense fallback={<PageLoader />}>
-      <OwnerDashboardPage />
-    </Suspense>
-  );
+  const staffHome = <OwnerDashboardPage />;
 
   return (
     <Routes>
@@ -230,14 +228,7 @@ function AppRoutes() {
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/language" element={<LanguagePage />} />
         <Route path="/me/agreement/:id" element={<TeacherAgreementPage />} />
-        <Route
-          path="/ajuda"
-          element={
-            <Suspense fallback={<PageLoader />}>
-              <HelpPage />
-            </Suspense>
-          }
-        />
+        <Route path="/ajuda" element={<HelpPage />} />
       </Route>
       <Route path="*" element={<Navigate to={owner ? '/' : studentHome} replace />} />
     </Routes>
