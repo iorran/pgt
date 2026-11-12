@@ -95,10 +95,17 @@ describe('AgreementsCard', () => {
     renderWithProviders(<AgreementsCard />);
     await user.click(await screen.findByRole('button', { name: 'agreements.new' }));
     await user.type(screen.getByLabelText('agreements.name'), 'Manhã');
-    await user.click(screen.getByRole('button', { name: 'agreements.addTeacher' }));
     const picker = screen.getByLabelText('agreements.pickTeacher');
-    expect(screen.queryByRole('option', { name: 'Dono' })).not.toBeInTheDocument();
-    await user.selectOptions(picker, 'Bia Lima');
+    const options = () => [...document.querySelectorAll('#agreement-teacher-options option')].map((o) => o.getAttribute('value'));
+    expect(options()).toContain('Bia Lima');
+    expect(options()).not.toContain('Dono');
+    // Typing filters; only an exact pick from the list adds the teacher.
+    await user.type(picker, 'Bia');
+    expect(screen.queryByRole('button', { name: 'agreements.removeTeacher' })).not.toBeInTheDocument();
+    await user.type(picker, ' Lima');
+    expect(screen.getByText('Bia Lima')).toBeInTheDocument();
+    expect(picker).toHaveValue('');
+    expect(options()).not.toContain('Bia Lima');
     await user.clear(screen.getByLabelText('agreements.percent'));
     await user.type(screen.getByLabelText('agreements.percent'), '30');
     await user.click(screen.getByRole('switch', { name: 'agreements.addOn' }));

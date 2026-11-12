@@ -714,8 +714,8 @@ Um **Acordo** é o combinado com professores que dão aulas na academia sem ser 
    <sub><em>Menu → Configurações (Settings) → Acordos (Agreements) card. Each agreement shows the percentage, the teachers, the add-on ("Acréscimo +10,00 €" or "Sem acréscimo" — No add-on) and how many students are angariados (recruited) and no acréscimo (on the add-on)</em></sub>
 2. Toque em **"Novo acordo"** ou num acordo para editá-lo
    <sub><em>Tap "Novo acordo" (New agreement) or an agreement to edit it</em></sub>
-3. Preencha o **Nome** e adicione os **Professores** com **"+ Professor"** (só alunos ativos da academia). Toque no **×** de um professor para tirá-lo
-   <sub><em>Fill in the Nome (Name) and add the Professores (Teachers) with "+ Professor" (active students of the academy only). Tap a teacher's × to remove them</em></sub>
+3. Preencha o **Nome** e adicione os **Professores**: comece a digitar o nome e escolha na lista (só alunos ativos da academia). Repita para cada professor. Toque no **×** de um professor para tirá-lo
+   <sub><em>Fill in the Nome (Name) and add the Professores (Teachers): start typing the name and pick it from the list (active students of the academy only). Repeat for each teacher. Tap a teacher's × to remove them</em></sub>
 4. **Percentual do repasse** — vale para a mensalidade dos angariados e para o acréscimo. Ex.: 50% de um acréscimo de 10 € dá 5 € aos professores
    <sub><em>Percentual do repasse (Payout percentage) — applies to recruited students' Monthly Fee and to the add-on. E.g.: 50% of a €10 add-on gives €5 to the teachers</em></sub>
 5. **Acréscimo** — ligue o interruptor e digite o **Valor por mês** se alunos da academia pagam a mais para fazer estas aulas. A linha **"Professores recebem … · academia …"** mostra a divisão. Não dá para desligar o acréscimo enquanto algum aluno o paga

@@ -168,7 +168,7 @@ function AgreementDialog({
   const queryClient = useQueryClient();
   const [name, setName] = useState(agreement?.name ?? '');
   const [teachers, setTeachers] = useState<Person[]>(agreement?.teachers ?? []);
-  const [picking, setPicking] = useState(false);
+  const [teacherQuery, setTeacherQuery] = useState('');
   const [percent, setPercent] = useState(String(agreement?.sharePercent ?? 50));
   const [addOnOn, setAddOnOn] = useState(agreement ? agreement.addOnPrice !== null : false);
   const [price, setPrice] = useState(agreement?.addOnPrice ? String(Number(agreement.addOnPrice)) : '');
@@ -255,43 +255,32 @@ function AgreementDialog({
                   </Button>
                 </span>
               ))}
-              {picking ? (
-                <>
-                  <Label htmlFor="agreement-teacher" className="sr-only">
-                    {t('agreements.pickTeacher')}
-                  </Label>
-                  <select
-                    id="agreement-teacher"
-                    autoFocus
-                    value=""
-                    onChange={(e) => {
-                      const picked = available.find((c) => c.id === e.target.value);
-                      if (picked) {
-                        setTeachers([...teachers, { id: picked.id, name: picked.name }]);
-                        setPicking(false);
-                      }
-                    }}
-                    className="h-9 rounded-full border border-border bg-card px-3 text-base md:text-sm"
-                  >
-                    <option value="">{t('agreements.pickTeacher')}</option>
-                    {available.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-9 rounded-full border-dashed"
-                  onClick={() => setPicking(true)}
-                >
-                  {t('agreements.addTeacher')}
-                </Button>
-              )}
             </div>
+            <Label htmlFor="agreement-teacher" className="sr-only">
+              {t('agreements.pickTeacher')}
+            </Label>
+            <Input
+              id="agreement-teacher"
+              list="agreement-teacher-options"
+              autoComplete="off"
+              placeholder={t('agreements.pickTeacher')}
+              value={teacherQuery}
+              onChange={(e) => {
+                // Typing filters the list; picking a name from it adds that teacher.
+                const picked = available.find((c) => c.name === e.target.value);
+                if (picked) {
+                  setTeachers([...teachers, { id: picked.id, name: picked.name }]);
+                  setTeacherQuery('');
+                } else {
+                  setTeacherQuery(e.target.value);
+                }
+              }}
+            />
+            <datalist id="agreement-teacher-options">
+              {available.map((c) => (
+                <option key={c.id} value={c.name} />
+              ))}
+            </datalist>
             <p className="text-xs text-muted-foreground">{t('agreements.teachersHint')}</p>
           </div>
 
