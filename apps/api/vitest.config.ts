@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     globalSetup: ['./test/setup.ts'],
+    setupFiles: ['./test/close-connections.ts'],
     env: {
       NODE_ENV: 'test',
       DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5433/pgt_test',

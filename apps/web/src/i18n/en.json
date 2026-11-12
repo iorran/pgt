@@ -827,6 +827,41 @@
     "people_one": "{{count}} person",
     "people_other": "{{count}} people"
   },
+  "agreements": {
+    "title": "Agreements",
+    "intro": "Deals with teachers who get a share of what students pay. Only teachers with a deal show up here.",
+    "new": "New agreement",
+    "editTitle": "{{name}} agreement",
+    "ended": "Ended",
+    "noAddOn": "No add-on",
+    "addOnChip": "Add-on +{{price}}",
+    "recruitedCount_one": "{{count}} recruited",
+    "recruitedCount_other": "{{count}} recruited",
+    "addOnCount": "{{count}} on the add-on",
+    "name": "Name",
+    "teachers": "Teachers",
+    "teachersHint": "They split the payout among themselves, outside the app.",
+    "addTeacher": "+ Teacher",
+    "pickTeacher": "Pick a teacher",
+    "removeTeacher": "Remove {{name}}",
+    "percent": "Payout percentage",
+    "percentHint": "Applies to recruited students’ monthly fee and to the add-on.",
+    "addOn": "Add-on",
+    "addOnHint": "For academy students who want to take these classes",
+    "addOnPrice": "Price per month",
+    "split": "Teachers get {{teachers}} · academy {{academy}}",
+    "save": "Save agreement",
+    "saved": "Agreement saved",
+    "end": "End agreement",
+    "endConfirm": "End",
+    "endConfirmText": "The {{name}} agreement stops applying and its students are unlinked. Confirmed payouts stay in the history.",
+    "endedToast": "Agreement ended",
+    "errors": {
+      "invalid": "Check the agreement: the name is required, the percentage goes from 0 to 100 and the add-on price must be valid.",
+      "invalidTeacher": "Teachers must be active students of the academy.",
+      "hasAddOnStudents": "Students still pay this add-on. Remove it from each student’s card before turning it off."
+    }
+  },
   "finance": {
     "tabs": {
       "charges": "Charges",
@@ -945,15 +980,6 @@
       "save": "Save billing",
       "saved": "Billing saved"
     },
-    "settings": {
-      "title": "Finances",
-      "addOnName": "Add-on name",
-      "addOnPrice": "Add-on price (€ per month)",
-      "addOnTeacherShare": "Teacher’s share of the add-on (€)",
-      "recruitedSharePercent": "Teacher’s share of recruited students (%)",
-      "save": "Save finances",
-      "saved": "Finance settings saved"
-    },
     "me": {
       "monthly": "Monthly fee: {{amount}} per month",
       "withAddOn": "{{fee}} + {{addOn}} ({{name}} add-on) = {{total}} per month"
@@ -962,10 +988,27 @@
       "invalidTeacher": "Choose an active student of the academy (not this student or the owner).",
       "invalidAgreementLink": "Choose an active agreement (the student cannot be one of its teachers; Add-on only if the agreement has one).",
       "invalidPayoutAgreement": "That agreement no longer exists.",
-      "invalidSettings": "Check the amounts: the name is required, the teacher’s share can’t exceed the price and the percentage goes from 0 to 100.",
       "invalidExpense": "Fill in the description and a valid amount.",
       "invalidPayout": "Enter a valid payout amount.",
       "expenseGone": "That expense was already removed."
     }
+  },
+  "teacherAgreement": {
+    "title": "{{name}} agreement",
+    "summaryConfirmed_one": "{{count}} student · {{month}} payout confirmed",
+    "summaryConfirmed_other": "{{count}} students · {{month}} payout confirmed",
+    "summaryPending_one": "{{count}} student · {{month}} payout not confirmed yet",
+    "summaryPending_other": "{{count}} students · {{month}} payout not confirmed yet",
+    "payout": "This month’s payout · {{teachers}}",
+    "confirmedBy": "Confirmed by the academy",
+    "notConfirmed": "Not confirmed yet",
+    "notConfirmedHint": "The amount shows here once the academy closes the month. Until then, the list shows who has paid.",
+    "recruited": "Recruited · {{count}}",
+    "addOn": "{{name}} add-on · {{count}}",
+    "checkins_one": "{{count}} check-in",
+    "checkins_other": "{{count}} check-ins",
+    "paid": "Paid",
+    "pending": "Pending",
+    "empty": "No students in this agreement this month."
   }
 }

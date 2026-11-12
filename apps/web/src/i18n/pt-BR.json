@@ -827,6 +827,41 @@
     "people_one": "{{count}} pessoa",
     "people_other": "{{count}} pessoas"
   },
+  "agreements": {
+    "title": "Acordos",
+    "intro": "Combinados com professores que recebem parte do que os alunos pagam. Só aparece aqui quem tem acordo.",
+    "new": "Novo acordo",
+    "editTitle": "Acordo {{name}}",
+    "ended": "Encerrado",
+    "noAddOn": "Sem acréscimo",
+    "addOnChip": "Acréscimo +{{price}}",
+    "recruitedCount_one": "{{count}} angariado",
+    "recruitedCount_other": "{{count}} angariados",
+    "addOnCount": "{{count}} no acréscimo",
+    "name": "Nome",
+    "teachers": "Professores",
+    "teachersHint": "Eles dividem o repasse entre si, fora do app.",
+    "addTeacher": "+ Professor",
+    "pickTeacher": "Escolha um professor",
+    "removeTeacher": "Tirar {{name}}",
+    "percent": "Percentual do repasse",
+    "percentHint": "Vale para a mensalidade dos angariados e para o acréscimo.",
+    "addOn": "Acréscimo",
+    "addOnHint": "Para alunos da academia que querem fazer estas aulas",
+    "addOnPrice": "Valor por mês",
+    "split": "Professores recebem {{teachers}} · academia {{academy}}",
+    "save": "Salvar acordo",
+    "saved": "Acordo salvo",
+    "end": "Encerrar acordo",
+    "endConfirm": "Encerrar",
+    "endConfirmText": "O acordo {{name}} deixa de valer e os alunos ligados a ele ficam sem acordo. Os repasses já confirmados continuam no histórico.",
+    "endedToast": "Acordo encerrado",
+    "errors": {
+      "invalid": "Confira o acordo: o nome é obrigatório, o percentual vai de 0 a 100 e o valor do acréscimo precisa ser válido.",
+      "invalidTeacher": "Os professores precisam ser alunos ativos da academia.",
+      "hasAddOnStudents": "Ainda há alunos pagando este acréscimo. Tire o acréscimo deles na ficha de cada um antes de desligá-lo."
+    }
+  },
   "finance": {
     "tabs": {
       "charges": "Cobranças",
@@ -945,15 +980,6 @@
       "save": "Salvar cobrança",
       "saved": "Cobrança salva"
     },
-    "settings": {
-      "title": "Financeiro",
-      "addOnName": "Nome do acréscimo",
-      "addOnPrice": "Preço do acréscimo (€ por mês)",
-      "addOnTeacherShare": "Parte do professor no acréscimo (€)",
-      "recruitedSharePercent": "Parte do professor nos angariados (%)",
-      "save": "Salvar financeiro",
-      "saved": "Configurações financeiras salvas"
-    },
     "me": {
       "monthly": "Mensalidade: {{amount}} por mês",
       "withAddOn": "{{fee}} + {{addOn}} (acréscimo {{name}}) = {{total}} por mês"
@@ -962,10 +988,27 @@
       "invalidTeacher": "Escolha um aluno ativo da academia (não o próprio aluno nem o dono).",
       "invalidAgreementLink": "Escolha um acordo ativo (o aluno não pode ser professor dele; Acréscimo só se o acordo tiver um).",
       "invalidPayoutAgreement": "Esse acordo já não existe.",
-      "invalidSettings": "Confira os valores: o nome é obrigatório, a parte do professor não pode passar o preço e a percentagem vai de 0 a 100.",
       "invalidExpense": "Preencha a descrição e um valor válido.",
       "invalidPayout": "Digite um valor de repasse válido.",
       "expenseGone": "Essa despesa já foi removida."
     }
+  },
+  "teacherAgreement": {
+    "title": "Acordo {{name}}",
+    "summaryConfirmed_one": "{{count}} aluno · repasse de {{month}} confirmado",
+    "summaryConfirmed_other": "{{count}} alunos · repasse de {{month}} confirmado",
+    "summaryPending_one": "{{count}} aluno · repasse de {{month}} por confirmar",
+    "summaryPending_other": "{{count}} alunos · repasse de {{month}} por confirmar",
+    "payout": "Repasse do mês · {{teachers}}",
+    "confirmedBy": "Confirmado pela academia",
+    "notConfirmed": "Ainda não confirmado",
+    "notConfirmedHint": "O valor aparece aqui quando a academia fechar o mês. Até lá, a lista mostra quem já pagou.",
+    "recruited": "Angariados · {{count}}",
+    "addOn": "Acréscimo {{name}} · {{count}}",
+    "checkins_one": "{{count}} presença",
+    "checkins_other": "{{count}} presenças",
+    "paid": "Pago",
+    "pending": "Pendente",
+    "empty": "Nenhum aluno neste acordo neste mês."
   }
 }

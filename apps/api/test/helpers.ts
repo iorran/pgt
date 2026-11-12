@@ -5,7 +5,7 @@ import { buildApp } from '../src/app.js';
 import { sql } from 'drizzle-orm';
 
 // Create a test-specific DB connection
-const testConnection = postgres(
+export const testConnection = postgres(
   process.env.DATABASE_URL ||
     'postgresql://postgres:postgres@localhost:5433/pgt_test',
 );
