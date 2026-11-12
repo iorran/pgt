@@ -27,6 +27,8 @@ const {
   streak,
   expense,
   teacherPayout,
+  teacherAgreement,
+  agreementTeacher,
 } = schema;
 
 // Share the dev DB connection (localhost:5432/pgt)
@@ -200,13 +202,19 @@ export async function cleanAcademy(academyId: string): Promise<void> {
     .where(eq(user.academyId, academyId));
   const userIds = users.map((u) => u.id);
 
-  // Financeiro: expenses, payouts and the Payout Teacher marks (self-FKs on user).
+  // Financeiro: expenses, payouts and the Teacher Agreements (Students link to them).
   await e2eDb.delete(expense).where(eq(expense.academyId, academyId));
   await e2eDb.delete(teacherPayout).where(eq(teacherPayout.academyId, academyId));
-  await e2eDb
-    .update(user)
-    .set({ addOnTeacherId: null, recruitedById: null })
-    .where(eq(user.academyId, academyId));
+  await e2eDb.update(user).set({ agreementId: null, agreementKind: null }).where(eq(user.academyId, academyId));
+  const agreements = await e2eDb
+    .select({ id: teacherAgreement.id })
+    .from(teacherAgreement)
+    .where(eq(teacherAgreement.academyId, academyId));
+  if (agreements.length > 0) {
+    const agreementIds = agreements.map((a) => a.id);
+    await e2eDb.delete(agreementTeacher).where(inArray(agreementTeacher.agreementId, agreementIds));
+    await e2eDb.delete(teacherAgreement).where(inArray(teacherAgreement.id, agreementIds));
+  }
 
   if (userIds.length > 0) {
     await e2eDb.delete(session).where(inArray(session.userId, userIds));
@@ -334,14 +342,15 @@ export function todayYmd(): string {
 }
 
 /**
- * Financeiro: an owner, a Payout Teacher (Rafael) and two students on a 45 €
- * Monthly Fee owed since last month: Marta (Class Add-on with Rafael, when
- * `marked`) and Carla (recruited by Rafael, when `marked`).
+ * Financeiro: an owner, the "No Gi" Teacher Agreement (Rafael, 50%, 10 € add-on)
+ * and two students on a 45 € Monthly Fee owed since last month: Marta (its Class
+ * Add-on, when `marked`) and Carla (recruited by it, when `marked`).
  */
 export async function scenarioFinance(marked = true): Promise<{
   academy: FixtureAcademy;
   instructor: FixtureUser;
   teacher: FixtureUser;
+  agreement: { id: string; name: string };
   addOnStudent: FixtureUser;
   recruited: FixtureUser;
 }> {
@@ -352,11 +361,22 @@ export async function scenarioFinance(marked = true): Promise<{
   for (const s of [addOnStudent, recruited]) {
     await assignMembership(s.id, { monthlyFee: '45.00', startDate: `${monthFromNow(-1)}-01`, dueDay: 1 });
   }
+  const [agreement] = await e2eDb
+    .insert(teacherAgreement)
+    .values({ academyId: acad.id, name: 'No Gi', sharePercent: 50, addOnPrice: '10.00' })
+    .returning({ id: teacherAgreement.id, name: teacherAgreement.name });
+  await e2eDb.insert(agreementTeacher).values({ agreementId: agreement.id, teacherId: teacher.id });
   if (marked) {
-    await e2eDb.update(user).set({ addOnTeacherId: teacher.id }).where(eq(user.id, addOnStudent.id));
-    await e2eDb.update(user).set({ recruitedById: teacher.id }).where(eq(user.id, recruited.id));
+    await e2eDb
+      .update(user)
+      .set({ agreementId: agreement.id, agreementKind: 'addOn' })
+      .where(eq(user.id, addOnStudent.id));
+    await e2eDb
+      .update(user)
+      .set({ agreementId: agreement.id, agreementKind: 'recruited' })
+      .where(eq(user.id, recruited.id));
   }
-  return { academy: acad, instructor, teacher, addOnStudent, recruited };
+  return { academy: acad, instructor, teacher, agreement, addOnStudent, recruited };
 }
 
 export async function createExpense(academyId: string, month: string, description: string, amount: string, oneOff = false) {
