@@ -127,7 +127,7 @@ How a month went for the academy: money received that month minus that month's E
 _Avoid_: Profit, P&L, result, fechamento
 
 **Teacher Agreement**:
-A deal the Owner makes with one or more Class Teachers (other than the Owner) who teach together — e.g. "No Gi" with its two teachers — to pass on a share of money from Students: a single percentage of what its Recruited Students pay and of its Class Add-on (e.g. 50%). The Owner names it, picks its teachers and sets the percentage; there can be several. How the teachers divide their share among themselves is theirs, outside the app (in the UI: "Acordo").
+A deal the Owner makes with one or more Class Teachers (other than the Owner) who teach together — e.g. "No Gi" with its two teachers — to pass on a share of money from Students: a single percentage of what its Recruited Students pay and of its Class Add-on (e.g. 50%). The Owner names it, picks its teachers and sets the percentage; there can be several. How the teachers divide their share among themselves is theirs, outside the app. A Student is linked to at most one Teacher Agreement — as a Recruited Student or with its Class Add-on, never both; the rare Student who would belong to two is handled by correcting the Teacher Payout (in the UI: "Acordo").
 _Avoid_: Contract, partnership, commission plan; "acordo" for what a Student pays (that is the Monthly Fee)
 
 **Payout Teacher**:
