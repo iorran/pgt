@@ -7,6 +7,10 @@ import { CacheFirst } from 'workbox-strategies';
 
 declare const self: ServiceWorkerGlobalScope;
 
+// autoUpdate with injectManifest: without this a new deploy waits until every open copy of the app is
+// closed, so phones keep running the old app against the new API.
+self.skipWaiting();
+
 // App shell precache — injected by vite-plugin-pwa
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
