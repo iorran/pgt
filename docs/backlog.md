@@ -58,3 +58,16 @@ From [[2026-09-26-families-design|Families design]]:
 - ~~**Every position-less entry is "Acumulado" for the student:** any Point Adjustment (not only Carried-over Points) shows as "Acumulado" in Meus resultados; the owner sees "Ajuste". Consider "Ajuste" for non-carried-over adjustments.~~ Fixed: all shown as "Ajuste" with their name.
 - **Birth date wins over the Kids modality** for white belts (Ranking Category), and there is no way to edit a birth date in the app — the owner cannot move a white belt with a known birth date to the other category. _Partly fixed: the owner can now set or clear a birth date on the student page; whether birth date should still win over the Kids modality is open._
 - **Ranking screenshots are stale:** `gamification-results-instructor.png` (status filter, Editar/Excluir, Ajustar pontos), `gamification-seasons.png` (Editar button), `student-join-form.png` (grouped belt list); missing: student points page (Ranking → aluno), compact result rows with ⋯ menu and inline delete confirmation, edit-result dialog, "Recalcular pontos" step, Faixa field on the student page, "Acumulado" entry in `gamification-profile.png`.
+
+## Teacher Agreements (2026-11-12)
+
+From a grilling session — glossary already updated in [[CONTEXT|Glossary]] (Teacher Agreement, Class Add-on, Recruited Student, Teacher Payout). Code still models the old shape (academy-wide add-on with fixed 5 € share, any active Student as Payout Teacher).
+
+- **Teacher Agreement model:** Owner creates agreements (name, one or more teachers, one percentage, optional Class Add-on amount). "Angariado por" and the add-on mark pick an agreement, not a person; the list shows only agreements. One Teacher Payout per agreement per month.
+- **Share is a percentage, not a fixed amount:** add-on share = agreement % × add-on amount.
+- **Madiba's deal:** same shape per the Owner — academy Student pays the add-on, half to the teachers; Recruited Student, half to each side. Fits; just another agreement.
+- **One % for both** recruited and add-on: confirmed by the Owner.
+- **Teacher view (what the Owner really wants):** agreement teachers see, month by month, their Recruited Students and add-on Students with paid/pending and check-ins in the agreement's classes, plus the month's Teacher Payout total once the Owner confirmed it. Never per-Student amounts. "Came without being on the add-on" stays Owner-only. No separate "is teacher" flag: being on an agreement is the flag. Show phone mockups first.
+- **Recruited Student and Class Add-on of the same agreement are exclusive** — code allows both today; block it.
+- **Code contradiction:** `apps/api/src/routes/finance.ts` takes the recruited % of the whole payment, add-ons included; must use the Monthly Fee part only.
+- **Recruited share is on the Monthly Fee only**, never on add-ons. Known gap: if the Owner raises a Recruited Student's Monthly Fee because they also train an academy class with no agreement, the agreement gets a share of the raise — Owner corrects the payout. **Trigger to revisit:** this happens regularly → add Class Add-ons with no agreement (100% academy).

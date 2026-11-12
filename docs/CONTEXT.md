@@ -94,7 +94,7 @@ The amount the Owner set for a Student to pay per month. There are no plans: the
 _Avoid_: Plan, agreed price, mensalidade (in code/specs), dues, package
 
 **Class Add-on**:
-An extra 10 € a month an academy Student pays to also train No Gi with its Payout Teacher; 5 € of it is that teacher's, 5 € the academy's. Owed every month while the Owner has the Student marked and stops when the mark is removed; check-ins never set it, they only flag marked Students who didn't attend that month (in the UI: "Acréscimo").
+An extra amount a month an academy Student pays on top of their Monthly Fee to also train what a Teacher Agreement covers (e.g. +10 € for No Gi); the Owner sets the amount on that Teacher Agreement, which may offer one or none. Never for a Recruited Student of the same Teacher Agreement — they came for those classes and their Monthly Fee already covers them. Owed every month while the Owner has the Student marked and stops when the mark is removed; check-ins never set it, they only flag marked Students who didn't attend that month (in the UI: "Acréscimo").
 _Avoid_: Extra fee, surcharge, second plan, upgrade
 
 **Family Contact**:
@@ -126,14 +126,17 @@ _Avoid_: Cost, bill, fixed cost (as a separate kind), gasto
 How a month went for the academy: money received that month minus that month's Expenses. Money counts in the month it was paid, whatever month it refers to — a January Monthly Fee paid on 5 February counts in February; Seminar payments count on the day the participant paid (in the UI: "Balanço do mês").
 _Avoid_: Profit, P&L, result, fechamento
 
+**Teacher Agreement**:
+A deal the Owner makes with one or more Class Teachers (other than the Owner) who teach together — e.g. "No Gi" with its two teachers — to pass on a share of money from Students: a single percentage of what its Recruited Students pay and of its Class Add-on (e.g. 50%). The Owner names it, picks its teachers and sets the percentage; there can be several. How the teachers divide their share among themselves is theirs, outside the app (in the UI: "Acordo").
+_Avoid_: Contract, partnership, commission plan; "acordo" for what a Student pays (that is the Monthly Fee)
+
 **Payout Teacher**:
-A Class Teacher other than the Owner (today: the No Gi teacher) who gets part of the money from two kinds of Students: academy Students with a Class Add-on (their share of the add-on), and Recruited Students (half of what they pay).
-_Avoid_: Partner, associate, owner of the student
+_Superseded by **Teacher Agreement**._ Money is passed on to an agreement, not to a single teacher.
 
 **Recruited Student**:
-A Student brought to the academy by a Payout Teacher (in the UI: "Angariado por"). Half of what they pay each month is that teacher's — e.g. 22,50 € of a 45 € Monthly Fee.
+A Student brought to the academy by the teachers of a Teacher Agreement (in the UI: "Angariado por"), whichever of them did it. That agreement's percentage of the Monthly Fee they pay each month goes to it — e.g. 22,50 € of a 45 € Monthly Fee at 50%. Never of a Class Add-on they pay: that goes to the add-on's own agreement.
 _Avoid_: Teacher's student (ambiguous), referral, own student
 
 **Teacher Payout**:
-What the academy passes on to one Payout Teacher for one month: the add-on share of every Student with a Class Add-on that paid that month, plus half of what each of their Recruited Students paid that month. The app works it out; the Owner can correct the amount before closing the month. Reduces that month's Monthly Balance (in the UI: "Repasse").
+What the academy passes on to one Teacher Agreement for one month, as a single amount: its percentage of the Class Add-on of every Student that paid it that month, plus the same percentage of the Monthly Fee each of its Recruited Students paid that month. Only the agreement's teachers see it, once the Owner has confirmed the month, with the list of those Students — never what each one pays. The app works it out; the Owner can correct the amount before closing the month. Reduces that month's Monthly Balance (in the UI: "Repasse").
 _Avoid_: Commission, split, revenue share, per-student payout
