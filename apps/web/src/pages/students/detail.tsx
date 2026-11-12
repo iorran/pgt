@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchCombobox } from '@/components/search-combobox';
 import {
   Dialog,
   DialogTrigger,
@@ -346,20 +347,13 @@ function JoinFamilyDialog({ studentId }: { studentId: string }) {
           }}
         >
           <Label htmlFor="join-family">{t('families.existingFamily')}</Label>
-          <select
+          <SearchCombobox
             id="join-family"
-            value={familyId}
-            onChange={e => setFamilyId(e.target.value)}
+            items={families}
+            value={families.find(f => f.id === familyId) ?? null}
+            onChange={f => setFamilyId(f?.id ?? '')}
             required
-            className="flex h-11 md:h-10 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm"
-          >
-            <option value="">--</option>
-            {families.map(f => (
-              <option key={f.id} value={f.id}>
-                {f.name}
-              </option>
-            ))}
-          </select>
+          />
           <Button type="submit" variant="outline" loading={mutation.isPending && mutation.variables === 'existing'}>
             {t('families.add')}
           </Button>

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { pickOption } from '../pick-option';
 import { Route, Routes } from 'react-router-dom';
 import { renderWithProviders, renderWithRoute } from '../render';
 import ResultsPage from '@/pages/gamification/results';
@@ -249,9 +250,7 @@ describe('Resultados (owner control)', () => {
     const user = userEvent.setup();
     renderWithProviders(<ResultsPage />);
     await user.click(await screen.findByRole('button', { name: 'gamification.control.adjust' }));
-    const student = await screen.findByLabelText('gamification.results.student');
-    await waitFor(() => expect(document.querySelectorAll('#adjust-student-options option')).toHaveLength(2));
-    await user.type(student, 'Ana');
+    await pickOption(user, 'gamification.results.student', 'Ana');
     await user.type(screen.getByLabelText('gamification.control.points'), '0');
     await user.type(screen.getByLabelText('gamification.control.reason'), 'Faltou ao evento');
     await user.click(screen.getByRole('button', { name: 'common.save' }));

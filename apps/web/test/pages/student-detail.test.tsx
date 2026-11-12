@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { Route, Routes } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
+import { pickOption } from '../pick-option';
 import { renderWithRoute } from '../render';
 import StudentDetailPage from '@/pages/students/detail';
 
@@ -100,7 +101,7 @@ describe('StudentDetailPage', () => {
     const user = userEvent.setup();
     renderPage();
     await user.click(await screen.findByRole('button', { name: 'families.addToFamily' }));
-    await user.selectOptions(await screen.findByLabelText('families.existingFamily'), 'f1');
+    await pickOption(user, 'families.existingFamily', 'Silva', 'Família Silva');
     await user.click(screen.getByRole('button', { name: 'families.add' }));
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/families/f1/members', { method: 'POST', body: JSON.stringify({ studentId: 's1' }) }),

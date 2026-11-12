@@ -40,7 +40,7 @@ export class PaymentsPage {
   constructor(page: Page) {
     this.page = page;
     // t('billing.selectStudent') = "Selecione um aluno" — searchable
-    // <input list> backed by a <datalist>; fill with the exact student name.
+    // SearchCombobox: fill to filter, then click the option.
     this.studentInput = page.getByRole('combobox', { name: /selecione um aluno/i });
     // t('billing.amount') = "Valor" — prefilled from the student's Monthly Fee
     this.amountInput = page.getByRole('spinbutton', { name: /^valor$/i });

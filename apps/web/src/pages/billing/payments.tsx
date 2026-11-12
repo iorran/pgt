@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchCombobox } from '@/components/search-combobox';
 import {
   Table,
   TableHeader,
@@ -46,7 +47,7 @@ export default function PaymentsPage() {
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
-  const [studentQuery, setStudentQuery] = useState('');
+  const [studentId, setStudentId] = useState('');
 
   const form = useForm({
     defaultValues: {
@@ -62,7 +63,7 @@ export default function PaymentsPage() {
         academyId: user.academyId,
       });
       form.reset();
-      setStudentQuery('');
+      setStudentId('');
     },
   });
 
@@ -82,11 +83,8 @@ export default function PaymentsPage() {
 
   const studentNames = new Map(students.map((s) => [s.id, s.name]));
 
-  // ponytail: exact-name match; duplicate names resolve to the first student.
-  function pickStudent(input: HTMLInputElement) {
-    setStudentQuery(input.value);
-    const match = students.find((s) => s.name === input.value);
-    input.setCustomValidity(match ? '' : t('billing.selectStudent'));
+  function pickStudent(match: Student | null) {
+    setStudentId(match?.id ?? '');
     form.setFieldValue('studentId', match?.id ?? '');
     if (match?.monthlyFee != null) {
       // What the student owes per month: Monthly Fee plus the Class Add-on when marked.
@@ -135,19 +133,13 @@ export default function PaymentsPage() {
           >
             <div className="space-y-2">
               <Label htmlFor="payment-student">{t('billing.selectStudent')}</Label>
-              <Input
+              <SearchCombobox
                 id="payment-student"
-                list="payment-student-options"
-                autoComplete="off"
-                value={studentQuery}
-                onChange={(e) => pickStudent(e.target)}
+                items={students}
+                value={students.find((s) => s.id === studentId) ?? null}
+                onChange={(s) => pickStudent(s as Student | null)}
                 required
               />
-              <datalist id="payment-student-options">
-                {students.map(s => (
-                  <option key={s.id} value={s.name} />
-                ))}
-              </datalist>
             </div>
             <form.Field name="amount">
               {(field) => (

@@ -77,9 +77,11 @@ describe('FamiliesPage', () => {
     await user.click(await screen.findByRole('button', { name: 'families.new' }));
     await user.type(screen.getByLabelText('families.name'), 'Família Stefan');
     await user.type(screen.getByLabelText('families.searchMembers'), 'a');
-    const results = screen.getByRole('list', { name: 'families.searchResults' });
-    expect(within(results).queryByText('Bia')).toBeNull();
-    await user.click(within(results).getByRole('button', { name: /Carlos/ }));
+    // Bia is already in a family: not offered.
+    expect(await screen.findByRole('option', { name: /Carlos/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /Bia/ })).toBeNull();
+    await user.click(screen.getByRole('option', { name: /Carlos/ }));
+    expect(screen.getByLabelText('families.searchMembers')).toHaveValue('');
     await user.selectOptions(screen.getByLabelText('families.responsible'), 's3');
     await user.type(screen.getByLabelText('families.familyAgreedPrice'), '80');
     await user.click(screen.getByRole('button', { name: 'common.create' }));
@@ -118,7 +120,7 @@ describe('FamiliesPage', () => {
     await user.click(await screen.findByRole('button', { name: 'emptyState.families.action' }));
     await user.type(screen.getByLabelText('families.name'), 'X');
     await user.type(screen.getByLabelText('families.searchMembers'), 'Car');
-    await user.click(screen.getByRole('button', { name: /Carlos/ }));
+    await user.click(await screen.findByRole('option', { name: /Carlos/ }));
     await user.selectOptions(screen.getByLabelText('families.responsible'), 's3');
     await user.click(screen.getByRole('button', { name: 'common.create' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('families.errors.studentInFamily');
@@ -135,7 +137,7 @@ describe('FamiliesPage', () => {
     );
 
     await user.type(screen.getByLabelText('families.searchMembers'), 'Du');
-    await user.click(screen.getByRole('button', { name: /Duda/ }));
+    await user.click(await screen.findByRole('option', { name: /Duda/ }));
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/families/f1/members', {
         method: 'POST',
@@ -208,7 +210,7 @@ describe('FamiliesPage', () => {
     await user.click(await screen.findByRole('button', { name: 'families.new' }));
     await user.type(screen.getByLabelText('families.name'), 'Lima');
     await user.type(screen.getByLabelText('families.searchMembers'), 'Car');
-    await user.click(screen.getByRole('button', { name: /Carlos/ }));
+    await user.click(await screen.findByRole('option', { name: /Carlos/ }));
     await user.selectOptions(screen.getByLabelText('families.responsible'), '__new');
     await user.type(screen.getByLabelText('families.responsibleName'), 'Paula');
     await user.type(screen.getByLabelText('families.responsibleEmail'), 'paula@x.com');
@@ -227,7 +229,7 @@ describe('FamiliesPage', () => {
     await user.click(await screen.findByRole('button', { name: 'families.new' }));
     await user.type(screen.getByLabelText('families.name'), 'X');
     await user.type(screen.getByLabelText('families.searchMembers'), 'Car');
-    await user.click(screen.getByRole('button', { name: /Carlos/ }));
+    await user.click(await screen.findByRole('option', { name: /Carlos/ }));
     expect(screen.getByRole('button', { name: 'common.create' })).toBeDisabled();
   });
 
