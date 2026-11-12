@@ -131,8 +131,9 @@ test('28. instructor notification bell shows overdue count and dropdown actions'
     // Click to open the dropdown
     await bellButton.click();
 
-    // Dropdown shows the overdue student by name
-    await expect(page.getByText(setup.student.name, { exact: false })).toBeVisible({
+    // Dropdown shows the overdue student by name (the dashboard behind may list them too)
+    const panel = page.getByLabel('Notificações', { exact: true });
+    await expect(panel.getByText(setup.student.name, { exact: false })).toBeVisible({
       timeout: 10_000,
     });
 
