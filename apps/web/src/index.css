@@ -182,6 +182,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* iOS Safari draws date/month inputs natively: it ignores the input's height and width and they
+     overflow into the next field. Drop the native look; keep an empty value from collapsing. */
+  input[type='date'],
+  input[type='month'] {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input::-webkit-date-and-time-value {
+    min-height: 1.5em;
+    text-align: left;
+  }
   /* Keep focused/anchored content clear of the sticky student header and bottom nav. */
   html {
     scroll-padding-top: calc(3.5rem + env(safe-area-inset-top));
