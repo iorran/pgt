@@ -49,9 +49,20 @@ interface Student {
   modalities?: Modality[];
   trainingNote?: string | null;
   dateOfBirth?: string | null;
-  addOnTeacherId?: string | null;
-  recruitedById?: string | null;
-  addOnCheckins?: number | null;
+  agreementId?: string | null;
+  agreementKind?: AgreementKind | null;
+  agreementCheckins?: number | null;
+}
+
+type AgreementKind = 'addOn' | 'recruited';
+
+interface Agreement {
+  id: string;
+  name: string;
+  sharePercent: number;
+  addOnPrice: string | null;
+  active: boolean;
+  teachers: { id: string; name: string }[];
 }
 
 interface Modality {
@@ -206,7 +217,7 @@ export default function StudentDetailPage() {
           )}
           {isOwner(user) && (
             <StudentFinanceForm
-              key={`${student.id}-${student.addOnTeacherId}-${student.recruitedById}`}
+              key={`${student.id}-${student.agreementId}-${student.agreementKind}`}
               student={student}
             />
           )}
@@ -460,47 +471,49 @@ function MonthlyFeeForm({
   );
 }
 
-interface FinanceSettings {
-  addOnName: string;
-  addOnPrice: string;
-  addOnTeacherShare: string;
-  recruitedSharePercent: number;
-}
-
-// Class Add-on and Recruited Student: both name a Payout Teacher (a Class Teacher other than the Owner).
+// Links the Student to at most one Teacher Agreement: with its Class Add-on or as a Recruited Student.
 function StudentFinanceForm({ student }: { student: Student }) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
   const queryClient = useQueryClient();
-  const [addOnTeacherId, setAddOnTeacherId] = useState(student.addOnTeacherId ?? '');
-  const [addOnOn, setAddOnOn] = useState(!!student.addOnTeacherId);
-  const [recruitedById, setRecruitedById] = useState(student.recruitedById ?? '');
-  const { data: candidates = [] } = useApiQuery<{ id: string; name: string; role: string }[]>(
-    ['teacher-candidates'],
-    '/teachers/candidates',
+  const [agreementId, setAgreementId] = useState(student.agreementId ?? '');
+  const [kind, setKind] = useState<AgreementKind | null>(student.agreementKind ?? null);
+  const { data: all = [] } = useApiQuery<Agreement[]>(['agreements'], '/agreements');
+  // A Student can't be linked to an agreement they teach in.
+  const agreements = all.filter(
+    a => (a.active || a.id === student.agreementId) && !a.teachers.some(teacher => teacher.id === student.id),
   );
-  const { data: settings } = useApiQuery<FinanceSettings>(['academy-mine'], '/academies/mine');
-  const teachers = candidates.filter(c => c.role === 'student' && c.id !== student.id);
-  const teacherId = addOnOn ? addOnTeacherId || teachers[0]?.id || '' : '';
-  const teacherName = teachers.find(c => c.id === teacherId)?.name ?? '';
-  const owes = Number(student.monthlyFee ?? 0) + (addOnOn && settings ? Number(settings.addOnPrice) : 0);
+  const agreement = agreements.find(a => a.id === agreementId);
+  const kinds: AgreementKind[] = agreement ? (agreement.addOnPrice === null ? ['recruited'] : ['addOn', 'recruited']) : [];
+  // With a single way to link (no Class Add-on), it is picked for the Owner.
+  const chosen = kind && kinds.includes(kind) ? kind : kinds.length === 1 ? kinds[0] : null;
+  const owes = Number(student.monthlyFee ?? 0) + (chosen === 'addOn' ? Number(agreement!.addOnPrice) : 0);
+  const hint = agreement
+    ? [
+        chosen === 'recruited' && t('finance.student.recruitedShare', { percent: agreement.sharePercent, name: agreement.name }),
+        agreement.id === student.agreementId &&
+          student.agreementCheckins != null &&
+          t('finance.student.checkins', { count: student.agreementCheckins, name: agreement.name }),
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : '';
 
   const mutation = useMutation({
     mutationFn: () =>
       api(`/students/${student.id}/finance`, {
         method: 'PUT',
-        body: JSON.stringify({ addOnTeacherId: teacherId || null, recruitedById: recruitedById || null }),
+        body: JSON.stringify(chosen ? { agreementId, kind: chosen } : { agreementId: null, kind: null }),
       }),
     meta: { successMessage: t('finance.student.saved') },
     onSuccess: () => {
-      for (const key of ['student', 'students', 'overdue', 'finance-payouts', 'finance-balance']) {
+      for (const key of ['student', 'students', 'overdue', 'finance-payouts', 'finance-balance', 'agreements']) {
         queryClient.invalidateQueries({ queryKey: [key] });
       }
       invalidateFamilyQueries(queryClient);
     },
   });
 
-  const selectClass = 'flex h-11 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm';
   return (
     <form
       className="space-y-4 border-t border-border pt-4"
@@ -509,62 +522,56 @@ function StudentFinanceForm({ student }: { student: Student }) {
         mutation.mutate();
       }}
     >
-      <div className="space-y-2 rounded-md border border-primary/40 bg-primary/5 p-3">
-        <label className="flex min-h-11 items-center justify-between gap-3">
-          <span className="flex flex-col">
-            <span className="font-bold">{t('finance.student.addOn', { name: settings?.addOnName ?? '' })}</span>
-            {settings && (
-              <span className="text-sm text-muted-foreground">
-                {t('finance.student.addOnHint', {
-                  price: formatMoney(settings.addOnPrice, locale),
-                  share: formatMoney(settings.addOnTeacherShare, locale),
-                  teacher: teacherName,
-                })}
-              </span>
-            )}
-          </span>
-          <input
-            type="checkbox"
-            role="switch"
-            aria-label={t('finance.student.addOn', { name: settings?.addOnName ?? '' })}
-            checked={addOnOn}
-            onChange={e => setAddOnOn(e.target.checked)}
-            className="h-6 w-11 shrink-0 accent-primary"
-          />
-        </label>
-        {addOnOn && (
-          <div className="space-y-2">
-            <Label htmlFor="add-on-teacher">{t('finance.student.addOnTeacher')}</Label>
-            <select
-              id="add-on-teacher"
-              value={teacherId}
-              onChange={e => setAddOnTeacherId(e.target.value)}
-              required
-              className={selectClass}
-            >
-              {teachers.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        {addOnOn && student.addOnCheckins != null && student.addOnTeacherId === teacherId && (
-          <p className="text-sm">{t('finance.student.addOnCheckins', { count: student.addOnCheckins, teacher: teacherName })}</p>
-        )}
-      </div>
       <div className="space-y-2">
-        <Label htmlFor="recruited-by">{t('finance.student.recruitedBy')}</Label>
-        <select id="recruited-by" value={recruitedById} onChange={e => setRecruitedById(e.target.value)} className={selectClass}>
-          <option value="">{t('finance.student.nobody')}</option>
-          {teachers.map(c => (
-            <option key={c.id} value={c.id}>
-              {t('finance.student.recruitedOption', { name: c.name, percent: settings?.recruitedSharePercent ?? 50 })}
+        <Label htmlFor="agreement">{t('finance.student.agreement')}</Label>
+        <select
+          id="agreement"
+          value={agreement ? agreementId : ''}
+          onChange={e => setAgreementId(e.target.value)}
+          className="flex h-11 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm"
+        >
+          <option value="">{t('finance.student.none')}</option>
+          {agreements.map(a => (
+            <option key={a.id} value={a.id}>
+              {[a.name, ...(a.teachers.length > 0 ? [a.teachers.map(teacher => teacher.name).join(', ')] : [])].join(' · ')}
             </option>
           ))}
         </select>
       </div>
+      {agreement && (
+        <fieldset className="space-y-2">
+          <legend className="mb-2 text-sm font-medium">{t('finance.student.how')}</legend>
+          {kinds.map(k => (
+            <label
+              key={k}
+              className={`flex min-h-11 items-start gap-3 rounded-md border p-3 ${
+                chosen === k ? 'border-primary bg-primary/5' : 'border-border'
+              }`}
+            >
+              <input
+                type="radio"
+                name="agreement-kind"
+                value={k}
+                checked={chosen === k}
+                onChange={() => setKind(k)}
+                required
+                className="mt-0.5 size-5 shrink-0 accent-primary"
+              />
+              <span className="flex flex-col">
+                <span className="font-bold">
+                  {k === 'addOn'
+                    ? t('finance.student.kindAddOn', { price: formatMoney(agreement.addOnPrice!, locale) })
+                    : t('finance.student.kindRecruited')}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {t(k === 'addOn' ? 'finance.student.kindAddOnHint' : 'finance.student.kindRecruitedHint')}
+                </span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+      )}
+      {hint && <p className="text-sm">{hint}</p>}
       {student.monthlyFee != null && (
         <div className="flex items-baseline justify-between border-t border-border pt-3">
           <span className="text-sm text-muted-foreground">{t('finance.student.owesPerMonth')}</span>

@@ -85,7 +85,6 @@ export default function BalancePage() {
     ['finance-balance', month],
     `/finance/balance?month=${month}`,
   );
-  const { data: academy } = useApiQuery<{ addOnName: string }>(['academy-mine'], '/academies/mine');
 
   if (isLoading) {
     return <PageLoader />;
@@ -111,7 +110,7 @@ export default function BalancePage() {
           color: 'bg-seminar',
         },
         {
-          label: t('finance.balance.addOns', { name: academy?.addOnName ?? '', count: b.income.addOns.count }),
+          label: t('finance.balance.addOns', { count: b.income.addOns.count }),
           amount: b.income.addOns.amount,
           color: 'bg-primary',
         },

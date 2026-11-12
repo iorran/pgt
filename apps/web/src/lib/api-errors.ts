@@ -24,6 +24,8 @@ const KEYS: Record<string, string> = {
   NO_BILLABLE_MEMBER: 'billing.errors.noBillableMember',
   NOT_OVERDUE: 'billing.errors.notOverdue',
   INVALID_PAYOUT_TEACHER: 'finance.errors.invalidTeacher',
+  INVALID_AGREEMENT_LINK: 'finance.errors.invalidAgreementLink',
+  INVALID_PAYOUT_AGREEMENT: 'finance.errors.invalidPayoutAgreement',
   INVALID_AGREEMENT: 'agreements.errors.invalid',
   AGREEMENT_HAS_ADD_ON_STUDENTS: 'agreements.errors.hasAddOnStudents',
   INVALID_EXPENSE: 'finance.errors.invalidExpense',

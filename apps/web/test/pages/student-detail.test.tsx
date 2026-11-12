@@ -299,34 +299,72 @@ describe('StudentDetailPage', () => {
     expect(screen.queryByLabelText('students.birthDate.label')).toBeNull();
   });
 
-  it('marks a Class Add-on and a recruiter with Payout Teachers, never the Owner or the student', async () => {
-    const user = userEvent.setup();
-    student = { ...baseStudent, monthlyFee: '45.00', addOnTeacherId: null, recruitedById: null, addOnCheckins: null };
+  const agreements = [
+    {
+      id: 'g1',
+      name: 'No Gi',
+      sharePercent: 50,
+      addOnPrice: '10.00',
+      active: true,
+      teachers: [
+        { id: 't1', name: 'Reynaldo' },
+        { id: 't2', name: 'Alex' },
+      ],
+    },
+    { id: 'g2', name: 'Tarde', sharePercent: 40, addOnPrice: null, active: true, teachers: [{ id: 't3', name: 'Madiba' }] },
+    { id: 'g3', name: 'Antigo', sharePercent: 50, addOnPrice: null, active: false, teachers: [] },
+    { id: 'g4', name: 'Dela', sharePercent: 50, addOnPrice: null, active: true, teachers: [{ id: 's1', name: 'Ana' }] },
+  ];
+  const withAgreements = () => {
     const base = vi.mocked(api).getMockImplementation()!;
-    vi.mocked(api).mockImplementation(async (path: string, options?: RequestInit) => {
-      if (path === '/teachers/candidates') {
-        return [
-          { id: 'o1', name: 'Owner', belt: 'black', role: 'owner' },
-          { id: 's1', name: 'Ana', belt: 'blue', role: 'student' },
-          { id: 't1', name: 'Rafael', belt: 'brown', role: 'student' },
-        ];
-      }
-      if (path === '/academies/mine') {
-        return { id: 'a1', addOnName: 'No Gi', addOnPrice: '10.00', addOnTeacherShare: '5.00', recruitedSharePercent: 50 };
-      }
-      return base(path, options);
-    });
+    vi.mocked(api).mockImplementation(async (path: string, options?: RequestInit) =>
+      path === '/agreements' ? agreements : base(path, options),
+    );
+  };
+
+  it('links the student to an active agreement with its Class Add-on, never one they teach in', async () => {
+    const user = userEvent.setup();
+    student = { ...baseStudent, monthlyFee: '45.00', agreementId: null, agreementKind: null, agreementCheckins: null };
+    withAgreements();
     renderPage();
-    await user.click(await screen.findByRole('switch', { name: 'finance.student.addOn' }));
-    const teacher = screen.getByLabelText('finance.student.addOnTeacher');
-    expect(within(teacher).getAllByRole('option').map((o) => o.textContent)).toEqual(['Rafael']);
+    const select = await screen.findByLabelText('finance.student.agreement');
+    await waitFor(() =>
+      expect(within(select).getAllByRole('option').map((o) => o.textContent)).toEqual([
+        'finance.student.none',
+        'No Gi · Reynaldo, Alex',
+        'Tarde · Madiba',
+      ]),
+    );
+    expect(screen.queryByRole('radio')).toBeNull();
+    await user.selectOptions(select, 'g1');
+    await user.click(screen.getByRole('radio', { name: /finance\.student\.kindAddOn\b/ }));
     expect(screen.getByText(/55,00\s€/)).toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText('finance.student.recruitedBy'), 't1');
     await user.click(screen.getByRole('button', { name: 'finance.student.save' }));
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith('/students/s1/finance', {
         method: 'PUT',
-        body: JSON.stringify({ addOnTeacherId: 't1', recruitedById: 't1' }),
+        body: JSON.stringify({ agreementId: 'g1', kind: 'addOn' }),
+      }),
+    );
+  });
+
+  it('only offers "recruited" for an agreement without a Class Add-on, and unlinks with "none"', async () => {
+    const user = userEvent.setup();
+    student = { ...baseStudent, monthlyFee: '45.00', agreementId: 'g2', agreementKind: 'recruited', agreementCheckins: 6 };
+    withAgreements();
+    renderPage();
+    const recruited = await screen.findByRole('radio', { name: /finance\.student\.kindRecruited\b/ });
+    expect(recruited).toBeChecked();
+    expect(screen.queryByRole('radio', { name: /finance\.student\.kindAddOn\b/ })).toBeNull();
+    expect(screen.getByText('finance.student.recruitedShare · finance.student.checkins')).toBeInTheDocument();
+    expect(screen.getByText('finance.student.owesPerMonth').nextSibling).toHaveTextContent(/45,00\s€/);
+    await user.selectOptions(screen.getByLabelText('finance.student.agreement'), '');
+    expect(screen.queryByRole('radio')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'finance.student.save' }));
+    await waitFor(() =>
+      expect(api).toHaveBeenCalledWith('/students/s1/finance', {
+        method: 'PUT',
+        body: JSON.stringify({ agreementId: null, kind: null }),
       }),
     );
   });
