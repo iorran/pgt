@@ -704,11 +704,32 @@ O pagamento aparece no histórico de cada membro, dividido proporcionalmente às
 > Um membro pode pagar sozinho (pagamento individual). Então a família mostra aquele mês como **"X de Y pagos"**. Ao registrar o pagamento da família, só os membros ainda em aberto são cobrados — mas o valor sugerido é o do mês inteiro, então ajuste o **Valor** para o que falta.
 > <sub><em>A member can pay alone (individual payment). The family then shows that month as "X de Y pagos" (X of Y paid). When you record the family payment, only the members still owing are charged — but the suggested amount is the whole month's, so adjust the Valor (Amount) to what is left.</em></sub>
 
+### Acordos
+<sub><em>Teacher Agreements</em></sub>
+
+Um **Acordo** é o combinado com professores que dão aulas na academia sem ser o dono (por exemplo, o acordo **No Gi**). Eles recebem parte do dinheiro de dois tipos de aluno: os **angariados** (que eles trouxeram) e os que pagam o **acréscimo** para fazer as aulas deles. O repasse vai para o acordo; se ele tiver mais de um professor, eles dividem entre si, fora do app.
+<sub><em>An Agreement is the deal with teachers who teach at the academy and aren't the owner (for example, the No Gi agreement). They get part of the money from two kinds of students: the recruited ones (whom they brought) and those who pay the add-on to take their classes. The payout goes to the agreement; if it has more than one teacher, they split it among themselves, outside the app.</em></sub>
+
+1. Menu → **Configurações** → cartão **Acordos**. Cada acordo mostra o percentual, os professores, o acréscimo (**"Acréscimo +10,00 €"** ou **"Sem acréscimo"**) e quantos alunos estão **angariados** e **no acréscimo**
+   <sub><em>Menu → Configurações (Settings) → Acordos (Agreements) card. Each agreement shows the percentage, the teachers, the add-on ("Acréscimo +10,00 €" or "Sem acréscimo" — No add-on) and how many students are angariados (recruited) and no acréscimo (on the add-on)</em></sub>
+2. Toque em **"Novo acordo"** ou num acordo para editá-lo
+   <sub><em>Tap "Novo acordo" (New agreement) or an agreement to edit it</em></sub>
+3. Preencha o **Nome** e adicione os **Professores** com **"+ Professor"** (só alunos ativos da academia). Toque no **×** de um professor para tirá-lo
+   <sub><em>Fill in the Nome (Name) and add the Professores (Teachers) with "+ Professor" (active students of the academy only). Tap a teacher's × to remove them</em></sub>
+4. **Percentual do repasse** — vale para a mensalidade dos angariados e para o acréscimo. Ex.: 50% de um acréscimo de 10 € dá 5 € aos professores
+   <sub><em>Percentual do repasse (Payout percentage) — applies to recruited students' Monthly Fee and to the add-on. E.g.: 50% of a €10 add-on gives €5 to the teachers</em></sub>
+5. **Acréscimo** — ligue o interruptor e digite o **Valor por mês** se alunos da academia pagam a mais para fazer estas aulas. A linha **"Professores recebem … · academia …"** mostra a divisão. Não dá para desligar o acréscimo enquanto algum aluno o paga
+   <sub><em>Acréscimo (Add-on) — turn the switch on and type the Valor por mês (Price per month) if academy students pay extra to take these classes. The "Professores recebem … · academia …" line shows the split. The add-on can't be turned off while any student pays it</em></sub>
+6. Toque em **"Salvar acordo"**. Os novos valores valem para todos os cálculos, inclusive os meses já passados
+   <sub><em>Tap "Salvar acordo" (Save agreement). The new values apply to every calculation, including past months</em></sub>
+7. Para encerrar: abra o acordo, toque em **"Encerrar acordo"** e confirme em **"Encerrar"**. Os alunos ligados a ele ficam sem acordo; os repasses já confirmados continuam no histórico. O acordo encerrado aparece apagado no fim da lista
+   <sub><em>To end it: open the agreement, tap "Encerrar acordo" (End agreement) and confirm with "Encerrar" (End). Its students are unlinked; confirmed payouts stay in the history. The ended agreement shows faded at the end of the list</em></sub>
+
 ### Acréscimo e Angariado
 <sub><em>Add-on and Recruited</em></sub>
 
-Um **Professor de repasse** é quem dá aulas na academia sem ser o dono (hoje, o professor de No Gi). Ele recebe parte do dinheiro de dois tipos de aluno. Marque isso no cartão **Mensalidade** da página do aluno:
-<sub><em>A Payout Teacher is someone who teaches at the academy and isn't the owner (today, the No Gi teacher). They get part of the money from two kinds of students. Mark it on the Mensalidade card of the student's page:</em></sub>
+Com um [acordo](#Acordos) criado, ligue os alunos a ele no cartão **Mensalidade** da página do aluno:
+<sub><em>With an agreement created, link students to it on the Mensalidade card of the student's page:</em></sub>
 
 1. **Acréscimo No Gi** — ligue o interruptor e escolha o **Professor do acréscimo**. Enquanto estiver ligado, o aluno deve a mensalidade **mais o acréscimo** (10 € por padrão) todos os meses: em Inadimplentes, no pagamento rápido, no pagamento da família e na página Mensalidade do aluno. Do acréscimo, 5 € são do professor. Desligue para parar de cobrar
    <sub><em>Acréscimo No Gi (No Gi add-on) — turn the switch on and pick the Professor do acréscimo (add-on teacher). While on, the student owes the Monthly Fee plus the add-on (€10 by default) every month: in Overdue, quick pay, family payment and the student's Membership page. €5 of the add-on is the teacher's. Turn it off to stop charging it</em></sub>
@@ -789,12 +810,6 @@ Abaixo, **Alunos de …** lista cada aluno, quanto pagou e o repasse. O aviso la
 
 O arquivo é um CSV que o Excel em português abre direto, com vírgula nos decimais.
 <sub><em>The file is a CSV that Portuguese Excel opens directly, with comma decimals.</em></sub>
-
-### Configurações do Financeiro
-<sub><em>Finance Settings</em></sub>
-
-Menu → **Configurações** → cartão **Financeiro**: o **nome do acréscimo** (No Gi), o **preço do acréscimo** (10 €), a **parte do professor no acréscimo** (5 €) e a **parte do professor nos angariados** (50%). Toque em **"Salvar financeiro"**. Os novos valores valem para todos os cálculos, inclusive os meses já passados.
-<sub><em>Menu → Configurações (Settings) → Financeiro card: the add-on name (No Gi), the add-on price (€10), the teacher's share of the add-on (€5) and the teacher's share of recruited students (50%). Tap "Salvar financeiro" (Save finances). The new values apply to every calculation, including past months.</em></sub>
 
 ## Notificações
 <sub><em>Notifications</em></sub>
