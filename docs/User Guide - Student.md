@@ -323,6 +323,24 @@ A aba **Perfil** reúne tudo que é seu.
 - **Sair** — botão vermelho no fim da página; encerra a sessão neste dispositivo.
   <sub><em>**Sign out** — red button at the bottom of the page; ends the session on this device.</em></sub>
 
+### Seu acordo
+<sub><em>Your agreement</em></sub>
+
+Se você é professor num acordo com a academia, o **Perfil** mostra um cartão amarelo **"Acordo …"** com quantos alunos estão nele e se o repasse do mês já foi confirmado. Quem não está num acordo não vê esse cartão.
+<sub><em>If you're a teacher on an agreement with the academy, **Me** shows a yellow **"Acordo …"** (Agreement) card with how many students are in it and whether this month's payout is confirmed. If you're not on an agreement, you don't see this card.</em></sub>
+
+Toque no cartão para ver, mês a mês (setas **‹ ›**, sem meses futuros):
+<sub><em>Tap the card to see, month by month (**‹ ›** arrows, no future months):</em></sub>
+
+- **Repasse do mês** — o valor que a academia confirmou para o acordo. Antes disso aparece **"Ainda não confirmado"**.
+  <sub><em>**Repasse do mês** (This month's payout) — the amount the academy confirmed for the agreement. Before that it shows **"Ainda não confirmado"** (Not confirmed yet).</em></sub>
+- **Angariados** e **Acréscimo** — os alunos do acordo, com as presenças do mês nas suas aulas e se já pagaram (**Pago**) ou não (**Pendente**).
+  <sub><em>**Angariados** (Recruited) and **Acréscimo** (Add-on) — the agreement's students, with this month's check-ins in your classes and whether they've paid (**Pago**) or not (**Pendente**).</em></sub>
+
+> [!note] Sem valores por aluno
+> Você vê quem pagou, mas nunca quanto cada aluno paga.
+> <sub><em>You see who paid, but never how much each student pays.</em></sub>
+
 ## Gamificação
 <sub><em>Gamification</em></sub>
 
