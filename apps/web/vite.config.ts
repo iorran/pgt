@@ -22,6 +22,11 @@ export default defineConfig({
       filename: 'sw.ts',
       registerType: 'autoUpdate',
       injectRegister: false,
+      injectManifest: {
+        // ponytail: the app is one ~2 MB chunk, past Workbox's 2 MiB default (the build fails above it);
+        // split routes with React.lazy if it nears 4 MiB.
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      },
       manifest: {
         name: 'Portugal Gold Team',
         short_name: 'PGT',
