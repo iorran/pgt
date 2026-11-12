@@ -95,10 +95,16 @@ describe('AgreementsCard', () => {
     renderWithProviders(<AgreementsCard />);
     await user.click(await screen.findByRole('button', { name: 'agreements.new' }));
     await user.type(screen.getByLabelText('agreements.name'), 'Manhã');
-    await user.click(screen.getByRole('button', { name: 'agreements.addTeacher' }));
-    const picker = screen.getByLabelText('agreements.pickTeacher');
-    expect(screen.queryByRole('option', { name: 'Dono' })).not.toBeInTheDocument();
-    await user.selectOptions(picker, 'Bia Lima');
+    const picker = screen.getByRole('combobox', { name: 'agreements.teachers' });
+    await user.type(picker, 'Bi');
+    expect(await screen.findByRole('option', { name: /Bia Lima/ })).toBeInTheDocument();
+    await user.clear(picker);
+    await user.type(picker, 'Dono');
+    // The Owner is never a teacher option.
+    expect(screen.queryByRole('option', { name: /Dono/ })).not.toBeInTheDocument();
+    await user.clear(picker);
+    await user.type(picker, 'Bia');
+    await user.click(await screen.findByRole('option', { name: /Bia Lima/ }));
     await user.clear(screen.getByLabelText('agreements.percent'));
     await user.type(screen.getByLabelText('agreements.percent'), '30');
     await user.click(screen.getByRole('switch', { name: 'agreements.addOn' }));
@@ -120,7 +126,7 @@ describe('AgreementsCard', () => {
     await user.click(await screen.findByRole('button', { name: /No Gi/ }));
     expect(screen.getByLabelText('agreements.name')).toHaveValue('No Gi');
     expect(screen.getByText(`agreements.split ${euro('5,00')} | ${euro('5,00')}`)).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'agreements.removeTeacher Alex Nunes' }));
+    await user.click(screen.getByRole('button', { name: 'common.removeItem Alex Nunes' }));
     await user.click(screen.getByRole('switch', { name: 'agreements.addOn' }));
     await user.click(screen.getByRole('button', { name: 'agreements.save' }));
     await waitFor(() =>

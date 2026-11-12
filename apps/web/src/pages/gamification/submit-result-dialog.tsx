@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchCombobox } from '@/components/search-combobox';
 
 export const POSITION_STYLES: Record<number, string> = {
   1: 'bg-arena-gold/20 text-arena-gold border-arena-gold/30',
@@ -61,7 +62,6 @@ function ResultForm({ owner, onDone }: { owner: boolean; onDone: () => void }) {
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
-  const [studentQuery, setStudentQuery] = useState('');
   const [studentId, setStudentId] = useState(owner ? '' : user?.id);
   const [competitionName, setCompetitionName] = useState('');
   const [competitionDate, setCompetitionDate] = useState('');
@@ -72,14 +72,6 @@ function ResultForm({ owner, onDone }: { owner: boolean; onDone: () => void }) {
     `/students?academyId=${user?.academyId}`,
     owner && !!user?.academyId,
   );
-
-  // ponytail: exact-name match like billing/payments; duplicate names resolve to the first student.
-  function pickStudent(input: HTMLInputElement) {
-    setStudentQuery(input.value);
-    const match = students.find((s) => s.name === input.value);
-    input.setCustomValidity(match ? '' : t('gamification.results.student'));
-    setStudentId(match?.id ?? '');
-  }
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -111,19 +103,13 @@ function ResultForm({ owner, onDone }: { owner: boolean; onDone: () => void }) {
       {owner && (
         <div className="space-y-2">
           <Label htmlFor="result-student">{t('gamification.results.student')}</Label>
-          <Input
+          <SearchCombobox
             id="result-student"
-            list="result-student-options"
-            autoComplete="off"
-            value={studentQuery}
-            onChange={(e) => pickStudent(e.target)}
+            items={students}
+            value={students.find((s) => s.id === studentId) ?? null}
+            onChange={(s) => setStudentId(s?.id ?? '')}
             required
           />
-          <datalist id="result-student-options">
-            {students.map((s) => (
-              <option key={s.id} value={s.name} />
-            ))}
-          </datalist>
         </div>
       )}
       <div className="space-y-2">

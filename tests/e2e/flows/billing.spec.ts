@@ -54,8 +54,9 @@ test('15. instructor records a manual payment', async ({ browser }) => {
     const payments = new PaymentsPage(page);
     await payments.goto();
 
-    // Pick the student by name; the amount is prefilled from their fee.
+    // Type to filter, tap the student; the amount is prefilled from their fee.
     await payments.studentInput.fill(student.name);
+    await page.getByRole('option', { name: new RegExp(student.name) }).click();
     await expect(payments.amountInput).toHaveValue('180');
 
     const today = new Date().toISOString().slice(0, 10);

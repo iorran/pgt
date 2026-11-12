@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { pickOption } from '../pick-option';
 import { renderWithProviders } from '../render';
 import { SubmitResultDialog } from '@/pages/gamification/submit-result-dialog';
 import { todayYmd } from '@/lib/format';
@@ -147,10 +148,7 @@ describe('SubmitResultDialog (owner)', () => {
     renderWithProviders(<SubmitResultDialog owner />);
     await user.click(screen.getByRole('button', { name: 'gamification.results.register' }));
     await screen.findByRole('dialog');
-    await waitFor(() => {
-      expect(document.querySelectorAll('datalist option')).toHaveLength(2);
-    });
-    await user.type(screen.getByLabelText('gamification.results.student'), 'Ana');
+    await pickOption(user, 'gamification.results.student', 'Ana');
     await fillAndSubmit(user, 'gamification.results.registerSubmit');
     await waitFor(() => {
       expect(postedBody()).toEqual({

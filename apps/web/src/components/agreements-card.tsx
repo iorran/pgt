@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { errorKey } from '@/lib/api-errors';
 import { formatMoney } from '@/lib/format';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchCombobox } from '@/components/search-combobox';
 import {
   Dialog,
   DialogContent,
@@ -168,16 +169,16 @@ function AgreementDialog({
   const queryClient = useQueryClient();
   const [name, setName] = useState(agreement?.name ?? '');
   const [teachers, setTeachers] = useState<Person[]>(agreement?.teachers ?? []);
-  const [picking, setPicking] = useState(false);
   const [percent, setPercent] = useState(String(agreement?.sharePercent ?? 50));
   const [addOnOn, setAddOnOn] = useState(agreement ? agreement.addOnPrice !== null : false);
   const [price, setPrice] = useState(agreement?.addOnPrice ? String(Number(agreement.addOnPrice)) : '');
   const [error, setError] = useState<string | null>(null);
-  const { data: candidates = [] } = useApiQuery<(Person & { role: string })[]>(
+  const { data: candidates = [] } = useApiQuery<(Person & { role: string; belt: string })[]>(
     ['teacher-candidates'],
     '/teachers/candidates',
   );
-  const available = candidates.filter((c) => c.role === 'student' && !teachers.some((p) => p.id === c.id));
+  // Teachers are active Students (never the Owner).
+  const students = candidates.filter((c) => c.role === 'student');
 
   // Same rounding as the payout: the teachers' share in cents, the rest stays with the academy.
   const priceCents = Math.round(Number(price) * 100);
@@ -239,59 +240,15 @@ function AgreementDialog({
           </div>
 
           <div className="space-y-2">
-            <span className="text-sm font-medium">{t('agreements.teachers')}</span>
-            <div className="flex flex-wrap gap-2">
-              {teachers.map((p) => (
-                <span key={p.id} className="flex h-9 items-center gap-1 rounded-full bg-secondary pl-3 pr-1">
-                  {p.name}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label={t('agreements.removeTeacher', { name: p.name })}
-                    onClick={() => setTeachers(teachers.filter((x) => x.id !== p.id))}
-                  >
-                    <X aria-hidden="true" />
-                  </Button>
-                </span>
-              ))}
-              {picking ? (
-                <>
-                  <Label htmlFor="agreement-teacher" className="sr-only">
-                    {t('agreements.pickTeacher')}
-                  </Label>
-                  <select
-                    id="agreement-teacher"
-                    autoFocus
-                    value=""
-                    onChange={(e) => {
-                      const picked = available.find((c) => c.id === e.target.value);
-                      if (picked) {
-                        setTeachers([...teachers, { id: picked.id, name: picked.name }]);
-                        setPicking(false);
-                      }
-                    }}
-                    className="h-9 rounded-full border border-border bg-card px-3 text-base md:text-sm"
-                  >
-                    <option value="">{t('agreements.pickTeacher')}</option>
-                    {available.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-9 rounded-full border-dashed"
-                  onClick={() => setPicking(true)}
-                >
-                  {t('agreements.addTeacher')}
-                </Button>
-              )}
-            </div>
+            <Label htmlFor="agreement-teacher">{t('agreements.teachers')}</Label>
+            <SearchCombobox
+              id="agreement-teacher"
+              multiple
+              items={students}
+              value={teachers}
+              onChange={(next) => setTeachers(next.map(({ id, name }) => ({ id, name })))}
+              placeholder={t('agreements.pickTeacher')}
+            />
             <p className="text-xs text-muted-foreground">{t('agreements.teachersHint')}</p>
           </div>
 

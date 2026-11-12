@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchCombobox } from '@/components/search-combobox';
 import {
   Dialog,
   DialogContent,
@@ -304,7 +305,6 @@ function AdjustPointsForm({ student, onDone }: { student?: Student; onDone: () =
   const { data: session } = useSession();
   const user = session?.user as any;
   const queryClient = useQueryClient();
-  const [studentQuery, setStudentQuery] = useState('');
   const [studentId, setStudentId] = useState(student?.id ?? '');
   const [points, setPoints] = useState('');
   const [reason, setReason] = useState('');
@@ -315,14 +315,6 @@ function AdjustPointsForm({ student, onDone }: { student?: Student; onDone: () =
     `/students?academyId=${user?.academyId}`,
     !student && !!user?.academyId,
   );
-
-  // ponytail: exact-name match like SubmitResultDialog; duplicate names resolve to the first student.
-  function pickStudent(input: HTMLInputElement) {
-    setStudentQuery(input.value);
-    const match = students.find((s) => s.name === input.value);
-    input.setCustomValidity(match ? '' : t('gamification.results.student'));
-    setStudentId(match?.id ?? '');
-  }
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -354,19 +346,13 @@ function AdjustPointsForm({ student, onDone }: { student?: Student; onDone: () =
       {!student && (
         <div className="space-y-2">
           <Label htmlFor="adjust-student">{t('gamification.results.student')}</Label>
-          <Input
+          <SearchCombobox
             id="adjust-student"
-            list="adjust-student-options"
-            autoComplete="off"
-            value={studentQuery}
-            onChange={(e) => pickStudent(e.target)}
+            items={students}
+            value={students.find((s) => s.id === studentId) ?? null}
+            onChange={(s) => setStudentId(s?.id ?? '')}
             required
           />
-          <datalist id="adjust-student-options">
-            {students.map((s) => (
-              <option key={s.id} value={s.name} />
-            ))}
-          </datalist>
         </div>
       )}
       <div className="space-y-2">

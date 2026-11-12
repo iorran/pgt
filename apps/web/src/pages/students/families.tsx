@@ -12,6 +12,7 @@ import { Users } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SearchCombobox } from '@/components/search-combobox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { QueryError } from '@/components/query-error';
 import { formatList, formatMoney } from '@/lib/format';
@@ -246,17 +247,13 @@ function FamilyForm({
   const [removing, setRemoving] = useState<{ id: string; name: string } | null>(null);
   const [ownEmail, setOwnEmail] = useState('');
   const [agreedPrice, setAgreedPrice] = useState(family?.agreedPrice ?? '');
-  const [search, setSearch] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const members = isEdit ? (family?.members ?? []) : draftMembers;
   const memberIds = new Set(members.map(m => m.id));
-  const results = search
-    ? students.filter(
-        s => !s.familyId && !memberIds.has(s.id) && s.name.toLowerCase().includes(search.toLowerCase()),
-      )
-    : [];
+  // Students not yet in a family can be added.
+  const candidates = students.filter(s => !s.familyId && !memberIds.has(s.id));
 
   const onError = (err: Error) => setError(t(familyErrorKey(err)));
   const onSuccess = () => {
@@ -341,8 +338,7 @@ function FamilyForm({
     },
   });
 
-  function addMember(student: StudentRow) {
-    setSearch('');
+  function addMember(student: { id: string; name: string }) {
     if (isEdit) {
       addMemberMutation.mutate(student.id);
     } else {
@@ -456,22 +452,12 @@ function FamilyForm({
             ))}
           </ul>
           <Label htmlFor="family-search">{t('families.searchMembers')}</Label>
-          <Input id="family-search" type="search" value={search} onChange={e => setSearch(e.target.value)} />
-          {search && (
-            <ul aria-label={t('families.searchResults')} className="max-h-48 overflow-y-auto">
-              {results.length === 0 ? (
-                <li className="text-sm text-muted-foreground py-2">{t('common.noResults')}</li>
-              ) : (
-                results.map(s => (
-                  <li key={s.id}>
-                    <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => addMember(s)}>
-                      + {s.name}
-                    </Button>
-                  </li>
-                ))
-              )}
-            </ul>
-          )}
+          <SearchCombobox
+            id="family-search"
+            items={candidates}
+            value={null}
+            onChange={s => s && addMember(s)}
+          />
         </div>
 
         <div className="space-y-2">

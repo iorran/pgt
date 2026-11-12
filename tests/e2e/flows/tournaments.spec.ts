@@ -210,7 +210,9 @@ test('26. owner registers a result that counts immediately', async ({ browser })
     await page.goto('/gamification/results');
     await page.getByRole('button', { name: /^registrar resultado$/i }).first().click();
     const dialog = page.getByRole('dialog');
+    // Search combobox: type to filter, then tap the student.
     await dialog.getByLabel(/^aluno$/i).fill(student.name);
+    await page.getByRole('option', { name: new RegExp(student.name) }).click();
     await dialog.getByLabel(/^competição$/i).fill('E2E Europeu');
     await dialog.getByLabel(/data da competição/i).fill(`${now.getFullYear()}-01-15`);
     await dialog.locator('label').filter({ hasText: '2º' }).click();

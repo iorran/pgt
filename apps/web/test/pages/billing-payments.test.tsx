@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { pickOption } from '../pick-option';
 import { renderWithProviders } from '../render';
 import PaymentsPage from '@/pages/billing/payments';
 import { formatDate, formatMoney } from '@/lib/format';
@@ -83,19 +84,15 @@ describe('PaymentsPage', () => {
     });
     const user = userEvent.setup();
     renderWithProviders(<PaymentsPage />);
-    const studentInput = await screen.findByLabelText('billing.selectStudent');
-    await waitFor(() => expect(document.querySelectorAll('datalist option')).toHaveLength(1));
     await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/agreements'));
-    await user.type(studentInput, 'Ana Silva');
+    await pickOption(user, 'billing.selectStudent', 'Ana', 'Ana Silva');
     await waitFor(() => expect(screen.getByLabelText('billing.amount')).toHaveValue(55));
   });
 
   it('searches student by name, prefills the monthly fee, saves with toast', async () => {
     const user = userEvent.setup();
     renderWithProviders(<PaymentsPage />);
-    const studentInput = await screen.findByLabelText('billing.selectStudent');
-    await waitFor(() => expect(document.querySelectorAll('datalist option')).toHaveLength(2));
-    await user.type(studentInput, 'Ana Silva');
+    await pickOption(user, 'billing.selectStudent', 'Ana', 'Ana Silva');
     await waitFor(() => expect(screen.getByLabelText('billing.amount')).toHaveValue(45));
     await user.click(screen.getByRole('button', { name: 'common.save' }));
     await waitFor(() => {
@@ -111,9 +108,7 @@ describe('PaymentsPage', () => {
   it('leaves the amount empty for a student without a monthly fee', async () => {
     const user = userEvent.setup();
     renderWithProviders(<PaymentsPage />);
-    const studentInput = await screen.findByLabelText('billing.selectStudent');
-    await waitFor(() => expect(document.querySelectorAll('datalist option')).toHaveLength(2));
-    await user.type(studentInput, 'Bruno Costa');
+    await pickOption(user, 'billing.selectStudent', 'Bruno', 'Bruno Costa');
     expect(screen.getByLabelText('billing.amount')).toHaveValue(null);
   });
 });

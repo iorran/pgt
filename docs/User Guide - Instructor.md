@@ -281,8 +281,8 @@ Na página do aluno, abaixo do telefone:
 
 - Se o aluno tem família, aparece **"Família: <nome>"** — toque no nome para abrir a aba **Famílias**
   <sub><em>If the student has a family, "Família: <name>" appears — tap the name to open the Famílias (Families) tab</em></sub>
-- Se não tem, toque em **"Adicionar a uma família"**: escolha uma **Família existente** e toque em **"Adicionar"**, ou digite o **Nome da família** e toque em **"Criar"** para criar uma nova só com ele (ele passa a ser o **Responsável** da família)
-  <sub><em>If not, tap "Adicionar a uma família" (Add to a family): pick an Família existente (Existing family) and tap "Adicionar" (Add), or type a Nome da família (Family name) and tap "Criar" (Create) to create a new one with just this student (they become the family's Responsible)</em></sub>
+- Se não tem, toque em **"Adicionar a uma família"**: em **Família existente**, digite parte do nome e toque na família, depois em **"Adicionar"**, ou digite o **Nome da família** e toque em **"Criar"** para criar uma nova só com ele (ele passa a ser o **Responsável** da família)
+  <sub><em>If not, tap "Adicionar a uma família" (Add to a family): in Família existente (Existing family), type part of the name and tap the family, then "Adicionar" (Add), or type a Nome da família (Family name) and tap "Criar" (Create) to create a new one with just this student (they become the family's Responsible)</em></sub>
 
 ## Famílias
 <sub><em>Families</em></sub>
@@ -302,8 +302,8 @@ Cada família tem **um só login**: o do **Responsável**. Os demais membros sã
    <sub><em>Tap "Nova família" (New family)</em></sub>
 3. Preencha **"Nome da família"** (você escolhe o nome — sobrenomes podem ser diferentes)
    <sub><em>Fill in "Nome da família" (Family name) — you choose the name; surnames may differ</em></sub>
-4. Em **"Buscar alunos sem família"**, digite um nome e toque no aluno (**+ Nome**) para adicioná-lo aos **Membros**. Só aparecem alunos que ainda não têm família
-   <sub><em>In "Buscar alunos sem família" (Search students without a family), type a name and tap the student (+ Name) to add them to Membros (Members). Only students without a family are listed</em></sub>
+4. Em **"Buscar alunos sem família"**, digite parte do nome e toque no aluno na lista para adicioná-lo aos **Membros**. Só aparecem alunos que ainda não têm família
+   <sub><em>In "Buscar alunos sem família" (Search students without a family), type part of the name and tap the student in the list to add them to Membros (Members). Only students without a family are listed</em></sub>
 5. Escolha o **Responsável** (obrigatório) e, se quiser, o **Preço acordado da família** (veja abaixo)
    <sub><em>Choose the Responsável (Responsible, required) and, optionally, the Preço acordado da família (Family agreed price) (see below)</em></sub>
 6. Toque em **"Criar"**
@@ -714,8 +714,8 @@ Um **Acordo** é o combinado com professores que dão aulas na academia sem ser 
    <sub><em>Menu → Configurações (Settings) → Acordos (Agreements) card. Each agreement shows the percentage, the teachers, the add-on ("Acréscimo +10,00 €" or "Sem acréscimo" — No add-on) and how many students are angariados (recruited) and no acréscimo (on the add-on)</em></sub>
 2. Toque em **"Novo acordo"** ou num acordo para editá-lo
    <sub><em>Tap "Novo acordo" (New agreement) or an agreement to edit it</em></sub>
-3. Preencha o **Nome** e adicione os **Professores** com **"+ Professor"** (só alunos ativos da academia). Toque no **×** de um professor para tirá-lo
-   <sub><em>Fill in the Nome (Name) and add the Professores (Teachers) with "+ Professor" (active students of the academy only). Tap a teacher's × to remove them</em></sub>
+3. Preencha o **Nome** e, em **Professores**, digite parte do nome e toque no professor na lista; repita para cada um (só alunos ativos da academia). Toque no **×** de um professor para tirá-lo
+   <sub><em>Fill in the Nome (Name) and, in Professores (Teachers), type part of the name and tap the teacher in the list; repeat for each one (active students of the academy only). Tap a teacher's × to remove them</em></sub>
 4. **Percentual do repasse** — vale para a mensalidade dos angariados e para o acréscimo. Ex.: 50% de um acréscimo de 10 € dá 5 € aos professores
    <sub><em>Percentual do repasse (Payout percentage) — applies to recruited students' Monthly Fee and to the add-on. E.g.: 50% of a €10 add-on gives €5 to the teachers</em></sub>
 5. **Acréscimo** — ligue o interruptor e digite o **Valor por mês** se alunos da academia pagam a mais para fazer estas aulas. A linha **"Professores recebem … · academia …"** mostra a divisão. Não dá para desligar o acréscimo enquanto algum aluno o paga
