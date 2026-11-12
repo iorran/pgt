@@ -22,11 +22,6 @@ export default defineConfig({
       filename: 'sw.ts',
       registerType: 'autoUpdate',
       injectRegister: false,
-      injectManifest: {
-        // ponytail: the app is one ~2 MB chunk, past Workbox's 2 MiB default (the build fails above it);
-        // split routes with React.lazy if it nears 4 MiB.
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-      },
       manifest: {
         name: 'Portugal Gold Team',
         short_name: 'PGT',
@@ -53,6 +48,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
         // Guide screenshots (~3 MB) load on demand in /ajuda; don't make every install download them.
         globIgnores: ['assets/*.png'],
+        // ponytail: the app is one ~2 MB chunk, past Workbox's 2 MiB default (the build fails above it);
+        // split routes with React.lazy if it nears 4 MiB.
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         target: 'esnext',
       },
     }),
