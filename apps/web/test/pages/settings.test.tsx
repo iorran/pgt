@@ -40,7 +40,7 @@ const studentSession = {
 } as any;
 
 function mockAcademy(value: typeof academy) {
-  mockApi.mockImplementation(async (path: string) => (path === '/modalities' ? [] : value) as any);
+  mockApi.mockImplementation(async (path: string) => (path === '/academies/mine' ? value : []) as any);
 }
 
 describe('SettingsPage', () => {
@@ -140,35 +140,17 @@ describe('SettingsPage', () => {
   });
 });
 
-describe('SettingsPage — Financeiro', () => {
+describe('SettingsPage — Acordos', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseSession.mockReturnValue(instructorSession);
-    mockApi.mockImplementation(async (path: string, options?: RequestInit) => {
-      if (options?.method) {
-        return {} as any;
-      }
-      if (path === '/academies/mine') {
-        return { ...academy, addOnName: 'No Gi', addOnPrice: '10.00', addOnTeacherShare: '5.00', recruitedSharePercent: 50 } as any;
-      }
-      return [] as any;
-    });
+    mockAcademy(academy);
   });
 
-  it('edits the add-on and payout settings', async () => {
-    const user = userEvent.setup();
+  it('shows the agreements section instead of the old finance settings', async () => {
     renderWithProviders(<SettingsPage />);
-    const price = await screen.findByLabelText('finance.settings.addOnPrice');
-    expect(price).toHaveValue(10);
-    await user.clear(price);
-    await user.type(price, '12');
-    await user.click(screen.getByRole('button', { name: 'finance.settings.save' }));
-    await waitFor(() =>
-      expect(mockApi).toHaveBeenCalledWith('/finance/settings', {
-        method: 'PUT',
-        body: JSON.stringify({ addOnName: 'No Gi', addOnPrice: '12', addOnTeacherShare: '5', recruitedSharePercent: 50 }),
-      }),
-    );
+    expect(await screen.findByText('agreements.title')).toBeInTheDocument();
+    expect(screen.queryByText('finance.settings.title')).not.toBeInTheDocument();
   });
 });
 
@@ -202,7 +184,7 @@ describe('SettingsPage — Modalidades', () => {
       if (method === 'DELETE' && deleteError) {
         throw deleteError;
       }
-      return undefined as any;
+      return (method === 'GET' ? [] : undefined) as any;
     });
   });
 
