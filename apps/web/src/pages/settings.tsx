@@ -1,16 +1,15 @@
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSession } from '@/lib/auth-client';
 import { isOwner } from '@/lib/roles';
 import { useApiQuery } from '@/hooks/use-api';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { MapPin } from 'lucide-react';
 import { ModalitiesCard } from '@/components/modalities-card';
+import { AgreementsCard } from '@/components/agreements-card';
 
 interface AcademyInfo {
   id: string;
@@ -20,10 +19,6 @@ interface AcademyInfo {
   longitude: string | null;
   address: string | null;
   joinCode: string;
-  addOnName: string;
-  addOnPrice: string;
-  addOnTeacherShare: string;
-  recruitedSharePercent: number;
 }
 
 export default function SettingsPage() {
@@ -145,70 +140,7 @@ export default function SettingsPage() {
 
       {isOwnerUser && <ModalitiesCard />}
 
-      {isOwnerUser && academy && <FinanceSettingsCard key={JSON.stringify(academy)} academy={academy} />}
+      {isOwnerUser && <AgreementsCard />}
     </div>
-  );
-}
-
-// Settings › Financeiro: the Class Add-on and what Payout Teachers get.
-function FinanceSettingsCard({ academy }: { academy: AcademyInfo }) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [form, setForm] = useState({
-    addOnName: academy.addOnName,
-    addOnPrice: String(Number(academy.addOnPrice)),
-    addOnTeacherShare: String(Number(academy.addOnTeacherShare)),
-    recruitedSharePercent: String(academy.recruitedSharePercent),
-  });
-  const mutation = useMutation({
-    mutationFn: () =>
-      api('/finance/settings', {
-        method: 'PUT',
-        body: JSON.stringify({ ...form, recruitedSharePercent: Number(form.recruitedSharePercent) }),
-      }),
-    meta: { successMessage: t('finance.settings.saved') },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['academy-mine'] });
-      for (const key of ['overdue', 'finance-payouts', 'finance-balance']) {
-        queryClient.invalidateQueries({ queryKey: [key] });
-      }
-    },
-  });
-  const field = (key: keyof typeof form, props: ComponentProps<typeof Input>) => (
-    <div className="space-y-2">
-      <Label htmlFor={`finance-${key}`}>{t(`finance.settings.${key}`)}</Label>
-      <Input
-        id={`finance-${key}`}
-        value={form[key]}
-        onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        required
-        {...props}
-      />
-    </div>
-  );
-
-  return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="font-heading text-lg uppercase">{t('finance.settings.title')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form
-          className="grid gap-4 sm:grid-cols-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            mutation.mutate();
-          }}
-        >
-          {field('addOnName', { maxLength: 50 })}
-          {field('addOnPrice', { type: 'number', min: 0, step: '0.01', inputMode: 'decimal' })}
-          {field('addOnTeacherShare', { type: 'number', min: 0, step: '0.01', inputMode: 'decimal' })}
-          {field('recruitedSharePercent', { type: 'number', min: 0, max: 100, step: 1 })}
-          <Button type="submit" variant="outline" className="sm:col-span-2 sm:justify-self-start" loading={mutation.isPending}>
-            {t('finance.settings.save')}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
   );
 }
