@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { and, asc, count, desc, eq, gte, inArray, isNotNull, lt, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, inArray, isNotNull, lt, type SQL } from 'drizzle-orm';
 import { db } from '../db/client.js';
 import {
   academy,
@@ -10,8 +10,11 @@ import {
   seminarParticipant,
   studentMembership,
   teacherPayout,
+  teacherAgreement,
+  agreementTeacher,
   user,
 } from '../db/schema/index.js';
+import { teachersOf } from './agreements.js';
 import { requireOwner } from '../middleware/auth.js';
 import { injectAcademyId } from '../middleware/tenant.js';
 import { fromCents, monthKey, toCents } from '../billing/rules.js';
@@ -30,29 +33,35 @@ export function shiftMonth(month: string, delta: number): string {
 const paidIn = (month: string) =>
   and(gte(payment.paymentDate, `${month}-01`), lt(payment.paymentDate, `${shiftMonth(month, 1)}-01`));
 
-// Check-ins per Student that month in classes taught by `teacherId` (academy timezone).
-export async function checkinsWith(teacherId: string, studentIds: string[], month: string, tz: string) {
+// Check-ins per Student that month in classes taught by any teacher of the agreement (academy timezone).
+export async function checkinsWith(agreementId: string, studentIds: string[], month: string, tz: string) {
   const counts = new Map(studentIds.map((id) => [id, 0]));
   if (studentIds.length === 0) {
     return counts;
   }
-  const rows = await db
-    .select({ studentId: checkin.studentId, n: count() })
-    .from(checkin)
-    .innerJoin(bjjClass, eq(bjjClass.id, checkin.classId))
-    .where(
-      and(
-        eq(bjjClass.teacherId, teacherId),
-        inArray(checkin.studentId, studentIds),
-        gte(checkin.checkedInAt, startOfDayInTz(`${month}-01`, tz)),
-        lt(checkin.checkedInAt, startOfDayInTz(`${shiftMonth(month, 1)}-01`, tz)),
-      ),
-    )
-    .groupBy(checkin.studentId);
+  const rows = await agreementCheckins(agreementId, month, tz, inArray(checkin.studentId, studentIds));
   for (const r of rows) {
     counts.set(r.studentId, r.n);
   }
   return counts;
+}
+
+function agreementCheckins(agreementId: string, month: string, tz: string, where?: SQL) {
+  return db
+    .select({ studentId: checkin.studentId, name: user.name, n: count() })
+    .from(checkin)
+    .innerJoin(bjjClass, eq(bjjClass.id, checkin.classId))
+    .innerJoin(agreementTeacher, and(eq(agreementTeacher.teacherId, bjjClass.teacherId), eq(agreementTeacher.agreementId, agreementId)))
+    .innerJoin(user, eq(user.id, checkin.studentId))
+    .where(
+      and(
+        gte(checkin.checkedInAt, startOfDayInTz(`${month}-01`, tz)),
+        lt(checkin.checkedInAt, startOfDayInTz(`${shiftMonth(month, 1)}-01`, tz)),
+        where,
+      ),
+    )
+    .groupBy(checkin.studentId, user.name, user.createdAt)
+    .orderBy(asc(user.createdAt), asc(checkin.studentId));
 }
 
 async function loadAcademy(academyId: string) {
@@ -60,46 +69,45 @@ async function loadAcademy(academyId: string) {
   return row;
 }
 
-// Teacher Payouts of a month: one per Payout Teacher with marked Students or a confirmed amount.
-// ponytail: marks are current flags, so past months are computed with today's marks and settings.
+// Teacher Payouts of a month: one per Teacher Agreement that is active with linked Students, or has a
+// confirmed amount that month. The agreement's percentage applies to each add-on payment's add-on price
+// and to what Recruited Students paid (their Monthly Fee: a Student links to one agreement only).
+// ponytail: links are current, so past months are computed with today's links and prices.
 export async function payoutsFor(academyId: string, month: string) {
   const acad = await loadAcademy(academyId);
-  const [marked, confirmedRows] = await Promise.all([
+  const [agreements, linked, confirmedRows] = await Promise.all([
+    db
+      .select()
+      .from(teacherAgreement)
+      .where(eq(teacherAgreement.academyId, academyId))
+      .orderBy(asc(teacherAgreement.createdAt), asc(teacherAgreement.id)),
     db
       .select({
         id: user.id,
         name: user.name,
-        addOnTeacherId: user.addOnTeacherId,
-        recruitedById: user.recruitedById,
+        agreementId: user.agreementId,
+        kind: user.agreementKind,
         monthlyFee: studentMembership.monthlyFee,
       })
       .from(user)
       .leftJoin(studentMembership, and(eq(studentMembership.studentId, user.id), eq(studentMembership.active, true)))
-      .where(
-        and(
-          eq(user.academyId, academyId),
-          eq(user.role, 'student'),
-          or(isNotNull(user.addOnTeacherId), isNotNull(user.recruitedById)),
-        ),
-      )
+      .where(and(eq(user.academyId, academyId), eq(user.role, 'student'), isNotNull(user.agreementId)))
       .orderBy(user.createdAt, user.id),
     db
       .select()
       .from(teacherPayout)
       .where(and(eq(teacherPayout.academyId, academyId), eq(teacherPayout.month, month))),
   ]);
-  const teacherIds = [
-    ...new Set([
-      ...marked.flatMap((s) => [s.addOnTeacherId, s.recruitedById].filter((id): id is string => !!id)),
-      ...confirmedRows.map((p) => p.teacherId),
-    ]),
-  ];
-  if (teacherIds.length === 0) {
+  const shown = agreements.filter(
+    (a) =>
+      (a.active && linked.some((s) => s.agreementId === a.id)) || confirmedRows.some((p) => p.agreementId === a.id),
+  );
+  if (shown.length === 0) {
     return [];
   }
   const [teachers, payments] = await Promise.all([
-    db.select({ id: user.id, name: user.name }).from(user).where(inArray(user.id, teacherIds)).orderBy(asc(user.name)),
-    marked.length === 0
+    teachersOf(shown.map((a) => a.id)),
+    linked.length === 0
       ? []
       : db
           .select({
@@ -114,54 +122,59 @@ export async function payoutsFor(academyId: string, month: string) {
               eq(payment.academyId, academyId),
               inArray(
                 payment.studentId,
-                marked.map((s) => s.id),
+                linked.map((s) => s.id),
               ),
               paidIn(month),
             ),
           )
           .orderBy(payment.paymentDate, payment.referenceMonth),
   ]);
-  const shareCents = toCents(acad.addOnTeacherShare);
-  const percent = acad.recruitedSharePercent;
 
   return Promise.all(
-    teachers.map(async (t) => {
-      const addOnStudents = marked.filter((s) => s.addOnTeacherId === t.id);
-      const recruited = marked.filter((s) => s.recruitedById === t.id);
-      const checkins = await checkinsWith(
-        t.id,
-        addOnStudents.map((s) => s.id),
-        month,
-        acad.timezone,
-      );
-      const entry = (s: (typeof marked)[number], kind: 'addOn' | 'recruited') => {
+    shown.map(async (a) => {
+      const students = linked.filter((s) => s.agreementId === a.id);
+      const teacherIds = new Set(teachers.get(a.id)!.map((t) => t.id));
+      const [checkins, visits] = await Promise.all([
+        checkinsWith(
+          a.id,
+          students.map((s) => s.id),
+          month,
+          acad.timezone,
+        ),
+        agreementCheckins(a.id, month, acad.timezone),
+      ]);
+      const percent = a.sharePercent;
+      const priceCents = a.addOnPrice === null ? 0 : toCents(a.addOnPrice);
+      const shareCents = Math.round((priceCents * percent) / 100);
+      const entries = students.map((s) => {
         const rows = payments
           .filter((p) => p.studentId === s.id)
           .map(({ studentId: _s, ...p }) => ({
             ...p,
-            payout: kind === 'addOn' ? shareCents : Math.round((toCents(p.amount) * percent) / 100),
+            payout: s.kind === 'addOn' ? shareCents : Math.round((toCents(p.amount) * percent) / 100),
           }));
         return {
           studentId: s.id,
           name: s.name,
-          kind,
+          kind: s.kind!,
           monthlyFee: s.monthlyFee,
-          checkins: kind === 'addOn' ? checkins.get(s.id)! : null,
+          checkins: checkins.get(s.id)!,
           paidCents: rows.reduce((sum, p) => sum + toCents(p.amount), 0),
           payoutCents: rows.reduce((sum, p) => sum + p.payout, 0),
           payments: rows.map((p) => ({ ...p, payout: fromCents(p.payout) })),
         };
-      };
-      const entries = [...addOnStudents.map((s) => entry(s, 'addOn')), ...recruited.map((s) => entry(s, 'recruited'))];
+      });
       const addOnPaid = entries.filter((e) => e.kind === 'addOn').reduce((n, e) => n + e.payments.length, 0);
       const recruitedEntries = entries.filter((e) => e.kind === 'recruited');
       const recruitedCents = recruitedEntries.reduce((sum, e) => sum + e.payoutCents, 0);
       const suggested = fromCents(addOnPaid * shareCents + recruitedCents);
-      const confirmed = confirmedRows.find((p) => p.teacherId === t.id)?.amount ?? null;
+      const confirmed = confirmedRows.find((p) => p.agreementId === a.id)?.amount ?? null;
+      const linkedIds = new Set(students.map((s) => s.id));
       return {
-        teacher: t,
+        agreement: { id: a.id, name: a.name, sharePercent: percent, active: a.active, teachers: teachers.get(a.id)! },
         addOn: {
           count: addOnPaid,
+          price: a.addOnPrice,
           share: fromCents(shareCents),
           amount: fromCents(addOnPaid * shareCents),
         },
@@ -173,8 +186,12 @@ export async function payoutsFor(academyId: string, month: string) {
         suggested,
         confirmed,
         amount: confirmed ?? suggested,
-        // Check-ins never set the add-on; they only flag marked Students who didn't come.
-        missingCheckins: entries.filter((e) => e.checkins === 0).map((e) => e.name),
+        // Check-ins never set the money; they only flag add-on Students who didn't come...
+        missingCheckins: entries.filter((e) => e.kind === 'addOn' && e.checkins === 0).map((e) => e.name),
+        // ...and Students who came without being linked (the Owner decides whether to link them).
+        walkIns: visits
+          .filter((v) => !linkedIds.has(v.studentId) && !teacherIds.has(v.studentId))
+          .map((v) => ({ studentId: v.studentId, name: v.name, checkins: v.n })),
         students: entries.map(({ paidCents, payoutCents, ...e }) => ({
           ...e,
           paid: fromCents(paidCents),
@@ -186,18 +203,18 @@ export async function payoutsFor(academyId: string, month: string) {
 }
 
 // Monthly Balance: money paid that month − that month's Expenses − Teacher Payouts.
-// ponytail: the add-on part of past payments uses today's marks and add-on price.
+// ponytail: the add-on part of past payments uses today's links and add-on prices.
 async function balanceFor(academyId: string, month: string) {
-  const acad = await loadAcademy(academyId);
   const [paid, addOnStudents, seminars, expenses, payouts] = await Promise.all([
     db
       .select({ studentId: payment.studentId, amount: payment.amount })
       .from(payment)
       .where(and(eq(payment.academyId, academyId), paidIn(month))),
     db
-      .select({ id: user.id })
+      .select({ id: user.id, price: teacherAgreement.addOnPrice })
       .from(user)
-      .where(and(eq(user.academyId, academyId), isNotNull(user.addOnTeacherId))),
+      .innerJoin(teacherAgreement, eq(teacherAgreement.id, user.agreementId))
+      .where(and(eq(user.academyId, academyId), eq(user.agreementKind, 'addOn'))),
     db
       .select({
         classId: seminarParticipant.classId,
@@ -219,10 +236,11 @@ async function balanceFor(academyId: string, month: string) {
       .orderBy(desc(expense.amount)),
     payoutsFor(academyId, month),
   ]);
-  const addOnIds = new Set(addOnStudents.map((s) => s.id));
+  const addOnPrice = new Map(addOnStudents.map((s) => [s.id, toCents(s.price ?? '0')]));
   const sum = (rows: { amount: string }[]) => rows.reduce((total, r) => total + toCents(r.amount), 0);
-  const addOnCount = paid.filter((p) => addOnIds.has(p.studentId)).length;
-  const addOnCents = addOnCount * toCents(acad.addOnPrice);
+  const addOnPaid = paid.filter((p) => addOnPrice.has(p.studentId));
+  const addOnCount = addOnPaid.length;
+  const addOnCents = addOnPaid.reduce((total, p) => total + addOnPrice.get(p.studentId)!, 0);
   const incomeCents = sum(paid) + sum(seminars);
   const expenseCents = sum(expenses);
   const payoutCents = sum(payouts);
@@ -267,41 +285,6 @@ function validMonth(value: unknown): value is string {
 }
 
 export async function financeRoutes(app: FastifyInstance) {
-  app.put('/api/finance/settings', owner, async (request, reply) => {
-    const body = (request.body ?? {}) as Record<string, unknown>;
-    const addOnName = typeof body.addOnName === 'string' ? body.addOnName.trim() : '';
-    const addOnPrice = money(body.addOnPrice);
-    const addOnTeacherShare = money(body.addOnTeacherShare);
-    const percent = body.recruitedSharePercent;
-    const validPercent = Number.isInteger(percent) && (percent as number) >= 0 && (percent as number) <= 100;
-    if (
-      !addOnName ||
-      addOnName.length > 50 ||
-      addOnPrice === null ||
-      addOnTeacherShare === null ||
-      toCents(addOnTeacherShare) > toCents(addOnPrice) ||
-      !validPercent
-    ) {
-      return reply.status(400).send({ error: 'INVALID_FINANCE_SETTINGS' });
-    }
-    const [updated] = await db
-      .update(academy)
-      .set({
-        addOnName,
-        addOnPrice,
-        addOnTeacherShare,
-        recruitedSharePercent: percent as number,
-      })
-      .where(eq(academy.id, request.academyId))
-      .returning({
-        addOnName: academy.addOnName,
-        addOnPrice: academy.addOnPrice,
-        addOnTeacherShare: academy.addOnTeacherShare,
-        recruitedSharePercent: academy.recruitedSharePercent,
-      });
-    return updated;
-  });
-
   // A month's Expenses. An empty month starts from the latest earlier month's list (not its one-off rows).
   // ponytail: "empty" is the trigger, so a month whose rows were all removed is filled again when reopened.
   app.get('/api/finance/expenses', owner, async (request, reply) => {
@@ -418,30 +401,30 @@ export async function financeRoutes(app: FastifyInstance) {
     if (!validMonth(body.month) || amount === null) {
       return reply.status(400).send({ error: 'INVALID_PAYOUT' });
     }
-    const teacherId = typeof body.teacherId === 'string' && UUID.test(body.teacherId) ? body.teacherId : null;
-    const [teacher] = teacherId
+    const agreementId = typeof body.agreementId === 'string' && UUID.test(body.agreementId) ? body.agreementId : null;
+    const [agreement] = agreementId
       ? await db
-          .select({ id: user.id })
-          .from(user)
-          .where(and(eq(user.id, teacherId), eq(user.academyId, request.academyId)))
+          .select({ id: teacherAgreement.id })
+          .from(teacherAgreement)
+          .where(and(eq(teacherAgreement.id, agreementId), eq(teacherAgreement.academyId, request.academyId)))
       : [];
-    if (!teacher) {
-      return reply.status(400).send({ error: 'INVALID_PAYOUT_TEACHER' });
+    if (!agreement) {
+      return reply.status(400).send({ error: 'INVALID_PAYOUT_AGREEMENT' });
     }
     const [saved] = await db
       .insert(teacherPayout)
       .values({
         academyId: request.academyId,
-        teacherId: teacher.id,
+        agreementId: agreement.id,
         month: body.month,
         amount,
       })
       .onConflictDoUpdate({
-        target: [teacherPayout.academyId, teacherPayout.teacherId, teacherPayout.month],
+        target: [teacherPayout.agreementId, teacherPayout.month],
         set: { amount, confirmedAt: new Date() },
       })
       .returning({
-        teacherId: teacherPayout.teacherId,
+        agreementId: teacherPayout.agreementId,
         month: teacherPayout.month,
         amount: teacherPayout.amount,
       });

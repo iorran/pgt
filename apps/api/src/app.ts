@@ -22,6 +22,7 @@ import { ownerDashboardRoutes } from './routes/owner-dashboard.js';
 import { devRoutes } from './routes/dev.js';
 import { helpEventRoutes } from './routes/help-events.js';
 import { financeRoutes } from './routes/finance.js';
+import { agreementRoutes } from './routes/agreements.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -59,6 +60,7 @@ export async function buildApp() {
   await app.register(ownerDashboardRoutes);
   await app.register(helpEventRoutes);
   await app.register(financeRoutes);
+  await app.register(agreementRoutes);
   await app.register(devRoutes, { prefix: '/api/dev' });
 
   app.get('/health', async () => ({ status: 'ok' }));

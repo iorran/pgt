@@ -1,6 +1,6 @@
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
 import { db } from '../db/client.js';
-import { user, studentMembership, payment, waivedMonth, academy } from '../db/schema/index.js';
+import { user, studentMembership, payment, waivedMonth, teacherAgreement } from '../db/schema/index.js';
 import { fromCents, toCents, type MemberBilling } from './rules.js';
 
 export interface StudentBilling extends MemberBilling {
@@ -15,8 +15,8 @@ export interface StudentBilling extends MemberBilling {
   monthlyFee: string | null;
   // Set while the Student has a Class Add-on; membership.fee already includes its price.
   addOn: { name: string; price: string } | null;
-  addOnTeacherId: string | null;
-  recruitedById: string | null;
+  // The Student's Teacher Agreement and how they are linked to it.
+  agreement: { id: string; name: string; kind: 'addOn' | 'recruited' } | null;
 }
 
 // Loads students matching `where` (always role student) with what they owe per month (Monthly Fee + Class
@@ -35,14 +35,14 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
       monthlyFee: studentMembership.monthlyFee,
       dueDay: studentMembership.dueDay,
       startDate: studentMembership.startDate,
-      addOnTeacherId: user.addOnTeacherId,
-      recruitedById: user.recruitedById,
-      addOnName: academy.addOnName,
-      addOnPrice: academy.addOnPrice,
+      agreementId: user.agreementId,
+      agreementKind: user.agreementKind,
+      agreementName: teacherAgreement.name,
+      addOnPrice: teacherAgreement.addOnPrice,
     })
     .from(user)
     .leftJoin(studentMembership, and(eq(studentMembership.studentId, user.id), eq(studentMembership.active, true)))
-    .leftJoin(academy, eq(academy.id, user.academyId))
+    .leftJoin(teacherAgreement, eq(teacherAgreement.id, user.agreementId))
     .where(and(eq(user.role, 'student'), where))
     .orderBy(user.createdAt, user.id);
   if (rows.length === 0) {
@@ -75,7 +75,7 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
   const waived = group(waivedRows);
 
   return rows.map((r) => {
-    const addOn = r.addOnTeacherId && r.addOnPrice !== null ? { name: r.addOnName!, price: r.addOnPrice } : null;
+    const addOn = r.agreementKind === 'addOn' && r.addOnPrice !== null ? { name: r.agreementName!, price: r.addOnPrice } : null;
     return {
       studentId: r.studentId,
       name: r.name,
@@ -88,8 +88,7 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
       dueDay: r.dueDay,
       monthlyFee: r.monthlyFee,
       addOn,
-      addOnTeacherId: r.addOnTeacherId,
-      recruitedById: r.recruitedById,
+      agreement: r.agreementId ? { id: r.agreementId, name: r.agreementName!, kind: r.agreementKind! } : null,
       membership:
         r.monthlyFee !== null && r.startDate !== null && r.dueDay !== null
           ? {

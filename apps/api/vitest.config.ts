@@ -7,7 +7,7 @@ export default defineConfig({
     globalSetup: ['./test/setup.ts'],
     env: {
       NODE_ENV: 'test',
-      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5433/pgt_test',
+      DATABASE_URL: process.env.TEST_DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5433/pgt_test',
       // dev-impersonate signs its session cookie with this secret; set a
       // deterministic value so the endpoint doesn't 500 during tests.
       BETTER_AUTH_SECRET: 'test-secret-do-not-use-in-prod',

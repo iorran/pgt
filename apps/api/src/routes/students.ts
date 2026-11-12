@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { user, studentMembership, family, waivedMonth, modality, studentModality, beltEnum, academy } from '../db/schema/index.js';
+import { user, studentMembership, family, waivedMonth, modality, studentModality, beltEnum, academy, teacherAgreement, agreementTeacher } from '../db/schema/index.js';
 import { eq, and, asc, inArray } from 'drizzle-orm';
 import { dateKey, monthKey } from '../billing/rules.js';
 import { checkinsWith } from './finance.js';
@@ -21,8 +21,8 @@ const studentColumns = {
   trainingNote: user.trainingNote,
   familyId: user.familyId,
   familyName: family.name,
-  addOnTeacherId: user.addOnTeacherId,
-  recruitedById: user.recruitedById,
+  agreementId: user.agreementId,
+  agreementKind: user.agreementKind,
 };
 
 // Modalities of each student, sorted by name.
@@ -102,56 +102,58 @@ export async function studentRoutes(app: FastifyInstance) {
     if (!row) {
       return row;
     }
-    // This month's check-ins in classes of the Class Add-on's teacher (a hint only, never billing).
-    let addOnCheckins: number | null = null;
-    if (row.addOnTeacherId) {
+    // This month's check-ins in classes of the agreement's teachers (a hint only, never billing).
+    let agreementCheckins: number | null = null;
+    if (row.agreementId) {
       const [acad] = await db
         .select({ timezone: academy.timezone })
         .from(academy)
         .innerJoin(user, eq(user.academyId, academy.id))
         .where(eq(user.id, id));
       const tz = acad?.timezone ?? DEFAULT_ACADEMY_TIMEZONE;
-      addOnCheckins = (await checkinsWith(row.addOnTeacherId, [id], monthKey(new Date()), tz)).get(id)!;
+      agreementCheckins = (await checkinsWith(row.agreementId, [id], monthKey(new Date()), tz)).get(id)!;
     }
-    return { ...row, addOnCheckins, modalities: (await modalitiesOf([id])).get(id)! };
+    return { ...row, agreementCheckins, modalities: (await modalitiesOf([id])).get(id)! };
   });
 
-  // Class Add-on and Recruited Student marks (owner only). Each is null or a Payout Teacher:
-  // an active Student of the academy (a Class Teacher other than the Owner), never the Student themself.
+  // Link a Student to at most one active Teacher Agreement of the academy (owner only): as a Recruited
+  // Student or with its Class Add-on (only when the agreement offers one), never as one of its teachers.
   app.put('/api/students/:id/finance', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const body = (request.body ?? {}) as { addOnTeacherId?: unknown; recruitedById?: unknown };
+    const body = (request.body ?? {}) as { agreementId?: unknown; kind?: unknown };
     if (!(await isAcademyStudent(id, request.academyId))) {
       return reply.status(404).send({ error: 'Student not found' });
     }
-    const addOnTeacherId = body.addOnTeacherId ?? null;
-    const recruitedById = body.recruitedById ?? null;
-    for (const teacherId of [addOnTeacherId, recruitedById]) {
-      if (teacherId === null) {
-        continue;
-      }
-      const valid = typeof teacherId === 'string' && UUID.test(teacherId) && teacherId !== id;
-      const [teacher] = valid
-        ? await db.select({ id: user.id }).from(user).where(and(
-            eq(user.id, teacherId as string),
-            eq(user.academyId, request.academyId),
-            eq(user.role, 'student'),
-            eq(user.status, 'active'),
-          ))
+    const agreementId = body.agreementId ?? null;
+    const kind = body.kind ?? null;
+    if (agreementId !== null || kind !== null) {
+      const shapeOk = typeof agreementId === 'string' && UUID.test(agreementId) && (kind === 'addOn' || kind === 'recruited');
+      const [agreement] = shapeOk
+        ? await db
+            .select({ addOnPrice: teacherAgreement.addOnPrice, teacherId: agreementTeacher.teacherId })
+            .from(teacherAgreement)
+            .leftJoin(agreementTeacher, and(eq(agreementTeacher.agreementId, teacherAgreement.id), eq(agreementTeacher.teacherId, id)))
+            .where(
+              and(
+                eq(teacherAgreement.id, agreementId as string),
+                eq(teacherAgreement.academyId, request.academyId),
+                eq(teacherAgreement.active, true),
+              ),
+            )
         : [];
-      if (!teacher) {
-        return reply.status(400).send({ error: 'INVALID_PAYOUT_TEACHER' });
+      if (!agreement || agreement.teacherId !== null || (kind === 'addOn' && agreement.addOnPrice === null)) {
+        return reply.status(400).send({ error: 'INVALID_AGREEMENT_LINK' });
       }
     }
     const [updated] = await db
       .update(user)
       .set({
-        addOnTeacherId: addOnTeacherId as string | null,
-        recruitedById: recruitedById as string | null,
+        agreementId: agreementId as string | null,
+        agreementKind: kind as 'addOn' | 'recruited' | null,
         updatedAt: new Date(),
       })
       .where(eq(user.id, id))
-      .returning({ addOnTeacherId: user.addOnTeacherId, recruitedById: user.recruitedById });
+      .returning({ agreementId: user.agreementId, agreementKind: user.agreementKind });
     return updated;
   });
 

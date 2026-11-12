@@ -13,6 +13,8 @@ import {
   product,
   family,
   expense,
+  teacherAgreement,
+  agreementTeacher,
 } from '../src/db/schema/index';
 import { eq, and } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
@@ -190,7 +192,10 @@ describe('seedGuide', () => {
     expect(rows.length).toBe(8); // 4 recurring expenses, this month and last
     const users = await testDb.select().from(user).where(eq(user.academyId, acad.id));
     const maria = users.find((u) => u.name === 'Maria Oliveira')!;
-    expect(users.find((u) => u.name === 'João Silva')!.addOnTeacherId).toBe(maria.id);
-    expect(users.find((u) => u.name === 'Pedro Souza')!.recruitedById).toBe(maria.id);
+    const [noGi] = await testDb.select().from(teacherAgreement);
+    expect(noGi).toMatchObject({ name: 'No Gi', sharePercent: 50, addOnPrice: '10.00' });
+    expect(await testDb.select().from(agreementTeacher)).toEqual([{ agreementId: noGi.id, teacherId: maria.id }]);
+    expect(users.find((u) => u.name === 'João Silva')).toMatchObject({ agreementId: noGi.id, agreementKind: 'addOn' });
+    expect(users.find((u) => u.name === 'Pedro Souza')).toMatchObject({ agreementId: noGi.id, agreementKind: 'recruited' });
   });
 });

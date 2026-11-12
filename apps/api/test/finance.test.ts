@@ -62,96 +62,28 @@ async function setup() {
   return { academy, owner, rafael, marta, carla, diogo, api, pay };
 }
 
-// Marta: Class Add-on with Rafael. Carla and Diogo: recruited by Rafael.
+// "No Gi" agreement with Rafael (50%, add-on 10 €). Marta: its Class Add-on. Carla and Diogo: recruited by it.
 async function setupMarked() {
   const ctx = await setup();
   const { api, rafael, marta, carla, diogo } = ctx;
-  expect(
-    (
-      await api('PUT', `/api/students/${marta.id}/finance`, {
-        addOnTeacherId: rafael.id,
-        recruitedById: null,
-      })
-    ).statusCode,
-  ).toBe(200);
+  const created = await api('POST', '/api/agreements', {
+    name: 'No Gi',
+    sharePercent: 50,
+    addOnPrice: '10',
+    teacherIds: [rafael.id],
+  });
+  expect(created.statusCode).toBe(201);
+  const noGi = created.json();
+  expect((await api('PUT', `/api/students/${marta.id}/finance`, { agreementId: noGi.id, kind: 'addOn' })).statusCode).toBe(200);
   for (const s of [carla, diogo]) {
-    expect(
-      (
-        await api('PUT', `/api/students/${s.id}/finance`, {
-          addOnTeacherId: null,
-          recruitedById: rafael.id,
-        })
-      ).statusCode,
-    ).toBe(200);
+    expect((await api('PUT', `/api/students/${s.id}/finance`, { agreementId: noGi.id, kind: 'recruited' })).statusCode).toBe(200);
   }
-  return ctx;
+  return { ...ctx, noGi };
 }
 
-describe('student finance fields', () => {
-  it('saves and returns the Class Add-on teacher and the recruiter', async () => {
-    const { api, rafael, marta } = await setup();
-    const res = await api('PUT', `/api/students/${marta.id}/finance`, {
-      addOnTeacherId: rafael.id,
-      recruitedById: rafael.id,
-    });
-    expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({
-      addOnTeacherId: rafael.id,
-      recruitedById: rafael.id,
-    });
-    const one = (await api('GET', `/api/students/${marta.id}`)).json();
-    expect(one).toMatchObject({
-      addOnTeacherId: rafael.id,
-      recruitedById: rafael.id,
-      addOnCheckins: 0,
-    });
-    const cleared = await api('PUT', `/api/students/${marta.id}/finance`, {
-      addOnTeacherId: null,
-      recruitedById: null,
-    });
-    expect(cleared.json()).toEqual({
-      addOnTeacherId: null,
-      recruitedById: null,
-    });
-  });
-
-  it('only accepts a Payout Teacher: an active Student of the academy other than this one', async () => {
-    const { api, academy, owner, rafael, marta } = await setup();
-    const other = await createTestAcademy();
-    const outsider = await createTestUser(other.id, { name: 'Outsider' });
-    const pending = await createTestUser(academy.id, {
-      name: 'Pending',
-      status: 'pending',
-    });
-    for (const teacherId of [owner.id, marta.id, outsider.id, pending.id, 'nope']) {
-      const res = await api('PUT', `/api/students/${marta.id}/finance`, {
-        addOnTeacherId: teacherId,
-        recruitedById: null,
-      });
-      expect(res.statusCode).toBe(400);
-      expect(res.json()).toEqual({ error: 'INVALID_PAYOUT_TEACHER' });
-    }
-    expect(
-      (
-        await api('PUT', `/api/students/${outsider.id}/finance`, {
-          addOnTeacherId: rafael.id,
-          recruitedById: null,
-        })
-      ).statusCode,
-    ).toBe(404);
-    const asStudent = await app.inject({
-      method: 'PUT',
-      url: `/api/students/${marta.id}/finance`,
-      headers: authHeaders(marta),
-      payload: { addOnTeacherId: rafael.id, recruitedById: null },
-    });
-    expect(asStudent.statusCode).toBe(403);
-  });
-});
-
-describe('what a Student owes includes the Class Add-on', () => {
+describe('what a Student owes includes the Class Add-on of their agreement', () => {
   it('overdue list, quick payment and my-status use Monthly Fee + add-on price', async () => {
-    const { api, rafael, marta, carla } = await setupMarked();
+    const { api, noGi, marta, carla } = await setupMarked();
     const overdue = (await api('GET', '/api/payments/overdue')).json();
     const martaItem = overdue.find((i: any) => i.studentId === marta.id);
     expect(martaItem).toMatchObject({
@@ -165,7 +97,7 @@ describe('what a Student owes includes the Class Add-on', () => {
     expect(carlaItem).toMatchObject({
       amountDue: '90.00',
       addOn: null,
-      recruitedBy: { id: rafael.id, name: 'Rafael' },
+      recruitedBy: { id: noGi.id, name: 'No Gi' },
     });
 
     const status = await app.inject({
@@ -186,25 +118,16 @@ describe('what a Student owes includes the Class Add-on', () => {
     });
   });
 
-  it('follows the academy add-on price and stops when un-marked', async () => {
-    const { api, marta } = await setupMarked();
+  it('follows the agreement add-on price and stops when unlinked', async () => {
+    const { api, noGi, rafael, marta } = await setupMarked();
     expect(
-      (
-        await api('PUT', '/api/finance/settings', {
-          addOnName: 'No Gi',
-          addOnPrice: '12.00',
-          addOnTeacherShare: '6.00',
-          recruitedSharePercent: 50,
-        })
-      ).statusCode,
+      (await api('PUT', `/api/agreements/${noGi.id}`, { name: 'No Gi', sharePercent: 50, addOnPrice: '12', teacherIds: [rafael.id] }))
+        .statusCode,
     ).toBe(200);
     let item = (await api('GET', '/api/payments/overdue')).json().find((i: any) => i.studentId === marta.id);
     expect(item.amountDue).toBe('114.00');
 
-    await api('PUT', `/api/students/${marta.id}/finance`, {
-      addOnTeacherId: null,
-      recruitedById: null,
-    });
+    await api('PUT', `/api/students/${marta.id}/finance`, { agreementId: null, kind: null });
     item = (await api('GET', '/api/payments/overdue')).json().find((i: any) => i.studentId === marta.id);
     expect(item).toMatchObject({ amountDue: '90.00', addOn: null });
   });
@@ -228,70 +151,6 @@ describe('what a Student owes includes the Class Add-on', () => {
     await api('PUT', `/api/families/${fam.id}`, { agreedPrice: '80.00' });
     billing = (await api('GET', `/api/families/${fam.id}/billing`)).json();
     expect(billing.owedMonths[0].fee).toBe('80.00');
-  });
-});
-
-describe('finance settings', () => {
-  it('reads defaults from the academy and validates updates (owner only)', async () => {
-    const { api, academy, marta } = await setup();
-    const mine = (await api('GET', '/api/academies/mine')).json();
-    expect(mine).toMatchObject({
-      addOnName: 'No Gi',
-      addOnPrice: '10.00',
-      addOnTeacherShare: '5.00',
-      recruitedSharePercent: 50,
-    });
-
-    const ok = await api('PUT', '/api/finance/settings', {
-      addOnName: ' Luta livre ',
-      addOnPrice: '15',
-      addOnTeacherShare: '7.5',
-      recruitedSharePercent: 40,
-    });
-    expect(ok.statusCode).toBe(200);
-    expect(ok.json()).toEqual({
-      addOnName: 'Luta livre',
-      addOnPrice: '15.00',
-      addOnTeacherShare: '7.50',
-      recruitedSharePercent: 40,
-    });
-
-    for (const bad of [
-      {
-        addOnName: '',
-        addOnPrice: '10',
-        addOnTeacherShare: '5',
-        recruitedSharePercent: 50,
-      },
-      {
-        addOnName: 'X',
-        addOnPrice: '-1',
-        addOnTeacherShare: '5',
-        recruitedSharePercent: 50,
-      },
-      {
-        addOnName: 'X',
-        addOnPrice: '10',
-        addOnTeacherShare: '11',
-        recruitedSharePercent: 50,
-      },
-      {
-        addOnName: 'X',
-        addOnPrice: '10',
-        addOnTeacherShare: '5',
-        recruitedSharePercent: 101,
-      },
-    ]) {
-      expect((await api('PUT', '/api/finance/settings', bad)).statusCode).toBe(400);
-    }
-    const asStudent = await app.inject({
-      method: 'PUT',
-      url: '/api/finance/settings',
-      headers: authHeaders(marta),
-      payload: {},
-    });
-    expect(asStudent.statusCode).toBe(403);
-    expect(academy.id).toBeTruthy();
   });
 });
 
@@ -421,20 +280,21 @@ describe('teacher payouts', () => {
     return ctx;
   }
 
-  it('suggests add-on share per add-on payment plus half of what Recruited Students paid', async () => {
-    const { api, rafael, marta, carla, diogo } = await octoberPayments();
+  it("suggests the agreement's % of each add-on payment plus the same % of what Recruited Students paid", async () => {
+    const { api, noGi, rafael, marta, carla, diogo } = await octoberPayments();
     const res = await api('GET', '/api/finance/payouts?month=2026-10');
     expect(res.statusCode).toBe(200);
-    const [p] = res.json();
     expect(res.json()).toHaveLength(1);
+    const [p] = res.json();
     expect(p).toMatchObject({
-      teacher: { id: rafael.id, name: 'Rafael' },
-      addOn: { count: 1, share: '5.00', amount: '5.00' },
+      agreement: { id: noGi.id, name: 'No Gi', sharePercent: 50, teachers: [{ id: rafael.id, name: 'Rafael' }] },
+      addOn: { count: 1, price: '10.00', share: '5.00', amount: '5.00' },
       recruited: { paid: '45.00', percent: 50, amount: '22.50' },
       suggested: '27.50',
       confirmed: null,
       amount: '27.50',
       missingCheckins: ['Marta'],
+      walkIns: [],
     });
     expect(p.students).toEqual([
       {
@@ -445,38 +305,24 @@ describe('teacher payouts', () => {
         checkins: 0,
         paid: '55.00',
         payout: '5.00',
-        payments: [
-          {
-            amount: '55.00',
-            paymentDate: '2026-10-05',
-            referenceMonth: '2026-10',
-            payout: '5.00',
-          },
-        ],
+        payments: [{ amount: '55.00', paymentDate: '2026-10-05', referenceMonth: '2026-10', payout: '5.00' }],
       },
       {
         studentId: carla.id,
         name: 'Carla',
         kind: 'recruited',
         monthlyFee: '45.00',
-        checkins: null,
+        checkins: 0,
         paid: '45.00',
         payout: '22.50',
-        payments: [
-          {
-            amount: '45.00',
-            paymentDate: '2026-10-02',
-            referenceMonth: '2026-09',
-            payout: '22.50',
-          },
-        ],
+        payments: [{ amount: '45.00', paymentDate: '2026-10-02', referenceMonth: '2026-09', payout: '22.50' }],
       },
       {
         studentId: diogo.id,
         name: 'Diogo',
         kind: 'recruited',
         monthlyFee: '45.00',
-        checkins: null,
+        checkins: 0,
         paid: '0.00',
         payout: '0.00',
         payments: [],
@@ -484,105 +330,90 @@ describe('teacher payouts', () => {
     ]);
   });
 
-  it("warns only about add-on Students without check-ins in that teacher's classes that month", async () => {
-    const { api, academy, owner, rafael, marta } = await octoberPayments();
-    const noGi = await createTestClass(academy.id, {
-      teacherId: rafael.id,
-      type: 'no-gi',
-      instructorId: owner.id,
+  it("counts check-ins in any agreement teacher's classes; warns about add-on Students without; lists walk-ins", async () => {
+    const { api, academy, owner, rafael, marta, carla } = await octoberPayments();
+    const alex = await createTestUser(academy.id, { name: 'Alex' });
+    const bruno = await createTestUser(academy.id, { name: 'Bruno' });
+    const [p0] = (await api('GET', '/api/finance/payouts?month=2026-10')).json();
+    await api('PUT', `/api/agreements/${p0.agreement.id}`, {
+      name: 'No Gi',
+      sharePercent: 50,
+      addOnPrice: '10',
+      teacherIds: [rafael.id, alex.id],
     });
+    const noGi = await createTestClass(academy.id, { teacherId: alex.id, type: 'no-gi', instructorId: owner.id });
     const gi = await createTestClass(academy.id, { instructorId: owner.id });
-    await testDb.insert(schema.checkin).values({
-      classId: gi.id,
-      studentId: marta.id,
-      checkedInAt: new Date(2026, 9, 3, 19),
-    });
-    await testDb.insert(schema.checkin).values({
-      classId: noGi.id,
-      studentId: marta.id,
-      checkedInAt: new Date(2026, 8, 30, 19),
-    });
+    await testDb.insert(schema.checkin).values([
+      { classId: gi.id, studentId: marta.id, checkedInAt: new Date(2026, 9, 3, 19) },
+      { classId: noGi.id, studentId: marta.id, checkedInAt: new Date(2026, 8, 30, 19) },
+    ]);
     let [p] = (await api('GET', '/api/finance/payouts?month=2026-10')).json();
     expect(p.missingCheckins).toEqual(['Marta']);
 
-    await testDb.insert(schema.checkin).values({
-      classId: noGi.id,
-      studentId: marta.id,
-      checkedInAt: new Date(2026, 9, 7, 19),
-    });
+    await testDb.insert(schema.checkin).values([
+      { classId: noGi.id, studentId: marta.id, checkedInAt: new Date(2026, 9, 7, 19) },
+      { classId: noGi.id, studentId: carla.id, checkedInAt: new Date(2026, 9, 7, 19) },
+      { classId: noGi.id, studentId: bruno.id, checkedInAt: new Date(2026, 9, 7, 19) },
+      { classId: noGi.id, studentId: bruno.id, checkedInAt: new Date(2026, 9, 14, 19) },
+      { classId: noGi.id, studentId: rafael.id, checkedInAt: new Date(2026, 9, 14, 19) },
+    ]);
     [p] = (await api('GET', '/api/finance/payouts?month=2026-10')).json();
     expect(p.missingCheckins).toEqual([]);
-    expect(p.students[0].checkins).toBe(1);
+    expect(p.students.map((s: any) => s.checkins)).toEqual([1, 1, 0]);
+    // Came to the agreement's classes without being linked to it; its own teachers never count.
+    expect(p.walkIns).toEqual([{ studentId: bruno.id, name: 'Bruno', checkins: 2 }]);
     // A check-in never changes the money.
     expect(p.suggested).toBe('27.50');
   });
 
   it('keeps the amount the Owner confirms', async () => {
-    const { api, rafael } = await octoberPayments();
-    const res = await api('POST', '/api/finance/payouts', {
-      teacherId: rafael.id,
-      month: '2026-10',
-      amount: '30',
-    });
+    const { api, noGi } = await octoberPayments();
+    const res = await api('POST', '/api/finance/payouts', { agreementId: noGi.id, month: '2026-10', amount: '30' });
     expect(res.statusCode).toBe(200);
     let [p] = (await api('GET', '/api/finance/payouts?month=2026-10')).json();
-    expect(p).toMatchObject({
-      suggested: '27.50',
-      confirmed: '30.00',
-      amount: '30.00',
-    });
+    expect(p).toMatchObject({ suggested: '27.50', confirmed: '30.00', amount: '30.00' });
 
-    await api('POST', '/api/finance/payouts', {
-      teacherId: rafael.id,
-      month: '2026-10',
-      amount: '27.50',
-    });
+    await api('POST', '/api/finance/payouts', { agreementId: noGi.id, month: '2026-10', amount: '27.50' });
     [p] = (await api('GET', '/api/finance/payouts?month=2026-10')).json();
     expect(p.confirmed).toBe('27.50');
 
+    expect((await api('POST', '/api/finance/payouts', { agreementId: noGi.id, month: '2026-10', amount: '-1' })).statusCode).toBe(400);
+    expect((await api('POST', '/api/finance/payouts', { agreementId: 'nope', month: '2026-10', amount: '1' })).statusCode).toBe(400);
+    const other = await setup();
     expect(
-      (
-        await api('POST', '/api/finance/payouts', {
-          teacherId: rafael.id,
-          month: '2026-10',
-          amount: '-1',
-        })
-      ).statusCode,
-    ).toBe(400);
-    expect(
-      (
-        await api('POST', '/api/finance/payouts', {
-          teacherId: 'nope',
-          month: '2026-10',
-          amount: '1',
-        })
-      ).statusCode,
+      (await other.api('POST', '/api/finance/payouts', { agreementId: noGi.id, month: '2026-10', amount: '1' })).statusCode,
     ).toBe(400);
   });
 
-  it('uses the academy shares and lists nobody without marked Students', async () => {
-    const { api } = await octoberPayments();
-    await api('PUT', '/api/finance/settings', {
-      addOnName: 'No Gi',
-      addOnPrice: '10.00',
-      addOnTeacherShare: '6.00',
-      recruitedSharePercent: 40,
-    });
+  it("uses the agreement's percentage and lists no agreement without Students", async () => {
+    const { api, noGi, rafael } = await octoberPayments();
+    await api('PUT', `/api/agreements/${noGi.id}`, { name: 'No Gi', sharePercent: 40, addOnPrice: '10', teacherIds: [rafael.id] });
     const [p] = (await api('GET', '/api/finance/payouts?month=2026-10')).json();
     expect(p).toMatchObject({
-      addOn: { amount: '6.00' },
+      addOn: { share: '4.00', amount: '4.00' },
       recruited: { amount: '18.00' },
-      suggested: '24.00',
+      suggested: '22.00',
     });
 
     const other = await setup();
+    await other.api('POST', '/api/agreements', { name: 'Vazio', sharePercent: 50, addOnPrice: null, teacherIds: [other.rafael.id] });
     expect((await other.api('GET', '/api/finance/payouts?month=2026-10')).json()).toEqual([]);
+  });
+
+  it('keeps an ended agreement in months it has a confirmed payout', async () => {
+    const { api, noGi } = await octoberPayments();
+    await api('POST', '/api/finance/payouts', { agreementId: noGi.id, month: '2026-10', amount: '27.50' });
+    expect((await api('POST', `/api/agreements/${noGi.id}/end`)).statusCode).toBe(200);
+    expect((await api('GET', '/api/finance/payouts?month=2026-10')).json()).toMatchObject([
+      { agreement: { id: noGi.id }, confirmed: '27.50', amount: '27.50' },
+    ]);
+    expect((await api('GET', '/api/finance/payouts?month=2026-11')).json()).toEqual([]);
   });
 });
 
 describe('monthly balance', () => {
   it('adds money paid that month, subtracts expenses and payouts', async () => {
-    const { api, academy, owner, rafael, marta, carla, pay } = await setupMarked();
+    const { api, academy, owner, noGi, marta, carla, pay } = await setupMarked();
     await pay(marta.id, '55.00', '2026-10-05', '2026-10');
     await pay(carla.id, '45.00', '2026-10-02', '2026-09');
     await pay(carla.id, '45.00', '2026-09-02', '2026-08');
@@ -670,11 +501,7 @@ describe('monthly balance', () => {
     expect(b.history[4]).toEqual({ month: '2026-09', result: '42.50' }); // 45 + 20 seminar − 22.50 payout
     expect(b.history[5]).toEqual({ month: '2026-10', result: '-1276.60' });
 
-    await api('POST', '/api/finance/payouts', {
-      teacherId: rafael.id,
-      month: '2026-10',
-      amount: '40',
-    });
+    await api('POST', '/api/finance/payouts', { agreementId: noGi.id, month: '2026-10', amount: '40' });
     const confirmed = (await api('GET', '/api/finance/balance?month=2026-10')).json();
     expect(confirmed.payouts.total).toBe('40.00');
     expect(confirmed.result).toBe('-1289.10');
