@@ -5,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { beltKey } from '@/lib/belts';
 import { isOwner } from '@/lib/roles';
+import { formatMonth } from '@/lib/format';
+import { thisMonth, useMyAgreements } from '@/pages/me/agreement';
 import {
   Receipt,
   Trophy,
@@ -12,6 +14,7 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  Users,
 } from 'lucide-react';
 
 type HubRow = {
@@ -29,8 +32,11 @@ const ROWS: HubRow[] = [
 ];
 
 export default function MePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: session } = useSession();
+  const month = thisMonth();
+  // Only teachers on a Teacher Agreement get any.
+  const { data: agreements = [] } = useMyAgreements(month);
   const navigate = useNavigate();
   const user = session?.user as
     | { name?: string; belt?: string; email?: string; role?: string }
@@ -58,6 +64,26 @@ export default function MePage() {
           </div>
         </CardContent>
       </Card>
+
+      {agreements.map((a) => (
+        <Link
+          key={a.agreement.id}
+          to={`/me/agreement/${a.agreement.id}`}
+          className="flex items-center gap-3 rounded-xl bg-primary p-4 text-primary-foreground"
+        >
+          <Users className="size-6 shrink-0" aria-hidden />
+          <span className="flex flex-1 flex-col gap-0.5">
+            <span className="font-bold">{t('teacherAgreement.title', { name: a.agreement.name })}</span>
+            <span className="text-sm">
+              {t(a.confirmed === null ? 'teacherAgreement.summaryPending' : 'teacherAgreement.summaryConfirmed', {
+                count: a.students.length,
+                month: formatMonth(month, i18n.language).split(' ')[0],
+              })}
+            </span>
+          </span>
+          <ChevronRight className="size-5 shrink-0" aria-hidden />
+        </Link>
+      ))}
 
       <div className="flex flex-col divide-y divide-border rounded-xl border border-border bg-card">
         {ROWS.filter((row) => !row.ownerOnly || isOwner(user)).map(({ to, labelKey, Icon }) => (

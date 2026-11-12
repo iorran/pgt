@@ -984,5 +984,23 @@
       "invalidPayout": "Digite um valor de repasse válido.",
       "expenseGone": "Essa despesa já foi removida."
     }
+  },
+  "teacherAgreement": {
+    "title": "Acordo {{name}}",
+    "summaryConfirmed_one": "{{count}} aluno · repasse de {{month}} confirmado",
+    "summaryConfirmed_other": "{{count}} alunos · repasse de {{month}} confirmado",
+    "summaryPending_one": "{{count}} aluno · repasse de {{month}} por confirmar",
+    "summaryPending_other": "{{count}} alunos · repasse de {{month}} por confirmar",
+    "payout": "Repasse do mês · {{teachers}}",
+    "confirmedBy": "Confirmado pela academia",
+    "notConfirmed": "Ainda não confirmado",
+    "notConfirmedHint": "O valor aparece aqui quando a academia fechar o mês. Até lá, a lista mostra quem já pagou.",
+    "recruited": "Angariados · {{count}}",
+    "addOn": "Acréscimo {{name}} · {{count}}",
+    "checkins_one": "{{count}} presença",
+    "checkins_other": "{{count}} presenças",
+    "paid": "Pago",
+    "pending": "Pendente",
+    "empty": "Nenhum aluno neste acordo neste mês."
   }
 }

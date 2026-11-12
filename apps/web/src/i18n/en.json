@@ -984,5 +984,23 @@
       "invalidPayout": "Enter a valid payout amount.",
       "expenseGone": "That expense was already removed."
     }
+  },
+  "teacherAgreement": {
+    "title": "{{name}} agreement",
+    "summaryConfirmed_one": "{{count}} student · {{month}} payout confirmed",
+    "summaryConfirmed_other": "{{count}} students · {{month}} payout confirmed",
+    "summaryPending_one": "{{count}} student · {{month}} payout not confirmed yet",
+    "summaryPending_other": "{{count}} students · {{month}} payout not confirmed yet",
+    "payout": "This month’s payout · {{teachers}}",
+    "confirmedBy": "Confirmed by the academy",
+    "notConfirmed": "Not confirmed yet",
+    "notConfirmedHint": "The amount shows here once the academy closes the month. Until then, the list shows who has paid.",
+    "recruited": "Recruited · {{count}}",
+    "addOn": "{{name}} add-on · {{count}}",
+    "checkins_one": "{{count}} check-in",
+    "checkins_other": "{{count}} check-ins",
+    "paid": "Paid",
+    "pending": "Pending",
+    "empty": "No students in this agreement this month."
   }
 }
