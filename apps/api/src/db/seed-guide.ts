@@ -80,7 +80,7 @@ export async function seedGuide(
 
   await db
     .update(schema.user)
-    .set({ familyId: null, addOnTeacherId: null, recruitedById: null })
+    .set({ familyId: null, agreementId: null, agreementKind: null })
     .where(eq(schema.user.academyId, demoId));
   await db
     .delete(schema.expense)
@@ -88,6 +88,9 @@ export async function seedGuide(
   await db
     .delete(schema.teacherPayout)
     .where(eq(schema.teacherPayout.academyId, demoId));
+  await db
+    .delete(schema.teacherAgreement)
+    .where(eq(schema.teacherAgreement.academyId, demoId));
   await db
     .delete(schema.family)
     .where(eq(schema.family.academyId, demoId));
@@ -404,16 +407,21 @@ export async function seedGuide(
     outsiderPrice: '50.00',
   });
 
-  // 8d. Financeiro — Maria teaches No-Gi Noite and is the Payout Teacher: João pays the
-  //     Class Add-on with her, Pedro is her Recruited Student. Recurring expenses for
-  //     last month and this one.
+  // 8d. Financeiro — Maria teaches No-Gi Noite under the "No Gi" Teacher Agreement (50%,
+  //     add-on 10 €): João pays its Class Add-on, Pedro is its Recruited Student. Recurring
+  //     expenses for last month and this one.
+  const [noGiAgreement] = await db
+    .insert(schema.teacherAgreement)
+    .values({ academyId: demoId, name: 'No Gi', sharePercent: 50, addOnPrice: '10.00' })
+    .returning();
+  await db.insert(schema.agreementTeacher).values({ agreementId: noGiAgreement.id, teacherId: roxa.id });
   await db
     .update(schema.user)
-    .set({ addOnTeacherId: roxa.id })
+    .set({ agreementId: noGiAgreement.id, agreementKind: 'addOn' })
     .where(eq(schema.user.id, azul.id));
   await db
     .update(schema.user)
-    .set({ recruitedById: roxa.id })
+    .set({ agreementId: noGiAgreement.id, agreementKind: 'recruited' })
     .where(eq(schema.user.id, brancaOverdue.id));
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const expenseMonths = [

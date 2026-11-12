@@ -175,8 +175,8 @@ Até ser aprovado, ele fica só na aba **Pendentes**: não aparece na lista de A
 ### Página do Aluno
 <sub><em>Student Page</em></sub>
 
-A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade** (com o **Acréscimo** e o **Angariado por**), um cartão com **Faixa** e **Data de nascimento** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
-<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card (with the Add-on and Recruited by), a card with Faixa (Belt) and Data de nascimento (Birth Date), and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
+A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade** (com o **Acordo**: Acréscimo ou Angariado), um cartão com **Faixa** e **Data de nascimento** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
+<sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card (with the Acordo (Agreement): Add-on or Recruited), a card with Faixa (Belt) and Data de nascimento (Birth Date), and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
 
 ### Definir a Mensalidade
 <sub><em>Set the Monthly Fee</em></sub>
@@ -669,8 +669,8 @@ Em cada cartão de aluno:
   <sub><em>WhatsApp — opens a chat with the student (only shown when they have a phone number)</em></sub>
 - **"+ Acréscimo No Gi"** com a conta **"45,00 € + 10,00 €"** — o aluno paga o acréscimo; o valor devido já o inclui
   <sub><em>"+ Acréscimo No Gi" (No Gi add-on) with the "€45.00 + €10.00" breakdown — the student pays the add-on; the amount due already includes it</em></sub>
-- **"Angariado · Nome"** — aluno angariado por esse professor
-  <sub><em>"Angariado · Name" (Recruited · Name) — a student recruited by that teacher</em></sub>
+- **"Angariado · Nome"** — aluno angariado pelos professores desse acordo (o nome é o do acordo)
+  <sub><em>"Angariado · Name" (Recruited · Name) — a student recruited by that agreement's teachers (the name is the agreement's)</em></sub>
 
 > [!note]
 > O pagamento rápido cobre um mês por toque, sempre o mais antigo em aberto. Para escolher outro mês ou outro valor, use a aba **Pagamentos** e escolha o **Mês de referência**.
@@ -704,22 +704,47 @@ O pagamento aparece no histórico de cada membro, dividido proporcionalmente às
 > Um membro pode pagar sozinho (pagamento individual). Então a família mostra aquele mês como **"X de Y pagos"**. Ao registrar o pagamento da família, só os membros ainda em aberto são cobrados — mas o valor sugerido é o do mês inteiro, então ajuste o **Valor** para o que falta.
 > <sub><em>A member can pay alone (individual payment). The family then shows that month as "X de Y pagos" (X of Y paid). When you record the family payment, only the members still owing are charged — but the suggested amount is the whole month's, so adjust the Valor (Amount) to what is left.</em></sub>
 
+### Acordos
+<sub><em>Teacher Agreements</em></sub>
+
+Um **Acordo** é o combinado com professores que dão aulas na academia sem ser o dono (por exemplo, o acordo **No Gi**). Eles recebem parte do dinheiro de dois tipos de aluno: os **angariados** (que eles trouxeram) e os que pagam o **acréscimo** para fazer as aulas deles. O repasse vai para o acordo; se ele tiver mais de um professor, eles dividem entre si, fora do app.
+<sub><em>An Agreement is the deal with teachers who teach at the academy and aren't the owner (for example, the No Gi agreement). They get part of the money from two kinds of students: the recruited ones (whom they brought) and those who pay the add-on to take their classes. The payout goes to the agreement; if it has more than one teacher, they split it among themselves, outside the app.</em></sub>
+
+1. Menu → **Configurações** → cartão **Acordos**. Cada acordo mostra o percentual, os professores, o acréscimo (**"Acréscimo +10,00 €"** ou **"Sem acréscimo"**) e quantos alunos estão **angariados** e **no acréscimo**
+   <sub><em>Menu → Configurações (Settings) → Acordos (Agreements) card. Each agreement shows the percentage, the teachers, the add-on ("Acréscimo +10,00 €" or "Sem acréscimo" — No add-on) and how many students are angariados (recruited) and no acréscimo (on the add-on)</em></sub>
+2. Toque em **"Novo acordo"** ou num acordo para editá-lo
+   <sub><em>Tap "Novo acordo" (New agreement) or an agreement to edit it</em></sub>
+3. Preencha o **Nome** e adicione os **Professores** com **"+ Professor"** (só alunos ativos da academia). Toque no **×** de um professor para tirá-lo
+   <sub><em>Fill in the Nome (Name) and add the Professores (Teachers) with "+ Professor" (active students of the academy only). Tap a teacher's × to remove them</em></sub>
+4. **Percentual do repasse** — vale para a mensalidade dos angariados e para o acréscimo. Ex.: 50% de um acréscimo de 10 € dá 5 € aos professores
+   <sub><em>Percentual do repasse (Payout percentage) — applies to recruited students' Monthly Fee and to the add-on. E.g.: 50% of a €10 add-on gives €5 to the teachers</em></sub>
+5. **Acréscimo** — ligue o interruptor e digite o **Valor por mês** se alunos da academia pagam a mais para fazer estas aulas. A linha **"Professores recebem … · academia …"** mostra a divisão. Não dá para desligar o acréscimo enquanto algum aluno o paga
+   <sub><em>Acréscimo (Add-on) — turn the switch on and type the Valor por mês (Price per month) if academy students pay extra to take these classes. The "Professores recebem … · academia …" line shows the split. The add-on can't be turned off while any student pays it</em></sub>
+6. Toque em **"Salvar acordo"**. Os novos valores valem para todos os cálculos, inclusive os meses já passados
+   <sub><em>Tap "Salvar acordo" (Save agreement). The new values apply to every calculation, including past months</em></sub>
+7. Para encerrar: abra o acordo, toque em **"Encerrar acordo"** e confirme em **"Encerrar"**. Os alunos ligados a ele ficam sem acordo; os repasses já confirmados continuam no histórico. O acordo encerrado aparece apagado no fim da lista
+   <sub><em>To end it: open the agreement, tap "Encerrar acordo" (End agreement) and confirm with "Encerrar" (End). Its students are unlinked; confirmed payouts stay in the history. The ended agreement shows faded at the end of the list</em></sub>
+
 ### Acréscimo e Angariado
 <sub><em>Add-on and Recruited</em></sub>
 
-Um **Professor de repasse** é quem dá aulas na academia sem ser o dono (hoje, o professor de No Gi). Ele recebe parte do dinheiro de dois tipos de aluno. Marque isso no cartão **Mensalidade** da página do aluno:
-<sub><em>A Payout Teacher is someone who teaches at the academy and isn't the owner (today, the No Gi teacher). They get part of the money from two kinds of students. Mark it on the Mensalidade card of the student's page:</em></sub>
+Com um [acordo](#Acordos) criado, ligue os alunos a ele no cartão **Mensalidade** da página do aluno:
+<sub><em>With an agreement created, link students to it on the Mensalidade card of the student's page:</em></sub>
 
-1. **Acréscimo No Gi** — ligue o interruptor e escolha o **Professor do acréscimo**. Enquanto estiver ligado, o aluno deve a mensalidade **mais o acréscimo** (10 € por padrão) todos os meses: em Inadimplentes, no pagamento rápido, no pagamento da família e na página Mensalidade do aluno. Do acréscimo, 5 € são do professor. Desligue para parar de cobrar
-   <sub><em>Acréscimo No Gi (No Gi add-on) — turn the switch on and pick the Professor do acréscimo (add-on teacher). While on, the student owes the Monthly Fee plus the add-on (€10 by default) every month: in Overdue, quick pay, family payment and the student's Membership page. €5 of the add-on is the teacher's. Turn it off to stop charging it</em></sub>
-2. **Angariado por** — escolha o professor que trouxe o aluno. Metade (50% por padrão) do que o aluno **pagar** no mês vai para esse professor; mês sem pagamento, nada
-   <sub><em>Angariado por (Recruited by) — pick the teacher who brought the student. Half (50% by default) of what the student pays in the month goes to that teacher; no payment that month, nothing</em></sub>
-3. Confira **"Deve por mês"** e toque em **"Salvar cobrança"**
-   <sub><em>Check "Deve por mês" (Owes per month) and tap "Salvar cobrança" (Save billing)</em></sub>
+1. Em **Acordo**, escolha o acordo (veja Acordos). A lista mostra os acordos ativos como **"Nome · Professores"**. **Nenhum** desliga o aluno do acordo
+   <sub><em>In Acordo (Agreement), pick the agreement (see Acordos). The list shows active agreements as "Name · Teachers". Nenhum (None) unlinks the student</em></sub>
+2. Em **Como**, escolha uma opção. Um aluno fica em um acordo só, de um jeito só:
+   <sub><em>In Como (How), pick one option. A student is in one agreement only, in one way only:</em></sub>
+   - **Acréscimo · +10,00 €** — já era aluno da academia e quer fazer estas aulas. O aluno deve a mensalidade **mais o acréscimo do acordo** todos os meses: em Inadimplentes, no pagamento rápido, no pagamento da família e na página Mensalidade do aluno. Só aparece se o acordo tiver acréscimo
+     <sub><em>Acréscimo (Add-on) — was already a student and wants these classes. The student owes the Monthly Fee plus the agreement's add-on every month: in Overdue, quick pay, family payment and the student's Membership page. Only shown when the agreement has an add-on</em></sub>
+   - **Angariado** — veio para a academia por estes professores. A percentagem do acordo (por exemplo, 50%) do que o aluno **pagar** no mês vai para o acordo; mês sem pagamento, nada
+     <sub><em>Angariado (Recruited) — came to the academy through these teachers. The agreement's percentage (e.g., 50%) of what the student pays in the month goes to the agreement; no payment that month, nothing</em></sub>
+3. Confira a linha de baixo (presenças este mês nas aulas do acordo e, para angariado, quanto vai para o acordo), confira **"Deve por mês"** e toque em **"Salvar cobrança"**
+   <sub><em>Check the line below (check-ins this month in the agreement's classes and, for recruited, how much goes to the agreement), check "Deve por mês" (Owes per month) and tap "Salvar cobrança" (Save billing)</em></sub>
 
 > [!note] Check-ins não cobram
-> O check-in nunca liga nem desliga o acréscimo. Ele só serve de aviso: a página mostra quantos check-ins o aluno fez este mês nas aulas do professor, e a aba **Repasses** avisa quem tem acréscimo e não apareceu. Uma família com **preço acordado** continua pagando o preço acordado.
-> <sub><em>A check-in never turns the add-on on or off. It is only a hint: the page shows how many check-ins the student made this month in the teacher's classes, and the Repasses tab flags who has the add-on and didn't show up. A family with an agreed price keeps paying the agreed price.</em></sub>
+> O check-in nunca liga nem desliga o acréscimo nem muda o repasse. Ele só serve de aviso: a página mostra quantas presenças o aluno fez este mês nas aulas dos professores do acordo, e a aba **Repasses** avisa quem tem acréscimo e não apareceu, e quem veio sem acréscimo. Uma família com **preço acordado** continua pagando o preço acordado.
+> <sub><em>A check-in never turns the add-on on or off nor changes the payout. It is only a hint: the page shows how many check-ins the student made this month in the agreement teachers' classes, and the Repasses tab flags who has the add-on and didn't show up, and who came without the add-on. A family with an agreed price keeps paying the agreed price.</em></sub>
 
 ### Balanço do Mês
 <sub><em>Monthly Balance</em></sub>
@@ -761,13 +786,13 @@ Um mês novo começa com as despesas do último mês lançado (menos as de "só 
 ### Repasses
 <sub><em>Payouts</em></sub>
 
-Menu → **Financeiro** → aba **Repasses**. Há um cartão por **Professor de repasse** no mês:
-<sub><em>Menu → Financeiro → Repasses tab. There is one card per Payout Teacher for the month:</em></sub>
+Menu → **Financeiro** → aba **Repasses**. Há um cartão por **acordo** no mês (veja Acordos), com o nome do acordo e, embaixo, os professores e a percentagem (por exemplo, **"Reynaldo, Alex · 50%"**). O repasse é um valor só por acordo; os professores dividem entre eles:
+<sub><em>Menu → Financeiro → Repasses tab. There is one card per agreement for the month (see Acordos), with the agreement's name and, below, its teachers and percentage (e.g., "Reynaldo, Alex · 50%"). The payout is one amount per agreement; the teachers split it among themselves:</em></sub>
 
-- **Acréscimos pagos** — a parte do professor (5 €) vezes os pagamentos de alunos com acréscimo feitos no mês
-  <sub><em>Acréscimos pagos (Add-ons paid) — the teacher's share (€5) times the payments made that month by students with the add-on</em></sub>
-- **Angariados** — 50% do que os alunos angariados pagaram no mês
-  <sub><em>Angariados (Recruited) — 50% of what recruited students paid that month</em></sub>
+- **Acréscimos pagos · 8 × 50% de 10,00 €** — a percentagem do acordo sobre o acréscimo, vezes os pagamentos de alunos com acréscimo feitos no mês (só aparece se o acordo tiver acréscimo)
+  <sub><em>Acréscimos pagos (Add-ons paid) — the agreement's percentage of the add-on, times the payments made that month by students with the add-on (only shown when the agreement has an add-on)</em></sub>
+- **Angariados · 50% de 135,00 € pagos** — a percentagem do acordo sobre o que os alunos angariados pagaram no mês
+  <sub><em>Angariados (Recruited) — the agreement's percentage of what recruited students paid that month</em></sub>
 - **Calculado pelo app** — a soma dos dois
   <sub><em>Calculado pelo app (Worked out by the app) — the sum of both</em></sub>
 
@@ -776,25 +801,22 @@ Menu → **Financeiro** → aba **Repasses**. Há um cartão por **Professor de 
 2. Toque em **"Confirmar repasse"** — o selo passa de **Por confirmar** para **Confirmado** e o Balanço usa esse valor
    <sub><em>Tap "Confirmar repasse" (Confirm payout) — the badge changes from Por confirmar (To confirm) to Confirmado (Confirmed) and the Balance uses that amount</em></sub>
 
-Abaixo, **Alunos de …** lista cada aluno, quanto pagou e o repasse. O aviso laranja mostra alunos com acréscimo que não fizeram check-in nas aulas do professor naquele mês.
-<sub><em>Below, Alunos de … (… 's students) lists each student, what they paid and the payout. The orange notice shows students with the add-on who didn't check in to the teacher's classes that month.</em></sub>
+O aviso laranja (só você vê) mostra **Sem presença** — alunos com acréscimo que não fizeram check-in nas aulas do acordo naquele mês — e **Vieram sem acréscimo** — alunos que fizeram check-in nessas aulas sem estar no acordo (por exemplo, **"Bruno (3 presenças)"**). Se for o caso, ligue-os ao acordo na página do aluno.
+<sub><em>The orange notice (only you see it) shows Sem presença (No check-in) — students with the add-on who didn't check in to the agreement's classes that month — and Vieram sem acréscimo (Came without the add-on) — students who checked in to those classes without being in the agreement (e.g., "Bruno (3 presenças)"). If needed, link them to the agreement on the student's page.</em></sub>
+
+Abaixo, **Alunos do acordo …** lista cada aluno, se é Acréscimo ou Angariado, as presenças, quanto pagou e o repasse.
+<sub><em>Below, Alunos do acordo … (The agreement's students) lists each student, whether Add-on or Recruited, their check-ins, what they paid and the payout.</em></sub>
 
 ### Exportar para Excel
 <sub><em>Export to Excel</em></sub>
 
-- Em **Repasses**, **"Exportar Excel"** baixa o repasse do professor: aluno, mensalidade, valor pago, data do pagamento, mês de referência, tipo (Acréscimo/Angariado), repasse por aluno, totais e o repasse do mês
-  <sub><em>In Repasses, "Exportar Excel" (Export to Excel) downloads the teacher's payout: student, monthly fee, amount paid, payment date, reference month, kind (Add-on/Recruited), payout per student, totals and the month payout</em></sub>
+- Em **Repasses**, **"Exportar Excel"** baixa o repasse do acordo: aluno, mensalidade, valor pago, data do pagamento, mês de referência, tipo (Acréscimo/Angariado), repasse por aluno, totais e o repasse do mês
+  <sub><em>In Repasses, "Exportar Excel" (Export to Excel) downloads the agreement's payout: student, monthly fee, amount paid, payment date, reference month, kind (Add-on/Recruited), payout per student, totals and the month payout</em></sub>
 - Em **Balanço**, **"Exportar mês para Excel"** baixa as entradas, todas as despesas, os repasses e o resultado
   <sub><em>In Balanço, "Exportar mês para Excel" (Export month to Excel) downloads income, every expense, payouts and the result</em></sub>
 
 O arquivo é um CSV que o Excel em português abre direto, com vírgula nos decimais.
 <sub><em>The file is a CSV that Portuguese Excel opens directly, with comma decimals.</em></sub>
-
-### Configurações do Financeiro
-<sub><em>Finance Settings</em></sub>
-
-Menu → **Configurações** → cartão **Financeiro**: o **nome do acréscimo** (No Gi), o **preço do acréscimo** (10 €), a **parte do professor no acréscimo** (5 €) e a **parte do professor nos angariados** (50%). Toque em **"Salvar financeiro"**. Os novos valores valem para todos os cálculos, inclusive os meses já passados.
-<sub><em>Menu → Configurações (Settings) → Financeiro card: the add-on name (No Gi), the add-on price (€10), the teacher's share of the add-on (€5) and the teacher's share of recruited students (50%). Tap "Salvar financeiro" (Save finances). The new values apply to every calculation, including past months.</em></sub>
 
 ## Notificações
 <sub><em>Notifications</em></sub>

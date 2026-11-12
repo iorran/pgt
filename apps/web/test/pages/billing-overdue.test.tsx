@@ -137,7 +137,7 @@ describe('BillingOverduePage', () => {
         addOn: { name: 'No Gi', price: '10.00' },
         recruitedBy: null,
       },
-      { ...mockRecords[1], monthlyFee: '45.00', addOn: null, recruitedBy: { id: 't1', name: 'Rafael' } },
+      { ...mockRecords[1], monthlyFee: '45.00', addOn: null, recruitedBy: { id: 'g2', name: 'Tarde' } },
     ] as any);
     renderWithProviders(<BillingOverduePage />);
     expect(await screen.findByText('finance.chips.addOn')).toBeInTheDocument();

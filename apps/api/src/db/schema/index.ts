@@ -16,3 +16,4 @@ export * from './family';
 export * from './modality';
 export * from './seminar-participant';
 export * from './finance';
+export * from './agreement';

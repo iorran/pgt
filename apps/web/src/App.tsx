@@ -14,6 +14,7 @@ import { StudentShell } from './components/layout/student-shell';
 import MePage from './pages/me';
 import BillingStatusPage from './pages/me/billing-status';
 import LanguagePage from './pages/me/language';
+import TeacherAgreementPage from './pages/me/agreement';
 import ClassesPage from './pages/classes/index';
 import CheckinHistoryPage from './pages/classes/checkin';
 import SeminarPage from './pages/classes/seminar';
@@ -228,6 +229,7 @@ function AppRoutes() {
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/language" element={<LanguagePage />} />
+        <Route path="/me/agreement/:id" element={<TeacherAgreementPage />} />
         <Route
           path="/ajuda"
           element={

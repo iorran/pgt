@@ -16,7 +16,7 @@ import { impersonateAs } from '../auth';
 import { FinancePage, StudentBillingSection } from '../pages/finance-page';
 
 // Owner-side Financeiro journeys: Class Add-on, Recruited Student, Expenses,
-// Teacher Payouts, Monthly Balance, Settings › Financeiro.
+// Teacher Payouts (per agreement), Monthly Balance, the agreement's add-on price.
 
 let academy: FixtureAcademy | undefined;
 
@@ -45,7 +45,7 @@ async function paidThisMonth(setup: Awaited<ReturnType<typeof scenarioFinance>>)
   });
 }
 
-test('F1. student page marks a Class Add-on and a recruiter; owed per month goes 45 → 55', async ({ browser }) => {
+test('F1. student page links to an agreement as add-on or recruited; owed per month goes 45 → 55', async ({ browser }) => {
   const setup = await scenarioFinance(false);
   academy = setup.academy;
 
@@ -56,24 +56,28 @@ test('F1. student page marks a Class Add-on and a recruiter; owed per month goes
 
     await billing.goto(setup.addOnStudent.id);
     await expect(billing.owesPerMonth).toContainText(money('45.00'));
-    await billing.addOnSwitch.check();
-    await billing.addOnTeacher.selectOption(setup.teacher.id);
+    await expect(billing.agreement.locator('option', { hasText: `No Gi · ${setup.teacher.name}` })).toHaveCount(1);
+    await billing.agreement.selectOption(setup.agreement.id);
+    await billing.addOn.check();
     await expect(billing.owesPerMonth).toContainText(money('55.00'));
     await billing.save.click();
     await expect(page.getByText('Cobrança salva')).toBeVisible();
 
     await billing.goto(setup.recruited.id);
-    await billing.recruitedBy.selectOption(setup.teacher.id);
+    await billing.agreement.selectOption(setup.agreement.id);
+    await billing.recruited.check();
+    await expect(page.getByText('50% da mensalidade vai para o acordo No Gi')).toBeVisible();
     await billing.save.click();
     await expect(page.getByText('Cobrança salva').first()).toBeVisible();
 
-    // Persisted: reloads show the marks.
+    // Persisted: reloads show the links.
     await billing.goto(setup.addOnStudent.id);
-    await expect(billing.addOnSwitch).toBeChecked();
-    await expect(billing.addOnTeacher).toHaveValue(setup.teacher.id);
+    await expect(billing.agreement).toHaveValue(setup.agreement.id);
+    await expect(billing.addOn).toBeChecked();
     await expect(billing.owesPerMonth).toContainText(money('55.00'));
     await billing.goto(setup.recruited.id);
-    await expect(billing.recruitedBy).toHaveValue(setup.teacher.id);
+    await expect(billing.agreement).toHaveValue(setup.agreement.id);
+    await expect(billing.recruited).toBeChecked();
   } finally {
     await context.close();
   }
@@ -93,7 +97,7 @@ test('F2. Cobranças shows add-on and recruited chips; quick pay records 55 €'
     await expect(marta.getByText('+ Acréscimo No Gi')).toBeVisible({ timeout: 10_000 });
     await expect(marta.getByText(/45,00\s€ \+ 10,00\s€/)).toBeVisible();
     const carla = finance.overdueCard(setup.recruited.name);
-    await expect(carla.getByText(`Angariado · ${setup.teacher.name}`)).toBeVisible();
+    await expect(carla.getByText(`Angariado · ${setup.agreement.name}`)).toBeVisible();
 
     await marta.getByRole('button', { name: 'Registrar pagamento' }).click();
     await expect(page.getByText('Pagamento registrado')).toBeVisible();
@@ -164,7 +168,7 @@ test('F3. Despesas copies last month, edits, adds a one-off, removes, and the ne
   }
 });
 
-test('F4. Repasses suggests the payout, flags missing check-ins, confirms a correction and exports a CSV', async ({
+test('F4. Repasses suggests the agreement payout, flags missing check-ins, confirms a correction and exports a CSV', async ({
   browser,
 }) => {
   const setup = await scenarioFinance();
@@ -177,13 +181,14 @@ test('F4. Repasses suggests the payout, flags missing check-ins, confirms a corr
     const finance = new FinancePage(page);
     await finance.goto('/billing/payouts');
 
-    await expect(page.getByRole('heading', { level: 2, name: setup.teacher.name })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('heading', { level: 2, name: setup.agreement.name })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(`${setup.teacher.name} · 50%`)).toBeVisible();
     await expect(page.getByText('Por confirmar')).toBeVisible();
-    // 1 add-on payment × 5 € + 50% of the 45 € the recruited student paid.
-    await expect(page.getByText(/Acréscimos pagos · 1 × 5,00\s€/).locator('..')).toContainText(money('5.00'));
+    // 1 add-on payment × 50% of 10 € + 50% of the 45 € the recruited student paid.
+    await expect(page.getByText(/Acréscimos pagos · 1 × 50% de 10,00\s€/).locator('..')).toContainText(money('5.00'));
     await expect(page.getByText(/Angariados · 50% de 45,00\s€ pagos/).locator('..')).toContainText(money('22.50'));
     await expect(page.getByText('Calculado pelo app').locator('..')).toContainText(money('27.50'));
-    await expect(page.getByText(/não fez check-in/)).toContainText(setup.addOnStudent.name);
+    await expect(page.getByText(/Sem presença no No Gi/)).toContainText(setup.addOnStudent.name);
 
     const amount = page.getByLabel('Repasse do mês');
     await expect(amount).toHaveValue('27.50');
@@ -193,7 +198,7 @@ test('F4. Repasses suggests the payout, flags missing check-ins, confirms a corr
     await expect(page.getByLabel('Repasse do mês')).toHaveValue('30.00');
 
     const { download, text } = await finance.downloadCsv('Exportar Excel');
-    expect(download.suggestedFilename()).toBe(`repasse-rafael-nogi-${monthFromNow()}.csv`);
+    expect(download.suggestedFilename()).toBe(`repasse-no-gi-${monthFromNow()}.csv`);
     expect(text.startsWith('﻿')).toBe(true);
     expect(text).toContain('Aluno;Mensalidade;Pago;Data do pagamento;Mês de referência;Tipo;Repasse');
     expect(text).toContain(`${setup.addOnStudent.name};45,00;55,00;${todayYmd()};${monthFromNow()};Acréscimo;5,00`);
@@ -210,7 +215,7 @@ test('F5. Balanço: result = income − expenses − confirmed payout; switches 
   await createExpense(setup.academy.id, monthFromNow(), 'Renda', '20.00');
   await e2eDb.insert(schema.teacherPayout).values({
     academyId: setup.academy.id,
-    teacherId: setup.teacher.id,
+    agreementId: setup.agreement.id,
     month: monthFromNow(),
     amount: '30.00',
   });
@@ -224,7 +229,7 @@ test('F5. Balanço: result = income − expenses − confirmed payout; switches 
     // 100 € in (55 + 45) − 20 € expenses − 30 € confirmed payout.
     await expect(page.getByText(/^\+ 50,00\s€$/)).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText('Entrou').locator('..')).toContainText(money('100.00'));
-    await expect(page.getByText(/Acréscimos No Gi · 1/).locator('..')).toContainText(money('10.00'));
+    await expect(page.getByText(/Acréscimos · 1/).locator('..')).toContainText(money('10.00'));
 
     const { download, text } = await finance.downloadCsv('Exportar mês para Excel');
     expect(download.suggestedFilename()).toBe(`balanco-${monthFromNow()}.csv`);
@@ -240,20 +245,18 @@ test('F5. Balanço: result = income − expenses − confirmed payout; switches 
   }
 });
 
-test('F6. Settings › Financeiro: add-on price 12 makes the student owe 57', async ({ browser }) => {
+// The Settings › Acordos screen has its own spec; this checks the price reaches the student page.
+test('F6. an agreement add-on price of 12 makes the student owe 57', async ({ browser }) => {
   const setup = await scenarioFinance();
   academy = setup.academy;
+  await e2eDb
+    .update(schema.teacherAgreement)
+    .set({ addOnPrice: '12.00' })
+    .where(eq(schema.teacherAgreement.id, setup.agreement.id));
 
   const context = await impersonateAs(browser, setup.instructor.email);
   try {
     const page = await context.newPage();
-    await page.goto('/settings');
-    const price = page.getByLabel('Preço do acréscimo (€ por mês)');
-    await expect(price).toHaveValue('10', { timeout: 10_000 });
-    await price.fill('12');
-    await page.getByRole('button', { name: 'Salvar financeiro' }).click();
-    await expect(page.getByText('Configurações financeiras salvas')).toBeVisible();
-
     const billing = new StudentBillingSection(page);
     await billing.goto(setup.addOnStudent.id);
     await expect(billing.owesPerMonth).toContainText(money('57.00'));
@@ -296,10 +299,6 @@ test('F7. screenshots of every finance screen at 390px for UI review', async ({ 
     await shot('repasses', (p) => expect(p.getByLabel('Repasse do mês')).toBeVisible({ timeout: 10_000 }));
     await page.goto(`/students/${setup.addOnStudent.id}`);
     await shot('aluno-cobranca', (p) => expect(p.getByText('Deve por mês')).toBeVisible({ timeout: 10_000 }));
-    await page.goto('/settings');
-    await shot('configuracoes-financeiro', (p) =>
-      expect(p.getByLabel('Preço do acréscimo (€ por mês)')).toBeVisible({ timeout: 10_000 }),
-    );
     // Despesas right after a month copy (greyed rows): next month starts from this one.
     await page.goto('/billing/expenses');
     await page.getByRole('button', { name: 'Mês seguinte' }).click();

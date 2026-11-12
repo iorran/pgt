@@ -66,8 +66,8 @@ describe('GET /api/students', () => {
       trainingNote: 'turma das 7h',
       familyId: null,
       familyName: null,
-      addOnTeacherId: null,
-      recruitedById: null,
+      agreementId: null,
+      agreementKind: null,
     });
   });
 

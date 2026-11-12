@@ -3,7 +3,8 @@ import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import postgres from 'postgres';
 
-const TEST_DB_URL = 'postgresql://postgres:postgres@localhost:5433/pgt_test';
+// TEST_DATABASE_URL lets parallel worktrees use their own database.
+const TEST_DB_URL = process.env.TEST_DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5433/pgt_test';
 
 interface JournalEntry {
   idx: number;

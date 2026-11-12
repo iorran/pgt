@@ -87,8 +87,6 @@ export async function paymentRoutes(app: FastifyInstance) {
         .where(and(eq(family.academyId, request.academyId), isNull(family.deletedAt))),
     ]);
     const responsiblePhone = new Map(responsibles.map((r) => [r.id, r.phone]));
-    // Payout Teachers are Students of the academy.
-    const nameOf = new Map(students.map((s) => [s.studentId, s.name]));
 
     const items: ({ daysOverdue: number } & Record<string, unknown>)[] = [];
     const familyIds = new Set(families.map((f) => f.id));
@@ -115,7 +113,7 @@ export async function paymentRoutes(app: FastifyInstance) {
         amountDue: fromCents(toCents(s.membership!.fee) * owed.length),
         monthlyFee: s.monthlyFee,
         addOn: s.addOn,
-        recruitedBy: s.recruitedById ? { id: s.recruitedById, name: nameOf.get(s.recruitedById) ?? '' } : null,
+        recruitedBy: s.agreement?.kind === 'recruited' ? { id: s.agreement.id, name: s.agreement.name } : null,
       });
     }
 

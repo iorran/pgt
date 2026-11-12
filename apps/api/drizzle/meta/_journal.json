@@ -148,6 +148,20 @@
       "when": 1794425496009,
       "tag": "0020_finance",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794515005410,
+      "tag": "0021_teacher_agreements",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1794515027937,
+      "tag": "0022_drop_old_payout_fields",
+      "breakpoints": true
     }
   ]
 }

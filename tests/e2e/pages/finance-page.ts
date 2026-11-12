@@ -45,20 +45,20 @@ export class FinancePage {
   }
 }
 
-// Student page › Mensalidade card › Class Add-on / Angariado por.
+// Student page › Mensalidade card › Acordo (Teacher Agreement) and how: Acréscimo / Angariado.
 export class StudentBillingSection {
   readonly page: Page;
-  readonly addOnSwitch: Locator;
-  readonly addOnTeacher: Locator;
-  readonly recruitedBy: Locator;
+  readonly agreement: Locator;
+  readonly addOn: Locator;
+  readonly recruited: Locator;
   readonly owesPerMonth: Locator;
   readonly save: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.addOnSwitch = page.getByRole('switch', { name: 'Acréscimo No Gi' });
-    this.addOnTeacher = page.getByLabel('Professor do acréscimo');
-    this.recruitedBy = page.getByLabel('Angariado por');
+    this.agreement = page.getByLabel('Acordo', { exact: true });
+    this.addOn = page.getByRole('radio', { name: /^Acréscimo/ });
+    this.recruited = page.getByRole('radio', { name: /^Angariado/ });
     // "Deve por mês" and its amount share one row.
     this.owesPerMonth = page.getByText('Deve por mês').locator('..');
     this.save = page.getByRole('button', { name: 'Salvar cobrança' });
