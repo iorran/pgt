@@ -12,13 +12,13 @@ vi.mock('@/lib/auth-client', () => ({
 }));
 
 describe('Unauthenticated routing', () => {
-  it('renders forgot-password page at /forgot-password', () => {
+  it('renders forgot-password page at /forgot-password', async () => {
     renderWithRoute(<App />, ['/forgot-password']);
-    expect(screen.getByText('auth.forgotPasswordTitle')).toBeInTheDocument();
+    expect(await screen.findByText('auth.forgotPasswordTitle')).toBeInTheDocument();
   });
 
-  it('renders reset-password page at /reset-password', () => {
+  it('renders reset-password page at /reset-password', async () => {
     renderWithRoute(<App />, ['/reset-password?token=abc']);
-    expect(screen.getByText('auth.resetPasswordTitle')).toBeInTheDocument();
+    expect(await screen.findByText('auth.resetPasswordTitle')).toBeInTheDocument();
   });
 });

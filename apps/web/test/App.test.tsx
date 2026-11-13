@@ -71,10 +71,10 @@ describe('App shell selector', () => {
     expect(screen.queryByTestId('staff-shell')).not.toBeInTheDocument();
   });
 
-  it('mounts StaffShell for role=owner', () => {
+  it('mounts StaffShell for role=owner', async () => {
     setSession('owner');
     renderWithProviders(<App />);
-    expect(screen.getByTestId('staff-shell')).toBeInTheDocument();
+    expect(await screen.findByTestId('staff-shell')).toBeInTheDocument();
     expect(screen.queryByTestId('student-shell')).not.toBeInTheDocument();
   });
 
@@ -143,19 +143,19 @@ describe('App shell selector', () => {
   describe('family profiles (ADR 0004)', () => {
     const dependents = [{ id: 'd1', name: 'Livia', belt: 'yellow', image: null }];
 
-    it('a Responsible who does not train always starts at "Quem vai usar?"', () => {
+    it('a Responsible who does not train always starts at "Quem vai usar?"', async () => {
       setSession('responsible', { actorId: 'u1', actorRole: 'responsible' });
       vi.mocked(useProfiles).mockReturnValue({ data: { actorId: 'u1', currentId: 'u1', self: null, dependents } } as any);
       renderWithProviders(<App />);
-      expect(screen.getByTestId('profiles-page')).toBeInTheDocument();
+      expect(await screen.findByTestId('profiles-page')).toBeInTheDocument();
       expect(window.location.pathname).toBe('/perfis');
     });
 
-    it('a student with Dependents picks a profile first, once per tab', () => {
+    it('a student with Dependents picks a profile first, once per tab', async () => {
       setSession('student', { actorId: 'u1', actorRole: 'student' });
       vi.mocked(useProfiles).mockReturnValue({ data: { actorId: 'u1', currentId: 'u1', self: { id: 'u1', name: 'Rafael', belt: 'purple', image: null }, dependents } } as any);
       renderWithProviders(<App />);
-      expect(screen.getByTestId('profiles-page')).toBeInTheDocument();
+      expect(await screen.findByTestId('profiles-page')).toBeInTheDocument();
     });
 
     it('after choosing, the app opens normally', () => {

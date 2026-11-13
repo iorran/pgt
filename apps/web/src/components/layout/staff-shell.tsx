@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { PageLoader } from '@/components/page-loader';
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sidebar } from './sidebar';
@@ -18,7 +20,9 @@ export function StaffShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
         <main id="main" tabIndex={-1} className="flex-1 p-4 pb-[calc(env(safe-area-inset-bottom)+88px)] md:p-6 arena-stripes outline-none">
-          <Outlet />
+          <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
       <StaffBottomNav />

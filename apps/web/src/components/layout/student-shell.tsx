@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { PageLoader } from '@/components/page-loader';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { StudentHeader } from './student-header';
@@ -24,7 +26,9 @@ export function StudentShell() {
         className="pgt-page-enter flex-1 px-4 py-4 outline-none"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}
       >
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+            <Outlet />
+          </Suspense>
       </main>
       <StudentBottomNav />
     </div>
