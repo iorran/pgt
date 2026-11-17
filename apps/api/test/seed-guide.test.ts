@@ -13,8 +13,8 @@ import {
   product,
   family,
   expense,
-  teacherAgreement,
-  agreementTeacher,
+  payoutSheet,
+  payoutLine,
 } from '../src/db/schema/index';
 import { eq, and } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
@@ -183,19 +183,20 @@ describe('seedGuide', () => {
     expect(families).toHaveLength(1);
   });
 
-  it('seeds the Financeiro screens: expenses, one Class Add-on and one Recruited Student, across runs', async () => {
+  it('seeds the Financeiro screens: expenses and a draft Payout Sheet for No-Gi Noite, across runs', async () => {
     await seedGuide({ db: testDb });
     await seedGuide({ db: testDb });
 
     const [acad] = await testDb.select().from(academy).where(eq(academy.slug, 'demo-pgt'));
     const rows = await testDb.select().from(expense).where(eq(expense.academyId, acad.id));
     expect(rows.length).toBe(8); // 4 recurring expenses, this month and last
+    const sheets = await testDb.select().from(payoutSheet);
+    expect(sheets).toEqual([expect.objectContaining({ academyId: acad.id, className: 'No-Gi Noite', confirmedAt: null })]);
     const users = await testDb.select().from(user).where(eq(user.academyId, acad.id));
-    const maria = users.find((u) => u.name === 'Maria Oliveira')!;
-    const [noGi] = await testDb.select().from(teacherAgreement);
-    expect(noGi).toMatchObject({ name: 'No Gi', sharePercent: 50, addOnPrice: '10.00' });
-    expect(await testDb.select().from(agreementTeacher)).toEqual([{ agreementId: noGi.id, teacherId: maria.id }]);
-    expect(users.find((u) => u.name === 'João Silva')).toMatchObject({ agreementId: noGi.id, agreementKind: 'addOn' });
-    expect(users.find((u) => u.name === 'Pedro Souza')).toMatchObject({ agreementId: noGi.id, agreementKind: 'recruited' });
+    const lines = await testDb.select().from(payoutLine);
+    expect(lines.map((l) => [users.find((u) => u.id === l.studentId)!.name, l.amount, l.addedByHand]).sort()).toEqual([
+      ['João Silva', '10.00', true],
+      ['Pedro Souza', '22.50', true],
+    ]);
   });
 });

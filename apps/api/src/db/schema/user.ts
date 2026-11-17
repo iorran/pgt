@@ -1,8 +1,6 @@
-import { pgTable, uuid, varchar, date, timestamp, boolean, pgEnum, text, check, type AnyPgColumn } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
+import { pgTable, uuid, varchar, date, timestamp, boolean, pgEnum, text, type AnyPgColumn } from 'drizzle-orm/pg-core';
 import { academy } from './academy';
 import { family } from './family';
-import { teacherAgreement, agreementKindEnum } from './agreement';
 
 // IBJJF order: kids belts (grey/yellow/orange/green, each with white/black variants), then adult belts.
 export const beltEnum = pgEnum('belt', [
@@ -33,10 +31,6 @@ export const user = pgTable('user', {
   // Free text for what modalities don't capture (e.g. "trânsito livre").
   trainingNote: text('training_note'),
   familyId: uuid('family_id').references((): AnyPgColumn => family.id, { onDelete: 'set null' }),
-  // The Student's Teacher Agreement and how they are linked to it; both set or both null.
-  // ponytail: a current link, not a history — past months are computed with today's links.
-  agreementId: uuid('agreement_id').references((): AnyPgColumn => teacherAgreement.id),
-  agreementKind: agreementKindEnum('agreement_kind'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-}, (t) => [check('user_agreement_link_ck', sql`(${t.agreementId} IS NULL) = (${t.agreementKind} IS NULL)`)]);
+});

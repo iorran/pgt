@@ -80,17 +80,14 @@ export async function seedGuide(
 
   await db
     .update(schema.user)
-    .set({ familyId: null, agreementId: null, agreementKind: null })
+    .set({ familyId: null })
     .where(eq(schema.user.academyId, demoId));
   await db
     .delete(schema.expense)
     .where(eq(schema.expense.academyId, demoId));
   await db
-    .delete(schema.teacherPayout)
-    .where(eq(schema.teacherPayout.academyId, demoId));
-  await db
-    .delete(schema.teacherAgreement)
-    .where(eq(schema.teacherAgreement.academyId, demoId));
+    .delete(schema.payoutSheet)
+    .where(eq(schema.payoutSheet.academyId, demoId));
   await db
     .delete(schema.family)
     .where(eq(schema.family.academyId, demoId));
@@ -407,22 +404,16 @@ export async function seedGuide(
     outsiderPrice: '50.00',
   });
 
-  // 8d. Financeiro — Maria teaches No-Gi Noite under the "No Gi" Teacher Agreement (50%,
-  //     add-on 10 €): João pays its Class Add-on, Pedro is its Recruited Student. Recurring
-  //     expenses for last month and this one.
-  const [noGiAgreement] = await db
-    .insert(schema.teacherAgreement)
-    .values({ academyId: demoId, name: 'No Gi', sharePercent: 50, addOnPrice: '10.00' })
+  // 8d. Financeiro — a draft Payout Sheet for Maria's No-Gi Noite this month (João and Pedro added by
+  //     hand, no check-ins seeded). Recurring expenses for last month and this one.
+  const [noGiSheet] = await db
+    .insert(schema.payoutSheet)
+    .values({ academyId: demoId, className: 'No-Gi Noite', month: monthStart.slice(0, 7) })
     .returning();
-  await db.insert(schema.agreementTeacher).values({ agreementId: noGiAgreement.id, teacherId: roxa.id });
-  await db
-    .update(schema.user)
-    .set({ agreementId: noGiAgreement.id, agreementKind: 'addOn' })
-    .where(eq(schema.user.id, azul.id));
-  await db
-    .update(schema.user)
-    .set({ agreementId: noGiAgreement.id, agreementKind: 'recruited' })
-    .where(eq(schema.user.id, brancaOverdue.id));
+  await db.insert(schema.payoutLine).values([
+    { sheetId: noGiSheet.id, studentId: azul.id, amount: '10.00', addedByHand: true },
+    { sheetId: noGiSheet.id, studentId: brancaOverdue.id, amount: '22.50', addedByHand: true },
+  ]);
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const expenseMonths = [
     `${lastMonth.getFullYear()}-${pad(lastMonth.getMonth() + 1)}`,
