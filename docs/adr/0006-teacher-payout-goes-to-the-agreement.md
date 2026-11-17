@@ -8,6 +8,8 @@ date: 2026-11-12
 
 # Teacher Payouts go to a Teacher Agreement, not to a teacher
 
+_Superseded by [[0007-teacher-payout-is-a-sheet-filled-by-hand|ADR 0007]]._
+
 Money passed on to teachers is worked out per [[CONTEXT#Teacher Agreement|Teacher Agreement]] — a deal the Owner makes with one or more Class Teachers (e.g. "No Gi" with its two teachers) holding one percentage and an optional [[CONTEXT#Class Add-on|Class Add-on]] — not per teacher. [[CONTEXT#Recruited Student|Recruited Students]] and add-on marks point at the agreement, and each month there is a single [[CONTEXT#Teacher Payout|Teacher Payout]] per agreement; how its teachers divide it is theirs, outside the app. We chose this because that is how the academy works today: the No Gi teachers teach together, split equally between themselves, and it does not matter which of them brought a Student. It also replaces the earlier academy-wide settings (one add-on with a fixed 5 € share, one recruited percentage, any active Student selectable as teacher), so only teachers with an agreement appear in the lists and see their Students.
 
 ## Considered Options

@@ -94,8 +94,7 @@ The amount the Owner set for a Student to pay per month. There are no plans: the
 _Avoid_: Plan, agreed price, mensalidade (in code/specs), dues, package
 
 **Class Add-on**:
-An extra amount a month an academy Student pays on top of their Monthly Fee to also train what a Teacher Agreement covers (e.g. +10 € for No Gi); the Owner sets the amount on that Teacher Agreement, which may offer one or none. Never for a Recruited Student of the same Teacher Agreement — they came for those classes and their Monthly Fee already covers them. Owed every month while the Owner has the Student marked and stops when the mark is removed; check-ins never set it, they only flag marked Students who didn't attend that month (in the UI: "Acréscimo").
-_Avoid_: Extra fee, surcharge, second plan, upgrade
+_Superseded ([[0007-teacher-payout-is-a-sheet-filled-by-hand|ADR 0007]])._ A Student who also trains an extra class just has a higher Monthly Fee (e.g. 55 € instead of 45 €).
 
 **Family Contact**:
 _Superseded by **Responsible** ([[0004-one-login-per-family-with-profiles|ADR 0004]])._ Formerly the optional member the Owner preferred to reach about a Family's payments.
@@ -127,16 +126,15 @@ How a month went for the academy: money received that month minus that month's E
 _Avoid_: Profit, P&L, result, fechamento
 
 **Teacher Agreement**:
-A deal the Owner makes with one or more Class Teachers (other than the Owner) who teach together — e.g. "No Gi" with its two teachers — to pass on a share of money from Students: a single percentage of what its Recruited Students pay and of its Class Add-on (e.g. 50%). The Owner names it, picks its teachers and sets the percentage; there can be several. How the teachers divide their share among themselves is theirs, outside the app. A Student is linked to at most one Teacher Agreement — as a Recruited Student or with its Class Add-on, never both; the rare Student who would belong to two is handled by correcting the Teacher Payout (in the UI: "Acordo").
-_Avoid_: Contract, partnership, commission plan; "acordo" for what a Student pays (that is the Monthly Fee)
-
-**Payout Teacher**:
-_Superseded by **Teacher Agreement**._ Money is passed on to an agreement, not to a single teacher.
+_Superseded by **Payout Sheet** ([[0007-teacher-payout-is-a-sheet-filled-by-hand|ADR 0007]])._ No standing deal is kept in the app; the Owner types each month's amounts.
 
 **Recruited Student**:
-A Student brought to the academy by the teachers of a Teacher Agreement (in the UI: "Angariado por"), whichever of them did it. That agreement's percentage of the Monthly Fee they pay each month goes to it — e.g. 22,50 € of a 45 € Monthly Fee at 50%. Never of a Class Add-on they pay: that goes to the add-on's own agreement.
-_Avoid_: Teacher's student (ambiguous), referral, own student
+_Superseded by **Payout Sheet**._ A Student a teacher brought just gets a bigger Payout Line, typed by the Owner.
 
-**Teacher Payout**:
-What the academy passes on to one Teacher Agreement for one month, as a single amount: its percentage of the Class Add-on of every Student that paid it that month, plus the same percentage of the Monthly Fee each of its Recruited Students paid that month. Only the agreement's teachers see it, once the Owner has confirmed the month, with the list of those Students — never what each one pays. The app works it out; the Owner can correct the amount before closing the month. Reduces that month's Monthly Balance (in the UI: "Repasse").
-_Avoid_: Commission, split, revenue share, per-student payout
+**Payout Sheet**:
+What the academy passes on to the teachers of one class for one month, as a list the Owner fills by hand — like the spreadsheet the Owner used to send them. One sheet per class name per month, so classes sharing a name (No Gi on Tuesday and Thursday) share a sheet. It lists every Student who checked in to those classes that month, plus any the Owner adds who forgot to check in, each with whether they paid that month and a Payout Line. It starts empty; the Owner types the amounts. While a draft it is only pending; once the Owner confirms it, its total reduces that month's Monthly Balance. The Class Teachers of those classes see it read-only from the draft on — never what any Student pays. How the teachers divide the total is theirs, outside the app (in the UI: "Repasse").
+_Avoid_: Agreement, commission, split, revenue share
+
+**Payout Line**:
+One Student's row on a Payout Sheet: the amount, typed by the Owner, passed on to the teachers because of that Student that month. Empty means nothing.
+_Avoid_: Share, percentage, commission
