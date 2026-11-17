@@ -23,13 +23,9 @@ const KEYS: Record<string, string> = {
   PARTICIPANT_NOT_FOUND: 'seminars.errors.participantGone',
   NO_BILLABLE_MEMBER: 'billing.errors.noBillableMember',
   NOT_OVERDUE: 'billing.errors.notOverdue',
-  INVALID_PAYOUT_TEACHER: 'finance.errors.invalidTeacher',
-  INVALID_AGREEMENT_LINK: 'finance.errors.invalidAgreementLink',
-  INVALID_PAYOUT_AGREEMENT: 'finance.errors.invalidPayoutAgreement',
-  INVALID_AGREEMENT: 'agreements.errors.invalid',
-  AGREEMENT_HAS_ADD_ON_STUDENTS: 'agreements.errors.hasAddOnStudents',
   INVALID_EXPENSE: 'finance.errors.invalidExpense',
-  INVALID_PAYOUT: 'finance.errors.invalidPayout',
+  sheetConfirmed: 'finance.errors.sheetConfirmed',
+  INVALID_AMOUNT: 'finance.errors.invalidAmount',
   EXPENSE_NOT_FOUND: 'finance.errors.expenseGone',
 };
 

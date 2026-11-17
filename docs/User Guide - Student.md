@@ -292,8 +292,8 @@ Barra inferior → **Perfil** → **Mensalidade** (ou toque no banner). A págin
   <sub><em>**Em dia** (Up to date, green) — nothing owed; if the due day is close, "Seu pagamento vence em N dias" also shows</em></sub>
 - **Atrasada** (vermelho) — com "Seu pagamento está N dias atrasado"
   <sub><em>**Atrasada** (Overdue, red) — with "Seu pagamento está N dias atrasado"</em></sub>
-- Quanto você paga por mês: a mensalidade ou, se você tiver o **acréscimo** (por exemplo, No Gi), a conta "45,00 € + 10,00 € (acréscimo No Gi) = 55,00 € por mês"
-  <sub><em>What you pay per month: the monthly fee or, if you have the add-on (e.g., No Gi), the sum "€45.00 + €10.00 (No Gi add-on) = €55.00 per month"</em></sub>
+- Quanto você paga por mês: a mensalidade
+  <sub><em>What you pay per month: the monthly fee</em></sub>
 
 Se a página não carregar, aparece "Não foi possível carregar sua mensalidade. Tente novamente."
 <sub><em>If the page can't load, it shows "Não foi possível carregar sua mensalidade. Tente novamente." (Couldn't load your membership status. Please try again.)</em></sub>
@@ -323,23 +323,27 @@ A aba **Perfil** reúne tudo que é seu.
 - **Sair** — botão vermelho no fim da página; encerra a sessão neste dispositivo.
   <sub><em>**Sign out** — red button at the bottom of the page; ends the session on this device.</em></sub>
 
-### Seu acordo
-<sub><em>Your agreement</em></sub>
+### Meu repasse
+<sub><em>My payout</em></sub>
 
-Se você é professor num acordo com a academia, o **Perfil** mostra um cartão amarelo **"Acordo …"** com quantos alunos estão nele e se o repasse do mês já foi confirmado. Quem não está num acordo não vê esse cartão.
-<sub><em>If you're a teacher on an agreement with the academy, **Me** shows a yellow **"Acordo …"** (Agreement) card with how many students are in it and whether this month's payout is confirmed. If you're not on an agreement, you don't see this card.</em></sub>
+Se você dá aulas na academia (sem ser o dono), o **Perfil** mostra um cartão amarelo **"Meu repasse"** com o nome das suas aulas. Quem não dá aulas não vê esse cartão.
+<sub><em>If you teach at the academy (and aren't the owner), **Me** shows a yellow **"Meu repasse"** (My payout) card with your classes' names. If you don't teach, you don't see this card.</em></sub>
 
-Toque no cartão para ver, mês a mês (setas **‹ ›**, sem meses futuros):
-<sub><em>Tap the card to see, month by month (**‹ ›** arrows, no future months):</em></sub>
+Toque no cartão para ver o repasse que a academia preencheu para a sua aula, só para leitura:
+<sub><em>Tap the card to see the payout the academy filled in for your class, read-only:</em></sub>
 
-- **Repasse do mês** — o valor que a academia confirmou para o acordo. Antes disso aparece **"Ainda não confirmado"**.
-  <sub><em>**Repasse do mês** (This month's payout) — the amount the academy confirmed for the agreement. Before that it shows **"Ainda não confirmado"** (Not confirmed yet).</em></sub>
-- **Angariados** e **Acréscimo** — os alunos do acordo, com as presenças do mês nas suas aulas e se já pagaram (**Pago**) ou não (**Pendente**).
-  <sub><em>**Angariados** (Recruited) and **Acréscimo** (Add-on) — the agreement's students, with this month's check-ins in your classes and whether they've paid (**Pago**) or not (**Pendente**).</em></sub>
+- **Aula** — se você dá mais de uma aula, escolha qual ver
+  <sub><em>**Aula** (Class) — if you teach more than one class, pick which one to see</em></sub>
+- **Últimos 6 meses** — o repasse de cada mês; toque numa barra para ver aquele mês. Uma barra tracejada é um mês ainda em rascunho
+  <sub><em>**Últimos 6 meses** (Last 6 months) — each month's payout; tap a bar to see that month. A dashed bar is a month still in draft</em></sub>
+- Enquanto o mês está em rascunho aparece um aviso amarelo: **"… ainda em rascunho. Viu algo errado? Fale com a academia."**
+  <sub><em>While the month is a draft a yellow notice shows: "… ainda em rascunho. Viu algo errado? Fale com a academia." (… is still a draft. Spotted something wrong? Talk to the academy.)</em></sub>
+- A tabela mostra cada **Aluno**, os **Treinos** no mês, se **Pagou** (**Sim** ou **Não**) e o **Repasse** dele. Embaixo, o **Total para a aula**
+  <sub><em>The table shows each **Aluno** (Student), their **Treinos** (classes trained) that month, whether they **Pagou** (Paid — **Sim**/Yes or **Não**/No) and their **Repasse** (Payout). At the bottom, the **Total para a aula** (Total for the class)</em></sub>
 
-> [!note] Sem valores por aluno
-> Você vê quem pagou, mas nunca quanto cada aluno paga.
-> <sub><em>You see who paid, but never how much each student pays.</em></sub>
+> [!note] Sem mensalidades
+> Você vê quem pagou, mas nunca quanto cada aluno paga. Se a aula tem mais de um professor, vocês dividem o total entre si, fora do app.
+> <sub><em>You see who paid, but never how much each student pays. If the class has more than one teacher, you split the total among yourselves, outside the app.</em></sub>
 
 ## Gamificação
 <sub><em>Gamification</em></sub>

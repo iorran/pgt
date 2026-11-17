@@ -50,20 +50,6 @@ interface Student {
   modalities?: Modality[];
   trainingNote?: string | null;
   dateOfBirth?: string | null;
-  agreementId?: string | null;
-  agreementKind?: AgreementKind | null;
-  agreementCheckins?: number | null;
-}
-
-type AgreementKind = 'addOn' | 'recruited';
-
-interface Agreement {
-  id: string;
-  name: string;
-  sharePercent: number;
-  addOnPrice: string | null;
-  active: boolean;
-  teachers: { id: string; name: string }[];
 }
 
 interface Modality {
@@ -214,12 +200,6 @@ export default function StudentDetailPage() {
               studentId={student.id}
               monthlyFee={student.monthlyFee}
               dueDay={student.dueDay}
-            />
-          )}
-          {isOwner(user) && (
-            <StudentFinanceForm
-              key={`${student.id}-${student.agreementId}-${student.agreementKind}`}
-              student={student}
             />
           )}
           {isOwner(user) && student.monthlyFee != null && (
@@ -460,121 +440,6 @@ function MonthlyFeeForm({
       </div>
       <Button type="submit" variant="outline" loading={mutation.isPending}>
         {t('students.fee.save')}
-      </Button>
-    </form>
-  );
-}
-
-// Links the Student to at most one Teacher Agreement: with its Class Add-on or as a Recruited Student.
-function StudentFinanceForm({ student }: { student: Student }) {
-  const { t, i18n } = useTranslation();
-  const locale = i18n.language;
-  const queryClient = useQueryClient();
-  const [agreementId, setAgreementId] = useState(student.agreementId ?? '');
-  const [kind, setKind] = useState<AgreementKind | null>(student.agreementKind ?? null);
-  const { data: all = [] } = useApiQuery<Agreement[]>(['agreements'], '/agreements');
-  // A Student can't be linked to an agreement they teach in.
-  const agreements = all.filter(
-    a => (a.active || a.id === student.agreementId) && !a.teachers.some(teacher => teacher.id === student.id),
-  );
-  const agreement = agreements.find(a => a.id === agreementId);
-  const kinds: AgreementKind[] = agreement ? (agreement.addOnPrice === null ? ['recruited'] : ['addOn', 'recruited']) : [];
-  // With a single way to link (no Class Add-on), it is picked for the Owner.
-  const chosen = kind && kinds.includes(kind) ? kind : kinds.length === 1 ? kinds[0] : null;
-  const owes = Number(student.monthlyFee ?? 0) + (chosen === 'addOn' ? Number(agreement!.addOnPrice) : 0);
-  const hint = agreement
-    ? [
-        chosen === 'recruited' && t('finance.student.recruitedShare', { percent: agreement.sharePercent, name: agreement.name }),
-        agreement.id === student.agreementId &&
-          student.agreementCheckins != null &&
-          t('finance.student.checkins', { count: student.agreementCheckins, name: agreement.name }),
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : '';
-
-  const mutation = useMutation({
-    mutationFn: () =>
-      api(`/students/${student.id}/finance`, {
-        method: 'PUT',
-        body: JSON.stringify(chosen ? { agreementId, kind: chosen } : { agreementId: null, kind: null }),
-      }),
-    meta: { successMessage: t('finance.student.saved') },
-    onSuccess: () => {
-      for (const key of ['student', 'students', 'overdue', 'finance-payouts', 'finance-balance', 'agreements']) {
-        queryClient.invalidateQueries({ queryKey: [key] });
-      }
-      invalidateFamilyQueries(queryClient);
-    },
-  });
-
-  return (
-    <form
-      className="space-y-4 border-t border-border pt-4"
-      onSubmit={e => {
-        e.preventDefault();
-        mutation.mutate();
-      }}
-    >
-      <div className="space-y-2">
-        <Label htmlFor="agreement">{t('finance.student.agreement')}</Label>
-        <select
-          id="agreement"
-          value={agreement ? agreementId : ''}
-          onChange={e => setAgreementId(e.target.value)}
-          className="flex h-11 w-full rounded-sm border border-border bg-card px-3 py-2 text-base md:text-sm"
-        >
-          <option value="">{t('finance.student.none')}</option>
-          {agreements.map(a => (
-            <option key={a.id} value={a.id}>
-              {[a.name, ...(a.teachers.length > 0 ? [a.teachers.map(teacher => teacher.name).join(', ')] : [])].join(' · ')}
-            </option>
-          ))}
-        </select>
-      </div>
-      {agreement && (
-        <fieldset className="space-y-2">
-          <legend className="mb-2 text-sm font-medium">{t('finance.student.how')}</legend>
-          {kinds.map(k => (
-            <label
-              key={k}
-              className={`flex min-h-11 items-start gap-3 rounded-md border p-3 ${
-                chosen === k ? 'border-primary bg-primary/5' : 'border-border'
-              }`}
-            >
-              <input
-                type="radio"
-                name="agreement-kind"
-                value={k}
-                checked={chosen === k}
-                onChange={() => setKind(k)}
-                required
-                className="mt-0.5 size-5 shrink-0 accent-primary"
-              />
-              <span className="flex flex-col">
-                <span className="font-bold">
-                  {k === 'addOn'
-                    ? t('finance.student.kindAddOn', { price: formatMoney(agreement.addOnPrice!, locale) })
-                    : t('finance.student.kindRecruited')}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {t(k === 'addOn' ? 'finance.student.kindAddOnHint' : 'finance.student.kindRecruitedHint')}
-                </span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-      )}
-      {hint && <p className="text-sm">{hint}</p>}
-      {student.monthlyFee != null && (
-        <div className="flex items-baseline justify-between border-t border-border pt-3">
-          <span className="text-sm text-muted-foreground">{t('finance.student.owesPerMonth')}</span>
-          <span className="arena-stat text-xl">{formatMoney(owes, locale)}</span>
-        </div>
-      )}
-      <p className="text-xs text-muted-foreground">{t('finance.student.settingsHint')}</p>
-      <Button type="submit" variant="outline" loading={mutation.isPending}>
-        {t('finance.student.save')}
       </Button>
     </form>
   );

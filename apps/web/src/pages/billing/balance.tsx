@@ -7,7 +7,7 @@ import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
 import { QueryError } from '@/components/query-error';
 import { Button } from '@/components/ui/button';
-import { formatMoney, formatMonth } from '@/lib/format';
+import { formatMoney, formatMonth, formatShortMonth } from '@/lib/format';
 import { csvMoney, downloadCsv, type CsvRow } from '@/lib/csv';
 import { FinanceTabs, MonthSwitcher, currentMonth } from './finance-nav';
 
@@ -15,12 +15,12 @@ export interface Balance {
   month: string;
   income: {
     monthlyFees: { amount: string; students: number };
-    addOns: { amount: string; count: number };
     seminars: { amount: string; count: number };
     total: string;
   };
   expenses: { total: string; items: { description: string; amount: string }[] };
-  payouts: { total: string };
+  // Confirmed Payout Sheets reduce the result; drafts are only pending.
+  payouts: { total: string; pending: string };
   result: string;
   history: { month: string; result: string }[];
 }
@@ -30,7 +30,6 @@ export function balanceCsvRows(b: Balance, t: TFunction | ((key: string) => stri
     [t('finance.csv.month'), b.month],
     [],
     [t('finance.csv.monthlyFees'), csvMoney(b.income.monthlyFees.amount)],
-    [t('finance.csv.addOns'), csvMoney(b.income.addOns.amount)],
     [t('finance.csv.seminars'), csvMoney(b.income.seminars.amount)],
     [t('finance.csv.income'), csvMoney(b.income.total)],
     [],
@@ -109,11 +108,6 @@ export default function BalancePage() {
           amount: b.income.seminars.amount,
           color: 'bg-seminar',
         },
-        {
-          label: t('finance.balance.addOns', { count: b.income.addOns.count }),
-          amount: b.income.addOns.amount,
-          color: 'bg-primary',
-        },
       ]
     : [];
   const maxIncome = Math.max(...incomeRows.map((r) => Number(r.amount)), 0);
@@ -121,8 +115,6 @@ export default function BalancePage() {
   const maxExpense = Math.max(...top.map((e) => Number(e.amount)), 0);
   const maxResult = Math.max(...(b?.history ?? []).map((h) => Math.abs(Number(h.result))), 0);
   const previous = b?.history[b.history.length - 2];
-  const shortMonth = (ym: string) =>
-    new Date(`${ym}-01T00:00`).toLocaleDateString(locale.startsWith('pt') ? 'pt-PT' : locale, { month: 'short' });
 
   return (
     <div className="space-y-4">
@@ -159,6 +151,11 @@ export default function BalancePage() {
               </div>
             ))}
           </section>
+          {Number(b.payouts.pending) > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {t('finance.balance.payoutsPending', { amount: formatMoney(b.payouts.pending, locale) })}
+            </p>
+          )}
 
           {base > 0 && (
             <Section id="fin-where" title={t('finance.balance.whereTitle')}>
@@ -250,7 +247,7 @@ export default function BalancePage() {
             <div className="grid grid-cols-6 gap-2 text-center text-xs text-muted-foreground" aria-hidden>
               {b.history.map((h) => (
                 <span key={h.month} className={h.month === month ? 'font-bold text-foreground' : undefined}>
-                  {shortMonth(h.month)}
+                  {formatShortMonth(h.month, locale)}
                 </span>
               ))}
             </div>

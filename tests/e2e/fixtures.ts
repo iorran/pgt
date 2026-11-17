@@ -26,9 +26,7 @@ const {
   studentBadge,
   streak,
   expense,
-  teacherPayout,
-  teacherAgreement,
-  agreementTeacher,
+  payoutSheet,
 } = schema;
 
 // Share the dev DB connection (localhost:5432/pgt)
@@ -202,19 +200,9 @@ export async function cleanAcademy(academyId: string): Promise<void> {
     .where(eq(user.academyId, academyId));
   const userIds = users.map((u) => u.id);
 
-  // Financeiro: expenses, payouts and the Teacher Agreements (Students link to them).
+  // Financeiro: expenses and Payout Sheets (their lines go with them).
   await e2eDb.delete(expense).where(eq(expense.academyId, academyId));
-  await e2eDb.delete(teacherPayout).where(eq(teacherPayout.academyId, academyId));
-  await e2eDb.update(user).set({ agreementId: null, agreementKind: null }).where(eq(user.academyId, academyId));
-  const agreements = await e2eDb
-    .select({ id: teacherAgreement.id })
-    .from(teacherAgreement)
-    .where(eq(teacherAgreement.academyId, academyId));
-  if (agreements.length > 0) {
-    const agreementIds = agreements.map((a) => a.id);
-    await e2eDb.delete(agreementTeacher).where(inArray(agreementTeacher.agreementId, agreementIds));
-    await e2eDb.delete(teacherAgreement).where(inArray(teacherAgreement.id, agreementIds));
-  }
+  await e2eDb.delete(payoutSheet).where(eq(payoutSheet.academyId, academyId));
 
   if (userIds.length > 0) {
     await e2eDb.delete(session).where(inArray(session.userId, userIds));
@@ -342,41 +330,28 @@ export function todayYmd(): string {
 }
 
 /**
- * Financeiro: an owner, the "No Gi" Teacher Agreement (Rafael, 50%, 10 € add-on)
- * and two students on a 45 € Monthly Fee owed since last month: Marta (its Class
- * Add-on, when `marked`) and Carla (recruited by it, when `marked`).
+ * Financeiro: an owner, the "No Gi" class taught by Rafael (a Student, not the Owner)
+ * and two students on a 45 € Monthly Fee owed since last month. Marta checked in to
+ * No Gi this month, so she is on its Payout Sheet; Carla did not.
  */
-export async function scenarioFinance(marked = true): Promise<{
+export async function scenarioFinance(): Promise<{
   academy: FixtureAcademy;
   instructor: FixtureUser;
   teacher: FixtureUser;
-  agreement: { id: string; name: string };
-  addOnStudent: FixtureUser;
-  recruited: FixtureUser;
+  noGi: FixtureClass;
+  marta: FixtureUser;
+  carla: FixtureUser;
 }> {
   const { academy: acad, instructor } = await setupAcademy();
   const teacher = await createStudent(acad.id, { name: 'Rafael Nogi', belt: 'brown' });
-  const addOnStudent = await createStudent(acad.id, { name: 'Marta Acrescimo' });
-  const recruited = await createStudent(acad.id, { name: 'Carla Angariada' });
-  for (const s of [addOnStudent, recruited]) {
+  const marta = await createStudent(acad.id, { name: 'Marta Treina' });
+  const carla = await createStudent(acad.id, { name: 'Carla Esquece' });
+  for (const s of [marta, carla]) {
     await assignMembership(s.id, { monthlyFee: '45.00', startDate: `${monthFromNow(-1)}-01`, dueDay: 1 });
   }
-  const [agreement] = await e2eDb
-    .insert(teacherAgreement)
-    .values({ academyId: acad.id, name: 'No Gi', sharePercent: 50, addOnPrice: '10.00' })
-    .returning({ id: teacherAgreement.id, name: teacherAgreement.name });
-  await e2eDb.insert(agreementTeacher).values({ agreementId: agreement.id, teacherId: teacher.id });
-  if (marked) {
-    await e2eDb
-      .update(user)
-      .set({ agreementId: agreement.id, agreementKind: 'addOn' })
-      .where(eq(user.id, addOnStudent.id));
-    await e2eDb
-      .update(user)
-      .set({ agreementId: agreement.id, agreementKind: 'recruited' })
-      .where(eq(user.id, recruited.id));
-  }
-  return { academy: acad, instructor, teacher, agreement, addOnStudent, recruited };
+  const noGi = await createClass(acad.id, instructor.id, { name: 'No Gi', type: 'no-gi', teacherId: teacher.id });
+  await e2eDb.insert(checkin).values({ classId: noGi.id, studentId: marta.id, checkedInAt: new Date() });
+  return { academy: acad, instructor, teacher, noGi, marta, carla };
 }
 
 export async function createExpense(academyId: string, month: string, description: string, amount: string, oneOff = false) {

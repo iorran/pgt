@@ -1,5 +1,5 @@
 // The academy is in Portugal: Portuguese UI formats numbers Portugal-style ("30,00 €").
-const toLocale = (locale: string) => (locale.startsWith('pt') ? 'pt-PT' : locale);
+export const toLocale = (locale: string) => (locale.startsWith('pt') ? 'pt-PT' : locale);
 
 // The academy bills in euros. API decimals arrive as strings.
 export const formatMoney = (value: string | number, locale: string) =>
@@ -26,6 +26,10 @@ export function signedPoints(points: number): string {
 // YYYY-MM as "agosto de 2026" / "August 2026".
 export const formatMonth = (ym: string, locale: string) =>
   new Date(`${ym.slice(0, 7)}-01T00:00`).toLocaleDateString(toLocale(locale), { month: 'long', year: 'numeric' });
+
+// YYYY-MM as "nov." / "Nov", for chart axes.
+export const formatShortMonth = (ym: string, locale: string) =>
+  new Date(`${ym.slice(0, 7)}-01T00:00`).toLocaleDateString(toLocale(locale), { month: 'short' });
 
 // ["Ana", "Bia", "Caio"] as "Ana, Bia e Caio" / "Ana, Bia, and Caio".
 export const formatList = (items: string[], locale: string) =>
