@@ -140,20 +140,6 @@ describe('SettingsPage', () => {
   });
 });
 
-describe('SettingsPage — Acordos', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockUseSession.mockReturnValue(instructorSession);
-    mockAcademy(academy);
-  });
-
-  it('shows the agreements section instead of the old finance settings', async () => {
-    renderWithProviders(<SettingsPage />);
-    expect(await screen.findByText('agreements.title')).toBeInTheDocument();
-    expect(screen.queryByText('finance.settings.title')).not.toBeInTheDocument();
-  });
-});
-
 describe('SettingsPage — Modalidades', () => {
   const modalities = [
     { id: 'm1', name: 'Jiu-Jitsu', studentCount: 12 },

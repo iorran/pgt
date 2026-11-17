@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin } from 'lucide-react';
 import { ModalitiesCard } from '@/components/modalities-card';
-import { AgreementsCard } from '@/components/agreements-card';
 
 interface AcademyInfo {
   id: string;
@@ -140,7 +139,6 @@ export default function SettingsPage() {
 
       {isOwnerUser && <ModalitiesCard />}
 
-      {isOwnerUser && <AgreementsCard />}
     </div>
   );
 }

@@ -23,7 +23,7 @@ const PendingStudentsPage = lazy(() => import('./pages/pending-students'));
 const MePage = lazy(() => import('./pages/me'));
 const BillingStatusPage = lazy(() => import('./pages/me/billing-status'));
 const LanguagePage = lazy(() => import('./pages/me/language'));
-const TeacherAgreementPage = lazy(() => import('./pages/me/agreement'));
+const MyPayoutPage = lazy(() => import('./pages/me/payout'));
 const ClassesPage = lazy(() => import('./pages/classes/index'));
 const CheckinHistoryPage = lazy(() => import('./pages/classes/checkin'));
 const SeminarPage = lazy(() => import('./pages/classes/seminar'));
@@ -35,7 +35,8 @@ const BillingOverduePage = lazy(() => import('./pages/billing/index'));
 const PaymentsPage = lazy(() => import('./pages/billing/payments'));
 const BalancePage = lazy(() => import('./pages/billing/balance'));
 const ExpensesPage = lazy(() => import('./pages/billing/expenses'));
-const PayoutsPage = lazy(() => import('./pages/billing/payouts'));
+const PayoutSheetsPage = lazy(() => import('./pages/billing/payout-sheets'));
+const PayoutSheetPage = lazy(() => import('./pages/billing/payout-sheet'));
 const MarketplacePage = lazy(() => import('./pages/marketplace/index'));
 const OrdersPage = lazy(() => import('./pages/marketplace/orders'));
 const LeaderboardPage = lazy(() => import('./pages/gamification/leaderboard'));
@@ -213,7 +214,8 @@ function AppRoutes() {
         <Route path="/billing/payments" element={<PaymentsPage />} />
         <Route path="/billing/balance" element={<BalancePage />} />
         <Route path="/billing/expenses" element={<ExpensesPage />} />
-        <Route path="/billing/payouts" element={<PayoutsPage />} />
+        <Route path="/billing/payouts" element={<PayoutSheetsPage />} />
+        <Route path="/billing/payouts/:month/:className" element={<PayoutSheetPage />} />
         <Route path="/marketplace" element={<MarketplacePage />} />
         <Route path="/marketplace/orders" element={<OrdersPage />} />
         <Route path="/gamification" element={<LeaderboardPage />} />
@@ -227,7 +229,7 @@ function AppRoutes() {
         <Route path="/me" element={<MePage />} />
         <Route path="/me/billing" element={<BillingStatusPage />} />
         <Route path="/me/language" element={<LanguagePage />} />
-        <Route path="/me/agreement/:id" element={<TeacherAgreementPage />} />
+        <Route path="/me/payout" element={<MyPayoutPage />} />
         <Route path="/ajuda" element={<HelpPage />} />
       </Route>
       <Route path="*" element={<Navigate to={owner ? '/' : studentHome} replace />} />

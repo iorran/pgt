@@ -74,24 +74,17 @@ describe('MePage', () => {
     expect(screen.getByText('belts.blue')).toBeInTheDocument();
   });
 
-  it('shows no agreement card to a Student who teaches no agreement', async () => {
+  it('shows no payout entry to someone who teaches no class with a Payout Sheet', async () => {
     renderWithProviders(<MePage />);
-    await vi.waitFor(() => expect(mockApi).toHaveBeenCalledWith(expect.stringMatching(/^\/me\/agreements\?month=\d{4}-\d{2}$/)));
-    expect(screen.queryByText('teacherAgreement.title')).not.toBeInTheDocument();
+    await vi.waitFor(() => expect(mockApi).toHaveBeenCalledWith('/me/payout-sheets'));
+    expect(screen.queryByText('myPayout.entry')).not.toBeInTheDocument();
   });
 
-  it('links a teacher on an agreement to it', async () => {
-    mockApi.mockResolvedValue([
-      {
-        agreement: { id: 'a1', name: 'No Gi', teachers: [{ id: 'u1', name: 'Aluno Teste' }] },
-        month: '2026-11',
-        confirmed: null,
-        students: [{ studentId: 's1', name: 'Marta', kind: 'addOn', checkins: 2, paid: true }],
-      },
-    ] as any);
+  it('links a class teacher to their payout', async () => {
+    mockApi.mockResolvedValue([{ className: 'No Gi', history: [] }] as any);
     renderWithProviders(<MePage />);
-    const card = await screen.findByRole('link', { name: /teacherAgreement.title/ });
-    expect(card).toHaveAttribute('href', '/me/agreement/a1');
-    expect(card).toHaveTextContent('teacherAgreement.summaryPending');
+    const card = await screen.findByRole('link', { name: /myPayout.entry/ });
+    expect(card).toHaveAttribute('href', '/me/payout');
+    expect(card).toHaveTextContent('No Gi');
   });
 });

@@ -51,8 +51,6 @@ interface StudentOverdue {
   missedMonths: string[];
   amountDue: string;
   monthlyFee?: string | null;
-  addOn?: { name: string; price: string } | null;
-  recruitedBy?: { id: string; name: string } | null;
 }
 
 interface FamilyOverdue {
@@ -67,38 +65,6 @@ interface FamilyOverdue {
 }
 
 type OverdueItem = StudentOverdue | FamilyOverdue;
-
-// Class Add-on ("45 + 10 €") and Recruited Student chips.
-function FinanceChips({ r }: { r: StudentOverdue }) {
-  const { t, i18n } = useTranslation();
-  if (!r.addOn && !r.recruitedBy) {
-    return null;
-  }
-  return (
-    <span className="flex flex-wrap items-center gap-1.5 pt-1">
-      {r.addOn && (
-        <>
-          <span className="rounded-sm border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-foreground">
-            {t('finance.chips.addOn', { name: r.addOn.name })}
-          </span>
-          {r.monthlyFee && (
-            <span className="text-xs text-muted-foreground">
-              {t('finance.chips.breakdown', {
-                fee: formatMoney(r.monthlyFee, i18n.language),
-                addOn: formatMoney(r.addOn.price, i18n.language),
-              })}
-            </span>
-          )}
-        </>
-      )}
-      {r.recruitedBy && (
-        <span className="rounded-sm border border-arena-cyan/40 bg-arena-cyan/10 px-2 py-0.5 text-xs text-foreground">
-          {t('finance.chips.recruited', { name: r.recruitedBy.name })}
-        </span>
-      )}
-    </span>
-  );
-}
 
 function WhatsAppLink({ phone }: { phone: string }) {
   return (
@@ -198,7 +164,6 @@ export default function BillingOverduePage() {
                       {t('billing.missedMonths', { count: r.missedMonths?.length ?? 0 })}
                     </p>
                     <p className="arena-stat">{formatMoney(r.amountDue, i18n.language)}</p>
-                    <FinanceChips r={r} />
                   </div>
                   <OverdueDays days={r.daysOverdue} />
                 </div>

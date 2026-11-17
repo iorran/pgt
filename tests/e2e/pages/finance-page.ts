@@ -1,7 +1,7 @@
 import { type Page, type Locator, type Download, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-// Financeiro tabs: /billing (Cobranças), /billing/balance, /billing/expenses, /billing/payouts.
+// Financeiro tabs: /billing (Cobranças), /billing/balance, /billing/expenses, /billing/payouts (Payout Sheets).
 export class FinancePage {
   readonly page: Page;
   readonly prevMonth: Locator;
@@ -45,27 +45,34 @@ export class FinancePage {
   }
 }
 
-// Student page › Mensalidade card › Acordo (Teacher Agreement) and how: Acréscimo / Angariado.
-export class StudentBillingSection {
+// Financeiro › Repasses › one class's Payout Sheet (/billing/payouts/:month/:className).
+export class PayoutSheetPage {
   readonly page: Page;
-  readonly agreement: Locator;
-  readonly addOn: Locator;
-  readonly recruited: Locator;
-  readonly owesPerMonth: Locator;
-  readonly save: Locator;
+  readonly total: Locator;
+  readonly confirm: Locator;
+  readonly reopen: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.agreement = page.getByLabel('Acordo', { exact: true });
-    this.addOn = page.getByRole('radio', { name: /^Acréscimo/ });
-    this.recruited = page.getByRole('radio', { name: /^Angariado/ });
-    // "Deve por mês" and its amount share one row.
-    this.owesPerMonth = page.getByText('Deve por mês').locator('..');
-    this.save = page.getByRole('button', { name: 'Salvar cobrança' });
+    // "Total do repasse" and its amount share one row.
+    this.total = page.getByText('Total do repasse').locator('..');
+    this.confirm = page.getByRole('button', { name: 'Confirmar mês' });
+    this.reopen = page.getByRole('button', { name: 'Reabrir' });
   }
 
-  async goto(studentId: string) {
-    await this.page.goto(`/students/${studentId}`);
-    await expect(this.save).toBeVisible({ timeout: 10_000 });
+  /** A student's row (an <li>). */
+  row(name: string) {
+    return this.page.getByRole('listitem').filter({ hasText: name });
+  }
+
+  /** The € amount of a student's row; saved on blur. */
+  amount(name: string) {
+    return this.page.getByLabel(`Repasse de ${name}`);
+  }
+
+  async addStudent(name: string) {
+    await this.page.getByRole('button', { name: 'Adicionar aluno sem check-in' }).click();
+    await this.page.getByRole('combobox', { name: 'Procure o aluno' }).fill(name.split(' ')[0]);
+    await this.page.getByRole('option', { name: new RegExp(name) }).click();
   }
 }

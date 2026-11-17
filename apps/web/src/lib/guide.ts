@@ -91,7 +91,7 @@ const HELP_MAP: Record<GuideKind, [string, string][]> = {
   student: [
     ['/classes', 'Fazer Check-in nas Aulas'],
     ['/me/billing', 'Pagamentos'],
-    ['/me/agreement', 'Seu acordo'],
+    ['/me/payout', 'Meu repasse'],
     ['/me', 'Minha conta'],
     ['/gamification', 'Gamificação'],
     ['/marketplace', 'Loja'],

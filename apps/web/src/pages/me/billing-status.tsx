@@ -12,7 +12,6 @@ type PaymentStatus = {
   daysUntilDue?: number;
   // What the student owes per month (absent without a Monthly Fee).
   monthlyFee?: string | null;
-  addOn?: { name: string; price: string } | null;
 };
 
 export default function BillingStatusPage() {
@@ -50,14 +49,7 @@ export default function BillingStatusPage() {
             ) : null}
             {data.monthlyFee ? (
               <span className="text-sm text-muted-foreground">
-                {data.addOn
-                  ? t('finance.me.withAddOn', {
-                      fee: formatMoney(data.monthlyFee, i18n.language),
-                      addOn: formatMoney(data.addOn.price, i18n.language),
-                      name: data.addOn.name,
-                      total: formatMoney(Number(data.monthlyFee) + Number(data.addOn.price), i18n.language),
-                    })
-                  : t('finance.me.monthly', { amount: formatMoney(data.monthlyFee, i18n.language) })}
+                {t('finance.me.monthly', { amount: formatMoney(data.monthlyFee, i18n.language) })}
               </span>
             ) : null}
             {data.status === 'upcoming' ? (

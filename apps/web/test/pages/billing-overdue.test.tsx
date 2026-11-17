@@ -129,22 +129,6 @@ describe('BillingOverduePage', () => {
     expect(screen.getByText(formatMoney('90.00', 'pt-BR').replace(/\s/g, ' '))).toBeInTheDocument();
   });
 
-  it('marks a Class Add-on with its breakdown and a Recruited Student with their teacher', async () => {
-    mockApi.mockResolvedValue([
-      {
-        ...mockRecords[0],
-        monthlyFee: '45.00',
-        addOn: { name: 'No Gi', price: '10.00' },
-        recruitedBy: null,
-      },
-      { ...mockRecords[1], monthlyFee: '45.00', addOn: null, recruitedBy: { id: 'g2', name: 'Tarde' } },
-    ] as any);
-    renderWithProviders(<BillingOverduePage />);
-    expect(await screen.findByText('finance.chips.addOn')).toBeInTheDocument();
-    expect(screen.getByText('finance.chips.breakdown')).toBeInTheDocument();
-    expect(screen.getByText('finance.chips.recruited')).toBeInTheDocument();
-  });
-
   it('shows the Financeiro tabs with Cobranças active', async () => {
     renderWithProviders(<BillingOverduePage />);
     await screen.findByText('Carlos');
