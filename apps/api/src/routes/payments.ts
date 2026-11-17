@@ -46,8 +46,8 @@ export async function paymentRoutes(app: FastifyInstance) {
     if (!membership || toCents(membership.fee) <= 0) {
       return { status: 'ok' };
     }
-    // What the student owes per month: Monthly Fee, plus the Class Add-on when marked.
-    const fees = { monthlyFee: student.monthlyFee, addOn: student.addOn };
+    // What the student owes per month.
+    const fees = { monthlyFee: student.monthlyFee };
 
     const now = new Date();
     const owed = owedMonths(student, now);
@@ -112,8 +112,6 @@ export async function paymentRoutes(app: FastifyInstance) {
         referenceMonth: owed[owed.length - 1],
         amountDue: fromCents(toCents(s.membership!.fee) * owed.length),
         monthlyFee: s.monthlyFee,
-        addOn: s.addOn,
-        recruitedBy: s.agreement?.kind === 'recruited' ? { id: s.agreement.id, name: s.agreement.name } : null,
       });
     }
 

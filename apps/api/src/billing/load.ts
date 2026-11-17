@@ -1,7 +1,7 @@
 import { and, eq, inArray, type SQL } from 'drizzle-orm';
 import { db } from '../db/client.js';
-import { user, studentMembership, payment, waivedMonth, teacherAgreement } from '../db/schema/index.js';
-import { fromCents, toCents, type MemberBilling } from './rules.js';
+import { user, studentMembership, payment, waivedMonth } from '../db/schema/index.js';
+import { type MemberBilling } from './rules.js';
 
 export interface StudentBilling extends MemberBilling {
   name: string;
@@ -13,14 +13,9 @@ export interface StudentBilling extends MemberBilling {
   notificationsMuted: boolean | null;
   dueDay: number | null;
   monthlyFee: string | null;
-  // Set while the Student has a Class Add-on; membership.fee already includes its price.
-  addOn: { name: string; price: string } | null;
-  // The Student's Teacher Agreement and how they are linked to it.
-  agreement: { id: string; name: string; kind: 'addOn' | 'recruited' } | null;
 }
 
-// Loads students matching `where` (always role student) with what they owe per month (Monthly Fee + Class
-// Add-on), paid and waived months.
+// Loads students matching `where` (always role student) with their Monthly Fee, paid and waived months.
 export async function loadStudentBilling(where: SQL | undefined): Promise<StudentBilling[]> {
   const rows = await db
     .select({
@@ -35,14 +30,9 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
       monthlyFee: studentMembership.monthlyFee,
       dueDay: studentMembership.dueDay,
       startDate: studentMembership.startDate,
-      agreementId: user.agreementId,
-      agreementKind: user.agreementKind,
-      agreementName: teacherAgreement.name,
-      addOnPrice: teacherAgreement.addOnPrice,
     })
     .from(user)
     .leftJoin(studentMembership, and(eq(studentMembership.studentId, user.id), eq(studentMembership.active, true)))
-    .leftJoin(teacherAgreement, eq(teacherAgreement.id, user.agreementId))
     .where(and(eq(user.role, 'student'), where))
     .orderBy(user.createdAt, user.id);
   if (rows.length === 0) {
@@ -74,31 +64,22 @@ export async function loadStudentBilling(where: SQL | undefined): Promise<Studen
   const paid = group(paidRows);
   const waived = group(waivedRows);
 
-  return rows.map((r) => {
-    const addOn = r.agreementKind === 'addOn' && r.addOnPrice !== null ? { name: r.agreementName!, price: r.addOnPrice } : null;
-    return {
-      studentId: r.studentId,
-      name: r.name,
-      email: r.email,
-      belt: r.belt,
-      phone: r.phone,
-      familyId: r.familyId,
-      createdAt: r.createdAt,
-      notificationsMuted: r.notificationsMuted,
-      dueDay: r.dueDay,
-      monthlyFee: r.monthlyFee,
-      addOn,
-      agreement: r.agreementId ? { id: r.agreementId, name: r.agreementName!, kind: r.agreementKind! } : null,
-      membership:
-        r.monthlyFee !== null && r.startDate !== null && r.dueDay !== null
-          ? {
-              startDate: r.startDate,
-              dueDay: r.dueDay,
-              fee: fromCents(toCents(r.monthlyFee) + (addOn ? toCents(addOn.price) : 0)),
-            }
-          : null,
-      paid: paid.get(r.studentId) ?? new Set(),
-      waived: waived.get(r.studentId) ?? new Set(),
-    };
-  });
+  return rows.map((r) => ({
+    studentId: r.studentId,
+    name: r.name,
+    email: r.email,
+    belt: r.belt,
+    phone: r.phone,
+    familyId: r.familyId,
+    createdAt: r.createdAt,
+    notificationsMuted: r.notificationsMuted,
+    dueDay: r.dueDay,
+    monthlyFee: r.monthlyFee,
+    membership:
+      r.monthlyFee !== null && r.startDate !== null && r.dueDay !== null
+        ? { startDate: r.startDate, dueDay: r.dueDay, fee: r.monthlyFee }
+        : null,
+    paid: paid.get(r.studentId) ?? new Set(),
+    waived: waived.get(r.studentId) ?? new Set(),
+  }));
 }

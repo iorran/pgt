@@ -1,10 +1,8 @@
 import { FastifyInstance } from 'fastify';
 import { db } from '../db/client.js';
-import { user, studentMembership, family, waivedMonth, modality, studentModality, beltEnum, academy, teacherAgreement, agreementTeacher } from '../db/schema/index.js';
+import { user, studentMembership, family, waivedMonth, modality, studentModality, beltEnum } from '../db/schema/index.js';
 import { eq, and, asc, inArray } from 'drizzle-orm';
-import { dateKey, monthKey } from '../billing/rules.js';
-import { checkinsWith } from './finance.js';
-import { DEFAULT_ACADEMY_TIMEZONE } from '../utils/timezone.js';
+import { dateKey } from '../billing/rules.js';
 import { DATE, MONEY, MONTH, UUID } from './families.js';
 
 // Columns shared by the list and detail rows.
@@ -21,8 +19,6 @@ const studentColumns = {
   trainingNote: user.trainingNote,
   familyId: user.familyId,
   familyName: family.name,
-  agreementId: user.agreementId,
-  agreementKind: user.agreementKind,
 };
 
 // Modalities of each student, sorted by name.
@@ -102,59 +98,7 @@ export async function studentRoutes(app: FastifyInstance) {
     if (!row) {
       return row;
     }
-    // This month's check-ins in classes of the agreement's teachers (a hint only, never billing).
-    let agreementCheckins: number | null = null;
-    if (row.agreementId) {
-      const [acad] = await db
-        .select({ timezone: academy.timezone })
-        .from(academy)
-        .innerJoin(user, eq(user.academyId, academy.id))
-        .where(eq(user.id, id));
-      const tz = acad?.timezone ?? DEFAULT_ACADEMY_TIMEZONE;
-      agreementCheckins = (await checkinsWith(row.agreementId, [id], monthKey(new Date()), tz)).get(id)!;
-    }
-    return { ...row, agreementCheckins, modalities: (await modalitiesOf([id])).get(id)! };
-  });
-
-  // Link a Student to at most one active Teacher Agreement of the academy (owner only): as a Recruited
-  // Student or with its Class Add-on (only when the agreement offers one), never as one of its teachers.
-  app.put('/api/students/:id/finance', { preHandler: [requireOwner, injectAcademyId] }, async (request, reply) => {
-    const { id } = request.params as { id: string };
-    const body = (request.body ?? {}) as { agreementId?: unknown; kind?: unknown };
-    if (!(await isAcademyStudent(id, request.academyId))) {
-      return reply.status(404).send({ error: 'Student not found' });
-    }
-    const agreementId = body.agreementId ?? null;
-    const kind = body.kind ?? null;
-    if (agreementId !== null || kind !== null) {
-      const shapeOk = typeof agreementId === 'string' && UUID.test(agreementId) && (kind === 'addOn' || kind === 'recruited');
-      const [agreement] = shapeOk
-        ? await db
-            .select({ addOnPrice: teacherAgreement.addOnPrice, teacherId: agreementTeacher.teacherId })
-            .from(teacherAgreement)
-            .leftJoin(agreementTeacher, and(eq(agreementTeacher.agreementId, teacherAgreement.id), eq(agreementTeacher.teacherId, id)))
-            .where(
-              and(
-                eq(teacherAgreement.id, agreementId as string),
-                eq(teacherAgreement.academyId, request.academyId),
-                eq(teacherAgreement.active, true),
-              ),
-            )
-        : [];
-      if (!agreement || agreement.teacherId !== null || (kind === 'addOn' && agreement.addOnPrice === null)) {
-        return reply.status(400).send({ error: 'INVALID_AGREEMENT_LINK' });
-      }
-    }
-    const [updated] = await db
-      .update(user)
-      .set({
-        agreementId: agreementId as string | null,
-        agreementKind: kind as 'addOn' | 'recruited' | null,
-        updatedAt: new Date(),
-      })
-      .where(eq(user.id, id))
-      .returning({ agreementId: user.agreementId, agreementKind: user.agreementKind });
-    return updated;
+    return { ...row, modalities: (await modalitiesOf([id])).get(id)! };
   });
 
   // Set the Monthly Fee (owner only); creates the active membership if the student has none.
