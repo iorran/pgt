@@ -102,16 +102,16 @@ describe('seedGuide', () => {
     expect(counts.academy).not.toBeNull();
     expect(counts.academy?.name).toBe('Academia Demo PGT');
     expect(counts.academy?.city).toBe('Lisboa');
-    expect(counts.users).toBe(8); // 1 instructor + 4 students + family (Responsible + 2 Dependents)
-    expect(counts.classes).toBeGreaterThanOrEqual(2);
-    expect(counts.classes).toBeLessThanOrEqual(5); // 3 weekly + the two guide Seminars
-    expect(counts.modalities).toBe(2);
-    expect(counts.studentModalities).toBe(3);
-    expect(counts.fees).toEqual(['180.00', '180.00', '180.00']);
-    expect(counts.memberships).toBe(3); // 4 students but 1 is pending
+    expect(counts.users).toBe(11); // 1 owner + 7 students + family (Responsible + 2 Dependents)
+    expect(counts.classes).toBeGreaterThanOrEqual(8); // 6 weekly (+ Open Mat later today) + the two guide Seminars
+    expect(counts.classes).toBeLessThanOrEqual(9);
+    expect(counts.modalities).toBe(5);
+    expect(counts.studentModalities).toBe(10);
+    expect(counts.fees).toEqual(['35.00', '35.00', '45.00', '45.00', '45.00', '45.00', '60.00', '65.00']);
+    expect(counts.memberships).toBe(8); // every active student; the pending one has none
     expect(counts.payments).toBeGreaterThanOrEqual(3);
     expect(counts.tournaments).toBe(1);
-    expect(counts.products).toBe(1);
+    expect(counts.products).toBe(3);
   });
 
   it('is idempotent — running twice leaves the same state', async () => {
@@ -183,7 +183,7 @@ describe('seedGuide', () => {
     expect(families).toHaveLength(1);
   });
 
-  it('seeds the Financeiro screens: expenses and a draft Payout Sheet for No-Gi Noite, across runs', async () => {
+  it('seeds the Financeiro screens: expenses and Payout Sheets with a draft for No-Gi Noite, across runs', async () => {
     await seedGuide({ db: testDb });
     await seedGuide({ db: testDb });
 
@@ -191,12 +191,20 @@ describe('seedGuide', () => {
     const rows = await testDb.select().from(expense).where(eq(expense.academyId, acad.id));
     expect(rows.length).toBe(8); // 4 recurring expenses, this month and last
     const sheets = await testDb.select().from(payoutSheet);
-    expect(sheets).toEqual([expect.objectContaining({ academyId: acad.id, className: 'No-Gi Noite', confirmedAt: null })]);
+    expect(sheets.map((s) => [s.className, !!s.confirmedAt]).sort()).toEqual([
+      ['Kids', true],
+      ['No-Gi Noite', false],
+      ['No-Gi Noite', true],
+      ['No-Gi Noite', true],
+    ]);
+    const draft = sheets.find((s) => !s.confirmedAt)!;
+    expect(sheets.every((s) => s.academyId === acad.id)).toBe(true);
     const users = await testDb.select().from(user).where(eq(user.academyId, acad.id));
-    const lines = await testDb.select().from(payoutLine);
+    const lines = await testDb.select().from(payoutLine).where(eq(payoutLine.sheetId, draft.id));
     expect(lines.map((l) => [users.find((u) => u.id === l.studentId)!.name, l.amount, l.addedByHand]).sort()).toEqual([
-      ['João Silva', '10.00', true],
-      ['Pedro Souza', '22.50', true],
+      ['Ana Costa', '20.00', false],
+      ['João Silva', '15.00', false],
+      ['Tiago Martins', '10.00', true],
     ]);
   });
 });

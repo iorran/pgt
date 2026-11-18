@@ -14,7 +14,7 @@
     "db:seed": "tsx src/db/seed.ts",
     "db:set-password": "tsx src/db/set-password.ts",
     "db:import-ranking": "tsx src/db/import-ranking.ts",
-    "db:seed:guide": "tsx src/db/seed-guide.ts"
+    "db:seed:guide": "TZ=Europe/Lisbon tsx src/db/seed-guide.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11",

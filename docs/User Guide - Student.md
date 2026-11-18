@@ -164,6 +164,9 @@ A navegação principal fica na barra inferior, sempre visível. A aba em que vo
 Páginas que não são abas (ex.: **Campeonatos**, **Mensalidade**, **Idioma**, **Ajuda**, **Trocar perfil**) têm uma seta **‹** ao lado do título para voltar à tela anterior.
 <sub><em>Pages that aren't tabs (e.g., **Campeonatos**, **Mensalidade**, **Idioma**, **Ajuda**, **Trocar perfil**) have a **‹** arrow next to the title to go back to the previous screen.</em></sub>
 
+O **?** no cabeçalho verde abre a **Ajuda**: este guia, já na seção da tela em que você está.
+<sub><em>The **?** in the green header opens **Ajuda** (Help): this guide, at the section for the screen you're on.</em></sub>
+
 - **Aulas** — o quadro de aulas e seu histórico de presenças.
   <sub><em>**Classes** — the class schedule and your attendance history.</em></sub>
 - **Progresso** — XP, sequência, conquistas e ranking.
@@ -172,8 +175,8 @@ Páginas que não são abas (ex.: **Campeonatos**, **Mensalidade**, **Idioma**, 
   <sub><em>**Check-in (center green button)** — opens the QR code scanner full-screen.</em></sub>
 - **Loja** — produtos da academia.
   <sub><em>**Shop** — academy products.</em></sub>
-- **Perfil** — mensalidade, campeonatos, idioma, sair.
-  <sub><em>**Me** — monthly fee, tournaments, language, sign out.</em></sub>
+- **Perfil** — mensalidade, campeonatos, idioma, sair (e **Meu repasse**, se você dá aulas).
+  <sub><em>**Me** — monthly fee, tournaments, language, sign out (and **Meu repasse** — My payout — if you teach).</em></sub>
 
 ## Fazer Check-in nas Aulas
 <sub><em>Checking In to Classes</em></sub>
@@ -201,6 +204,9 @@ Você pode fazer check-in de duas formas. Ambas são igualmente válidas.
 
 Após o check-in, o botão é substituído por **"Presente"**.
 <sub><em>After checking in, the button is replaced by **"Presente"**.</em></sub>
+
+Enquanto você não tiver nenhum check-in, a página **Aulas** mostra o aviso **"Faça seu primeiro check-in"**, com atalhos para o leitor de QR code e para este guia. Toque no **×** para dispensá-lo.
+<sub><em>Until you have your first check-in, the **Aulas** page shows a **"Faça seu primeiro check-in"** (Do your first check-in) notice, with shortcuts to the QR scanner and this guide. Tap **×** to dismiss it.</em></sub>
 
 > [!tip] Esqueceu do check-in?
 > Até 1 hora depois do fim da aula ela continua com um botão **"Check-in"** (com contorno), marcada "Terminou · check-in aberto até…". Se você faz duas aulas seguidas, pode fazer check-in nas duas.
@@ -256,6 +262,8 @@ Os seus seminários, pendentes e pagos, também aparecem em **Perfil → Mensali
 ## Check-in rápido
 <sub><em>Quick check-in</em></sub>
 
+![Leitor de QR code](./assets/user-guide/student/checkin-scanner.png)
+
 Toque no grande botão verde no centro da barra inferior para abrir o leitor de QR code. Aponte a câmera para o QR code na entrada da sua academia para marcar presença. Para desistir, toque em **"Cancelar"**.
 <sub><em>Tap the large green button in the center of the bottom bar to open the QR code scanner. Point your camera at the QR code at your academy's entrance to check in. To give up, tap **"Cancelar"** (Cancel).</em></sub>
 
@@ -285,6 +293,8 @@ Toque no banner para abrir a página **Mensalidade**.
 ### Página Mensalidade
 <sub><em>Membership Page</em></sub>
 
+![Página Mensalidade](./assets/user-guide/student/student-billing.png)
+
 Barra inferior → **Perfil** → **Mensalidade** (ou toque no banner). A página mostra:
 <sub><em>Bottom nav → Me → **Mensalidade** (or tap the banner). The page shows:</em></sub>
 
@@ -292,8 +302,10 @@ Barra inferior → **Perfil** → **Mensalidade** (ou toque no banner). A págin
   <sub><em>**Em dia** (Up to date, green) — nothing owed; if the due day is close, "Seu pagamento vence em N dias" also shows</em></sub>
 - **Atrasada** (vermelho) — com "Seu pagamento está N dias atrasado"
   <sub><em>**Atrasada** (Overdue, red) — with "Seu pagamento está N dias atrasado"</em></sub>
-- Quanto você paga por mês: a mensalidade
-  <sub><em>What you pay per month: the monthly fee</em></sub>
+- Quanto você paga por mês: **"Mensalidade: … por mês"**
+  <sub><em>What you pay per month: "Mensalidade: … por mês" (Monthly fee: … per month)</em></sub>
+- **Seminários** — se você se inscreveu em algum, cada um com data, professor, valor e se está **Pendente** ou **Pago** (com a data)
+  <sub><em>**Seminários** (Seminars) — if you signed up for any, each with date, teacher, amount, and whether it's **Pendente** (Pending) or **Pago** (Paid, with the date)</em></sub>
 
 Se a página não carregar, aparece "Não foi possível carregar sua mensalidade. Tente novamente."
 <sub><em>If the page can't load, it shows "Não foi possível carregar sua mensalidade. Tente novamente." (Couldn't load your membership status. Please try again.)</em></sub>
@@ -311,8 +323,10 @@ Os pagamentos são registrados pelo dono da academia. O app não mostra seu hist
 ## Minha conta
 <sub><em>My account</em></sub>
 
-A aba **Perfil** reúne tudo que é seu.
-<sub><em>The **Me** tab gathers everything that's yours.</em></sub>
+![Perfil](./assets/user-guide/student/student-hub.png)
+
+A aba **Perfil** reúne tudo que é seu. No topo aparecem seu nome e sua faixa; logo abaixo, o cartão **Meu repasse** (só para quem dá aulas — veja abaixo) e depois a lista:
+<sub><em>The **Me** tab gathers everything that's yours. At the top are your name and belt; below them, the **Meu repasse** card (only if you teach — see below), then the list:</em></sub>
 
 - **Mensalidade** — se seu pagamento está em dia ou atrasado (veja [Página Mensalidade](#Página%20Mensalidade)).
   <sub><em>**Membership** — whether your payment is up to date or overdue (see Membership Page).</em></sub>
@@ -320,11 +334,13 @@ A aba **Perfil** reúne tudo que é seu.
   <sub><em>**Tournaments** — tournaments and sign-ups.</em></sub>
 - **Idioma** — escolha **Português** ou **English**. O app muda na hora e a escolha fica salva neste dispositivo.
   <sub><em>**Language** — choose **Português** or **English**. The app switches right away and the choice is saved on this device.</em></sub>
-- **Sair** — botão vermelho no fim da página; encerra a sessão neste dispositivo.
-  <sub><em>**Sign out** — red button at the bottom of the page; ends the session on this device.</em></sub>
+- **Sair** — botão no fim da página; encerra a sessão neste dispositivo.
+  <sub><em>**Sign out** — button at the bottom of the page; ends the session on this device.</em></sub>
 
 ### Meu repasse
 <sub><em>My payout</em></sub>
+
+![Meu repasse](./assets/user-guide/student/my-payout.png)
 
 Se você dá aulas na academia (sem ser o dono), o **Perfil** mostra um cartão amarelo **"Meu repasse"** com o nome das suas aulas. Quem não dá aulas não vê esse cartão.
 <sub><em>If you teach at the academy (and aren't the owner), **Me** shows a yellow **"Meu repasse"** (My payout) card with your classes' names. If you don't teach, you don't see this card.</em></sub>

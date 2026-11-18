@@ -49,7 +49,7 @@ From [[2026-09-26-families-design|Families design]]:
 - ~~**Configurações is empty for students** but still linked from Perfil.~~ Fixed: the row shows only for the owner.
 - ~~**Owner's Histórico de Presença** shows the owner's own check-ins, not students'.~~ Fixed: the owner sees the academy's latest 200 check-ins with the student's name.
 - **Owner cannot check in** (no Check-in button in the owner's Aulas view) — confirm if intended.
-- **User guide screenshots are stale** (captured April 2026): regenerate with `npm run screenshots:capture` after updating `seed-guide` and the SHOTS list for families, modalities, fee card, phone menu, language page, camera retry. Delete `billing-plans.png`, `student-detail-plan.png`, `dashboard-instructor.png`.
+- ~~**User guide screenshots are stale** (captured April 2026): regenerate with `npm run screenshots:capture` after updating `seed-guide` and the SHOTS list for families, modalities, fee card, phone menu, language page, camera retry. Delete `billing-plans.png`, `student-detail-plan.png`, `dashboard-instructor.png`.~~ Done 2026-11-18: all regenerated, new shots for families, modalities, student page (fee card), phone menu, Perfil; stale PNGs deleted. Not captured: the language page and the camera-retry state (the fake camera always works).
 - ~~**Some PUT routes accept arbitrary body fields** (e.g. class `instructorId`): add per-route field whitelists.~~ Fixed for classes. Products and seasons still spread the body but force `id`/`academyId` and have no other foreign keys.
 
 ## Found while updating the user guides (2026-09-27)
@@ -57,7 +57,7 @@ From [[2026-09-26-families-design|Families design]]:
 - ~~**Negative Point Adjustments read "+-N pts" for the student:** Meus resultados (`apps/web/src/pages/gamification/profile.tsx`) always prefixes `+`, so a −3 adjustment shows "Aprovado +-3 pts".~~ Fixed: signed points ("−3 pts").
 - ~~**Every position-less entry is "Acumulado" for the student:** any Point Adjustment (not only Carried-over Points) shows as "Acumulado" in Meus resultados; the owner sees "Ajuste". Consider "Ajuste" for non-carried-over adjustments.~~ Fixed: all shown as "Ajuste" with their name.
 - **Birth date wins over the Kids modality** for white belts (Ranking Category), and there is no way to edit a birth date in the app — the owner cannot move a white belt with a known birth date to the other category. _Partly fixed: the owner can now set or clear a birth date on the student page; whether birth date should still win over the Kids modality is open._
-- **Ranking screenshots are stale:** `gamification-results-instructor.png` (status filter, Editar/Excluir, Ajustar pontos), `gamification-seasons.png` (Editar button), `student-join-form.png` (grouped belt list); missing: student points page (Ranking → aluno), compact result rows with ⋯ menu and inline delete confirmation, edit-result dialog, "Recalcular pontos" step, Faixa field on the student page, "Acumulado" entry in `gamification-profile.png`.
+- ~~**Ranking screenshots are stale:** `gamification-results-instructor.png` (status filter, Editar/Excluir, Ajustar pontos), `gamification-seasons.png` (Editar button), `student-join-form.png` (grouped belt list); missing: student points page (Ranking → aluno), compact result rows with ⋯ menu and inline delete confirmation, edit-result dialog, "Recalcular pontos" step, Faixa field on the student page, "Acumulado" entry in `gamification-profile.png`.~~ Done 2026-11-18 (results with status filter and ⋯, seasons, student points page, Faixa on the student page, Ajuste in the profile). Still no shot of the edit-result dialog, the "Recalcular pontos" step, or the open belt list (a native select).
 
 ## ~~Teacher Agreements (2026-11-12)~~
 
@@ -67,4 +67,4 @@ Superseded by Payout Sheets ([[0007-teacher-payout-is-a-sheet-filled-by-hand|ADR
 
 - **Default amount per class** to pre-fill a sheet, if typing every line becomes a chore (ADR 0007).
 - **Export a sheet to Excel**, like the old payout CSV, if the Owner still sends spreadsheets to teachers.
-- **Guide screenshots** for Repasses (list, sheet) and Meu repasse are missing.
+- ~~**Guide screenshots** for Repasses (list, sheet) and Meu repasse are missing.~~ Done 2026-11-18.

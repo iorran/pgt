@@ -71,6 +71,8 @@ Esqueceu a senha? Toque em **"Esqueceu a senha?"** na tela de login para receber
 ### Criar Sua Academia
 <sub><em>Create Your Academy</em></sub>
 
+![Criar conta](./assets/user-guide/unauth/signup-screen.png)
+
 1. Na tela de login, toque em **"Criar conta"**
    <sub><em>On the login screen, tap "Criar conta" (Sign Up)</em></sub>
 2. Na tela seguinte, escolha **"Criar academia"**
@@ -83,13 +85,18 @@ Esqueceu a senha? Toque em **"Esqueceu a senha?"** na tela de login para receber
 ### Navegar no App
 <sub><em>Navigating the App</em></sub>
 
+![Menu no celular](./assets/user-guide/instructor/phone-menu.png)
+
 O menu tem: **Painel**, **Aulas**, **Alunos**, **Financeiro**, **Loja**, **Ranking**, **Campeonatos**, **Configurações** e **Totem**.
 <sub><em>The menu has: Painel (Dashboard), Aulas (Classes), Alunos (Students), Financeiro (Billing), Loja (Marketplace), Ranking, Campeonatos (Tournaments), Configurações (Settings), and Totem (Kiosk).</em></sub>
 
-- **No computador e no tablet**: o menu fica fixo na lateral esquerda. No cabeçalho ficam o **sino de notificações**, a troca de idioma **PT / EN** (a escolha fica salva no dispositivo) e o botão **"Sair"**
-  <sub><em>On a computer or tablet: the menu is fixed on the left side. The header holds the notification bell, the PT / EN language switch (the choice is saved on the device), and the "Sair" (Log Out) button</em></sub>
-- **No celular**: a barra de baixo leva direto a **Painel**, **Aulas**, **Alunos** e **Financeiro**. Toque em **Mais** (☰) para o menu completo, a troca de idioma **PT / EN** e o botão **"Sair"**. O sino de notificações fica no topo
-  <sub><em>On a phone: the bottom bar goes straight to Painel, Aulas, Alunos and Financeiro. Tap Mais (More, ☰) for the full menu, the PT / EN language switch, and the "Sair" (Log Out) button. The notification bell stays at the top</em></sub>
+- **No computador e no tablet**: o menu fica fixo na lateral esquerda. No cabeçalho ficam o **?** (**Ajuda**), o **sino de notificações**, a troca de idioma **PT / EN** (a escolha fica salva no dispositivo) e o botão **"Sair"**
+  <sub><em>On a computer or tablet: the menu is fixed on the left side. The header holds the ? (Ajuda — Help), the notification bell, the PT / EN language switch (the choice is saved on the device), and the "Sair" (Log Out) button</em></sub>
+- **No celular**: a barra de baixo leva direto a **Painel**, **Aulas**, **Alunos** e **Financeiro**. Toque em **Mais** (☰) para o menu completo, a troca de idioma **PT / EN** e o botão **"Sair"**. O **?** e o sino de notificações ficam no topo
+  <sub><em>On a phone: the bottom bar goes straight to Painel, Aulas, Alunos and Financeiro. Tap Mais (More, ☰) for the full menu, the PT / EN language switch, and the "Sair" (Log Out) button. The ? (Help) and the notification bell stay at the top</em></sub>
+
+O **?** abre este guia já na seção da tela em que você está, com busca (**"Buscar no guia"**).
+<sub><em>The ? opens this guide at the section for the screen you're on, with search ("Buscar no guia" — Search the guide).</em></sub>
 
 Neste guia, "Menu → X" significa abrir o item X pelo menu (lateral no computador e no tablet; barra de baixo ou **Mais** no celular).
 <sub><em>In this guide, "Menu → X" means opening item X from the menu (sidebar on a computer or tablet; bottom bar or Mais on a phone).</em></sub>
@@ -153,8 +160,8 @@ Até ser aprovado, ele fica só na aba **Pendentes**: não aparece na lista de A
    <sub><em>Menu → Alunos → Pendentes tab</em></sub>
 2. Toque em **"Aprovar"** para liberar o acesso
    <sub><em>Tap "Aprovar" (Approve) to grant access</em></sub>
-3. Para recusar, toque em **"Recusar"** e confirme em **"Confirmar"** ("Recusar o cadastro de …?")
-   <sub><em>To decline, tap "Recusar" (Reject) and confirm with "Confirmar" ("Reject …'s sign-up?")</em></sub>
+3. Para recusar, toque em **"Recusar"** e confirme em **"Recusar cadastro"** ("Recusar o cadastro de …?")
+   <sub><em>To decline, tap "Recusar" (Reject) and confirm with "Recusar cadastro" (Reject sign-up) ("Reject …'s sign-up?")</em></sub>
 
 ### Lista de Alunos
 <sub><em>Students List</em></sub>
@@ -174,6 +181,8 @@ Até ser aprovado, ele fica só na aba **Pendentes**: não aparece na lista de A
 
 ### Página do Aluno
 <sub><em>Student Page</em></sub>
+
+![Página do aluno](./assets/user-guide/instructor/student-detail.png)
 
 A página do aluno mostra e-mail, telefone, a linha **Família**, total de aulas, sequência atual, XP, o cartão **Mensalidade**, um cartão com **Faixa** e **Data de nascimento** e os cartões **Treino**, **Meses isentos** e **Histórico de pagamentos**.
 <sub><em>The student page shows email, phone, the Família (Family) line, total classes, current streak, XP, the Mensalidade (Monthly Fee) card, a card with Faixa (Belt) and Data de nascimento (Birth Date), and the Treino (Training), Meses isentos (Waived Months), and Histórico de Pagamentos (Payment History) cards.</em></sub>
@@ -239,6 +248,8 @@ O cartão **Treino** registra o que o aluno treina. Não muda o preço nem restr
 ### Gerenciar Modalidades
 <sub><em>Manage Modalities</em></sub>
 
+![Modalidades](./assets/user-guide/instructor/settings-modalities.png)
+
 A lista de modalidades (ex.: Jiu-Jitsu, MMA, Kids, Funcional, Feminino) é mantida por você.
 <sub><em>The modality list (e.g., Jiu-Jitsu, MMA, Kids, Funcional, Feminino) is maintained by you.</em></sub>
 
@@ -296,6 +307,8 @@ Cada família tem **um só login**: o do **Responsável**. Os demais membros sã
 ### Criar uma Família
 <sub><em>Create a Family</em></sub>
 
+![Aba Famílias](./assets/user-guide/instructor/families-tab.png)
+
 1. Menu → **Alunos** → aba **Famílias**
    <sub><em>Menu → Alunos → Famílias (Families) tab</em></sub>
 2. Toque em **"Nova família"**
@@ -319,8 +332,8 @@ Cada família aparece como um cartão com o nome, os membros e o valor mensal da
    <sub><em>On the family card, tap "Editar" (Edit)</em></sub>
 2. Adicionar (pela busca) ou **"Remover"** membros vale na hora; nome, responsável e preço acordado são salvos ao tocar em **"Salvar"**
    <sub><em>Adding (via search) or "Remover" (Remove) on members applies immediately; name, Responsible, and agreed price are saved when you tap "Salvar" (Save)</em></sub>
-3. Para excluir, toque em **"Excluir"** e depois em **"Confirmar"** ("Os alunos saem da família. O histórico de pagamentos é mantido.")
-   <sub><em>To delete, tap "Excluir" (Delete) and then "Confirmar" (Confirm) ("Students leave the family. Payment history is kept.")</em></sub>
+3. Para excluir, toque em **"Excluir"** e depois em **"Excluir família"** ("Os alunos saem da família. O histórico de pagamentos é mantido.")
+   <sub><em>To delete, tap "Excluir" (Delete) and then "Excluir família" (Delete family) ("Students leave the family. Payment history is kept.")</em></sub>
 
 Remover um membro ou excluir a família nunca altera o histórico de pagamentos. Tentar colocar um aluno em uma segunda família é recusado ("Um dos alunos já pertence a uma família").
 <sub><em>Removing a member or deleting the family never changes payment history. Adding a student to a second family is refused ("Um dos alunos já pertence a uma família" — One of the students already belongs to a family).</em></sub>
@@ -338,7 +351,7 @@ No campo **"Responsável"** do formulário da família:
 
 - **Um membro que treina** — escolha o nome na lista. Ele continua aluno normal e vê o próprio perfil + os dos dependentes
   <sub><em>A member who trains — pick their name. They stay a normal student and see their own profile plus the dependents'</em></sub>
-- **"Nova pessoa (não treina)"** — ex.: pai/mãe que não treina. Preencha **"Nome do responsável"** e **"Email do responsável"**. Essa pessoa não aparece na lista de alunos, nem no ranking, nem na cobrança
+- **"Nova pessoa (não treina)"** — ex.: pai/mãe que não treina. Preencha **"Nome do responsável"** e **"E-mail do responsável"**. Essa pessoa não aparece na lista de alunos, nem no ranking, nem na cobrança
   <sub><em>"Nova pessoa (não treina)" (New person, doesn't train) — e.g. a parent who doesn't train. Fill in name and email. This person never shows in the student list, ranking or billing</em></sub>
 - **"Enviar convite"** — manda ao Responsável um link para criar a senha (mesmo fluxo de "Esqueceu a senha?")
   <sub><em>"Enviar convite" (Send invite) — emails the Responsible a link to set their password (same flow as "Forgot password?")</em></sub>
@@ -355,8 +368,8 @@ Só o Dono mexe nos membros — o Responsável não consegue. Ao tocar em **"Rem
 
 - A pessoa vira **aluno independente** e mantém todo o histórico
   <sub><em>The person becomes an independent student and keeps all history</em></sub>
-- **"Email próprio (opcional)"** — se preencher, a pessoa cria o login sozinha em **"Primeiro acesso"** na tela de login. Sem e-mail, ela fica sem login até você adicionar um
-  <sub><em>"Email próprio (opcional)" (Own email, optional) — if filled in, the person creates their login alone via "Primeiro acesso" (First access) on the login screen. Without it, they have no login until you add one</em></sub>
+- **"E-mail próprio (opcional)"** — se preencher, a pessoa cria o login sozinha em **"Primeiro acesso"** na tela de login. Sem e-mail, ela fica sem login até você adicionar um
+  <sub><em>"E-mail próprio (opcional)" (Own email, optional) — if filled in, the person creates their login alone via "Primeiro acesso" (First access) on the login screen. Without it, they have no login until you add one</em></sub>
 - O Responsável não pode ser removido: primeiro escolha outro ("Escolha outro responsável antes de remover este membro")
   <sub><em>The Responsible can't be removed: choose another one first</em></sub>
 
@@ -388,6 +401,12 @@ As famílias não são criadas automaticamente. Na aba **Famílias**, a seção 
 
 O **Painel da academia** (Menu → **Painel**) é a página inicial do dono: uma visão da presença dos alunos e do engajamento nas aulas.
 <sub><em>The Academy Dashboard (Menu → Painel) is the owner's home page: an overview of student attendance and class engagement.</em></sub>
+
+### Primeiros Passos no Painel
+<sub><em>Dashboard Setup Checklist</em></sub>
+
+Enquanto a academia não está pronta, o Painel mostra o cartão **"Primeiros passos"** com quatro itens: **"Cadastre uma modalidade"**, **"Crie uma turma no quadro de aulas"**, **"Tenha pelo menos um aluno"** e **"Abra o totem e faça o primeiro check-in"**. Cada item leva à tela certa e tem um link **"Como fazer"** para este guia. O cartão some quando os quatro estão concluídos.
+<sub><em>Until the academy is set up, the dashboard shows the "Primeiros passos" (First steps) card with four items: add a modality, create a class, have at least one student, and open the totem and do the first check-in. Each item opens the right screen and has a "Como fazer" (How to) link to this guide. The card disappears once all four are done.</em></sub>
 
 ### Filtrar por Período
 <sub><em>Period Filter</em></sub>
@@ -496,8 +515,8 @@ A página **Aulas** tem as abas **Quadro de aulas**, **Seminários** e **Histór
    <sub><em>Each card shows the class's teacher: Professor (black belt), Instrutor (purple or brown belt), or just the name</em></sub>
 4. Nas aulas de hoje, cada card mostra quantos alunos fizeram check-in e os nomes deles. A lista se atualiza sozinha a cada minuto
    <sub><em>On today's classes, each card shows how many students checked in and their names. It refreshes by itself every minute</em></sub>
-5. A aula que está acontecendo ganha o selo **Agora** e uma barra de progresso ("Começou há 20 min"); a página abre nela. Sem aula no momento, uma linha **Agora** marca onde você está no dia. Aulas que já passaram ficam com texto cinza e borda tracejada
-   <sub><em>The class happening now gets the Agora (Now) badge and a progress bar ("Começou há 20 min" — started 20 min ago); the page opens on it. With no class on, an Agora line marks where you are in the day. Past classes show grey text and a dashed border</em></sub>
+5. A aula que está acontecendo ganha o selo **Agora** e uma barra de progresso ("Começou há 20 min"); a página abre nela. Sem aula no momento, uma linha **Agora** marca onde você está no dia. Aulas que já passaram ficam com texto cinza e borda tracejada. "Agora" e "Hoje" seguem sempre a hora da academia, mesmo que o aparelho esteja noutro fuso horário
+   <sub><em>The class happening now gets the Agora (Now) badge and a progress bar ("Começou há 20 min" — started 20 min ago); the page opens on it. With no class on, an Agora line marks where you are in the day. Past classes show grey text and a dashed border. "Now" and "Today" always follow the academy's clock, even if the device is in another timezone</em></sub>
 6. Toque em **"Abrir totem"** para mostrar o QR code de check-in (veja [Totem com QR Code](#Método%202:%20Totem%20com%20QR%20Code))
    <sub><em>Tap "Abrir totem" (Open kiosk) to show the check-in QR code (see QR Code Totem)</em></sub>
 
@@ -618,13 +637,15 @@ O totem de QR Code transforma qualquer tablet em uma estação de check-in.
 5. Para sair do totem, toque em **"Voltar"**
    <sub><em>To leave the totem, tap "Voltar" (Back)</em></sub>
 
+![Totem sem aula aberta](./assets/user-guide/instructor/totem-empty.png)
+
 > [!tip]
 > Deixe a página do totem aberta o dia todo. Ela detecta automaticamente quais aulas estão ativas com base no horário.
 > <sub><em>Leave the totem page open all day. It auto-detects which classes are active based on the schedule.</em></sub>
 
 > [!note]
-> Os horários das aulas são sempre na hora da academia (Lisboa). O totem mostra essa hora embaixo, para quem estiver com o aparelho noutro fuso horário.
-> <sub><em>Class times are always in the academy's time (Lisbon). The totem shows that time at the bottom, for anyone whose device is in another timezone.</em></sub>
+> Os horários das aulas são sempre na hora da academia (Lisboa). Quando não há aula aberta, o totem mostra **"Hora da academia"** embaixo, para quem estiver com o aparelho noutro fuso horário.
+> <sub><em>Class times are always in the academy's time (Lisbon). When no class is open, the totem shows "Hora da academia" (Academy time) at the bottom, for anyone whose device is in another timezone.</em></sub>
 
 ## Financeiro
 <sub><em>Billing</em></sub>
@@ -707,6 +728,8 @@ O pagamento aparece no histórico de cada membro, dividido proporcionalmente às
 ### Balanço do Mês
 <sub><em>Monthly Balance</em></sub>
 
+![Balanço do mês](./assets/user-guide/instructor/billing-balance.png)
+
 Menu → **Financeiro** → aba **Balanço**. Use **‹** e **›** para trocar de mês.
 <sub><em>Menu → Financeiro → Balanço tab. Use ‹ and › to change month.</em></sub>
 
@@ -730,6 +753,8 @@ Menu → **Financeiro** → aba **Balanço**. Use **‹** e **›** para trocar 
 ### Despesas
 <sub><em>Expenses</em></sub>
 
+![Despesas](./assets/user-guide/instructor/billing-expenses.png)
+
 Menu → **Financeiro** → aba **Despesas**. Cada mês tem a sua tabela, como uma planilha.
 <sub><em>Menu → Financeiro → Despesas tab. Each month has its own table, like a spreadsheet.</em></sub>
 
@@ -752,6 +777,8 @@ O repasse é o que a academia passa aos professores de uma aula que não são o 
 Menu → **Financeiro** → aba **Repasses**:
 <sub><em>Menu → Financeiro → Repasses tab:</em></sub>
 
+![Repasses](./assets/user-guide/instructor/payout-sheets.png)
+
 - **Mês** — escolha o mês. O gráfico **Repasses · últimos 6 meses** mostra o total de cada mês, uma cor por aula; toque numa barra para abrir aquele mês. Meses ainda não confirmados aparecem mais apagados
   <sub><em>Mês (Month) — pick the month. The Repasses · últimos 6 meses (Payouts · last 6 months) chart shows each month's total, one colour per class; tap a bar to open that month. Months not yet confirmed show faded</em></sub>
 - Um cartão por aula, com os professores, quantos alunos, o total e o estado: **Não iniciada**, **Rascunho** ou **Confirmada**
@@ -759,6 +786,8 @@ Menu → **Financeiro** → aba **Repasses**:
 
 Só aparecem aulas com professor que não é o dono e com check-in no mês. Toque num cartão para abrir a planilha:
 <sub><em>Only classes with a teacher who isn't the owner and with check-ins that month show up. Tap a card to open the sheet:</em></sub>
+
+![Planilha de repasse](./assets/user-guide/instructor/payout-sheet.png)
 
 1. Cada aluno que fez check-in nessas aulas tem uma linha com os check-ins, se pagou o mês (**Pagou** ou **Pendente**) e a mensalidade (**Mens.**)
    <sub><em>Each student who checked in to those classes has a row with the check-ins, whether they paid the month (Pagou/Paid or Pendente/Pending) and the Monthly Fee (Mens.)</em></sub>
@@ -800,8 +829,8 @@ Toque no sino para ver cada inadimplente com o valor devido e os dias de atraso.
   <sub><em>Enviar lembrete (Send reminder) — opens WhatsApp with a pre-filled payment reminder (only shown when there's a phone number)</em></sub>
 - **Enviar e-mail** — envia um e-mail de cobrança; o botão muda para **"E-mail enviado"** e fica desativado. Se o aluno já não estiver em atraso, aparece um aviso e nada é enviado
   <sub><em>Enviar email (Send email) — sends a payment reminder email; the button changes to "E-mail enviado" (Email sent) and disables. If the student is no longer overdue, a warning appears and nothing is sent</em></sub>
-- **Silenciar** (ícone de sino riscado, sem texto) — tira o aluno da lista de notificações
-  <sub><em>Mute (crossed-out bell icon, no text label) — removes the student from the notification list</em></sub>
+- **Silenciar** (ícone de sino riscado, sem texto) — tira o aluno da lista de notificações. O aviso "Notificações de … silenciadas" traz **"Desfazer"**
+  <sub><em>Mute (crossed-out bell icon, no text label) — removes the student from the notification list. The "Notificações de … silenciadas" (… muted) toast has "Desfazer" (Undo)</em></sub>
 
 Para uma **família**, só há **Enviar lembrete** (WhatsApp para o Responsável ou o primeiro membro com telefone).
 <sub><em>For a family, there's only Enviar lembrete (WhatsApp to the Responsible or the first member with a phone).</em></sub>
@@ -845,8 +874,8 @@ Em cada produto, **"Editar"** abre o mesmo formulário e **"Excluir"** remove o 
    <sub><em>Menu → Loja → PEDIDOS (Orders) tab</em></sub>
 2. Veja os pedidos dos alunos com status: **Solicitado**, **Confirmado**, **Entregue** ou **Cancelado**
    <sub><em>See student orders with status: Solicitado (Requested), Confirmado (Confirmed), Entregue (Delivered), or Cancelado (Cancelled)</em></sub>
-3. Para pedidos **Solicitados**: toque em **"Confirmar"** para aceitar ou **"Cancelar"** para recusar (confirme em **"Cancelar pedido"**)
-   <sub><em>For Solicitado orders: tap "Confirmar" (Confirm) to accept or "Cancelar" (Cancel) to decline (confirm with "Cancelar pedido" — Cancel order)</em></sub>
+3. Para pedidos **Solicitados**: toque em **"Confirmar pedido"** para aceitar ou **"Cancelar pedido"** para recusar (confirme em **"Cancelar pedido"** de novo)
+   <sub><em>For Solicitado orders: tap "Confirmar pedido" (Confirm order) to accept or "Cancelar pedido" (Cancel order) to decline (confirm with "Cancelar pedido" again)</em></sub>
 4. Para pedidos **Confirmados**: toque em **"Entregar"** para marcar como entregue
    <sub><em>For Confirmado orders: tap "Entregar" (Deliver) to mark as delivered</em></sub>
 
@@ -970,8 +999,10 @@ Os pontos que os alunos já tinham antes do app (planilha do ranking até a Mafr
 Menu → **Ranking** → aba **Classificação**. Escolha a temporada, a categoria (**Adultos** / **Kids**) e, em Adultos, a faixa (**Todas as faixas** / Branca / Azul / Roxa / Marrom / Preta).
 <sub><em>Menu → Ranking → Classificação (Leaderboard) tab. Pick the season, the category (Adultos / Kids — Adults / Kids) and, for adults, the belt (Todas as faixas / All belts, White, Blue, Purple, Brown, Black).</em></sub>
 
-Toque em um aluno para abrir a **página de pontos dele**: faixa, total na temporada e **todas as entradas** que formam os pontos (resultados, ajustes e pontos acumulados), cada uma com **⋯** → **"Editar"** / **"Excluir"**, e o botão **"Ajustar pontos"** já com o aluno escolhido. Use a seta **←** para voltar ao ranking.
-<sub><em>Tap a student to open their **points page**: belt, season total and **every entry** behind their points (results, adjustments, and carried-over points), each with ⋯ → "Editar" (Edit) / "Excluir" (Delete), plus the "Ajustar pontos" (Adjust points) button with the student already picked. Use the ← arrow to go back to the ranking.</em></sub>
+Toque em um aluno para abrir a **página de pontos dele**: faixa, total na temporada e **todas as entradas** que formam os pontos (resultados, ajustes e pontos acumulados), cada uma com **⋯** → **"Editar"** / **"Excluir"**, e o botão **"Ajustar pontos"** já com o aluno escolhido. Use a seta **‹** para voltar ao ranking.
+<sub><em>Tap a student to open their **points page**: belt, season total and **every entry** behind their points (results, adjustments, and carried-over points), each with ⋯ → "Editar" (Edit) / "Excluir" (Delete), plus the "Ajustar pontos" (Adjust points) button with the student already picked. Use the ‹ arrow to go back to the ranking.</em></sub>
+
+![Página de pontos do aluno](./assets/user-guide/instructor/student-points.png)
 
 ### Categorias: Adultos e Kids
 <sub><em>Categories: Adults and Kids</em></sub>
