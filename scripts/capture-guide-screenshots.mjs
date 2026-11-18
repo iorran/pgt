@@ -225,8 +225,9 @@ const SHOTS = [
     // The draft No-Gi sheet starts open on the tab; scroll to its rows.
     action: async (page) => {
       await page.getByText('Total do repasse').first().waitFor();
-      await page.getByRole('button', { name: /^No-Gi Noite/ }).scrollIntoViewIfNeeded();
-      await page.evaluate(() => window.scrollBy(0, -16));
+      // Put its header just under the sticky top bar.
+      await page.getByRole('button', { name: /^No-Gi Noite/ }).evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      await page.evaluate(() => window.scrollBy(0, -76));
     },
   },
   {
