@@ -45,7 +45,7 @@ export class FinancePage {
   }
 }
 
-// Financeiro › Repasses › one class's Payout Sheet (/billing/payouts/:month/:className).
+// Financeiro › Repasses › one class's Payout Sheet, open in place on the tab (or on /billing/payouts/:month/:className).
 export class PayoutSheetPage {
   readonly page: Page;
   readonly total: Locator;

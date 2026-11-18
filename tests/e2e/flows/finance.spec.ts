@@ -152,10 +152,11 @@ test('F4. Repasses: the owner fills the No Gi sheet by hand (autosave), adds a s
     const finance = new FinancePage(page);
     await finance.goto('/billing/payouts');
 
-    const card = page.getByRole('link', { name: /No Gi/ });
+    // Each class's sheet opens in place on the tab; a sheet not yet confirmed starts open.
+    const card = page.getByRole('button', { name: /^No Gi/ });
     await expect(card).toContainText(setup.teacher.name, { timeout: 10_000 });
     await expect(card).toContainText('Não iniciada');
-    await card.click();
+    await expect(card).toHaveAttribute('aria-expanded', 'true');
 
     const sheet = new PayoutSheetPage(page);
     const marta = sheet.row(setup.marta.name);
@@ -176,7 +177,7 @@ test('F4. Repasses: the owner fills the No Gi sheet by hand (autosave), adds a s
     await expect(sheet.total).toContainText(money('27.50'));
 
     await sheet.confirm.click();
-    await expect(page.getByText('Confirmada', { exact: true })).toBeVisible();
+    await expect(card).toContainText('Confirmada');
     await expect(sheet.amount(setup.marta.name)).toHaveCount(0);
     await expect(marta).toContainText(money('5.00'));
     const [saved] = await e2eDb
@@ -186,7 +187,7 @@ test('F4. Repasses: the owner fills the No Gi sheet by hand (autosave), adds a s
     expect(saved.confirmedAt).not.toBeNull();
 
     await sheet.reopen.click();
-    await expect(page.getByText('Rascunho', { exact: true })).toBeVisible();
+    await expect(card).toContainText('Rascunho');
     await expect(sheet.amount(setup.marta.name)).toHaveValue('5,00');
   } finally {
     await context.close();
@@ -277,7 +278,7 @@ test('F7. screenshots of every finance screen at 390px for UI review', async ({ 
     await page.goto('/billing/expenses');
     await shot('despesas', (p) => expect(p.getByLabel('Renda', { exact: true })).toBeVisible({ timeout: 10_000 }));
     await page.goto('/billing/payouts');
-    await shot('repasses', (p) => expect(p.getByRole('link', { name: /No Gi/ })).toBeVisible({ timeout: 10_000 }));
+    await shot('repasses', (p) => expect(p.getByRole('button', { name: /^No Gi/ })).toBeVisible({ timeout: 10_000 }));
     await page.goto(`/billing/payouts/${monthFromNow()}/No%20Gi`);
     await shot('repasse-planilha', (p) => expect(p.getByLabel(`Repasse de ${setup.marta.name}`)).toBeVisible({ timeout: 10_000 }));
     // Despesas right after a month copy (greyed rows): next month starts from this one.
