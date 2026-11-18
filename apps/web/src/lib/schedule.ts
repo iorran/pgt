@@ -227,3 +227,18 @@ export function addMinutes(hhmm: string, minutes: number): string {
   const total = (((toMin(hhmm) + minutes) % 1440) + 1440) % 1440;
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
+
+// The academy's wall clock: class times are typed in it, whatever timezone the device is in.
+export function academyClock(timeZone: string, now: Date = new Date()): { date: string; time: string; minutes: number } {
+  const time = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now);
+  return { date: academyToday(timeZone, now), time, minutes: toMin(time) };
+}
+
+// Today's next class (in the academy's day and clock) whose check-in window has not opened yet.
+export function nextClassToday(classes: ClassItem[], timeZone: string, now: Date = new Date()): ClassItem | null {
+  const { date, minutes } = academyClock(timeZone, now);
+  const later = classesOn(classes, new Date(`${date}T00:00:00`))
+    .filter((c) => toMin(c.startTime) - BEFORE_START_MIN > minutes)
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  return later[0] ?? null;
+}

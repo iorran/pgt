@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { academyToday, classesToCalendarEvents, isoDate } from '@/lib/schedule';
+import { academyClock, academyToday, classesToCalendarEvents, isoDate, nextClassToday } from '@/lib/schedule';
 
 const cls = (over: Partial<{
   id: string;
@@ -93,5 +93,34 @@ describe('academyToday', () => {
 
   it("falls back to the device's day when the timezone is unknown", () => {
     expect(academyToday(undefined, at)).toBe(isoDate(at));
+  });
+});
+
+describe('academyClock', () => {
+  it('reads the wall clock in the academy timezone, not the device one', () => {
+    // 07:36 UTC = 07:36 in Lisbon (winter) = 08:36 in Brussels
+    const at = new Date('2026-11-18T07:36:00Z');
+    expect(academyClock('Europe/Lisbon', at)).toEqual({ date: '2026-11-18', time: '07:36', minutes: 456 });
+    expect(academyClock('Europe/Brussels', at).time).toBe('08:36');
+  });
+});
+
+describe('nextClassToday', () => {
+  const at = new Date('2026-11-18T07:36:00Z'); // Wednesday, 07:36 in Lisbon
+  const wed = (over: Record<string, unknown>) => ({ ...cls({ dayOfWeek: 3 }), recurrence: 'weekly' as const, ...over });
+
+  it('picks the earliest class of the academy day whose check-in has not opened yet', () => {
+    const classes = [
+      wed({ id: 'late', startTime: '19:00', endTime: '20:00' }),
+      wed({ id: 'soon', startTime: '08:50', endTime: '10:00' }),
+      wed({ id: 'gone', startTime: '06:00', endTime: '06:30' }),
+      { ...wed({ id: 'other-day' }), dayOfWeek: 4, startTime: '08:00' },
+      { ...wed({ id: 'once' }), recurrence: 'once' as const, date: '2026-11-19', startTime: '08:00' },
+    ];
+    expect(nextClassToday(classes, 'Europe/Lisbon', at)?.id).toBe('soon');
+  });
+
+  it('is null when no class is left today', () => {
+    expect(nextClassToday([wed({ startTime: '06:00', endTime: '06:30' })], 'Europe/Lisbon', at)).toBeNull();
   });
 });

@@ -94,4 +94,27 @@ describe('TotemPage', () => {
     expect(screen.getByRole('link', { name: /common\.back/ })).toHaveAttribute('href', '/');
     expect(screen.getByText('totem.noClassesHint')).toBeInTheDocument();
   });
+
+  it('when empty, shows the academy clock and when the next class opens for check-in', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-11-18T07:36:00Z')); // Wednesday 07:36 in Lisbon, 08:36 in Brussels
+    mockApi.mockImplementation(async (path: string) => {
+      if (path === '/academies/mine') {
+        return { id: 'a1', name: 'PGT', timezone: 'Europe/Lisbon' } as any;
+      }
+      if (path.startsWith('/classes')) {
+        return [
+          { id: 'c1', name: 'No Gi', type: 'no-gi', recurrence: 'weekly', dayOfWeek: 3, startTime: '08:50', endTime: '10:00' },
+        ] as any;
+      }
+      return [] as any;
+    });
+    renderWithProviders(<TotemPage />);
+    expect(await screen.findByText('No Gi')).toBeInTheDocument();
+    expect(screen.getByText('07:36')).toBeInTheDocument();
+    expect(screen.getByText('Lisbon')).toBeInTheDocument();
+    expect(screen.getByText('08:50')).toBeInTheDocument();
+    expect(screen.getByText('08:35')).toBeInTheDocument();
+    vi.useRealTimers();
+  });
 });
