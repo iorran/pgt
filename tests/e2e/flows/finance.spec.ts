@@ -153,7 +153,7 @@ test('F4. Repasses: the owner fills the No Gi sheet by hand (autosave), adds a s
     await finance.goto('/billing/payouts');
 
     // Each class's sheet opens in place on the tab; a sheet not yet confirmed starts open.
-    const card = page.getByRole('button', { name: /No Gi/ });
+    const card = page.getByRole('button', { name: /^No Gi/ });
     await expect(card).toContainText(setup.teacher.name, { timeout: 10_000 });
     await expect(card).toContainText('Não iniciada');
     await expect(card).toHaveAttribute('aria-expanded', 'true');
@@ -278,7 +278,7 @@ test('F7. screenshots of every finance screen at 390px for UI review', async ({ 
     await page.goto('/billing/expenses');
     await shot('despesas', (p) => expect(p.getByLabel('Renda', { exact: true })).toBeVisible({ timeout: 10_000 }));
     await page.goto('/billing/payouts');
-    await shot('repasses', (p) => expect(p.getByRole('link', { name: /No Gi/ })).toBeVisible({ timeout: 10_000 }));
+    await shot('repasses', (p) => expect(p.getByRole('button', { name: /^No Gi/ })).toBeVisible({ timeout: 10_000 }));
     await page.goto(`/billing/payouts/${monthFromNow()}/No%20Gi`);
     await shot('repasse-planilha', (p) => expect(p.getByLabel(`Repasse de ${setup.marta.name}`)).toBeVisible({ timeout: 10_000 }));
     // Despesas right after a month copy (greyed rows): next month starts from this one.
