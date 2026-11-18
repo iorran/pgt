@@ -781,11 +781,13 @@ Menu → **Financeiro** → aba **Repasses**:
 
 - **Mês** — escolha o mês. O gráfico **Repasses · últimos 6 meses** mostra o total de cada mês, uma cor por aula; toque numa barra para abrir aquele mês. Meses ainda não confirmados aparecem mais apagados
   <sub><em>Mês (Month) — pick the month. The Repasses · últimos 6 meses (Payouts · last 6 months) chart shows each month's total, one colour per class; tap a bar to open that month. Months not yet confirmed show faded</em></sub>
-- Um cartão por aula, com os professores, quantos alunos, o total e o estado: **Não iniciada**, **Rascunho** ou **Confirmada**
-  <sub><em>One card per class, with its teachers, how many students, the total and the status: Não iniciada (Not started), Rascunho (Draft) or Confirmada (Confirmed)</em></sub>
+- **Total do mês** — ao lado do mês, a soma das planilhas do mês
+  <sub><em>Total do mês (Month total) — next to the month, the sum of the month's sheets</em></sub>
+- Uma seção por aula, com os professores, quantos alunos, o total e o estado: **Não iniciada**, **Rascunho** ou **Confirmada**. Planilhas ainda não confirmadas já aparecem abertas; as confirmadas ficam fechadas — toque no nome da aula para abrir ou fechar
+  <sub><em>One section per class, with its teachers, how many students, the total and the status: Não iniciada (Not started), Rascunho (Draft) or Confirmada (Confirmed). Sheets not yet confirmed show open; confirmed ones stay closed — tap the class name to open or close it</em></sub>
 
-Só aparecem aulas com professor que não é o dono e com check-in no mês. Toque num cartão para abrir a planilha:
-<sub><em>Only classes with a teacher who isn't the owner and with check-ins that month show up. Tap a card to open the sheet:</em></sub>
+Só aparecem aulas com professor que não é o dono e com check-in no mês. O gráfico só aparece quando algum mês já tem repasse. A planilha de cada aula fica ali mesmo, na aba:
+<sub><em>Only classes with a teacher who isn't the owner and with check-ins that month show up. The chart shows only once some month has a payout. Each class's sheet is right there, on the tab:</em></sub>
 
 ![Planilha de repasse](./assets/user-guide/instructor/payout-sheet.png)
 

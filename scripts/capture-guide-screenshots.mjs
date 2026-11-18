@@ -222,9 +222,11 @@ const SHOTS = [
     path: '/billing/payouts',
     viewport: 'desktop',
     login: INSTRUCTOR,
+    // The draft No-Gi sheet starts open on the tab; scroll to its rows.
     action: async (page) => {
-      await page.getByRole('link', { name: /No-Gi Noite/ }).first().click();
-      await page.getByText('Total do repasse').waitFor();
+      await page.getByText('Total do repasse').first().waitFor();
+      await page.getByRole('button', { name: /^No-Gi Noite/ }).scrollIntoViewIfNeeded();
+      await page.evaluate(() => window.scrollBy(0, -16));
     },
   },
   {
