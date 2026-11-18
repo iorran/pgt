@@ -211,6 +211,7 @@
     "checkinInvalidToken": "Invalid or expired QR code. Scan the code showing on the kiosk now.",
     "scanQR": "Scan QR code",
     "scanning": "Scanning…",
+    "classCount_zero": "{{count}} classes",
     "classCount_one": "{{count}} class",
     "classCount_other": "{{count}} classes",
     "noClasses": "No classes yet",
@@ -232,6 +233,7 @@
     "locationDenied": "Location permission denied. Check-in needs your location to confirm you’re at the academy.",
     "locationDeniedHelp": "Tap the lock icon in the address bar, allow location, then try again.",
     "locationUnavailable": "Couldn’t get your location. Turn on location services and try again.",
+    "studentCount_zero": "{{count}} students",
     "studentCount_one": "{{count}} student",
     "studentCount_other": "{{count}} students",
     "viewMode": "View mode",
@@ -301,6 +303,7 @@
     "payConfirm": "Record the monthly fee for {{name}}? It covers the oldest unpaid month.",
     "paySuccess": "Payment recorded",
     "showMore": "Show more",
+    "count_zero": "{{count}} students",
     "count_one": "{{count}} student",
     "count_other": "{{count}} students",
     "fee": {
@@ -334,6 +337,7 @@
   "billing": {
     "overdueTitle": "Overdue payments",
     "noOverdue": "No overdue payments",
+    "daysOverdue_zero": "days overdue",
     "daysOverdue_one": "day overdue",
     "daysOverdue_other": "days overdue",
     "tierCritical": "Critical",
@@ -345,14 +349,18 @@
     "date": "Date",
     "referenceMonth": "Reference month",
     "recentPayments": "Recent payments",
+    "yourPaymentOverdue_zero": "Your payment is {{count}} days overdue",
     "yourPaymentOverdue_one": "Your payment is {{count}} day overdue",
     "yourPaymentOverdue_other": "Your payment is {{count}} days overdue",
+    "overdueCount_zero": "{{count}} overdue",
     "overdueCount_one": "{{count}} overdue",
     "overdueCount_other": "{{count}} overdue",
+    "missedMonths_zero": "{{count}} unpaid months",
     "missedMonths_one": "{{count}} unpaid month",
     "missedMonths_other": "{{count}} unpaid months",
     "paymentRecorded": "Payment recorded",
     "noPayments": "No payments recorded yet",
+    "paymentDueSoon_zero": "Your payment is due in {{count}} days",
     "paymentDueSoon_one": "Your payment is due in {{count}} day",
     "paymentDueSoon_other": "Your payment is due in {{count}} days",
     "errors": {
@@ -497,6 +505,7 @@
       "recalculate": "Recalculate points",
       "recalculateHelp": "Season saved. Recalculating applies the new points to approved results, except adjustments and manually set points.",
       "notNow": "Not now",
+      "recalculated_zero": "{{count}} results updated",
       "recalculated_one": "{{count}} result updated",
       "recalculated_other": "{{count}} results updated"
     }
@@ -627,6 +636,7 @@
       "rename": "Rename",
       "delete": "Delete modality",
       "confirmDelete": "Delete the modality {{name}}?",
+      "studentCount_zero": "{{count}} students",
       "studentCount_one": "{{count}} student",
       "studentCount_other": "{{count}} students",
       "added": "Modality added",
@@ -634,6 +644,7 @@
       "deleted": "Modality deleted",
       "errors": {
         "exists": "A modality with this name already exists",
+        "inUse_zero": "In use by {{count}} students — remove it from students first",
         "inUse_one": "In use by {{count}} student — remove it from students first",
         "inUse_other": "In use by {{count}} students — remove it from students first"
       }
@@ -667,6 +678,7 @@
     "mutedToast": "Notifications for {{name}} muted",
     "title": "Notifications",
     "noOverdue": "No overdue payments",
+    "daysOverdue_zero": "{{count}} days overdue",
     "daysOverdue_one": "{{count}} day overdue",
     "daysOverdue_other": "{{count}} days overdue",
     "sendReminder": "Send reminder",
@@ -674,6 +686,7 @@
     "emailSent": "Email sent",
     "mute": "Mute",
     "unmute": "Unmute",
+    "overdueMessage_zero": "Hi {{name}}, your academy payment is {{count}} days overdue. Please settle it as soon as possible.",
     "overdueMessage_one": "Hi {{name}}, your academy payment is {{count}} day overdue. Please settle it as soon as possible.",
     "overdueMessage_other": "Hi {{name}}, your academy payment is {{count}} days overdue. Please settle it as soon as possible."
   },
@@ -782,6 +795,7 @@
     "studentPrice": "Student price (€)",
     "outsiderPrice": "Outsider price (€)",
     "prices": "Students {{student}} · Outsiders {{outsider}}",
+    "participants_zero": "participants",
     "participants_one": "participant",
     "participants_other": "participants",
     "received": "received · {{count}}",
@@ -817,6 +831,7 @@
     "editTitle": "Edit seminar",
     "delete": "Delete seminar",
     "deleted": "Seminar deleted",
+    "confirmDelete_zero": "Delete the seminar {{name}}? {{count}} participants and {{paid}} already received will no longer show in the app. This can’t be undone.",
     "confirmDelete_one": "Delete the seminar {{name}}? {{count}} participant and {{paid}} already received will no longer show in the app. This can’t be undone.",
     "confirmDelete_other": "Delete the seminar {{name}}? {{count}} participants and {{paid}} already received will no longer show in the app. This can’t be undone.",
     "backToPending": "Back to pending",
@@ -827,6 +842,7 @@
     "noneUpcoming": "No seminars scheduled.",
     "noParticipantsYet": "No sign-ups yet",
     "receivedAmount": "{{amount}} received",
+    "people_zero": "{{count}} people",
     "people_one": "{{count}} person",
     "people_other": "{{count}} people"
   },
@@ -849,6 +865,7 @@
       "whereTitle": "Where the money went",
       "whereLabel": "Of the month’s money, {{expenses}}% went to expenses, {{payouts}}% to payouts and {{kept}}% was kept",
       "incomeTitle": "Income",
+      "monthlyFees_zero": "Monthly fees · {{count}} students",
       "monthlyFees_one": "Monthly fees · {{count}} student",
       "monthlyFees_other": "Monthly fees · {{count}} students",
       "seminars": "Seminars · {{count}}",
@@ -899,6 +916,7 @@
       "historyTitle": "Payouts · last 6 months",
       "average": "avg {{amount}}",
       "barLabel": "{{list}}",
+      "students_zero": "{{count}} students",
       "students_one": "{{count}} student",
       "students_other": "{{count}} students",
       "status": {
@@ -911,6 +929,7 @@
       "emptyDescription": "Classes with a teacher who is not the owner show up here once someone checks in to them that month.",
       "title": "Payout · {{name}}",
       "teachers": "Teachers: {{names}}",
+      "checkins_zero": "{{count}} check-ins",
       "checkins_one": "{{count}} check-in",
       "checkins_other": "{{count}} check-ins",
       "paid": "Paid",

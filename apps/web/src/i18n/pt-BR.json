@@ -211,6 +211,7 @@
     "checkinInvalidToken": "QR code inválido ou expirado. Escaneie o QR code que está no totem agora.",
     "scanQR": "Escanear QR code",
     "scanning": "Escaneando…",
+    "classCount_zero": "{{count}} aulas",
     "classCount_one": "{{count}} aula",
     "classCount_other": "{{count}} aulas",
     "noClasses": "Nenhuma aula cadastrada ainda",
@@ -232,6 +233,7 @@
     "locationDenied": "Permissão de localização negada. O check-in precisa da sua localização para confirmar que você está na academia.",
     "locationDeniedHelp": "Toque no ícone de cadeado na barra de endereço, permita a localização e tente novamente.",
     "locationUnavailable": "Não foi possível obter sua localização. Ative a localização do aparelho e tente novamente.",
+    "studentCount_zero": "{{count}} alunos",
     "studentCount_one": "{{count}} aluno",
     "studentCount_other": "{{count}} alunos",
     "viewMode": "Modo de exibição",
@@ -301,6 +303,7 @@
     "payConfirm": "Registrar a mensalidade de {{name}}? Vale para o mês em aberto mais antigo.",
     "paySuccess": "Pagamento registrado",
     "showMore": "Mostrar mais",
+    "count_zero": "{{count}} alunos",
     "count_one": "{{count}} aluno",
     "count_other": "{{count}} alunos",
     "fee": {
@@ -334,6 +337,7 @@
   "billing": {
     "overdueTitle": "Inadimplentes",
     "noOverdue": "Nenhum inadimplente",
+    "daysOverdue_zero": "dias em atraso",
     "daysOverdue_one": "dia em atraso",
     "daysOverdue_other": "dias em atraso",
     "tierCritical": "Crítico",
@@ -345,14 +349,18 @@
     "date": "Data",
     "referenceMonth": "Mês de referência",
     "recentPayments": "Pagamentos recentes",
+    "yourPaymentOverdue_zero": "Seu pagamento está {{count}} dias atrasado",
     "yourPaymentOverdue_one": "Seu pagamento está {{count}} dia atrasado",
     "yourPaymentOverdue_other": "Seu pagamento está {{count}} dias atrasado",
+    "overdueCount_zero": "{{count}} inadimplentes",
     "overdueCount_one": "{{count}} inadimplente",
     "overdueCount_other": "{{count}} inadimplentes",
+    "missedMonths_zero": "{{count}} meses em aberto",
     "missedMonths_one": "{{count}} mês em aberto",
     "missedMonths_other": "{{count}} meses em aberto",
     "paymentRecorded": "Pagamento registrado",
     "noPayments": "Nenhum pagamento registrado ainda",
+    "paymentDueSoon_zero": "Seu pagamento vence em {{count}} dias",
     "paymentDueSoon_one": "Seu pagamento vence em {{count}} dia",
     "paymentDueSoon_other": "Seu pagamento vence em {{count}} dias",
     "errors": {
@@ -497,6 +505,7 @@
       "recalculate": "Recalcular pontos",
       "recalculateHelp": "Temporada salva. Recalcular aplica os novos pontos aos resultados aprovados, exceto ajustes e pontos definidos manualmente.",
       "notNow": "Agora não",
+      "recalculated_zero": "{{count}} resultados atualizados",
       "recalculated_one": "{{count}} resultado atualizado",
       "recalculated_other": "{{count}} resultados atualizados"
     }
@@ -627,6 +636,7 @@
       "rename": "Renomear",
       "delete": "Excluir modalidade",
       "confirmDelete": "Excluir a modalidade {{name}}?",
+      "studentCount_zero": "{{count}} alunos",
       "studentCount_one": "{{count}} aluno",
       "studentCount_other": "{{count}} alunos",
       "added": "Modalidade adicionada",
@@ -634,6 +644,7 @@
       "deleted": "Modalidade excluída",
       "errors": {
         "exists": "Já existe uma modalidade com esse nome",
+        "inUse_zero": "Em uso por {{count}} alunos — remova dos alunos antes",
         "inUse_one": "Em uso por {{count}} aluno — remova dos alunos antes",
         "inUse_other": "Em uso por {{count}} alunos — remova dos alunos antes"
       }
@@ -667,6 +678,7 @@
     "mutedToast": "Notificações de {{name}} silenciadas",
     "title": "Notificações",
     "noOverdue": "Nenhum pagamento atrasado",
+    "daysOverdue_zero": "{{count}} dias atrasado",
     "daysOverdue_one": "{{count}} dia atrasado",
     "daysOverdue_other": "{{count}} dias atrasado",
     "sendReminder": "Enviar lembrete",
@@ -674,6 +686,7 @@
     "emailSent": "E-mail enviado",
     "mute": "Silenciar",
     "unmute": "Ativar notificações",
+    "overdueMessage_zero": "Olá {{name}}, seu pagamento na academia está {{count}} dias atrasado. Por favor, regularize o quanto antes.",
     "overdueMessage_one": "Olá {{name}}, seu pagamento na academia está {{count}} dia atrasado. Por favor, regularize o quanto antes.",
     "overdueMessage_other": "Olá {{name}}, seu pagamento na academia está {{count}} dias atrasado. Por favor, regularize o quanto antes."
   },
@@ -782,6 +795,7 @@
     "studentPrice": "Preço alunos (€)",
     "outsiderPrice": "Preço externos (€)",
     "prices": "Alunos {{student}} · Externos {{outsider}}",
+    "participants_zero": "participantes",
     "participants_one": "participante",
     "participants_other": "participantes",
     "received": "recebido · {{count}}",
@@ -817,6 +831,7 @@
     "editTitle": "Editar seminário",
     "delete": "Excluir seminário",
     "deleted": "Seminário excluído",
+    "confirmDelete_zero": "Excluir o seminário {{name}}? {{count}} participantes e {{paid}} já recebidos deixam de aparecer no app. Não é possível desfazer.",
     "confirmDelete_one": "Excluir o seminário {{name}}? {{count}} participante e {{paid}} já recebidos deixam de aparecer no app. Não é possível desfazer.",
     "confirmDelete_other": "Excluir o seminário {{name}}? {{count}} participantes e {{paid}} já recebidos deixam de aparecer no app. Não é possível desfazer.",
     "backToPending": "Voltar para pendente",
@@ -827,6 +842,7 @@
     "noneUpcoming": "Nenhum seminário marcado.",
     "noParticipantsYet": "Ainda sem inscritos",
     "receivedAmount": "{{amount}} recebido",
+    "people_zero": "{{count}} pessoas",
     "people_one": "{{count}} pessoa",
     "people_other": "{{count}} pessoas"
   },
@@ -849,6 +865,7 @@
       "whereTitle": "Para onde foi o dinheiro",
       "whereLabel": "Do dinheiro do mês, {{expenses}}% foi despesa, {{payouts}}% repasse e {{kept}}% ficou como resultado",
       "incomeTitle": "Entradas",
+      "monthlyFees_zero": "Mensalidades · {{count}} alunos",
       "monthlyFees_one": "Mensalidades · {{count}} aluno",
       "monthlyFees_other": "Mensalidades · {{count}} alunos",
       "seminars": "Seminários · {{count}}",
@@ -899,6 +916,7 @@
       "historyTitle": "Repasses · últimos 6 meses",
       "average": "média {{amount}}",
       "barLabel": "{{list}}",
+      "students_zero": "{{count}} alunos",
       "students_one": "{{count}} aluno",
       "students_other": "{{count}} alunos",
       "status": {
@@ -911,6 +929,7 @@
       "emptyDescription": "Aulas com professor que não é o dono aparecem aqui quando alguém faz check-in nelas no mês.",
       "title": "Repasse · {{name}}",
       "teachers": "Professores: {{names}}",
+      "checkins_zero": "{{count}} check-ins",
       "checkins_one": "{{count}} check-in",
       "checkins_other": "{{count}} check-ins",
       "paid": "Pagou",

@@ -21,320 +21,44 @@ const STUDENT_ROXA = 'maria.roxa@demo.pgt';
 const STUDENT_OVERDUE = 'pedro.branca.overdue@demo.pgt';
 const STUDENT_PENDING = 'lucas.branca.pending@demo.pgt';
 const RESPONSIBLE = 'paula.lima@demo.pgt';
+const JOIN_CODE = 'PGT-DEMO-001';
 
 /**
- * Shot list derived from docs/user-guide-audit.md ## Screenshot Shot List.
- * Each entry: { slug, role, path, viewport, login, prep? }
- *   - login: demo email string, or null for unauthenticated pages.
- *   - prep:  string comment describing manual/seed prep needed (not executed by this script).
- *   - action: optional async (page) => void run before the screenshot (e.g., open a dialog).
+ * Every image the user guides reference, and nothing else. Data comes from
+ * `npm run db:seed:guide` (apps/api/src/db/seed-guide.ts).
+ * Each entry: { slug, role, path, viewport, login, action?, permissions?, stub? }
+ *   - login:  demo email, or null for unauthenticated pages.
+ *   - action: async (page) => void run before the screenshot (open a dialog, scroll, …).
+ *   - stub:   { urlGlob: json } API responses to fake for this shot.
  */
 // The guide seed puts a Seminar 3 days from now (inside the 7-day strip) and one ~25 days out
 // (outside it). The strip's day button names the full date and ends in "tem seminário".
 const SEMINAR_DAY = /tem seminário$/;
+const TEACHER = STUDENT_ROXA; // Maria teaches No-Gi Noite: Perfil → Meu repasse
+
+const scrollTo = (text) => async (page) => {
+  await page
+    .getByText(text, { exact: true })
+    .first()
+    .evaluate((el) => el.scrollIntoView({ block: 'start' }));
+};
+
+const openDialog = (name) => async (page) => {
+  await page.getByRole('button', { name }).first().click();
+  await page.getByRole('dialog').waitFor();
+};
 
 const SHOTS = [
   // ── Unauthenticated ─────────────────────────────────────────────────────────
-  {
-    slug: 'login-page',
-    role: 'unauth',
-    path: '/login',
-    viewport: 'desktop',
-    login: null,
-    // prep: none
-  },
-  {
-    slug: 'forgot-reset-password',
-    role: 'unauth',
-    path: '/forgot-password',
-    viewport: 'desktop',
-    login: null,
-    // prep: none
-  },
-  {
-    slug: 'signup-screen',
-    role: 'unauth',
-    path: '/signup',
-    viewport: 'desktop',
-    login: null,
-    // prep: none
-  },
-  {
-    slug: 'student-join-form',
-    role: 'unauth',
-    path: '/entrar/DEMO',
-    viewport: 'desktop',
-    login: null,
-    // prep: Enter a valid academy join code in /signup to land on /entrar/:code
-  },
+  { slug: 'login-page', role: 'unauth', path: '/login', viewport: 'desktop', login: null },
+  { slug: 'forgot-reset-password', role: 'unauth', path: '/forgot-password', viewport: 'desktop', login: null },
+  { slug: 'signup-screen', role: 'unauth', path: '/signup', viewport: 'desktop', login: null },
+  { slug: 'student-join-form', role: 'unauth', path: `/entrar/${JOIN_CODE}`, viewport: 'desktop', login: null },
 
-  // ── Student (pending / awaiting approval) ───────────────────────────────────
-  {
-    slug: 'aguardando-screen',
-    role: 'student',
-    path: '/aguardando',
-    viewport: 'mobile',
-    login: STUDENT_PENDING,
-    // prep: none — lucas.branca.pending@demo.pgt has status='pending'
-  },
-
-  // ── Instructor — dashboard & student management ──────────────────────────────
-  {
-    slug: 'dashboard-instructor',
-    role: 'instructor',
-    path: '/',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-  {
-    slug: 'dashboard-student-banner',
-    role: 'student',
-    path: '/',
-    viewport: 'mobile',
-    login: STUDENT_OVERDUE,
-    // prep: pedro.branca.overdue@demo.pgt has overdue payments seeded; shows destructive red banner
-  },
-  {
-    slug: 'pending-students',
-    role: 'instructor',
-    path: '/pending',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none — lucas.branca.pending@demo.pgt card should be visible
-  },
-  {
-    slug: 'students-list',
-    role: 'instructor',
-    path: '/students',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-  {
-    slug: 'student-detail-plan',
-    role: 'instructor',
-    path: '/students',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: Click on a student who has a plan assigned (e.g., João Azul / joao.azul@demo.pgt)
-    //       to land on /students/:id. This script captures /students; deep-link requires the UUID.
-  },
-
-  // ── Instructor — billing ─────────────────────────────────────────────────────
-  {
-    slug: 'billing-overdue',
-    role: 'instructor',
-    path: '/billing',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none — pedro.branca.overdue@demo.pgt appears in Inadimplentes tab
-  },
-  {
-    slug: 'billing-plans',
-    role: 'instructor',
-    path: '/billing/plans',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-  {
-    slug: 'billing-payments',
-    role: 'instructor',
-    path: '/billing/payments',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-
-  // ── Instructor — notification bell ──────────────────────────────────────────
-  {
-    slug: 'notification-bell',
-    role: 'instructor',
-    path: '/',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: Ensure at least one student has an overdue payment (seeded) so badge appears;
-    //       open the bell dropdown before the screenshot is captured.
-  },
-
-  // ── Marketplace ─────────────────────────────────────────────────────────────
-  {
-    slug: 'marketplace-products',
-    role: 'instructor',
-    path: '/marketplace',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-  {
-    slug: 'marketplace-order',
-    role: 'student',
-    path: '/marketplace',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: none — shows "Solicitar" button directly on each product card; mobile shows 2-col grid
-  },
-  {
-    slug: 'marketplace-orders',
-    role: 'instructor',
-    path: '/marketplace/orders',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-
-  // ── Gamification ─────────────────────────────────────────────────────────────
-  {
-    slug: 'gamification-seasons',
-    role: 'instructor',
-    path: '/gamification/seasons',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: Click "Criar Temporada" to open the creation dialog before screenshot
-  },
-  {
-    slug: 'gamification-results-instructor',
-    role: 'instructor',
-    path: '/gamification/results',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-  {
-    slug: 'gamification-results-student',
-    role: 'student',
-    path: '/gamification/results',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: Click "Enviar Resultado" tab before screenshot
-  },
-  {
-    slug: 'gamification-leaderboard',
-    role: 'instructor',
-    path: '/gamification',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-  {
-    slug: 'gamification-profile',
-    role: 'student',
-    path: '/gamification/profile',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: none
-  },
-
-  // ── Student hub — /me (Milestone 4) ─────────────────────────────────────────
-  {
-    slug: 'student-hub',
-    role: 'student',
-    path: '/me',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: none — hub page showing billing status, tournaments link, settings, theme, sign-out
-  },
-  {
-    slug: 'student-billing',
-    role: 'student',
-    path: '/me/billing',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: none — billing detail showing current plan and payment status
-  },
-  // ── Student check-in scanner ─────────────────────────────────────────────────
-  // Camera permission is requested; if the scanner throws or stalls without a
-  // real camera, the shot is skipped gracefully rather than failing the run.
-  {
-    slug: 'checkin-scanner',
-    role: 'student',
-    path: '/checkin',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    permissions: ['camera'],
-    // prep: camera permission granted via context options; fullscreen scanner UI
-  },
-
-  // ── Totem (mobile) ───────────────────────────────────────────────────────────
-  {
-    slug: 'totem-page',
-    role: 'instructor',
-    path: '/totem',
-    viewport: 'mobile',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-
-  // ── Classes ──────────────────────────────────────────────────────────────────
-  {
-    slug: 'classes-student-checkin',
-    role: 'student',
-    path: '/classes',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: Wait for or mock an active class time window to show Check-in and QR Code buttons;
-    //       mobile viewport confirms the new bottom nav is visible.
-  },
-  {
-    slug: 'checkin-history',
-    role: 'instructor',
-    path: '/classes/history',
-    viewport: 'mobile',
-    login: INSTRUCTOR,
-    // prep: Click "Histórico de Presença" tab
-  },
-  // checkin-scan: intentionally not captured. The page is a QR-redemption
-  // landing that requires a `?token=...` from a totem scan; without one it
-  // sits in a loading state. The student guide describes the flow in text.
-
-  // ── Tournaments ──────────────────────────────────────────────────────────────
-  {
-    slug: 'tournaments-instructor',
-    role: 'instructor',
-    path: '/tournaments',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: Click "Ver Inscritos" on a tournament to show inline roster table
-  },
-  {
-    slug: 'tournaments-student',
-    role: 'student',
-    path: '/tournaments',
-    viewport: 'mobile',
-    login: STUDENT_AZUL,
-    // prep: Click "Inscrever-se" on a tournament to show sign-up dialog
-  },
-
-  // ── Settings ─────────────────────────────────────────────────────────────────
-  {
-    slug: 'settings-location',
-    role: 'instructor',
-    path: '/settings',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: none
-  },
-
-  // ── Classes — instructor management ─────────────────────────────────────────
-  {
-    slug: 'classes-create',
-    role: 'instructor',
-    path: '/classes',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: Click "Criar Aula" button to open the create class dialog before screenshot
-  },
-  {
-    slug: 'classes-edit-delete',
-    role: 'instructor',
-    path: '/classes',
-    viewport: 'mobile',
-    login: INSTRUCTOR,
-    // prep: none — default list view: weekday chips, today's class cards with check-in counts
-  },
-
-  // ── Seminars (seed-guide puts one 3 days from now, with a Guest Teacher) ────
+  // ── Student ─────────────────────────────────────────────────────────────────
+  { slug: 'aguardando-screen', role: 'student', path: '/aguardando', viewport: 'mobile', login: STUDENT_PENDING },
+  { slug: 'profile-picker', role: 'student', path: '/perfis', viewport: 'mobile', login: RESPONSIBLE },
+  { slug: 'classes-student-checkin', role: 'student', path: '/classes', viewport: 'mobile', login: STUDENT_AZUL },
   {
     slug: 'seminar-student',
     role: 'student',
@@ -354,14 +78,90 @@ const SHOTS = [
     login: STUDENT_AZUL,
     action: (page) => page.getByText('Leg locks').waitFor(),
   },
+  // Chromium's fake camera stands in for a real one.
+  { slug: 'checkin-scanner', role: 'student', path: '/checkin', viewport: 'mobile', login: STUDENT_AZUL, permissions: ['camera'] },
+  { slug: 'dashboard-student-banner', role: 'student', path: '/me', viewport: 'mobile', login: STUDENT_OVERDUE },
+  { slug: 'student-billing', role: 'student', path: '/me/billing', viewport: 'mobile', login: STUDENT_AZUL },
+  { slug: 'student-hub', role: 'student', path: '/me', viewport: 'mobile', login: TEACHER },
+  { slug: 'my-payout', role: 'student', path: '/me/payout', viewport: 'mobile', login: TEACHER },
+  { slug: 'gamification-profile', role: 'student', path: '/gamification/profile', viewport: 'mobile', login: STUDENT_AZUL },
+  { slug: 'marketplace-order', role: 'student', path: '/marketplace', viewport: 'mobile', login: STUDENT_AZUL },
   {
-    slug: 'seminars-tab',
+    slug: 'tournaments-student',
+    role: 'student',
+    path: '/tournaments',
+    viewport: 'mobile',
+    login: STUDENT_AZUL,
+    action: openDialog('Inscrever-se'),
+  },
+
+  // ── Owner — getting started & students ─────────────────────────────────────
+  { slug: 'phone-menu', role: 'instructor', path: '/', viewport: 'mobile', login: INSTRUCTOR, action: openDialog('Mais') },
+  { slug: 'settings-location', role: 'instructor', path: '/settings', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'settings-modalities', role: 'instructor', path: '/settings', viewport: 'desktop', login: INSTRUCTOR, action: scrollTo('Modalidades') },
+  { slug: 'pending-students', role: 'instructor', path: '/pending', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'students-list', role: 'instructor', path: '/students', viewport: 'desktop', login: INSTRUCTOR },
+  {
+    slug: 'student-detail',
     role: 'instructor',
-    path: '/classes/seminars',
+    path: '/students',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    action: async (page) => {
+      await page.getByRole('link', { name: 'João Silva' }).filter({ visible: true }).first().click();
+      await page.getByText('Salvar mensalidade').waitFor();
+    },
+  },
+  { slug: 'families-tab', role: 'instructor', path: '/students/families', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'family-dialog', role: 'instructor', path: '/students/families', viewport: 'desktop', login: INSTRUCTOR, action: openDialog('Editar') },
+
+  // ── Owner — dashboard (the owner's home page) ──────────────────────────────
+  { slug: 'owner-dashboard-overview', role: 'instructor', path: '/', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'owner-aderencia-chart', role: 'instructor', path: '/?period=month', viewport: 'desktop', login: INSTRUCTOR },
+  {
+    slug: 'owner-classes-expanded',
+    role: 'instructor',
+    path: '/?period=month',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    action: async (page) => {
+      const row = page.getByRole('button', { name: /No-Gi Noite/ }).first();
+      await row.click();
+      await page.getByText('Presentes').first().waitFor();
+      await row.evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    },
+  },
+  {
+    slug: 'owner-students-list',
+    role: 'instructor',
+    path: '/',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    action: async (page) => {
+      const row = page.getByRole('button', { name: /Ana Costa/ }).first();
+      await row.click();
+      await page.getByText('Melhor').first().waitFor();
+      await page.getByRole('button', { name: /^Todos/ }).last().evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    },
+  },
+
+  // ── Owner — classes, seminars, check-in ────────────────────────────────────
+  { slug: 'classes-edit-delete', role: 'instructor', path: '/classes', viewport: 'mobile', login: INSTRUCTOR },
+  { slug: 'classes-create', role: 'instructor', path: '/classes', viewport: 'desktop', login: INSTRUCTOR, action: openDialog('Criar aula') },
+  {
+    slug: 'class-teacher-picker',
+    role: 'instructor',
+    path: '/classes',
     viewport: 'mobile',
     login: INSTRUCTOR,
-    action: (page) => page.getByText('Leg locks').waitFor(),
+    action: async (page) => {
+      await openDialog('Criar aula')(page);
+      await page.getByLabel('Professor', { exact: true }).click();
+      await page.getByText('Faixas roxa, marrom e preta').waitFor();
+    },
   },
+  { slug: 'seminars-tab', role: 'instructor', path: '/classes/seminars', viewport: 'mobile', login: INSTRUCTOR, action: (page) => page.getByText('Leg locks').waitFor() },
+  { slug: 'seminar-create', role: 'instructor', path: '/classes/seminars', viewport: 'mobile', login: INSTRUCTOR, action: openDialog('Criar seminário') },
   {
     slug: 'seminar-page',
     role: 'instructor',
@@ -386,83 +186,95 @@ const SHOTS = [
       await page.getByText(/Já pagou/).waitFor();
     },
   },
+  { slug: 'checkin-history', role: 'instructor', path: '/classes/history', viewport: 'mobile', login: INSTRUCTOR },
+  { slug: 'totem-page', role: 'instructor', path: '/totem', viewport: 'desktop', login: INSTRUCTOR },
+  // Nothing open: the API is stubbed to return no QR codes, so the totem shows the next class and the clock.
   {
-    slug: 'seminar-create',
+    slug: 'totem-empty',
     role: 'instructor',
-    path: '/classes/seminars',
-    viewport: 'mobile',
+    path: '/totem',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    stub: { '**/api/checkins/tokens': [] },
+    action: (page) => page.getByText('Nenhuma aula no momento').waitFor(),
+  },
+
+  // ── Owner — Financeiro ─────────────────────────────────────────────────────
+  { slug: 'billing-overdue', role: 'instructor', path: '/billing', viewport: 'desktop', login: INSTRUCTOR },
+  {
+    slug: 'billing-payments',
+    role: 'instructor',
+    path: '/billing/payments',
+    viewport: 'desktop',
     login: INSTRUCTOR,
     action: async (page) => {
-      await page.getByRole('button', { name: 'Criar seminário' }).click();
-      await page.getByRole('dialog').waitFor();
+      await page.locator('#payment-student').click();
+      await page.locator('#payment-student').fill('a');
+      await page.getByRole('option').first().waitFor();
+    },
+  },
+  { slug: 'billing-balance', role: 'instructor', path: '/billing/balance', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'billing-expenses', role: 'instructor', path: '/billing/expenses', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'payout-sheets', role: 'instructor', path: '/billing/payouts', viewport: 'desktop', login: INSTRUCTOR },
+  {
+    slug: 'payout-sheet',
+    role: 'instructor',
+    path: '/billing/payouts',
+    viewport: 'desktop',
+    login: INSTRUCTOR,
+    // The draft No-Gi sheet starts open on the tab; scroll to its rows.
+    action: async (page) => {
+      await page.getByText('Total do repasse').first().waitFor();
+      await page.getByRole('button', { name: /^No-Gi Noite/ }).scrollIntoViewIfNeeded();
+      await page.evaluate(() => window.scrollBy(0, -16));
     },
   },
   {
-    slug: 'class-teacher-picker',
+    slug: 'notification-bell',
     role: 'instructor',
-    path: '/classes',
-    viewport: 'mobile',
+    path: '/',
+    viewport: 'desktop',
     login: INSTRUCTOR,
     action: async (page) => {
-      await page.getByRole('button', { name: 'Criar aula' }).click();
-      await page.getByRole('dialog').waitFor();
-      await page.getByLabel('Professor', { exact: true }).click();
-      await page.getByText('Faixas roxa, marrom e preta').waitFor();
+      await page.getByRole('button', { name: /^Notificações/ }).first().click();
+      await page.getByText('Enviar lembrete').first().waitFor();
     },
   },
 
-  // ── Families (ADR 0004) ─────────────────────────────────────────────────────
+  // ── Owner — shop, ranking, tournaments ─────────────────────────────────────
+  { slug: 'marketplace-products', role: 'instructor', path: '/marketplace', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'marketplace-orders', role: 'instructor', path: '/marketplace/orders', viewport: 'desktop', login: INSTRUCTOR },
+  { slug: 'gamification-seasons', role: 'instructor', path: '/gamification/seasons', viewport: 'desktop', login: INSTRUCTOR, action: openDialog('Criar temporada') },
   {
-    slug: 'profile-picker',
-    role: 'student',
-    path: '/perfis',
-    viewport: 'mobile',
-    login: RESPONSIBLE,
-  },
-  {
-    slug: 'family-dialog',
+    slug: 'gamification-results-instructor',
     role: 'instructor',
-    path: '/students/families',
+    path: '/gamification/results',
     viewport: 'desktop',
     login: INSTRUCTOR,
-    action: (page) => page.getByRole('button', { name: 'Editar' }).first().click(),
+    action: (page) => page.getByText('Copa Pontinha').first().waitFor(),
   },
-
-  // ── Owner dashboard ─────────────────────────────────────────────────────────
-  // The demo instructor (instrutor@demo.pgt) is seeded as the academy owner
-  // with role='owner' (see apps/api/src/db/seed-guide.ts), so these shots
-  // reuse the same login and impersonation path.
+  { slug: 'gamification-leaderboard', role: 'instructor', path: '/gamification', viewport: 'desktop', login: INSTRUCTOR },
   {
-    slug: 'owner-dashboard-overview',
+    slug: 'student-points',
     role: 'instructor',
-    path: '/owner/dashboard',
+    path: '/gamification',
     viewport: 'desktop',
     login: INSTRUCTOR,
-    // prep: none — full page shows period toggle, aderencia chart, classes list, students list
+    action: async (page) => {
+      await page.getByText('João Silva').first().click();
+      await page.getByText('Mafra Cup').first().waitFor();
+    },
   },
   {
-    slug: 'owner-aderencia-chart',
+    slug: 'tournaments-instructor',
     role: 'instructor',
-    path: '/owner/dashboard?period=month',
+    path: '/tournaments',
     viewport: 'desktop',
     login: INSTRUCTOR,
-    // prep: Scroll to / frame the BarChart section; month period gives the richest view
-  },
-  {
-    slug: 'owner-classes-expanded',
-    role: 'instructor',
-    path: '/owner/dashboard',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: Click one class row in the ClassesList to reveal the inline mini-chart + roster
-  },
-  {
-    slug: 'owner-students-list',
-    role: 'instructor',
-    path: '/owner/dashboard',
-    viewport: 'desktop',
-    login: INSTRUCTOR,
-    // prep: Scroll to the Students section; optionally click a status chip to demo filtering
+    action: async (page) => {
+      await page.getByRole('button', { name: 'Ver inscritos' }).first().click();
+      await page.getByText('Ana Costa').waitFor();
+    },
   },
 ];
 
@@ -497,6 +309,9 @@ async function captureShot(browser, shot) {
     }
 
     const page = await context.newPage();
+    for (const [pattern, body] of Object.entries(shot.stub ?? {})) {
+      await page.route(pattern, (route) => route.fulfill({ json: body }));
+    }
     await page.goto(`${WEB_URL}${shot.path}`);
     // Wait for DOM content (always works). Some pages (e.g., /totem) poll on
     // a timer so `networkidle` never fires — fall back to domcontentloaded +
@@ -532,9 +347,13 @@ async function main() {
   console.log(`→ API: ${API_URL}`);
   console.log(`→ Out: ${OUT_DIR}`);
 
-  const browser = await chromium.launch();
+  // Fake camera for the check-in scanner. ONLY=slug,slug captures just those shots.
+  const browser = await chromium.launch({
+    args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'],
+  });
+  const only = process.env.ONLY?.split(',');
   try {
-    for (const shot of SHOTS) {
+    for (const shot of SHOTS.filter((x) => !only || only.includes(x.slug))) {
       try {
         await captureShot(browser, shot);
       } catch (err) {
