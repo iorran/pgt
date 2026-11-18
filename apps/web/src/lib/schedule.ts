@@ -242,3 +242,10 @@ export function nextClassToday(classes: ClassItem[], timeZone: string, now: Date
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
   return later[0] ?? null;
 }
+
+// A Date whose local fields (day, hours, minutes) read the academy's wall clock, so the device-clock
+// helpers above (slotState, minutesSince, nextDays) work in academy time on a device in another timezone.
+export function academyNow(timeZone: string, now: Date = new Date()): Date {
+  const { date, time } = academyClock(timeZone, now);
+  return new Date(`${date}T${time}:${String(now.getSeconds()).padStart(2, '0')}`);
+}

@@ -19,7 +19,7 @@ import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { toast } from '@/lib/toast';
 import { StudentClassesView } from '@/pages/classes/student-view';
-import { isoDate } from '@/lib/schedule';
+import { academyNow, isoDate } from '@/lib/schedule';
 
 const mockUseSession = vi.mocked(useSession);
 const mockApi = vi.mocked(api);
@@ -137,7 +137,8 @@ describe('StudentClassesView', () => {
     const timezone = Array.from({ length: 27 }, (_, i) => i - 12)
       .map((h) => (h <= 0 ? `Etc/GMT+${-h}` : `Etc/GMT-${h}`))
       .find((tz) => day(nowAt, tz) !== day(checkedInAt, tz))!;
-    const liveClass = { id: 'live', name: 'Noon Gi', type: 'gi', dayOfWeek: 2, startTime: '11:00', endTime: '13:00' };
+    // Live all day on the academy's weekday, which is already the device's tomorrow.
+    const liveClass = { id: 'live', name: 'Noon Gi', type: 'gi', dayOfWeek: academyNow(timezone, nowAt).getDay(), startTime: '00:00', endTime: '23:59' };
     mockApi.mockImplementation(async (path: string) => {
       if (path.startsWith('/classes')) {
         return [liveClass] as any;
@@ -157,6 +158,30 @@ describe('StudentClassesView', () => {
       expect(await screen.findByText('classes.checkinProximity')).toBeInTheDocument();
       await new Promise((r) => setTimeout(r, 0));
       expect(screen.queryByText('classes.checkedIn')).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("opens check-in by the academy's clock, not the device's", async () => {
+    // 08:40 on Wednesday in Tokyo; the device (UTC or Europe) is still on Tuesday night.
+    const nowAt = new Date('2026-11-17T23:40:00Z');
+    const wedMorning = { id: 'w', name: 'Wed Morning', type: 'gi', recurrence: 'weekly', dayOfWeek: 3, startTime: '08:50', endTime: '10:00' };
+    mockApi.mockImplementation(async (path: string) => {
+      if (path.startsWith('/classes')) {
+        return [wedMorning] as any;
+      }
+      if (path === '/academies/mine') {
+        return { id: 'a1', name: 'Academia', timezone: 'Asia/Tokyo' } as any;
+      }
+      return [] as any;
+    });
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(nowAt);
+    try {
+      renderWithProviders(<StudentClassesView />);
+      expect(await screen.findByText('Wed Morning')).toBeInTheDocument();
+      expect(await screen.findByText('classes.checkinProximity')).toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }

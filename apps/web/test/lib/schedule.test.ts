@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { academyClock, academyToday, classesToCalendarEvents, isoDate, nextClassToday } from '@/lib/schedule';
+import { academyClock, academyNow, academyToday, classesToCalendarEvents, isoDate, nextClassToday } from '@/lib/schedule';
 
 const cls = (over: Partial<{
   id: string;
@@ -122,5 +122,14 @@ describe('nextClassToday', () => {
 
   it('is null when no class is left today', () => {
     expect(nextClassToday([wed({ startTime: '06:00', endTime: '06:30' })], 'Europe/Lisbon', at)).toBeNull();
+  });
+});
+
+describe('academyNow', () => {
+  it('turns the instant into a date whose clock fields read the academy wall clock', () => {
+    const at = new Date('2026-11-18T07:36:00Z');
+    const d = academyNow('Europe/Lisbon', at);
+    expect([isoDate(d), d.getHours(), d.getMinutes()]).toEqual(['2026-11-18', 7, 36]);
+    expect(academyNow('Asia/Tokyo', at).getHours()).toBe(16);
   });
 });
