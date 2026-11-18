@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { academyNow } from '@/lib/schedule';
 import { renderWithProviders } from '../render';
 
 vi.mock('@/lib/auth-client', () => ({
@@ -390,7 +391,9 @@ describe('InstructorClassesView — list view (default)', () => {
       if (path === '/academies/mine') {
         return { id: 'a1', name: 'Academia', timezone } as any;
       }
-      return (path.startsWith('/checkins/academy') ? academyCheckins : mockClasses) as any;
+      // The timeline shows the academy's today, so the class must fall on the academy's weekday.
+      const academyClasses = mockClasses.map((c) => (c.id === 'c1' ? { ...c, dayOfWeek: academyNow(timezone, now).getDay(), startTime: '00:00', endTime: '23:59' } : c));
+      return (path.startsWith('/checkins/academy') ? academyCheckins : academyClasses) as any;
     });
     renderWithProviders(<InstructorClassesView />);
     expect(await screen.findByText('Academy Day')).toBeInTheDocument();

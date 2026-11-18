@@ -609,8 +609,8 @@ O totem de QR Code transforma qualquer tablet em uma estação de check-in.
 
 1. Num tablet na entrada da academia, entre com a sua conta e abra Menu → **Totem**, o botão **"Abrir totem"** em Aulas, ou o endereço `/totem`
    <sub><em>On a tablet at your gym entrance, log in with your account and open Menu → Totem (Kiosk), the "Abrir totem" (Open kiosk) button in Aulas, or the `/totem` address</em></sub>
-2. A página mostra os QR Codes de todas as aulas que estão acontecendo, cada uma com o professor e o horário (seminários em âmbar); fora do horário aparece "Nenhuma aula no momento"
-   <sub><em>The page shows QR codes for all classes currently happening, each with its teacher and time (seminars in amber); outside class times it shows "Nenhuma aula no momento" (No classes right now)</em></sub>
+2. A página mostra os QR Codes de todas as aulas que estão acontecendo, cada uma com o professor e o horário (seminários em âmbar); fora do horário aparece "Nenhuma aula no momento", com a próxima aula do dia e a hora em que o check-in abre (15 minutos antes do início)
+   <sub><em>The page shows QR codes for all classes currently happening, each with its teacher and time (seminars in amber); outside class times it shows "Nenhuma aula no momento" (No classes right now), with the day's next class and when its check-in opens (15 minutes before the start)</em></sub>
 3. Os códigos são atualizados sozinhos a cada poucos minutos — o QR na tela está sempre válido
    <sub><em>Codes refresh on their own every few minutes — the QR on screen is always valid</em></sub>
 4. Os alunos escaneiam com a câmera do celular (ou pelo botão central de check-in do app) → o check-in é concluído automaticamente
@@ -621,6 +621,10 @@ O totem de QR Code transforma qualquer tablet em uma estação de check-in.
 > [!tip]
 > Deixe a página do totem aberta o dia todo. Ela detecta automaticamente quais aulas estão ativas com base no horário.
 > <sub><em>Leave the totem page open all day. It auto-detects which classes are active based on the schedule.</em></sub>
+
+> [!note]
+> Os horários das aulas são sempre na hora da academia (Lisboa). O totem mostra essa hora embaixo, para quem estiver com o aparelho noutro fuso horário.
+> <sub><em>Class times are always in the academy's time (Lisbon). The totem shows that time at the bottom, for anyone whose device is in another timezone.</em></sub>
 
 ## Financeiro
 <sub><em>Billing</em></sub>

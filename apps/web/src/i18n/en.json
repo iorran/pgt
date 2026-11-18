@@ -644,6 +644,8 @@
     "noClasses": "No classes right now",
     "noClassesHint": "QR codes appear here during each class time.",
     "nextClass": "Next class",
+    "checkinOpensAt": "check-in opens at",
+    "academyTime": "Academy time",
     "scanToCheckin": "Scan to check in",
     "openTotem": "Open kiosk",
     "openTotemExplainer": "Open the QR-code screen on another device so students can check in."

@@ -644,6 +644,8 @@
     "noClasses": "Nenhuma aula no momento",
     "noClassesHint": "Os QR codes aparecem aqui durante o horário de cada aula.",
     "nextClass": "Próxima aula",
+    "checkinOpensAt": "check-in abre às",
+    "academyTime": "Hora da academia",
     "scanToCheckin": "Escaneie para fazer check-in",
     "openTotem": "Abrir totem",
     "openTotemExplainer": "Abra a tela de QR codes em outro dispositivo para seus alunos fazerem check-in."

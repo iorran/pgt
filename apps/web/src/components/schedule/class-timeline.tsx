@@ -7,12 +7,12 @@ import { cn } from '@/lib/utils';
 import { beltClasses } from '@/lib/belts';
 import { Badge } from '@/components/ui/badge';
 import {
-  academyToday,
   addMinutes,
   AFTER_END_MIN,
   classesOn,
   groupByStart,
   isoDate,
+  academyNow,
   minutesSince,
   nextDays,
   slotState,
@@ -176,11 +176,18 @@ export function ClassTimeline({
 }) {
   const { t, i18n } = useTranslation();
   const duration = useDuration();
-  const now = useNow(fixedNow);
+  // Class times are the academy's wall clock: read "now" there, whatever timezone the device is in.
+  const { data: academy } = useQuery<{ timezone: string }>({
+    queryKey: ['academy-mine'],
+    queryFn: () => api<{ timezone: string }>('/academies/mine'),
+  });
+  const deviceNow = useNow(fixedNow);
+  const now = academy?.timezone ? academyNow(academy.timezone, deviceNow) : deviceNow;
   const todayIso = isoDate(now);
   // The next 7 days in order, starting today; a day is picked by its date.
   const days = nextDays(7, now);
-  const [picked, setPicked] = useState(todayIso);
+  // null = today, so it follows the academy's day once its timezone loads.
+  const [picked, setPicked] = useState<string | null>(null);
   const date = days.find((d) => isoDate(d) === picked) ?? days[0];
   const day = isoDate(date);
   const isToday = day === todayIso;
@@ -192,13 +199,8 @@ export function ClassTimeline({
     enabled: isToday && !renderAction,
     refetchInterval: 60_000,
   });
-  const { data: academy } = useQuery<{ timezone: string }>({
-    queryKey: ['academy-mine'],
-    queryFn: () => api<{ timezone: string }>('/academies/mine'),
-    enabled: isToday && !renderAction,
-  });
   // Check-ins are dated in the academy's day (the API's duplicate rule), not the device's.
-  const academyDay = academyToday(academy?.timezone, now);
+  const academyDay = todayIso;
   const presentBy = (classId: string) => checkins.filter((c) => c.date === academyDay && c.class?.id === classId);
 
   const groups = groupByStart(classesOn(classes, date));

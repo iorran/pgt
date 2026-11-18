@@ -227,3 +227,25 @@ export function addMinutes(hhmm: string, minutes: number): string {
   const total = (((toMin(hhmm) + minutes) % 1440) + 1440) % 1440;
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
+
+// The academy's wall clock: class times are typed in it, whatever timezone the device is in.
+export function academyClock(timeZone: string, now: Date = new Date()): { date: string; time: string; minutes: number } {
+  const time = new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(now);
+  return { date: academyToday(timeZone, now), time, minutes: toMin(time) };
+}
+
+// Today's next class (in the academy's day and clock) whose check-in window has not opened yet.
+export function nextClassToday(classes: ClassItem[], timeZone: string, now: Date = new Date()): ClassItem | null {
+  const { date, minutes } = academyClock(timeZone, now);
+  const later = classesOn(classes, new Date(`${date}T00:00:00`))
+    .filter((c) => toMin(c.startTime) - BEFORE_START_MIN > minutes)
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  return later[0] ?? null;
+}
+
+// A Date whose local fields (day, hours, minutes) read the academy's wall clock, so the device-clock
+// helpers above (slotState, minutesSince, nextDays) work in academy time on a device in another timezone.
+export function academyNow(timeZone: string, now: Date = new Date()): Date {
+  const { date, time } = academyClock(timeZone, now);
+  return new Date(`${date}T${time}:${String(now.getSeconds()).padStart(2, '0')}`);
+}

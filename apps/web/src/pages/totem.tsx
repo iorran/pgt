@@ -8,6 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SeminarLabel, TeacherLine } from '@/components/schedule/class-timeline';
+import { academyClock, addMinutes, BEFORE_START_MIN, nextClassToday, type ClassItem } from '@/lib/schedule';
 
 interface TokenData {
   classId: string;
@@ -35,11 +36,21 @@ export default function TotemPage() {
     !!user?.academyId,
   );
 
-  const { data: academy } = useApiQuery<{ name: string }>(
+  const { data: academy } = useApiQuery<{ name: string; timezone?: string }>(
     ['academy-mine'],
     '/academies/mine',
     !!user?.academyId,
   );
+
+  // With nothing open, say when the next class opens — in the academy's clock, which may differ from the device's.
+  const { data: classes = [] } = useApiQuery<ClassItem[]>(
+    ['classes', user?.academyId],
+    `/classes?academyId=${user?.academyId}`,
+    !!user?.academyId && tokens.length === 0,
+  );
+  const timeZone = academy?.timezone ?? 'Europe/Lisbon';
+  const clock = academyClock(timeZone);
+  const next = nextClassToday(classes, timeZone);
 
   // Poll every minute; the API swaps the token before it gets within 2 min of expiry.
   useEffect(() => {
@@ -63,6 +74,19 @@ export default function TotemPage() {
         <div className="text-center mt-20">
           <p className="text-2xl text-muted-foreground">{t('totem.noClasses')}</p>
           <p className="mt-2 text-muted-foreground">{t('totem.noClassesHint')}</p>
+          {next && (
+            <p className="mt-8 text-xl">
+              {t('totem.nextClass')}: <strong className="font-heading uppercase">{next.name}</strong>{' '}
+              <span className="font-mono">{next.startTime.slice(0, 5)}</span>
+              <br />
+              <span className="text-muted-foreground">{t('totem.checkinOpensAt')} </span>
+              <span className="font-mono">{addMinutes(next.startTime, -BEFORE_START_MIN)}</span>
+            </p>
+          )}
+          <p className="mt-4 text-sm text-muted-foreground">
+            {t('totem.academyTime')}: <span className="font-mono">{clock.time}</span> (
+            <span>{timeZone.split('/').pop()?.replace(/_/g, ' ')}</span>)
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
