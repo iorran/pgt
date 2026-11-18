@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { HandCoins } from 'lucide-react';
+import { ChevronDown, HandCoins } from 'lucide-react';
 import { useApiQuery } from '@/hooks/use-api';
 import { PageLoader } from '@/components/page-loader';
 import { QueryError } from '@/components/query-error';
@@ -9,7 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { formatMoney, formatMonth, formatShortMonth, shiftMonth } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { FinanceTabs, currentMonth } from './finance-nav';
-import { SheetStatus, type PayoutSheetStatus } from './payout-sheet';
+import { PayoutSheetBody, SheetStatus, type PayoutSheetStatus } from './payout-sheet';
 
 interface SheetSummary {
   className: string;
@@ -111,6 +110,49 @@ function HistoryChart({
   );
 }
 
+// One class's sheet, opened in place. Its rows are fetched only while it is open; a confirmed sheet
+// starts closed.
+function SheetSection({ sheet, month }: { sheet: SheetSummary; month: string }) {
+  const { t, i18n } = useTranslation();
+  const [open, setOpen] = useState(sheet.status !== 'confirmed');
+  const bodyId = `sheet-${month}-${sheet.className}`.replace(/\W+/g, '-');
+  return (
+    <section className="rounded-lg border border-border bg-card">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={bodyId}
+        onClick={() => setOpen(!open)}
+        className="flex min-h-11 w-full items-center gap-3 p-3.5 text-left"
+      >
+        <ChevronDown
+          className={cn('size-5 shrink-0 text-muted-foreground transition-transform', !open && '-rotate-90')}
+          aria-hidden
+        />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="font-heading text-lg">{sheet.className}</span>
+          <span className="text-sm text-muted-foreground">
+            {[sheet.teachers.join(', '), t('finance.sheets.students', { count: sheet.students })]
+              .filter(Boolean)
+              .join(' · ')}
+          </span>
+        </span>
+        <span className="flex flex-col items-end">
+          <span className="font-mono font-bold">
+            {sheet.total === null ? '—' : formatMoney(sheet.total, i18n.language)}
+          </span>
+          <SheetStatus status={sheet.status} />
+        </span>
+      </button>
+      {open && (
+        <div id={bodyId} className="border-t border-border p-3.5">
+          <PayoutSheetBody month={month} className={sheet.className} />
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function PayoutSheetsPage() {
   const { t, i18n } = useTranslation();
   const locale = i18n.language;
@@ -124,26 +166,36 @@ export default function PayoutSheetsPage() {
   const { data: newestFirst = [] } = useApiQuery<HistoryMonth[]>(['payout-history'], '/payout-sheets/history?months=6');
   // The API sends newest first; the chart reads left to right.
   const history = [...newestFirst].reverse();
+  const hasPayouts = history.some((h) => h.classes.some((c) => Number(c.total) > 0));
+  const monthTotal = sheets.reduce((sum, sh) => sum + Number(sh.total ?? 0), 0);
   const months = Array.from({ length: 12 }, (_, i) => shiftMonth(currentMonth(), -i));
 
   return (
     <div className="space-y-4">
       <FinanceTabs />
-      <label className="flex flex-col gap-1.5 text-sm text-muted-foreground">
-        {t('finance.sheets.month')}
-        <select
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          className="h-11 rounded-sm border border-border bg-card px-3 text-base text-foreground capitalize"
-        >
-          {months.map((m) => (
-            <option key={m} value={m}>
-              {formatMonth(m, locale)}
-            </option>
-          ))}
-        </select>
-      </label>
-      {history.length > 0 && <HistoryChart history={history} month={month} onPick={setMonth} />}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <label className="flex w-full max-w-xs flex-col gap-1.5 text-sm text-muted-foreground">
+          {t('finance.sheets.month')}
+          <select
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="h-11 rounded-sm border border-border bg-card px-3 text-base text-foreground capitalize"
+          >
+            {months.map((m) => (
+              <option key={m} value={m}>
+                {formatMonth(m, locale)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="flex items-baseline gap-2 text-sm text-muted-foreground">
+          {t('finance.sheets.monthTotal')}
+          <span data-testid="month-total" className="font-mono text-xl font-bold text-foreground">
+            {formatMoney(monthTotal, locale)}
+          </span>
+        </p>
+      </div>
+      {hasPayouts && <HistoryChart history={history} month={month} onPick={setMonth} />}
       {isLoading ? (
         <PageLoader />
       ) : isError ? (
@@ -157,29 +209,10 @@ export default function PayoutSheetsPage() {
         />
       ) : (
         <>
-          <ul className="flex flex-col gap-2">
-            {sheets.map((s) => (
-              <li key={s.className}>
-                <Link
-                  to={`/billing/payouts/${month}/${encodeURIComponent(s.className)}`}
-                  className="flex min-h-11 items-center gap-3 rounded-lg border border-border bg-card p-3.5"
-                >
-                  <span className="flex min-w-0 flex-1 flex-col">
-                    <span className="font-heading text-lg">{s.className}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {[s.teachers.join(', '), t('finance.sheets.students', { count: s.students })]
-                        .filter(Boolean)
-                        .join(' · ')}
-                    </span>
-                  </span>
-                  <span className="flex flex-col items-end">
-                    <span className="font-mono font-bold">{s.total === null ? '—' : formatMoney(s.total, locale)}</span>
-                    <SheetStatus status={s.status} />
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {sheets.map((sh) => (
+            // Keyed by month too, so each month's sheets open by their own status.
+            <SheetSection key={`${month}-${sh.className}`} sheet={sh} month={month} />
+          ))}
           <p className="text-sm text-muted-foreground">{t('finance.sheets.hint')}</p>
         </>
       )}

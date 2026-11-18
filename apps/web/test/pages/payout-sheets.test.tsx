@@ -106,20 +106,55 @@ describe('PayoutSheetsPage', () => {
       if (path.startsWith('/payout-sheets/history')) {
         return history as any;
       }
+      if (path.startsWith('/payout-sheets/2026')) {
+        return sheet('draft') as any;
+      }
       return sheets as any;
     });
   });
 
-  it('lists one card per class sheet of the month, linking to the sheet', async () => {
+  it('shows every class sheet on the tab: open ones load their rows, confirmed ones load when expanded', async () => {
+    const user = userEvent.setup();
+    const list = [...sheets, { className: 'Karatê', teachers: ['Rui'], students: 4, total: '40.00', status: 'confirmed' }];
+    mockApi.mockImplementation(async (path: string) => {
+      if (path.startsWith('/payout-sheets/history')) {
+        return history as any;
+      }
+      if (path === '/payout-sheets/2026-11/No%20Gi') {
+        return sheet('draft') as any;
+      }
+      if (path.startsWith('/payout-sheets/2026-11/')) {
+        return { ...sheet('confirmed'), className: decodeURIComponent(path.split('/')[3]), rows: [] } as any;
+      }
+      return list as any;
+    });
     renderWithProviders(<PayoutSheetsPage />);
-    const card = await screen.findByRole('link', { name: /No Gi/ });
-    expect(mockApi).toHaveBeenCalledWith('/payout-sheets?month=2026-11');
-    expect(mockApi).toHaveBeenCalledWith('/payout-sheets/history?months=6');
-    expect(card).toHaveAttribute('href', '/billing/payouts/2026-11/No%20Gi');
-    expect(card).toHaveTextContent('Reynaldo, Alex');
-    expect(card).toHaveTextContent(/27,50\s€/);
-    expect(card).toHaveTextContent('finance.sheets.status.draft');
-    expect(screen.getByRole('link', { name: /Gi Tarde/ })).toHaveTextContent('finance.sheets.status.empty');
+    const noGi = await screen.findByRole('button', { name: /No Gi/ });
+    expect(noGi).toHaveAttribute('aria-expanded', 'true');
+    expect(noGi).toHaveTextContent('Reynaldo, Alex');
+    expect(noGi).toHaveTextContent(/27,50\s€/);
+    expect(noGi).toHaveTextContent('finance.sheets.status.draft');
+    expect(await screen.findAllByLabelText('finance.sheets.amountLabel')).toHaveLength(2);
+    expect(screen.getByText('Ana Silva')).toBeInTheDocument();
+    // The month's total of every sheet sits by the month picker.
+    expect(screen.getByTestId('month-total')).toHaveTextContent(/67,50\s€/);
+
+    const karate = screen.getByRole('button', { name: /Karatê/ });
+    expect(karate).toHaveAttribute('aria-expanded', 'false');
+    expect(mockApi).not.toHaveBeenCalledWith('/payout-sheets/2026-11/Karat%C3%AA');
+    await user.click(karate);
+    await waitFor(() => expect(mockApi).toHaveBeenCalledWith('/payout-sheets/2026-11/Karat%C3%AA'));
+    expect(karate).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('hides the chart while no month has a payout', async () => {
+    const zero = history.map((h) => ({ ...h, classes: h.classes.map((c) => ({ ...c, total: '0.00' })) }));
+    mockApi.mockImplementation(async (path: string) =>
+      (path.startsWith('/payout-sheets/history') ? zero : path === '/payout-sheets?month=2026-11' ? sheets : sheet('draft')) as any,
+    );
+    renderWithProviders(<PayoutSheetsPage />);
+    await screen.findByRole('button', { name: /No Gi/ });
+    expect(screen.queryByRole('button', { name: /^finance\.sheets\.barLabel/ })).toBeNull();
   });
 
   it('draws the last 6 months by class and picks a month from the select or a bar', async () => {

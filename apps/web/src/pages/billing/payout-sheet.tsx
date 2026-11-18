@@ -59,11 +59,26 @@ export function parseAmount(value: string): string | null | undefined {
 
 export default function PayoutSheetPage() {
   const { t, i18n } = useTranslation();
-  const locale = i18n.language;
   const { month = '', className = '' } = useParams<{
     month: string;
     className: string;
   }>();
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col">
+        <SubpageHeader title={t('finance.sheets.title', { name: className })} to="/billing/payouts" />
+        <span className="text-sm text-muted-foreground capitalize">{formatMonth(month, i18n.language)}</span>
+      </div>
+      <PayoutSheetBody month={month} className={className} />
+    </div>
+  );
+}
+
+// The rows, the add-student picker, the total and Confirmar/Reabrir of one sheet — on its own page or
+// inline on the Repasses tab.
+export function PayoutSheetBody({ month, className }: { month: string; className: string }) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language;
   const { data: session } = useSession();
   const academyId = (session?.user as { academyId?: string } | undefined)?.academyId;
   const queryClient = useQueryClient();
@@ -82,7 +97,9 @@ export default function PayoutSheetPage() {
   );
 
   const onSuccess = () => {
-    for (const key of ['payout-sheet', 'payout-sheets', 'payout-history', 'finance-balance']) {
+    // Only this sheet refetches its rows; the other open sheets stay as they are.
+    queryClient.invalidateQueries({ queryKey: ['payout-sheet', month, className] });
+    for (const key of ['payout-sheets', 'payout-history', 'finance-balance']) {
       queryClient.invalidateQueries({ queryKey: [key] });
     }
   };
@@ -139,21 +156,15 @@ export default function PayoutSheetPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col">
-          <SubpageHeader title={t('finance.sheets.title', { name: sheet.className })} to="/billing/payouts" />
-          <span className="text-sm text-muted-foreground capitalize">{formatMonth(sheet.month, locale)}</span>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+        <span className="text-sm text-muted-foreground">
+          {sheet.teachers.length > 0 && t('finance.sheets.teachers', { names: sheet.teachers.join(', ') })}
+        </span>
         <SheetStatus
           status={sheet.status}
-          className="mt-3 rounded-sm border border-current px-2 py-0.5 font-heading uppercase"
+          className="rounded-sm border border-current px-2 py-0.5 font-heading uppercase"
         />
       </div>
-      {sheet.teachers.length > 0 && (
-        <p className="border-b border-border pb-3 text-sm text-muted-foreground">
-          {t('finance.sheets.teachers', { names: sheet.teachers.join(', ') })}
-        </p>
-      )}
 
       <ul className="flex flex-col gap-2">
         {sheet.rows.map((r) => (
